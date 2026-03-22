@@ -185,25 +185,6 @@ body {
   font-size: 12px;
 }
 
-/* ========== Scene Backgrounds ========== */
-.scene-bg {
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  overflow: hidden;
-  pointer-events: none;
-}
-
-.scene-base {
-  position: absolute;
-  inset: 0;
-}
-
-.scene-layer {
-  position: absolute;
-  pointer-events: none;
-}
-
 /* ========== Glass Card ========== */
 .glass-card {
   background: var(--glass-bg);

@@ -1,321 +1,181 @@
-'use client';
+import './ScreenBackground.css';
 
 type Scene = 'cafe' | 'library' | 'rooftop' | 'bedroom';
 
-function CafeBackground() {
+function CafeScene() {
   return (
-    <div className="scene-bg">
-      {/* Base warm dark brown */}
-      <div className="scene-base" style={{ background: '#1a1410' }} />
-
-      {/* Window shape with moonlight */}
-      <div
-        className="scene-layer"
-        style={{
-          top: '6%',
-          left: '10%',
-          width: 'min(420px, 45%)',
-          height: '50%',
-          borderRadius: 20,
-          background: 'linear-gradient(180deg, rgba(80, 100, 140, 0.08) 0%, rgba(60, 80, 110, 0.03) 100%)',
-          border: '1px solid rgba(255, 248, 235, 0.04)',
-        }}
-      />
-      {/* Moonlight glow through window */}
-      <div
-        className="scene-layer"
-        style={{
-          top: '8%',
-          left: '18%',
-          width: '200px',
-          height: '200px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(180, 200, 230, 0.06) 0%, transparent 70%)',
-        }}
-      />
-
-      {/* Desk surface */}
-      <div
-        className="scene-layer"
-        style={{
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: '12%',
-          background: 'linear-gradient(to top, #2A1F15, #3D2B1F 40%, transparent)',
-        }}
-      />
-
-      {/* Plant silhouette */}
-      <div className="scene-layer" style={{ bottom: '11%', right: '20%' }}>
-        {/* Stem */}
-        <div style={{
-          position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)',
-          width: 3, height: 40, background: 'rgba(60, 90, 60, 0.3)',
-        }} />
-        {/* Leaf 1 */}
-        <div style={{
-          position: 'absolute', bottom: 25, left: '50%',
-          width: 0, height: 0,
-          borderLeft: '12px solid transparent',
-          borderRight: '12px solid transparent',
-          borderBottom: '28px solid rgba(60, 100, 60, 0.2)',
-          transform: 'translateX(-50%) rotate(-8deg)',
-        }} />
-        {/* Leaf 2 */}
-        <div style={{
-          position: 'absolute', bottom: 35, left: '50%',
-          width: 0, height: 0,
-          borderLeft: '10px solid transparent',
-          borderRight: '10px solid transparent',
-          borderBottom: '22px solid rgba(50, 90, 50, 0.18)',
-          transform: 'translateX(-30%) rotate(12deg)',
-        }} />
+    <div className="scene-bg cafe">
+      <div className="wall" />
+      <div className="window">
+        <div className="moonlight" />
+        <div className="stars" style={{ top: '20%', left: '25%' }} />
+        <div className="stars" style={{ top: '35%', left: '65%' }} />
+        <div className="stars" style={{ top: '15%', left: '80%', width: 2, height: 2, opacity: 0.5 }} />
       </div>
-
-      {/* Amber lamp glow */}
-      <div
-        className="scene-layer"
-        style={{
-          top: '15%',
-          right: '25%',
-          width: '180px',
-          height: '180px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(212, 168, 67, 0.1) 0%, rgba(212, 168, 67, 0.03) 40%, transparent 70%)',
-        }}
-      />
-      {/* Warm ambient overlay */}
-      <div
-        className="scene-layer"
-        style={{
-          inset: 0,
-          background: 'radial-gradient(ellipse 500px 400px at 70% 20%, rgba(212, 168, 67, 0.08) 0%, transparent 60%)',
-        }}
-      />
+      <div className="desk-surface" />
+      <div className="desk" />
+      <div className="plant">
+        <div className="plant-leaf l1" />
+        <div className="plant-leaf l2" />
+        <div className="plant-leaf l3" />
+        <div className="plant-stem" />
+        <div className="plant-pot" />
+      </div>
+      <div className="lamp">
+        <div className="lamp-glow" />
+        <div className="lamp-shade" />
+      </div>
+      <div className="mug" style={{ bottom: 40, right: '32%' }}>
+        <div className="mug-handle" />
+        <div className="steam" />
+        <div className="steam" style={{ left: 8, animationDelay: '0.7s' }} />
+      </div>
     </div>
   );
 }
 
-function LibraryBackground() {
-  const bookColors = [
-    { color: 'var(--accent-lavender)', h: 65 },
-    { color: 'var(--accent-sage)', h: 50 },
-    { color: 'var(--accent-amber)', h: 72 },
-    { color: 'var(--accent-coral)', h: 55 },
-    { color: 'var(--accent-lavender)', h: 80 },
-    { color: 'var(--accent-sage)', h: 60 },
-    { color: 'var(--accent-amber)', h: 45 },
+function LibraryScene() {
+  const leftBooks = [
+    { w: 6, h: 32, bg: 'rgba(196,181,212,0.15)' },
+    { w: 8, h: 40, bg: 'rgba(143,175,138,0.12)' },
+    { w: 5, h: 28, bg: 'rgba(212,168,67,0.12)' },
+    { w: 7, h: 36, bg: 'rgba(232,133,106,0.10)' },
+    { w: 6, h: 44, bg: 'rgba(196,181,212,0.10)' },
+    { w: 8, h: 30, bg: 'rgba(135,206,235,0.08)' },
+    { w: 5, h: 38, bg: 'rgba(143,175,138,0.10)' },
+  ];
+  const rightBooks = [
+    { w: 7, h: 38, bg: 'rgba(232,133,106,0.12)' },
+    { w: 5, h: 30, bg: 'rgba(196,181,212,0.10)' },
+    { w: 8, h: 42, bg: 'rgba(212,168,67,0.10)' },
+    { w: 6, h: 34, bg: 'rgba(143,175,138,0.12)' },
+    { w: 7, h: 26, bg: 'rgba(135,206,235,0.10)' },
+    { w: 5, h: 40, bg: 'rgba(232,133,106,0.08)' },
   ];
 
   return (
-    <div className="scene-bg">
-      {/* Base dark wood */}
-      <div className="scene-base" style={{ background: '#16120e' }} />
-
-      {/* Left bookshelf */}
-      <div className="scene-layer" style={{ top: 0, left: 0, bottom: 0, width: 70, display: 'flex', gap: 3, padding: '8px 8px', alignItems: 'flex-end' }}>
-        {bookColors.map((book, i) => (
-          <div key={`l-${i}`} style={{
-            width: 6, height: `${book.h}%`,
-            background: book.color, opacity: 0.12,
-            borderRadius: '2px 2px 0 0',
-          }} />
+    <div className="scene-bg library">
+      <div className="shelf-left">
+        {leftBooks.map((b, i) => (
+          <div key={i} className="book" style={{ width: b.w, height: b.h, background: b.bg }} />
         ))}
+        <div className="shelf-bar" style={{ bottom: 0 }} />
+        <div className="shelf-bar" style={{ bottom: '50%' }} />
       </div>
-
-      {/* Right bookshelf */}
-      <div className="scene-layer" style={{ top: 0, right: 0, bottom: 0, width: 55, display: 'flex', gap: 3, padding: '8px 8px', alignItems: 'flex-end' }}>
-        {[...bookColors].reverse().map((book, i) => (
-          <div key={`r-${i}`} style={{
-            width: 5, height: `${book.h + 10}%`,
-            background: book.color, opacity: 0.1,
-            borderRadius: '2px 2px 0 0',
-          }} />
+      <div className="shelf-right">
+        {rightBooks.map((b, i) => (
+          <div key={i} className="book" style={{ width: b.w, height: b.h, background: b.bg }} />
         ))}
+        <div className="shelf-bar" style={{ bottom: 0 }} />
+        <div className="shelf-bar" style={{ bottom: '50%' }} />
       </div>
-
-      {/* Reading lamp glow */}
-      <div
-        className="scene-layer"
-        style={{
-          top: '20%',
-          left: '50%',
-          transform: 'translateX(-50%)',
-          width: '300px',
-          height: '300px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(245, 237, 214, 0.06) 0%, rgba(212, 168, 67, 0.03) 40%, transparent 70%)',
-        }}
-      />
-
-      {/* Wooden table surface */}
-      <div
-        className="scene-layer"
-        style={{
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: '10%',
-          background: 'linear-gradient(to top, #1A1208 0%, #2A1F10 50%, transparent)',
-        }}
-      />
+      <div className="lamp-glow" />
+      <div className="table" />
+      <div className="floor" />
     </div>
   );
 }
 
-function RooftopBackground() {
-  const lights = Array.from({ length: 9 }, (_, i) => ({
-    x: 8 + i * 10,
-    y: 5 + Math.sin(i * 0.7) * 2,
-  }));
+function RooftopScene() {
+  const lights = [
+    { top: 52, left: '10%' },
+    { top: 62, left: '22%' },
+    { top: 55, left: '35%' },
+    { top: 60, left: '48%' },
+    { top: 72, left: '60%' },
+    { top: 58, left: '72%' },
+    { top: 54, left: '84%' },
+    { top: 64, left: '93%' },
+  ];
+  const buildings = [
+    { left: '5%', width: '8%', height: 30 },
+    { left: '15%', width: '6%', height: 40 },
+    { left: '25%', width: '10%', height: 25 },
+    { left: '55%', width: '7%', height: 35 },
+    { left: '68%', width: '12%', height: 28 },
+    { left: '85%', width: '8%', height: 42 },
+  ];
+  const railPosts = ['8%', '28%', '48%', '68%', '88%'];
+  const leaves = [
+    { bottom: '8%', left: '3%', borderRight: '16px solid transparent', borderBottom: '24px solid rgba(45,74,42,0.15)' },
+    { bottom: '12%', left: 0, borderRight: '12px solid transparent', borderBottom: '20px solid rgba(45,74,42,0.10)' },
+    { bottom: '6%', right: '2%', borderLeft: '14px solid transparent', borderBottom: '22px solid rgba(45,74,42,0.12)' },
+    { bottom: '10%', right: '5%', borderLeft: '10px solid transparent', borderBottom: '18px solid rgba(45,74,42,0.08)' },
+  ];
 
   return (
-    <div className="scene-bg">
-      {/* Deep blue-purple sky gradient */}
-      <div className="scene-base" style={{
-        background: 'linear-gradient(180deg, #0a0a1a 0%, #12102a 40%, #1a1028 100%)',
-      }} />
-
-      {/* String lights */}
+    <div className="scene-bg rooftop">
+      {/* String lights wire */}
       <svg
-        className="scene-layer"
-        style={{ inset: 0, width: '100%', height: '100%' }}
-        viewBox="0 0 100 100"
+        viewBox="0 0 400 40"
         preserveAspectRatio="none"
+        style={{ position: 'absolute', top: 40, left: '5%', right: '5%', width: '90%', height: 40 }}
       >
-        {/* Wire path */}
         <path
-          d={`M ${lights.map((l) => `${l.x},${l.y}`).join(' L ')}`}
+          d="M0,5 Q50,28 100,18 Q150,8 200,22 Q250,35 300,15 Q350,5 400,20"
           fill="none"
-          stroke="rgba(212, 168, 67, 0.08)"
-          strokeWidth="0.15"
+          stroke="rgba(245,237,214,0.06)"
+          strokeWidth="1"
         />
-        {/* Light bulbs */}
-        {lights.map((l, i) => (
-          <circle
-            key={i}
-            cx={l.x} cy={l.y + 0.8}
-            r="0.5"
-            fill="var(--accent-amber)"
-            opacity={0.15 + (i % 3) * 0.05}
-          />
-        ))}
       </svg>
 
-      {/* Ambient glow from string lights */}
-      <div
-        className="scene-layer"
-        style={{
-          top: 0, left: '5%', right: '5%', height: '20%',
-          background: 'radial-gradient(ellipse 80% 100% at 50% 0%, rgba(212, 168, 67, 0.04) 0%, transparent 70%)',
-        }}
-      />
+      {/* Light bulbs */}
+      {lights.map((l, i) => (
+        <div key={i} className="light" style={{ top: l.top, left: l.left }} />
+      ))}
 
-      {/* Left leaf silhouette */}
-      <div className="scene-layer" style={{ bottom: 0, left: 0 }}>
-        <div style={{
-          width: 0, height: 0,
-          borderLeft: '80px solid rgba(20, 50, 20, 0.25)',
-          borderTop: '120px solid transparent',
-        }} />
-      </div>
-      <div className="scene-layer" style={{ bottom: 0, left: 30 }}>
-        <div style={{
-          width: 0, height: 0,
-          borderLeft: '50px solid rgba(25, 60, 25, 0.18)',
-          borderTop: '90px solid transparent',
-        }} />
+      {/* City skyline */}
+      <div className="city">
+        {buildings.map((b, i) => (
+          <div key={i} className="building" style={{ left: b.left, width: b.width, height: b.height }} />
+        ))}
       </div>
 
-      {/* Right leaf silhouette */}
-      <div className="scene-layer" style={{ bottom: 0, right: 0 }}>
-        <div style={{
-          width: 0, height: 0,
-          borderRight: '60px solid rgba(20, 50, 20, 0.2)',
-          borderTop: '100px solid transparent',
-        }} />
-      </div>
+      {/* Railing */}
+      <div className="railing" />
+      {railPosts.map((left, i) => (
+        <div key={i} className="railing-post" style={{ left }} />
+      ))}
+
+      <div className="floor-glow" />
+
+      {/* Leaf silhouettes */}
+      {leaves.map((style, i) => (
+        <div key={i} className="leaf" style={style as React.CSSProperties} />
+      ))}
     </div>
   );
 }
 
-function BedroomBackground() {
+function BedroomScene() {
   return (
-    <div className="scene-bg">
-      {/* Base mauve-brown */}
-      <div className="scene-base" style={{
-        background: 'linear-gradient(180deg, #141018 0%, #16121a 100%)',
-      }} />
-
-      {/* Window with cool moonlight */}
-      <div
-        className="scene-layer"
-        style={{
-          top: '10%',
-          right: '15%',
-          width: '140px',
-          height: '180px',
-          borderRadius: 8,
-          background: 'rgba(120, 140, 180, 0.04)',
-          border: '1px solid rgba(120, 140, 180, 0.06)',
-        }}
-      />
-      {/* Moonlight glow */}
-      <div
-        className="scene-layer"
-        style={{
-          top: '8%',
-          right: '12%',
-          width: '200px',
-          height: '220px',
-          borderRadius: '50%',
-          background: 'radial-gradient(circle, rgba(150, 170, 210, 0.05) 0%, transparent 60%)',
-        }}
-      />
-
-      {/* Shelf 1 */}
-      <div
-        className="scene-layer"
-        style={{
-          top: '25%',
-          left: '8%',
-          width: '120px',
-          height: '4px',
-          borderRadius: 2,
-          background: 'rgba(255, 248, 235, 0.04)',
-        }}
-      />
-      {/* Shelf 2 */}
-      <div
-        className="scene-layer"
-        style={{
-          top: '40%',
-          left: '5%',
-          width: '90px',
-          height: '4px',
-          borderRadius: 2,
-          background: 'rgba(255, 248, 235, 0.03)',
-        }}
-      />
-
-      {/* Warm ambient from lower area */}
-      <div
-        className="scene-layer"
-        style={{
-          inset: 0,
-          background: 'radial-gradient(ellipse 500px 350px at 30% 75%, rgba(180, 140, 120, 0.03) 0%, transparent 60%)',
-        }}
-      />
+    <div className="scene-bg bedroom">
+      <div className="wall" />
+      <div className="window">
+        <div className="moonlight" />
+        <div className="curtain-l" />
+        <div className="curtain-r" />
+      </div>
+      <div className="shelf s1">
+        <div className="shelf-item" style={{ left: '10%', width: 12, height: 14 }} />
+        <div className="shelf-item" style={{ left: '35%', width: 8, height: 10 }} />
+        <div className="shelf-item" style={{ left: '60%', width: 14, height: 8, borderRadius: '50%' }} />
+      </div>
+      <div className="shelf s2">
+        <div className="shelf-item" style={{ left: '15%', width: 10, height: 16 }} />
+        <div className="shelf-item" style={{ left: '50%', width: 6, height: 12 }} />
+      </div>
+      <div className="floor" />
+      <div className="rug" />
     </div>
   );
 }
 
 export default function ScreenBackground({ scene }: { scene: Scene }) {
   switch (scene) {
-    case 'cafe': return <CafeBackground />;
-    case 'library': return <LibraryBackground />;
-    case 'rooftop': return <RooftopBackground />;
-    case 'bedroom': return <BedroomBackground />;
+    case 'cafe': return <CafeScene />;
+    case 'library': return <LibraryScene />;
+    case 'rooftop': return <RooftopScene />;
+    case 'bedroom': return <BedroomScene />;
   }
 }
