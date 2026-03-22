@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>pebble — Design Thinking</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;700&family=Nunito:wght@400;600;700&family=JetBrains+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg-deep: #0F0D0A;
+    --bg-surface: rgba(255, 248, 235, 0.06);
+    --glass-bg: rgba(255, 248, 235, 0.08);
+    --glass-border: rgba(255, 248, 235, 0.12);
+    --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+    --accent-lavender: #C4B5D4;
+    --accent-sage: #8FAF8A;
+    --accent-amber: #D4A843;
+    --accent-coral: #E8856A;
+    --accent-cream: #F5EDD6;
+    --text-primary: #F5EDD6;
+    --text-secondary: rgba(245, 237, 214, 0.65);
+    --text-muted: rgba(245, 237, 214, 0.35);
+    --border-soft: rgba(255, 248, 235, 0.10);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: 'Nunito', sans-serif;
+    line-height: 1.6;
+    padding: 0;
+  }
+
+  .page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 60px 48px 80px;
+  }
+
+  /* ===== Header ===== */
+  .doc-header {
+    text-align: center;
+    margin-bottom: 72px;
+    padding-bottom: 48px;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .doc-header h1 {
+    font-family: 'Baloo 2', cursive;
+    font-size: 42px;
+    font-weight: 700;
+    color: var(--accent-lavender);
+    margin-bottom: 8px;
+    letter-spacing: -0.5px;
+  }
+  .doc-header .tagline {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+  }
+  .doc-header .meta {
+    display: flex;
+    justify-content: center;
+    gap: 32px;
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .doc-header .meta span { display: flex; align-items: center; gap: 6px; }
+
+  /* ===== Section ===== */
+  .section {
+    margin-bottom: 64px;
+  }
+  .section-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--accent-lavender);
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    opacity: 0.7;
+  }
+  .section-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 28px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+  }
+  .section-subtitle {
+    font-size: 14px;
+    color: var(--text-secondary);
+    margin-bottom: 32px;
+    max-width: 700px;
+  }
+
+  /* ===== Glass Card ===== */
+  .card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+    border-radius: 16px;
+    padding: 28px;
+  }
+
+  /* ===== Empathy Maps ===== */
+  .empathy-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+  .empathy-card {
+    padding: 0;
+    overflow: hidden;
+  }
+  .empathy-header {
+    padding: 18px 24px;
+    border-bottom: 1px solid var(--border-soft);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .empathy-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+  .empathy-name {
+    font-family: 'Baloo 2', cursive;
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .empathy-label {
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .empathy-quads {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    grid-template-rows: 1fr 1fr;
+  }
+  .empathy-quad {
+    padding: 16px 20px;
+    border-right: 1px solid var(--border-soft);
+    border-bottom: 1px solid var(--border-soft);
+    min-height: 140px;
+  }
+  .empathy-quad:nth-child(2) { border-right: none; }
+  .empathy-quad:nth-child(4) { border-right: none; }
+  .empathy-quad:nth-child(3), .empathy-quad:nth-child(4) { border-bottom: none; }
+  .empathy-quad-title {
+    font-family: 'Nunito', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .empathy-quad-title .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .empathy-quote {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    margin-bottom: 4px;
+    padding-left: 10px;
+    border-left: 2px solid var(--border-soft);
+  }
+  .empathy-item {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.7;
+    padding-left: 14px;
+    position: relative;
+  }
+  .empathy-item::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 9px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: var(--border-soft);
+  }
+
+  /* ===== Persona Spectrum ===== */
+  .spectrum-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+  }
+  .spectrum-table th {
+    font-family: 'Nunito', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    padding: 14px 20px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .spectrum-table td {
+    padding: 16px 20px;
+    color: var(--text-secondary);
+    border-bottom: 1px solid rgba(255, 248, 235, 0.04);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .spectrum-table tr:last-child td { border-bottom: none; }
+  .spectrum-table td:first-child {
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+  }
+  .spectrum-tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+    margin-right: 4px;
+  }
+  .spectrum-note {
+    margin-top: 20px;
+    padding: 16px 20px;
+    background: rgba(196, 181, 212, 0.06);
+    border-left: 3px solid var(--accent-lavender);
+    border-radius: 0 10px 10px 0;
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+  }
+  .spectrum-note strong { color: var(--accent-lavender); font-weight: 700; }
+  .spectrum-note .ref {
+    display: block;
+    margin-top: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+  }
+
+  /* ===== Journey Map ===== */
+  .journey-timeline {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .journey-timeline::before {
+    content: '';
+    position: absolute;
+    left: 24px;
+    top: 40px;
+    bottom: 40px;
+    width: 2px;
+    background: linear-gradient(180deg, var(--accent-lavender), var(--accent-sage), var(--accent-amber));
+    border-radius: 1px;
+  }
+  .journey-stage {
+    display: flex;
+    gap: 24px;
+    padding: 20px 0;
+    position: relative;
+  }
+  .journey-dot-col {
+    width: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex-shrink: 0;
+    padding-top: 4px;
+  }
+  .journey-dot {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    border: 3px solid;
+    background: var(--bg-deep);
+    z-index: 1;
+  }
+  .journey-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    color: var(--text-muted);
+    margin-top: 6px;
+  }
+  .journey-content {
+    flex: 1;
+    padding-bottom: 8px;
+  }
+  .journey-stage-name {
+    font-family: 'Baloo 2', cursive;
+    font-size: 16px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .journey-quote {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-style: italic;
+    margin-bottom: 12px;
+  }
+  .journey-details {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 12px;
+  }
+  .journey-detail {
+    background: rgba(255, 248, 235, 0.04);
+    border-radius: 10px;
+    padding: 12px 14px;
+  }
+  .journey-detail-label {
+    font-size: 9px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+  }
+  .journey-detail-text {
+    font-size: 12px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+  /* Emotion bar */
+  .journey-emotion-bar {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 10px;
+  }
+  .emotion-segment {
+    height: 4px;
+    border-radius: 2px;
+    flex: 1;
+  }
+
+  /* ===== HMW Cards ===== */
+  .hmw-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+  }
+  .hmw-card {
+    padding: 32px 28px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hmw-card::before {
+    content: 'HMW';
+    position: absolute;
+    top: 14px;
+    right: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    opacity: 0.25;
+  }
+  .hmw-text {
+    font-family: 'Baloo 2', cursive;
+    font-size: 17px;
+    font-weight: 400;
+    line-height: 1.5;
+    color: var(--text-primary);
+  }
+  .hmw-accent {
+    width: 40px;
+    height: 3px;
+    border-radius: 2px;
+    margin-bottom: 18px;
+  }
+
+  /* ===== Principles ===== */
+  .principles-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+  }
+  .principle-card {
+    padding: 24px 20px;
+    text-align: center;
+    position: relative;
+  }
+  .principle-number {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 28px;
+    font-weight: 400;
+    opacity: 0.12;
+    position: absolute;
+    top: 12px;
+    right: 16px;
+  }
+  .principle-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    margin: 0 auto 14px;
+  }
+  .principle-title {
+    font-family: 'Baloo 2', cursive;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 8px;
+    line-height: 1.3;
+  }
+  .principle-desc {
+    font-size: 11px;
+    color: var(--text-muted);
+    line-height: 1.5;
+  }
+
+  /* ===== Solution Map ===== */
+  .solution-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+  }
+  .solution-table th {
+    font-family: 'Nunito', sans-serif;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    padding: 14px 20px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .solution-table td {
+    padding: 14px 20px;
+    border-bottom: 1px solid rgba(255, 248, 235, 0.04);
+    vertical-align: top;
+    line-height: 1.5;
+  }
+  .solution-table tr:last-child td { border-bottom: none; }
+  .solution-table td:first-child {
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    font-size: 12px;
+  }
+  .solution-table td:nth-child(2) { color: var(--text-secondary); }
+  .solution-table td:nth-child(3) {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+  }
+  .solution-pill {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 600;
+    background: rgba(196, 181, 212, 0.1);
+    color: var(--accent-lavender);
+    margin: 1px 2px;
+  }
+
+  /* ===== Footer ===== */
+  .doc-footer {
+    margin-top: 64px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border-soft);
+    text-align: center;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+  .doc-footer .brand {
+    font-family: 'Baloo 2', cursive;
+    font-size: 18px;
+    color: var(--accent-lavender);
+    margin-bottom: 4px;
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- ===== HEADER ===== -->
+  <div class="doc-header">
+    <h1>pebble</h1>
+    <div class="tagline">Design Thinking Documentation — UX Research & Strategy</div>
+    <div class="meta">
+      <span>your calm corner for getting things done</span>
+      <span>|</span>
+      <span>AI-Powered Cognitive Load Reduction</span>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 1: EMPATHY MAPS ===== -->
+  <div class="section">
+    <div class="section-number">Section 01</div>
+    <div class="section-title">Empathy Maps</div>
+    <div class="section-subtitle">Understanding the lived experience of our primary users — what they say, think, do, and feel when facing cognitive challenges.</div>
+
+    <div class="empathy-grid">
+      <!-- User 1: ADHD -->
+      <div class="card empathy-card">
+        <div class="empathy-header">
+          <div class="empathy-avatar" style="background: rgba(196,181,212,0.2); color: var(--accent-lavender);">&#9672;</div>
+          <div>
+            <div class="empathy-name" style="color: var(--accent-lavender);">Person with ADHD</div>
+            <div class="empathy-label">Executive function, focus, task initiation</div>
+          </div>
+        </div>
+        <div class="empathy-quads">
+          <div class="empathy-quad">
+            <div class="empathy-quad-title"><div class="dot" style="background: var(--accent-lavender);"></div><span style="color: var(--accent-lavender);">Says</span></div>
+            <div class="empathy-quote">"I'll do it later"</div>
+            <div class="empathy-quote">"I forgot again"</div>
+            <div class="empathy-quote">"I just can't start"</div>
+          </div>
+          <div class="empathy-quad">
+            <div class="empathy-quad-title"><div class="dot" style="background: var(--accent-amber);"></div><span style="color: var(--accent-amber);">Thinks</span></div>
+            <div class="empathy-quote">"Why can't I just DO the thing?"</div>
+            <div class="empathy-quote">"Everyone else manages fine"</div>
+            <div class="empathy-quote">"Maybe if I reorganize my list again..."</div>
+          </div>
+          <div class="empathy-quad">
+            <div class="empathy-quad-title"><div class="dot" style="background: var(--accent-sage);"></div><span style="color: var(--accent-sage);">Does</span></div>
+            <div class="empathy-item">Opens 15 tabs simultaneously</div>
+            <div class="empathy-item">Rewrites to-do lists repeatedly</div>
+            <div class="empathy-item">Starts tasks then abandons them</div>
+            <div class="empathy-item">Hyperfocuses on wrong things</div>
+            <div class="empathy-item">Avoids "boring" tasks entirely</div>
+          </div>
+          <div class="empathy-quad">
+            <div class="empathy-quad-title"><div class="dot" style="background: var(--accent-coral);"></div><span style="color: var(--accent-coral);">Feels</span></div>
+            <div class="empathy-item">Frustrated by gap between intention and action</div>
+            <div class="empathy-item">Ashamed of unfinished work</div>
+            <div class="empathy-item">Overwhelmed by large undefined tasks</div>
+            <div class="empathy-item">Relieved when someone breaks things down</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- User 2: Autism -->
+      <div class="card empathy-card">
+        <div class="empathy-header">
+          <div class="empathy-avatar" style="background: rgba(143,175,138,0.2); color: var(--accent-sage);">&#9670;</div>
+          <div>
+            <div class="empathy-name" style="color: var(--accent-sage);">Person with Autism</div>
+            <div class="empathy-label">Structure, predictability, sensory needs</div>
+          </div>
+        </div>
+        <div class="empathy-quads">
+          <div class="empathy-quad">
+            <div class="empathy-quad-title"><div class="dot" style="background: var(--accent-lavender);"></div><span style="color: var(--accent-lavender);">Says</span></div>
+            <div class="empathy-quote">"What exactly do you mean?"</div>
+            <div class="empathy-quote">"Can you be more specific?"</div>
+            <div class="empathy-quote">"I need to know the steps"</div>
+          </div>
+          <div class="empathy-quad">
+            <div class="empathy-quad-title"><div class="dot" style="background: var(--accent-amber);"></div><span style="color: var(--accent-amber);">Thinks</span></div>
+            <div class="empathy-quote">"This is too vague"</div>
+            <div class="empathy-quote">"Why did they change the interface?"</div>
+            <div class="empathy-quote">"I need to prepare for this"</div>
+          </div>
+          <div class="empathy-quad">
+            <div class="empathy-quad-title"><div class="dot" style="background: var(--accent-sage);"></div><span style="color: var(--accent-sage);">Does</span></div>
+            <div class="empathy-item">Creates rigid routines</div>
+            <div class="empathy-item">Avoids ambiguous instructions</div>
+            <div class="empathy-item">Gets stressed by UI changes</div>
+            <div class="empathy-item">Prefers written over verbal</div>
+          </div>
+          <div class="empathy-quad">
+            <div class="empathy-quad-title"><div class="dot" style="background: var(--accent-coral);"></div><span style="color: var(--accent-coral);">Feels</span></div>
+            <div class="empathy-item">Anxious when routines break</div>
+            <div class="empathy-item">Safe in structured environments</div>
+            <div class="empathy-item">Overwhelmed by sensory-heavy interfaces</div>
+            <div class="empathy-item">Calm with predictable systems</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- User 3: Dyslexia -->
+      <div class="card empathy-card">
+        <div class="empathy-header">
+          <div class="empathy-avatar" style="background: rgba(212,168,67,0.2); color: var(--accent-amber);">&#9671;</div>
+          <div>
+            <div class="empathy-name" style="color: var(--accent-amber);">Person with Dyslexia</div>
+            <div class="empathy-label">Reading processing, text comprehension</div>
+          </div>
+        </div>
+        <div class="empathy-quads">
+          <div class="empathy-quad">
+            <div class="empathy-quad-title"><div class="dot" style="background: var(--accent-lavender);"></div><span style="color: var(--accent-lavender);">Says</span></div>
+            <div class="empathy-quote">"Can you explain that simpler?"</div>
+            <div class="empathy-quote">"I read it three times and still don't get it"</div>
+            <div class="empathy-quote">"Too many words"</div>
+          </div>
+          <div class="empathy-quad">
+            <div class="empathy-quad-title"><div class="dot" style="background: var(--accent-amber);"></div><span style="color: var(--accent-amber);">Thinks</span></div>
+            <div class="empathy-quote">"This document is a wall of text"</div>
+            <div class="empathy-quote">"I'm not stupid, I just process differently"</div>
+            <div class="empathy-quote">"I wish there was an audio version"</div>
+          </div>
+          <div class="empathy-quad">
+            <div class="empathy-quad-title"><div class="dot" style="background: var(--accent-sage);"></div><span style="color: var(--accent-sage);">Does</span></div>
+            <div class="empathy-item">Avoids long documents</div>
+            <div class="empathy-item">Uses text-to-speech tools</div>
+            <div class="empathy-item">Re-reads paragraphs multiple times</div>
+            <div class="empathy-item">Prefers bullet points and visuals</div>
+          </div>
+          <div class="empathy-quad">
+            <div class="empathy-quad-title"><div class="dot" style="background: var(--accent-coral);"></div><span style="color: var(--accent-coral);">Feels</span></div>
+            <div class="empathy-item">Exhausted by dense text</div>
+            <div class="empathy-item">Embarrassed asking for simpler versions</div>
+            <div class="empathy-item">Relieved when info is clear and short</div>
+            <div class="empathy-item">Confident when they understand quickly</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- User 4: Anxiety -->
+      <div class="card empathy-card">
+        <div class="empathy-header">
+          <div class="empathy-avatar" style="background: rgba(232,133,106,0.2); color: var(--accent-coral);">&#9673;</div>
+          <div>
+            <div class="empathy-name" style="color: var(--accent-coral);">Person with Anxiety</div>
+            <div class="empathy-label">Decision paralysis, avoidance, reassurance</div>
+          </div>
+        </div>
+        <div class="empathy-quads">
+          <div class="empathy-quad">
+            <div class="empathy-quad-title"><div class="dot" style="background: var(--accent-lavender);"></div><span style="color: var(--accent-lavender);">Says</span></div>
+            <div class="empathy-quote">"What if I do it wrong?"</div>
+            <div class="empathy-quote">"There's too much to do"</div>
+            <div class="empathy-quote">"I don't know where to start"</div>
+          </div>
+          <div class="empathy-quad">
+            <div class="empathy-quad-title"><div class="dot" style="background: var(--accent-amber);"></div><span style="color: var(--accent-amber);">Thinks</span></div>
+            <div class="empathy-quote">"Everything is urgent"</div>
+            <div class="empathy-quote">"If I miss this deadline everything falls apart"</div>
+            <div class="empathy-quote">"I need to check one more time"</div>
+          </div>
+          <div class="empathy-quad">
+            <div class="empathy-quad-title"><div class="dot" style="background: var(--accent-sage);"></div><span style="color: var(--accent-sage);">Does</span></div>
+            <div class="empathy-item">Avoids starting tasks</div>
+            <div class="empathy-item">Overthinks simple decisions</div>
+            <div class="empathy-item">Seeks constant reassurance</div>
+            <div class="empathy-item">Freezes with long task lists</div>
+          </div>
+          <div class="empathy-quad">
+            <div class="empathy-quad-title"><div class="dot" style="background: var(--accent-coral);"></div><span style="color: var(--accent-coral);">Feels</span></div>
+            <div class="empathy-item">Paralyzed by too many options</div>
+            <div class="empathy-item">Guilty about procrastination</div>
+            <div class="empathy-item">Calmed by clear single next steps</div>
+            <div class="empathy-item">Triggered by urgency language and red badges</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 2: PERSONA SPECTRUM ===== -->
+  <div class="section">
+    <div class="section-number">Section 02</div>
+    <div class="section-title">Persona Spectrum</div>
+    <div class="section-subtitle">Using Microsoft's Inclusive Design framework to show how designing for permanent needs extends to temporary and situational contexts.</div>
+
+    <div class="card" style="padding: 0; overflow: hidden;">
+      <table class="spectrum-table">
+        <thead>
+          <tr>
+            <th>Need</th>
+            <th>Permanent</th>
+            <th>Temporary</th>
+            <th>Situational</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="spectrum-tag" style="background: rgba(196,181,212,0.15); color: var(--accent-lavender);">Cognitive overload</span></td>
+            <td>ADHD</td>
+            <td>Concussion, sleep deprivation</td>
+            <td>Finals week, new parent</td>
+          </tr>
+          <tr>
+            <td><span class="spectrum-tag" style="background: rgba(143,175,138,0.15); color: var(--accent-sage);">Structured info need</span></td>
+            <td>Autism</td>
+            <td>Language learner in new system</td>
+            <td>Reading legal docs for first time</td>
+          </tr>
+          <tr>
+            <td><span class="spectrum-tag" style="background: rgba(212,168,67,0.15); color: var(--accent-amber);">Reading barrier</span></td>
+            <td>Dyslexia</td>
+            <td>Eye strain / injury</td>
+            <td>Phone in bright sunlight</td>
+          </tr>
+          <tr>
+            <td><span class="spectrum-tag" style="background: rgba(232,133,106,0.15); color: var(--accent-coral);">Decision paralysis</span></td>
+            <td>Anxiety disorder</td>
+            <td>Burnout, grief</td>
+            <td>Complex project, no clear start</td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="spectrum-note">
+        <strong>Designing for permanent disabilities extends benefits to 10x more people</strong> with temporary and situational needs. Every feature in pebble serves all three columns.
+        <span class="ref">Reference: Microsoft Inclusive Design Toolkit — inclusive.microsoft.design</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 3: JOURNEY MAP ===== -->
+  <div class="section">
+    <div class="section-number">Section 03</div>
+    <div class="section-title">User Journey Map</div>
+    <div class="section-subtitle">Following a person with ADHD from discovery through trust — mapping emotions, actions, and touchpoints at each stage.</div>
+
+    <div class="card" style="padding: 32px;">
+      <div class="journey-timeline">
+
+        <div class="journey-stage">
+          <div class="journey-dot-col">
+            <div class="journey-dot" style="border-color: var(--accent-lavender);"></div>
+            <div class="journey-num">01</div>
+          </div>
+          <div class="journey-content">
+            <div class="journey-stage-name" style="color: var(--accent-lavender);">Discovery</div>
+            <div class="journey-quote">"I heard about this app that helps you focus"</div>
+            <div class="journey-details">
+              <div class="journey-detail">
+                <div class="journey-detail-label" style="color: var(--accent-coral);">Emotion</div>
+                <div class="journey-detail-text">Hopeful but skeptical — "another productivity app?"</div>
+              </div>
+              <div class="journey-detail">
+                <div class="journey-detail-label" style="color: var(--accent-sage);">Action</div>
+                <div class="journey-detail-text">Opens pebble, sees Pebble the cat companion</div>
+              </div>
+              <div class="journey-detail">
+                <div class="journey-detail-label" style="color: var(--accent-amber);">Touchpoint</div>
+                <div class="journey-detail-text">First screen, Pebble greeting</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="journey-stage">
+          <div class="journey-dot-col">
+            <div class="journey-dot" style="border-color: var(--accent-sage);"></div>
+            <div class="journey-num">02</div>
+          </div>
+          <div class="journey-content">
+            <div class="journey-stage-name" style="color: var(--accent-sage);">Onboarding</div>
+            <div class="journey-quote">"Oh, it's asking about MY preferences"</div>
+            <div class="journey-details">
+              <div class="journey-detail">
+                <div class="journey-detail-label" style="color: var(--accent-coral);">Emotion</div>
+                <div class="journey-detail-text">Surprised it cares about how their brain works</div>
+              </div>
+              <div class="journey-detail">
+                <div class="journey-detail-label" style="color: var(--accent-sage);">Action</div>
+                <div class="journey-detail-text">Sets reading level, chunk size, reduces animations</div>
+              </div>
+              <div class="journey-detail">
+                <div class="journey-detail-label" style="color: var(--accent-amber);">Touchpoint</div>
+                <div class="journey-detail-text">Settings screen, accessibility preferences</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="journey-stage">
+          <div class="journey-dot-col">
+            <div class="journey-dot" style="border-color: var(--accent-amber);"></div>
+            <div class="journey-num">03</div>
+          </div>
+          <div class="journey-content">
+            <div class="journey-stage-name" style="color: var(--accent-amber);">First Task</div>
+            <div class="journey-quote">"I have to write this proposal but I can't start"</div>
+            <div class="journey-details">
+              <div class="journey-detail">
+                <div class="journey-detail-label" style="color: var(--accent-coral);">Emotion</div>
+                <div class="journey-detail-text">Overwhelmed, avoiding the task</div>
+              </div>
+              <div class="journey-detail">
+                <div class="journey-detail-label" style="color: var(--accent-sage);">Action</div>
+                <div class="journey-detail-text">Adds task, clicks "Break It Down"</div>
+              </div>
+              <div class="journey-detail">
+                <div class="journey-detail-label" style="color: var(--accent-amber);">Touchpoint</div>
+                <div class="journey-detail-text">Today screen, task decomposition</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="journey-stage">
+          <div class="journey-dot-col">
+            <div class="journey-dot" style="border-color: var(--accent-coral);"></div>
+            <div class="journey-num">04</div>
+          </div>
+          <div class="journey-content">
+            <div class="journey-stage-name" style="color: var(--accent-coral);">Breakthrough</div>
+            <div class="journey-quote">"Wait, '15 minutes' doesn't sound so bad"</div>
+            <div class="journey-details">
+              <div class="journey-detail">
+                <div class="journey-detail-label" style="color: var(--accent-coral);">Emotion</div>
+                <div class="journey-detail-text">Relief, reduced anxiety, willingness to try</div>
+              </div>
+              <div class="journey-detail">
+                <div class="journey-detail-label" style="color: var(--accent-sage);">Action</div>
+                <div class="journey-detail-text">Starts first subtask, completes it</div>
+              </div>
+              <div class="journey-detail">
+                <div class="journey-detail-label" style="color: var(--accent-amber);">Touchpoint</div>
+                <div class="journey-detail-text">Subtask with time estimate, checkbox animation</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="journey-stage">
+          <div class="journey-dot-col">
+            <div class="journey-dot" style="border-color: var(--accent-sage);"></div>
+            <div class="journey-num">05</div>
+          </div>
+          <div class="journey-content">
+            <div class="journey-stage-name" style="color: var(--accent-sage);">Momentum</div>
+            <div class="journey-quote">"I finished 3 things!"</div>
+            <div class="journey-details">
+              <div class="journey-detail">
+                <div class="journey-detail-label" style="color: var(--accent-coral);">Emotion</div>
+                <div class="journey-detail-text">Surprised pride, motivation building</div>
+              </div>
+              <div class="journey-detail">
+                <div class="journey-detail-label" style="color: var(--accent-sage);">Action</div>
+                <div class="journey-detail-text">Checks more tasks, Pebble celebrates</div>
+              </div>
+              <div class="journey-detail">
+                <div class="journey-detail-label" style="color: var(--accent-amber);">Touchpoint</div>
+                <div class="journey-detail-text">Progress path, Pebble mood change to excited</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="journey-stage">
+          <div class="journey-dot-col">
+            <div class="journey-dot" style="border-color: var(--accent-lavender);"></div>
+            <div class="journey-num">06</div>
+          </div>
+          <div class="journey-content">
+            <div class="journey-stage-name" style="color: var(--accent-lavender);">Trust</div>
+            <div class="journey-quote">"Pebble actually understands me"</div>
+            <div class="journey-details">
+              <div class="journey-detail">
+                <div class="journey-detail-label" style="color: var(--accent-coral);">Emotion</div>
+                <div class="journey-detail-text">Emotional connection, trust in the system</div>
+              </div>
+              <div class="journey-detail">
+                <div class="journey-detail-label" style="color: var(--accent-sage);">Action</div>
+                <div class="journey-detail-text">Returns next day, Pebble remembers preferences</div>
+              </div>
+              <div class="journey-detail">
+                <div class="journey-detail-label" style="color: var(--accent-amber);">Touchpoint</div>
+                <div class="journey-detail-text">Adapted settings, morning greeting with yesterday's progress</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Emotion curve -->
+      <div style="margin-top: 28px; padding-top: 20px; border-top: 1px solid var(--border-soft);">
+        <div style="font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: var(--text-muted); margin-bottom: 10px;">Emotional Arc</div>
+        <div class="journey-emotion-bar">
+          <div class="emotion-segment" style="background: var(--accent-amber); opacity: 0.4;"></div>
+          <div class="emotion-segment" style="background: var(--accent-sage); opacity: 0.5;"></div>
+          <div class="emotion-segment" style="background: var(--accent-coral); opacity: 0.3;"></div>
+          <div class="emotion-segment" style="background: var(--accent-sage); opacity: 0.7;"></div>
+          <div class="emotion-segment" style="background: var(--accent-sage); opacity: 0.9;"></div>
+          <div class="emotion-segment" style="background: var(--accent-lavender); opacity: 1;"></div>
+        </div>
+        <div style="display: flex; justify-content: space-between; font-size: 9px; color: var(--text-muted); margin-top: 6px; font-family: 'JetBrains Mono', monospace;">
+          <span>Skeptical</span>
+          <span>Surprised</span>
+          <span>Overwhelmed</span>
+          <span>Relieved</span>
+          <span>Proud</span>
+          <span>Trusting</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 4: HOW MIGHT WE ===== -->
+  <div class="section">
+    <div class="section-number">Section 04</div>
+    <div class="section-title">Problem Statements</div>
+    <div class="section-subtitle">The "How Might We" questions that drive every design decision in pebble.</div>
+
+    <div class="hmw-grid">
+      <div class="card hmw-card">
+        <div class="hmw-accent" style="background: var(--accent-lavender);"></div>
+        <div class="hmw-text">How might we <strong>reduce the cognitive load of starting a task</strong> for someone whose brain makes starting the hardest part?</div>
+      </div>
+      <div class="card hmw-card">
+        <div class="hmw-accent" style="background: var(--accent-amber);"></div>
+        <div class="hmw-text">How might we <strong>simplify academic documents</strong> without making the reader feel talked down to?</div>
+      </div>
+      <div class="card hmw-card">
+        <div class="hmw-accent" style="background: var(--accent-sage);"></div>
+        <div class="hmw-text">How might we provide <strong>social study motivation</strong> without the sensory overwhelm of video calls?</div>
+      </div>
+      <div class="card hmw-card">
+        <div class="hmw-accent" style="background: var(--accent-coral);"></div>
+        <div class="hmw-text">How might we build an <strong>AI assistant that people with anxiety can actually trust</strong> — one that never adds pressure?</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 5: DESIGN PRINCIPLES ===== -->
+  <div class="section">
+    <div class="section-number">Section 05</div>
+    <div class="section-title">Design Principles</div>
+    <div class="section-subtitle">The five commitments that shape every feature, interaction, and word in pebble.</div>
+
+    <div class="principles-grid">
+      <div class="card principle-card">
+        <div class="principle-number">01</div>
+        <div class="principle-icon" style="background: rgba(196,181,212,0.15);">&#9881;</div>
+        <div class="principle-title">The app adapts to your brain, not the other way around</div>
+        <div class="principle-desc">Every feature respects individual cognitive preferences</div>
+      </div>
+      <div class="card principle-card">
+        <div class="principle-number">02</div>
+        <div class="principle-icon" style="background: rgba(143,175,138,0.15);">&#10003;</div>
+        <div class="principle-title">Small steps count just as much as big ones</div>
+        <div class="principle-desc">Progress is measured in movement, not perfection</div>
+      </div>
+      <div class="card principle-card">
+        <div class="principle-number">03</div>
+        <div class="principle-icon" style="background: rgba(212,168,67,0.15);">&#9788;</div>
+        <div class="principle-title">Calm is a feature, not a limitation</div>
+        <div class="principle-desc">No urgency, no guilt, no comparison, no streaks</div>
+      </div>
+      <div class="card principle-card">
+        <div class="principle-number">04</div>
+        <div class="principle-icon" style="background: rgba(232,133,106,0.15);">&#9729;</div>
+        <div class="principle-title">Show your work, Pebble</div>
+        <div class="principle-desc">Every AI decision is explainable and reversible</div>
+      </div>
+      <div class="card principle-card">
+        <div class="principle-number">05</div>
+        <div class="principle-icon" style="background: rgba(135,206,235,0.15);">&#10042;</div>
+        <div class="principle-title">Solve for one, extend to many</div>
+        <div class="principle-desc">Designing for ADHD helps anyone who's overwhelmed</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== SECTION 6: SOLUTION MAPPING ===== -->
+  <div class="section">
+    <div class="section-number">Section 06</div>
+    <div class="section-title">Solution Mapping</div>
+    <div class="section-subtitle">How each design principle maps to concrete features and the screens where they live.</div>
+
+    <div class="card" style="padding: 0; overflow: hidden;">
+      <table class="solution-table">
+        <thead>
+          <tr>
+            <th>Principle</th>
+            <th>Feature</th>
+            <th>Screen</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Adapts to brain</td>
+            <td>Reading level slider, chunk size preference, adaptive personality defaults</td>
+            <td><span class="solution-pill">Settings</span><span class="solution-pill">Documents</span></td>
+          </tr>
+          <tr>
+            <td>Small steps</td>
+            <td>Break It Down, time-boxed subtasks, progress path visualization</td>
+            <td><span class="solution-pill">Today</span></td>
+          </tr>
+          <tr>
+            <td>Calm is a feature</td>
+            <td>No streaks, calm mode, anxiety-free design language, Pebble's warm tone</td>
+            <td><span class="solution-pill">Entire app</span></td>
+          </tr>
+          <tr>
+            <td>Show your work</td>
+            <td>Why? explanation cards, Activity Log audit trail, decision explainability</td>
+            <td><span class="solution-pill">Today</span><span class="solution-pill">Activity</span></td>
+          </tr>
+          <tr>
+            <td>Solve for one</td>
+            <td>Persona Spectrum awareness, Immersive Reader, reduce animations, calm mode</td>
+            <td><span class="solution-pill">All screens</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <div class="doc-footer">
+    <div class="brand">pebble</div>
+    <div>your calm corner for getting things done</div>
+  </div>
+
+</div>
+</body>
+</html>
