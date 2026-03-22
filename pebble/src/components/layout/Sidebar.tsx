@@ -47,20 +47,13 @@ function NavIcon({ type, active }: { type: string; active: boolean }) {
       return (
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
           <circle cx="8" cy="8" r="2.5" stroke={color} strokeWidth="1.5" />
-          {[0, 60, 120, 180, 240, 300].map((angle) => {
-            const rad = (angle * Math.PI) / 180;
-            const x1 = 8 + Math.cos(rad) * 5;
-            const y1 = 8 + Math.sin(rad) * 5;
-            const x2 = 8 + Math.cos(rad) * 7;
-            const y2 = 8 + Math.sin(rad) * 7;
-            return (
-              <line
-                key={angle}
-                x1={x1} y1={y1} x2={x2} y2={y2}
-                stroke={color} strokeWidth="1.5" strokeLinecap="round"
-              />
-            );
-          })}
+          {/* Pre-computed gear spokes to avoid SSR/client float mismatch */}
+          <line x1="13" y1="8" x2="15" y2="8" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="10.5" y1="12.33" x2="11.5" y2="14.06" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="5.5" y1="12.33" x2="4.5" y2="14.06" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="3" y1="8" x2="1" y2="8" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="5.5" y1="3.67" x2="4.5" y2="1.94" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+          <line x1="10.5" y1="3.67" x2="11.5" y2="1.94" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
         </svg>
       );
     default:
