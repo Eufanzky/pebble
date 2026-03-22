@@ -33,18 +33,15 @@ export function TasksProvider({ children }: { children: ReactNode }) {
 
   const toggleTask = useCallback(
     (id: string) => {
-      setTasks((prev) => {
-        const updated = prev.map((t) =>
-          t.id === id ? { ...t, completed: !t.completed } : t
-        );
-        const task = prev.find((t) => t.id === id);
-        if (task && !task.completed) {
-          flashMood('excited', 2000);
-        }
-        return updated;
-      });
+      const task = tasks.find((t) => t.id === id);
+      setTasks((prev) =>
+        prev.map((t) => (t.id === id ? { ...t, completed: !t.completed } : t))
+      );
+      if (task && !task.completed) {
+        flashMood('excited', 2000);
+      }
     },
-    [setTasks, flashMood]
+    [tasks, setTasks, flashMood]
   );
 
   const toggleSubtask = useCallback(
