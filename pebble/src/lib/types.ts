@@ -22,8 +22,16 @@ export interface DocumentItem {
   title: string;
   type: 'academic' | 'technical' | 'meeting';
   tags: string[];
-  levels: { [key: number]: string };
   original: string;
+  levels: Record<number, string>;
+  extractedTasks: Array<{ title: string; timeEstimate: string; tag: string }>;
+  comprehensionQuestion: {
+    question: string;
+    correctAnswer: string;
+    wrongAnswer: string;
+    pebbleCorrect: string;
+    pebbleWrong: string;
+  };
 }
 
 export interface ActivityEntry {
