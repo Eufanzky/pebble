@@ -1,0 +1,295 @@
+/* ========== Task Card ========== */
+.task-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: 16px;
+  padding: 16px 20px;
+  border-left: 3px solid var(--tag-color);
+  transition: transform 0.2s ease, opacity 0.3s ease, box-shadow 0.2s ease;
+  position: relative;
+}
+
+.task-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
+}
+
+.task-card.completed {
+  opacity: 0.5;
+}
+
+.task-card.completed:hover {
+  transform: none;
+  box-shadow: var(--glass-shadow);
+}
+
+/* ========== Checkbox ========== */
+.task-checkbox {
+  width: 24px;
+  height: 24px;
+  min-width: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--text-muted);
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  color: transparent;
+  font-size: 13px;
+  font-weight: 700;
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.task-checkbox:hover {
+  border-color: var(--accent-sage);
+  transform: scale(1.1);
+}
+
+@keyframes checkbox-fill {
+  0% { transform: scale(0); }
+  60% { transform: scale(1.15); }
+  100% { transform: scale(1); }
+}
+
+.task-checkbox.checked {
+  background: var(--accent-sage);
+  border-color: var(--accent-sage);
+  color: var(--bg-deep);
+  animation: checkbox-fill 0.2s ease-out;
+}
+
+/* ========== Title strikethrough ========== */
+.task-title {
+  position: relative;
+  display: inline;
+}
+
+.task-title-strike {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  height: 1.5px;
+  background: var(--text-muted);
+  border-radius: 1px;
+  pointer-events: none;
+}
+
+@keyframes strike-wipe {
+  from { width: 0; }
+  to { width: 100%; }
+}
+
+.task-title-strike.animate {
+  animation: strike-wipe 0.4s ease-out forwards;
+}
+
+.task-title-strike.instant {
+  width: 100%;
+}
+
+/* ========== Tag pill ========== */
+.task-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: opacity 0.2s ease;
+}
+
+/* ========== Break It Down button ========== */
+.break-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border: 1px solid rgba(196, 181, 212, 0.2);
+  border-radius: 8px;
+  background: rgba(196, 181, 212, 0.08);
+  color: var(--accent-lavender);
+  font-family: var(--font-nunito);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.break-btn:hover {
+  background: rgba(196, 181, 212, 0.16);
+  border-color: rgba(196, 181, 212, 0.3);
+  box-shadow: 0 0 12px rgba(196, 181, 212, 0.1);
+}
+
+.break-btn .sparkle {
+  font-size: 12px;
+  transition: transform 0.3s ease;
+}
+
+.break-btn:hover .sparkle {
+  transform: rotate(20deg) scale(1.2);
+}
+
+/* ========== Shimmer skeleton ========== */
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+.shimmer-bar {
+  height: 14px;
+  border-radius: 7px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 248, 235, 0.04) 25%,
+    rgba(255, 248, 235, 0.1) 50%,
+    rgba(255, 248, 235, 0.04) 75%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+  margin: 6px 0;
+}
+
+.shimmer-bar:nth-child(2) { width: 80%; }
+.shimmer-bar:nth-child(3) { width: 60%; }
+
+/* ========== Subtask items ========== */
+.subtask-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-top: 12px;
+  padding-left: 36px;
+}
+
+@keyframes subtask-enter {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.subtask-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  background: rgba(255, 248, 235, 0.03);
+  transition: background 0.15s ease;
+}
+
+.subtask-item.animate-in {
+  animation: subtask-enter 0.3s ease-out forwards;
+  opacity: 0;
+}
+
+.subtask-item:hover {
+  background: rgba(255, 248, 235, 0.06);
+}
+
+/* Subtask mini checkbox */
+.subtask-checkbox {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  border-radius: 50%;
+  border: 1.5px solid var(--text-muted);
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  color: transparent;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 0;
+}
+
+.subtask-checkbox:hover {
+  border-color: var(--accent-sage);
+  transform: scale(1.1);
+}
+
+@keyframes subtask-check-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
+.subtask-checkbox.checked {
+  background: var(--accent-sage);
+  border-color: var(--accent-sage);
+  color: var(--bg-deep);
+}
+
+.subtask-checkbox.checked.animate {
+  animation: subtask-check-pop 0.2s ease-out;
+}
+
+.subtask-title.done {
+  text-decoration: line-through;
+  color: var(--text-muted);
+}
+
+/* ========== Priority dot ========== */
+.priority-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  transition: box-shadow 0.2s ease;
+}
+
+.task-card:hover .priority-dot {
+  box-shadow: 0 0 6px var(--priority-color);
+}
+
+/* ========== Reduce animations ========== */
+.reduce-animations .task-card,
+.reduce-animations .task-checkbox,
+.reduce-animations .subtask-checkbox,
+.reduce-animations .break-btn,
+.reduce-animations .break-btn .sparkle,
+.reduce-animations .subtask-item,
+.reduce-animations .task-tag,
+.reduce-animations .priority-dot {
+  transition: none !important;
+}
+
+.reduce-animations .task-card:hover {
+  transform: none;
+}
+
+.reduce-animations .task-checkbox:hover,
+.reduce-animations .subtask-checkbox:hover {
+  transform: none;
+}
+
+.reduce-animations .task-checkbox.checked,
+.reduce-animations .subtask-checkbox.checked {
+  animation: none !important;
+}
+
+.reduce-animations .subtask-item.animate-in {
+  animation: none !important;
+  opacity: 1;
+}
+
+.reduce-animations .shimmer-bar {
+  animation: none !important;
+}
+
+.reduce-animations .task-title-strike.animate {
+  animation: none !important;
+  width: 100%;
+}
