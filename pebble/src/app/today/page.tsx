@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useSyncExternalStore, useCallback } from 'react';
 import ScreenBackground from '@/components/layout/ScreenBackground';
 import PebbleCharacter from '@/components/pebble/PebbleCharacter';
 import PebbleSpeechBubble from '@/components/pebble/PebbleSpeechBubble';
@@ -13,34 +13,42 @@ import { usePreferences } from '@/contexts/PreferencesContext';
 import { useTimeOfDay } from '@/hooks/useTimeOfDay';
 import { TAG_CONFIG } from '@/data/sampleTasks';
 
+const DISTRESS_PHRASES = [
+  "i can't do this",
+  "i'm overwhelmed",
+  "too much",
+  "i give up",
+  "i can't cope",
+  "i'm stressed",
+  "i'm struggling",
+  "everything is too hard",
+  "i want to quit",
+];
+
+const subscribeNoop = () => () => {};
+const getFormattedDate = () =>
+  new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+const getHour = () => new Date().getHours();
+
 function useFormattedDate(): string {
-  const [date, setDate] = useState('');
-  useEffect(() => {
-    setDate(new Date().toLocaleDateString('en-US', {
-      weekday: 'long',
-      month: 'long',
-      day: 'numeric',
-    }));
-  }, []);
-  return date;
+  return useSyncExternalStore(subscribeNoop, getFormattedDate, () => '');
 }
 
 function useCurrentHour(): number {
-  const [hour, setHour] = useState(12);
-  useEffect(() => {
-    setHour(new Date().getHours());
-  }, []);
-  return hour;
+  return useSyncExternalStore(subscribeNoop, getHour, () => 12);
 }
 
 export default function TodayPage() {
   const { mood, currentMessage } = usePebble();
-  const { tasks, toggleTask, toggleSubtask, completionPercentage } = useTasks();
+  const { tasks, toggleTask, toggleSubtask, addTask, clearAll, completionPercentage } = useTasks();
   const { addEntry } = useActivityLog();
-  const { preferences, stripEmoji } = usePreferences();
+  const { preferences } = usePreferences();
   const timeOfDay = useTimeOfDay();
   const formattedDate = useFormattedDate();
   const currentHour = useCurrentHour();
+
+  const [taskInput, setTaskInput] = useState('');
+  const [distressState, setDistressState] = useState<'none' | 'showing'>('none');
 
   const done = tasks.filter((t) => t.completed).length;
   const total = tasks.length;
@@ -49,7 +57,6 @@ export default function TodayPage() {
 
   const nextTask = tasks.find((t) => !t.completed);
 
-  // Sort: incomplete first, completed at bottom
   const incompleteTasks = tasks.filter((t) => !t.completed);
   const completedTasks = tasks.filter((t) => t.completed);
 
@@ -95,6 +102,60 @@ export default function TodayPage() {
         'Explainability request fulfilled. Reasoning displayed to user.'
       );
     }
+  };
+
+  const isDistressInput = useCallback((text: string) => {
+    const lower = text.toLowerCase().replace(/[\u2018\u2019]/g, "'");
+    return DISTRESS_PHRASES.some((phrase) => lower.includes(phrase));
+  }, []);
+
+  const handleTaskSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const text = taskInput.trim();
+    if (!text) return;
+
+    if (isDistressInput(text)) {
+      setDistressState('showing');
+      setTaskInput('');
+      addEntry(
+        'CalmSense',
+        'Distress signal detected. Offered support response. Content Safety: activated.',
+        `User input contained distress language. Triggered gentle support response instead of task creation.`
+      );
+      return;
+    }
+
+    addTask({
+      title: text,
+      tag: 'project',
+      priority: 'medium',
+      timeEstimate: '~15 min',
+      completed: false,
+    });
+    addEntry('CalmSense', `New task added: '${text}'`, 'User manually added a task from the input field.');
+    setTaskInput('');
+  };
+
+  const handleDistressClear = () => {
+    // Remove all uncompleted tasks
+    const incomp = tasks.filter((t) => !t.completed);
+    incomp.forEach((t) => toggleTask(t.id)); // complete them first
+    clearAll();
+    addTask({
+      title: 'Take 5 minutes to breathe',
+      tag: 'wellbeing',
+      priority: 'low',
+      timeEstimate: '~5 min',
+      completed: false,
+      whyExplanation: "Clean slate. Just this one thing whenever you're ready.",
+    });
+    setDistressState('none');
+    addEntry('CalmSense', 'User chose to clear and start fresh. Added a simple breathing task.', 'Distress response: cleared incomplete tasks, added wellbeing task.');
+  };
+
+  const handleDistressDismiss = () => {
+    setDistressState('none');
+    addEntry('CalmSense', 'User dismissed distress support response. Continuing session.', 'User indicated they are okay to continue.');
   };
 
   // Greeting content
@@ -198,6 +259,16 @@ export default function TodayPage() {
               ))}
             </div>
 
+            {/* Empty state for tasks */}
+            {incompleteTasks.length === 0 && completedTasks.length === 0 && (
+              <div style={{ textAlign: 'center', padding: '32px 0' }}>
+                <PebbleCharacter mood="normal" size="small" />
+                <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 12 }}>
+                  All clear! Add a task when you&apos;re ready, or just rest.
+                </p>
+              </div>
+            )}
+
             {/* Completed section */}
             {completedTasks.length > 0 && (
               <>
@@ -228,6 +299,73 @@ export default function TodayPage() {
               </>
             )}
 
+            {/* Add task input */}
+            <form onSubmit={handleTaskSubmit} style={{ marginTop: 20 }}>
+              <input
+                type="text"
+                value={taskInput}
+                onChange={(e) => setTaskInput(e.target.value)}
+                placeholder="What do you need to do?"
+                style={{
+                  width: '100%',
+                  padding: '12px 16px',
+                  borderRadius: 12,
+                  border: '1px solid var(--border-soft)',
+                  background: 'rgba(255,248,235,0.04)',
+                  color: 'var(--text-primary)',
+                  fontFamily: 'var(--font-nunito)',
+                  fontSize: 14,
+                  outline: 'none',
+                  transition: 'border-color 0.15s ease',
+                }}
+                onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--accent-lavender)'; }}
+                onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-soft)'; }}
+              />
+            </form>
+
+            {/* Distress response overlay */}
+            {distressState === 'showing' && (
+              <div
+                className="glass-card"
+                style={{
+                  marginTop: 16,
+                  padding: '20px 24px',
+                  borderLeft: '3px solid var(--accent-sage)',
+                }}
+              >
+                <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 16 }}>
+                  <div style={{ flexShrink: 0 }}>
+                    <PebbleCharacter mood="normal" size="small" />
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.6 }}>
+                    That sounds really hard. It&apos;s okay to step back. Would you like me to clear today&apos;s tasks and start smaller?
+                  </div>
+                </div>
+                <div style={{ display: 'flex', gap: 10, paddingLeft: 0 }}>
+                  <button
+                    onClick={handleDistressClear}
+                    style={{
+                      padding: '10px 18px', borderRadius: 12, border: 'none', cursor: 'pointer',
+                      background: 'rgba(143,175,138,0.2)', color: 'var(--accent-sage)',
+                      fontFamily: 'var(--font-nunito)', fontSize: 13, fontWeight: 600,
+                    }}
+                  >
+                    Clear and start fresh
+                  </button>
+                  <button
+                    onClick={handleDistressDismiss}
+                    style={{
+                      padding: '10px 18px', borderRadius: 12, cursor: 'pointer',
+                      background: 'transparent', border: '1px solid var(--border-soft)',
+                      color: 'var(--text-secondary)', fontFamily: 'var(--font-nunito)', fontSize: 13, fontWeight: 600,
+                    }}
+                  >
+                    I&apos;m okay, keep going
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Progress path */}
             <div style={{ marginTop: 28 }}>
               <ProgressPath
@@ -242,7 +380,9 @@ export default function TodayPage() {
           <div className="today-right">
             {/* Pebble */}
             <div className="flex flex-col items-center gap-3 mb-6">
-              <PebbleSpeechBubble message={currentMessage} />
+              <PebbleSpeechBubble message={distressState === 'showing'
+                ? "I'm right here with you."
+                : currentMessage} />
               <PebbleCharacter mood={mood} size="medium" />
               <div style={{
                 fontFamily: 'var(--font-nunito)',
@@ -288,10 +428,10 @@ export default function TodayPage() {
                       letterSpacing: '0.5px',
                       padding: '2px 8px',
                       borderRadius: 6,
-                      background: `color-mix(in srgb, ${TAG_CONFIG[nextTask.tag].color} 20%, transparent)`,
-                      color: TAG_CONFIG[nextTask.tag].color,
+                      background: `color-mix(in srgb, ${TAG_CONFIG[nextTask.tag]?.color ?? 'var(--accent-lavender)'} 20%, transparent)`,
+                      color: TAG_CONFIG[nextTask.tag]?.color ?? 'var(--accent-lavender)',
                     }}>
-                      {calm ? TAG_CONFIG[nextTask.tag].label : `${TAG_CONFIG[nextTask.tag].emoji} ${TAG_CONFIG[nextTask.tag].label}`}
+                      {calm ? (TAG_CONFIG[nextTask.tag]?.label ?? nextTask.tag) : `${TAG_CONFIG[nextTask.tag]?.emoji ?? ''} ${TAG_CONFIG[nextTask.tag]?.label ?? nextTask.tag}`}
                     </span>
                     <span style={{ fontFamily: 'var(--font-jetbrains)', fontSize: 11, color: 'var(--text-muted)' }}>
                       {nextTask.timeEstimate}
