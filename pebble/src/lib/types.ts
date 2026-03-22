@@ -1,54 +1,52 @@
-export type PebbleMood = 'sleepy' | 'normal' | 'happy' | 'excited';
-export type PebblePersonality = 'gentle' | 'playful' | 'calm';
-export type ChunkSize = 'small' | 'medium' | 'large';
-export type TimeOfDay = 'morning' | 'day' | 'evening' | 'night';
-export type Priority = 'high' | 'medium' | 'low';
-
-export type TagName =
-  | 'Study'
-  | 'Communication'
-  | 'Project'
-  | 'Wellbeing'
-  | 'Deadlines'
-  | 'Reading';
-
-export interface Task {
-  id: number;
+export interface Subtask {
+  id: string;
   title: string;
-  tag: TagName;
-  time: string;
-  priority: Priority;
+  timeEstimate: string;
   completed: boolean;
-  hasSubtasks: boolean;
-  expanded: boolean;
-  subtasks: string[];
 }
 
-export interface Document {
-  id: number;
+export interface Task {
+  id: string;
   title: string;
-  type: 'PDF' | 'Brief';
+  timeEstimate: string;
+  tag: 'study' | 'communication' | 'project' | 'wellbeing';
+  priority: 'high' | 'medium' | 'low';
+  completed: boolean;
+  subtasks?: Subtask[];
+  showSubtasks?: boolean;
+  whyExplanation?: string;
+}
+
+export interface DocumentItem {
+  id: string;
+  title: string;
+  type: 'academic' | 'technical' | 'meeting';
   tags: string[];
-  complex: string;
-  medium: string;
-  simple: string;
-  taskSnippets: string[];
+  levels: { [key: number]: string };
+  original: string;
 }
 
 export interface ActivityEntry {
   id: string;
-  timestamp: string;
-  type: 'task_completed' | 'doc_simplified' | 'session_completed' | 'preference_changed';
-  description: string;
-  detail?: string;
+  timestamp: Date;
+  agent: 'CalmSense' | 'AdaptLens' | 'SimplifyCore' | 'PebbleVoice' | 'WhyBot';
+  action: string;
+  reasoning: string;
+  safetyStatus: 'passed' | 'flagged';
 }
 
+export type PebbleMood = 'sleepy' | 'normal' | 'happy' | 'excited';
+export type PebblePersonality = 'gentle' | 'playful' | 'calm';
+export type PebbleColor = 'lavender' | 'sage' | 'coral' | 'amber' | 'sky';
+export type ChunkSize = 'small' | 'medium' | 'large';
+export type TimeOfDay = 'morning' | 'day' | 'evening';
+
 export interface UserPreferences {
-  personality: PebblePersonality;
-  pebbleColor: string;
-  pebbleDark: string;
   readingLevel: number;
   chunkSize: ChunkSize;
   reduceAnimations: boolean;
   calmMode: boolean;
+  pebbleColor: PebbleColor;
+  pebblePersonality: PebblePersonality;
+  voiceInput: boolean;
 }

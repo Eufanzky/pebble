@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { usePreferences } from '@/contexts/PreferencesContext';
 
-export function useReduceMotion(userPreference: boolean): boolean {
+export function useReduceMotion(): boolean {
+  const { preferences } = usePreferences();
   const [osPreference, setOsPreference] = useState(false);
 
   useEffect(() => {
@@ -13,5 +15,5 @@ export function useReduceMotion(userPreference: boolean): boolean {
     return () => mq.removeEventListener('change', handler);
   }, []);
 
-  return userPreference || osPreference;
+  return preferences.reduceAnimations || osPreference;
 }

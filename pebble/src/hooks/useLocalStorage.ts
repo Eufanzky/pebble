@@ -2,8 +2,8 @@
 
 import { useState, useEffect, useCallback } from 'react';
 
-export function useLocalStorage<T>(key: string, initialValue: T) {
-  const [storedValue, setStoredValue] = useState<T>(initialValue);
+export function useLocalStorage<T>(key: string, defaultValue: T) {
+  const [storedValue, setStoredValue] = useState<T>(defaultValue);
   const [isHydrated, setIsHydrated] = useState(false);
 
   useEffect(() => {
@@ -13,7 +13,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
         setStoredValue(JSON.parse(item));
       }
     } catch {
-      // Use initial value on error
+      // Use default value on error
     }
     setIsHydrated(true);
   }, [key]);
@@ -25,7 +25,7 @@ export function useLocalStorage<T>(key: string, initialValue: T) {
         try {
           window.localStorage.setItem(key, JSON.stringify(valueToStore));
         } catch {
-          // Silently fail
+          // Silently fail on quota errors
         }
         return valueToStore;
       });

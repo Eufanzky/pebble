@@ -32,10 +32,10 @@ export const messages: Record<PebblePersonality, MessagePool> = {
   },
   playful: {
     idle: [
-      "Let's crush 'em like little bugs!",
+      "Let's crush these tasks!",
       "Your task list doesn't stand a chance!",
       'Ready? Set? FOCUS!',
-      "These tasks won't know what hit 'em.",
+      "These tasks won't know what hit them.",
       "Let's gooooo!",
     ],
     progress: [
@@ -45,7 +45,7 @@ export const messages: Record<PebblePersonality, MessagePool> = {
     ],
     done: [
       'YOU DID IT! Party time!',
-      'Victory dance! All tasks DESTROYED!',
+      'Victory dance! All tasks done!',
     ],
     late: [
       'Even night owls need sleep eventually!',

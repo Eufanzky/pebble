@@ -3,33 +3,10 @@
 import { type ReactNode, useEffect, useState, useRef } from 'react';
 import { usePathname } from 'next/navigation';
 import Sidebar from './Sidebar';
-import { PreferencesProvider, usePreferences } from '@/contexts/PreferencesContext';
+import { PreferencesProvider } from '@/contexts/PreferencesContext';
 import { PebbleProvider } from '@/contexts/PebbleContext';
 import { TasksProvider } from '@/contexts/TasksContext';
 import { ActivityLogProvider } from '@/contexts/ActivityLogContext';
-
-function CSSVariableInjector() {
-  const { preferences } = usePreferences();
-
-  return (
-    <style>{`
-      :root {
-        --pebble-color: ${preferences.pebbleColor};
-        --pebble-dark: ${preferences.pebbleDark};
-      }
-    `}</style>
-  );
-}
-
-function ReduceAnimationsInjector() {
-  const { preferences } = usePreferences();
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('reduce-animations', preferences.reduceAnimations);
-  }, [preferences.reduceAnimations]);
-
-  return null;
-}
 
 function PageTransition({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -68,20 +45,16 @@ function PageTransition({ children }: { children: ReactNode }) {
 
 function AppShellInner({ children }: { children: ReactNode }) {
   return (
-    <>
-      <CSSVariableInjector />
-      <ReduceAnimationsInjector />
-      <div className="app-layout">
-        <Sidebar />
-        <main className="main-content">
-          <div className="main-content-inner">
-            <PageTransition>
-              {children}
-            </PageTransition>
-          </div>
-        </main>
-      </div>
-    </>
+    <div className="app-layout">
+      <Sidebar />
+      <main className="main-content">
+        <div className="main-content-inner">
+          <PageTransition>
+            {children}
+          </PageTransition>
+        </div>
+      </main>
+    </div>
   );
 }
 

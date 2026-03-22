@@ -81,13 +81,12 @@ function CatSilhouette() {
 
 export default function Sidebar() {
   const pathname = usePathname();
-  const { tasks } = useTasks();
+  const { tasks, completionPercentage } = useTasks();
 
   const done = tasks.filter((t) => t.completed).length;
   const total = tasks.length;
-  const pct = total > 0 ? (done / total) * 100 : 0;
   const circ = 2 * Math.PI * 14; // ~87.96
-  const offset = circ - (circ * pct) / 100;
+  const offset = circ - (circ * completionPercentage) / 100;
 
   return (
     <aside className="sidebar">
