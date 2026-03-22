@@ -12,6 +12,7 @@ const defaultPreferences: UserPreferences = {
   calmMode: false,
   pebbleColor: 'lavender',
   pebblePersonality: 'gentle',
+  pebbleModel: 'chonky-plus',
   voiceInput: false,
 };
 

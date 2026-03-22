@@ -38,6 +38,7 @@ export interface ActivityEntry {
 export type PebbleMood = 'sleepy' | 'normal' | 'happy' | 'excited';
 export type PebblePersonality = 'gentle' | 'playful' | 'calm';
 export type PebbleColor = 'lavender' | 'sage' | 'coral' | 'amber' | 'sky';
+export type PebbleModel = 'classic' | 'chonky' | 'mochi' | 'minimal' | 'chonky-plus' | 'mochi-plus' | 'minimal-plus';
 export type ChunkSize = 'small' | 'medium' | 'large';
 export type TimeOfDay = 'morning' | 'day' | 'evening';
 
@@ -48,5 +49,6 @@ export interface UserPreferences {
   calmMode: boolean;
   pebbleColor: PebbleColor;
   pebblePersonality: PebblePersonality;
+  pebbleModel: PebbleModel;
   voiceInput: boolean;
 }
