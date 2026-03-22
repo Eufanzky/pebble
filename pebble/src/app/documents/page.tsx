@@ -1,12 +1,20 @@
 'use client';
 
+import { useState } from 'react';
 import ScreenBackground from '@/components/layout/ScreenBackground';
 import PebbleCharacter from '@/components/pebble/PebbleCharacter';
 import PebbleSpeechBubble from '@/components/pebble/PebbleSpeechBubble';
+import DocumentCard, { UploadZone } from '@/components/documents/DocumentCard';
+import DocumentModal from '@/components/documents/DocumentModal';
 import { usePebble } from '@/contexts/PebbleContext';
+import { useToast } from '@/contexts/ToastContext';
+import { sampleDocuments } from '@/data/sampleDocuments';
+import type { DocumentItem } from '@/lib/types';
 
 export default function DocumentsPage() {
   const { mood } = usePebble();
+  const { showToast } = useToast();
+  const [selectedDoc, setSelectedDoc] = useState<DocumentItem | null>(null);
 
   return (
     <>
@@ -17,20 +25,31 @@ export default function DocumentsPage() {
           <p className="screen-subtitle">Your readings, simplified and organized.</p>
         </div>
 
-        <div
-          className="glass-card p-8 text-center"
-          style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-baloo)' }}
-        >
-          Document cards, reading level slider, and simplification modal coming soon.
+        {/* Document grid */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: 16, marginBottom: 32 }}>
+          <UploadZone />
+          {sampleDocuments.map((doc) => (
+            <DocumentCard key={doc.id} document={doc} onClick={() => setSelectedDoc(doc)} />
+          ))}
         </div>
 
-        <div className="flex justify-end mt-6 mr-4">
+        {/* Pebble corner */}
+        <div className="flex justify-end mr-4">
           <div className="flex flex-col items-center gap-3">
             <PebbleSpeechBubble message="Drop a doc, I'll help you understand it" />
             <PebbleCharacter mood={mood} size="small" />
           </div>
         </div>
       </div>
+
+      {/* Document modal */}
+      {selectedDoc && (
+        <DocumentModal
+          document={selectedDoc}
+          isOpen={!!selectedDoc}
+          onClose={() => setSelectedDoc(null)}
+        />
+      )}
     </>
   );
 }

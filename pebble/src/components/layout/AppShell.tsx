@@ -7,6 +7,7 @@ import { PreferencesProvider } from '@/contexts/PreferencesContext';
 import { PebbleProvider } from '@/contexts/PebbleContext';
 import { TasksProvider } from '@/contexts/TasksContext';
 import { ActivityLogProvider } from '@/contexts/ActivityLogContext';
+import { ToastProvider } from '@/contexts/ToastContext';
 
 function PageTransition({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -64,7 +65,9 @@ export default function AppShell({ children }: { children: ReactNode }) {
       <PebbleProvider>
         <TasksProvider>
           <ActivityLogProvider>
-            <AppShellInner>{children}</AppShellInner>
+            <ToastProvider>
+              <AppShellInner>{children}</AppShellInner>
+            </ToastProvider>
           </ActivityLogProvider>
         </TasksProvider>
       </PebbleProvider>
