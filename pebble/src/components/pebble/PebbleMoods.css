@@ -1,80 +1,167 @@
-/* Pebble mood state animations */
-
-.cat-container {
+/* ========== Pebble Container ========== */
+.pebble-wrapper {
   position: relative;
-  width: 100px;
-  height: 110px;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
 }
 
+.pebble-container {
+  position: relative;
+  width: 130px;
+  height: 140px;
+  flex-shrink: 0;
+}
+
+/* Size variants */
+.pebble-container.size-small { transform: scale(0.6); transform-origin: center bottom; }
+.pebble-container.size-medium { transform: scale(0.8); transform-origin: center bottom; }
+.pebble-container.size-large { transform: scale(1); }
+
+/* ========== Floating Animation ========== */
 @keyframes pebble-float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
 }
 
-@keyframes pebble-blink {
-  0%, 95%, 100% { transform: scaleY(1); }
-  97% { transform: scaleY(0.1); }
-}
-
-@keyframes pebble-tail-wag {
-  0%, 100% { transform: rotate(-25deg); }
-  50% { transform: rotate(-40deg); }
-}
-
-@keyframes sparkle-float {
-  0%, 100% { opacity: 0; transform: scale(0.5) translateY(0); }
-  50% { opacity: 1; transform: scale(1.1) translateY(-10px); }
-}
-
-.cat-container:not(.reduce-motion) {
+.pebble-container:not(.no-motion) .pebble-body-group {
   animation: pebble-float 3s ease-in-out infinite;
 }
 
-.cat-eye:not(.sleepy) {
+/* ========== Blink Animation ========== */
+@keyframes pebble-blink {
+  0%, 92%, 100% { transform: scaleY(1); }
+  96% { transform: scaleY(0.1); }
+}
+
+.pebble-eye:not(.sleepy) {
   animation: pebble-blink 4s ease-in-out infinite;
 }
 
-.reduce-motion .cat-container,
-.reduce-motion .cat-eye,
-.reduce-motion .cat-tail,
-.reduce-motion .cat-sparkle {
-  animation: none !important;
+/* ========== Tail Wag ========== */
+@keyframes pebble-tail-wag {
+  0%, 100% { transform: rotate(-20deg); }
+  50% { transform: rotate(-35deg); }
 }
 
-/* Mood states */
-.mood-sleepy .cat-eye {
-  height: 3px !important;
-  top: 34px !important;
-  border-radius: 3px !important;
-  animation: none !important;
+.pebble-tail {
+  animation: pebble-tail-wag 1.5s ease-in-out infinite;
+  transform-origin: left center;
 }
 
-.mood-sleepy .cat-eye::after {
+/* ========== Sparkle Animation (excited) ========== */
+@keyframes sparkle-burst {
+  0% { opacity: 0; transform: scale(0.3) translateY(0); }
+  40% { opacity: 1; transform: scale(1.2) translateY(-12px); }
+  100% { opacity: 0; transform: scale(0.5) translateY(-20px); }
+}
+
+.pebble-sparkles {
+  position: absolute;
+  inset: -18px;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 12;
+}
+
+.pebble-sparkle {
+  position: absolute;
+  color: var(--accent-amber);
+  font-size: 11px;
+  opacity: 0;
+}
+
+.mood-excited .pebble-sparkles { opacity: 1; }
+.mood-excited .pebble-sparkle {
+  animation: sparkle-burst 1.8s ease-out infinite;
+}
+.pebble-sparkle:nth-child(1) { top: 5px; left: 8px; animation-delay: 0s; }
+.pebble-sparkle:nth-child(2) { top: -2px; right: 12px; animation-delay: 0.4s; }
+.pebble-sparkle:nth-child(3) { top: 15px; left: 50%; animation-delay: 0.8s; }
+.pebble-sparkle:nth-child(4) { bottom: 40px; right: 8px; animation-delay: 1.2s; }
+
+/* ========== Zzz Animation (sleepy) ========== */
+@keyframes zzz-float {
+  0% { opacity: 0; transform: translateY(0) scale(0.7); }
+  30% { opacity: 0.6; }
+  100% { opacity: 0; transform: translateY(-18px) scale(1); }
+}
+
+.pebble-zzz {
+  position: absolute;
+  top: -4px;
+  right: 8px;
+  font-family: var(--font-baloo);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-muted);
+  opacity: 0;
+  z-index: 12;
+  pointer-events: none;
+}
+
+.mood-sleepy .pebble-zzz {
+  animation: zzz-float 2.5s ease-in-out infinite;
+}
+
+/* ========== Sleepy Eyes ========== */
+.mood-sleepy .pebble-eye {
+  height: 2px !important;
+  border-radius: 2px !important;
+  animation: none !important;
+  transform: scaleY(1) !important;
+  top: 36px !important;
+}
+
+.mood-sleepy .pebble-eye-shine {
   display: none;
 }
 
-.mood-sleepy .cat-zzz {
-  opacity: 1;
+/* ========== Happy Mood ========== */
+.mood-happy .pebble-eye {
+  transform-origin: center;
 }
 
-.mood-happy .cat-blush {
-  opacity: 1;
+.mood-happy .pebble-blush {
+  opacity: 1 !important;
 }
 
-.mood-excited .cat-sparkles {
-  opacity: 1;
+/* ========== Excited Mood ========== */
+.mood-excited .pebble-blush {
+  opacity: 1 !important;
 }
 
-.cat-sparkle {
-  animation: sparkle-float 1.5s ease-in-out infinite;
+/* ========== Reduce Animations (global) ========== */
+.reduce-animations .pebble-body-group,
+.reduce-animations .pebble-eye,
+.reduce-animations .pebble-tail,
+.reduce-animations .pebble-sparkle,
+.reduce-animations .pebble-zzz,
+.pebble-container.no-motion .pebble-body-group,
+.pebble-container.no-motion .pebble-eye,
+.pebble-container.no-motion .pebble-tail,
+.pebble-container.no-motion .pebble-sparkle,
+.pebble-container.no-motion .pebble-zzz {
+  animation: none !important;
 }
 
-.cat-sparkle:nth-child(1) { animation-delay: 0s; }
-.cat-sparkle:nth-child(2) { animation-delay: 0.3s; }
-.cat-sparkle:nth-child(3) { animation-delay: 0.6s; }
-.cat-sparkle:nth-child(4) { animation-delay: 0.9s; }
+/* Show zzz statically when animations disabled */
+.reduce-animations .mood-sleepy .pebble-zzz,
+.no-motion.mood-sleepy .pebble-zzz {
+  opacity: 0.5;
+  animation: none !important;
+}
 
-.cat-tail {
-  animation: pebble-tail-wag 1.2s ease-in-out infinite;
-  transform-origin: left center;
+/* ========== Speech Bubble ========== */
+@keyframes bubble-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.pebble-speech-bubble {
+  animation: bubble-enter 0.35s ease-out;
+}
+
+.reduce-animations .pebble-speech-bubble {
+  animation: none !important;
 }

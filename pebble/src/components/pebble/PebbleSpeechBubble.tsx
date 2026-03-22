@@ -1,14 +1,31 @@
 'use client';
 
-import { usePebble } from '@/contexts/PebbleContext';
+import { useRef, useEffect, useState } from 'react';
+import './PebbleMoods.css';
 
-export default function PebbleSpeechBubble() {
-  const { currentMessage } = usePebble();
+interface PebbleSpeechBubbleProps {
+  message: string;
+  className?: string;
+}
+
+export default function PebbleSpeechBubble({ message, className = '' }: PebbleSpeechBubbleProps) {
+  const [displayMessage, setDisplayMessage] = useState(message);
+  const [animKey, setAnimKey] = useState(0);
+  const prevMessage = useRef(message);
+
+  useEffect(() => {
+    if (message !== prevMessage.current) {
+      prevMessage.current = message;
+      setAnimKey((k) => k + 1);
+      setDisplayMessage(message);
+    }
+  }, [message]);
 
   return (
-    <div className="relative text-center max-w-[210px] mb-3.5">
+    <div className={`relative text-center max-w-[220px] ${className}`}>
       <div
-        className="rounded-[14px] px-3.5 py-2.5 text-[12.5px] leading-relaxed"
+        key={animKey}
+        className="pebble-speech-bubble rounded-[14px] px-4 py-2.5"
         style={{
           background: 'var(--glass-bg)',
           backdropFilter: 'blur(20px)',
@@ -16,13 +33,19 @@ export default function PebbleSpeechBubble() {
           border: '1px solid var(--glass-border)',
           color: 'var(--text-primary)',
           fontFamily: 'var(--font-baloo)',
+          fontSize: '12.5px',
+          lineHeight: 1.55,
         }}
       >
-        {currentMessage || "Let's take it one step at a time."}
+        {displayMessage}
       </div>
+      {/* Triangle pointer pointing up */}
       <div
-        className="absolute left-1/2 -translate-x-1/2 -bottom-[7px] w-0 h-0"
+        className="absolute left-1/2 -translate-x-1/2"
         style={{
+          bottom: -6,
+          width: 0,
+          height: 0,
           borderLeft: '7px solid transparent',
           borderRight: '7px solid transparent',
           borderTop: '7px solid var(--glass-bg)',

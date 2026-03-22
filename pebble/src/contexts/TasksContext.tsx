@@ -26,10 +26,10 @@ export function TasksProvider({ children }: { children: ReactNode }) {
   const done = tasks.filter((t) => t.completed).length;
   const completionPercentage = total > 0 ? Math.round((done / total) * 100) : 0;
 
-  // Sync mood with completion percentage
+  // Sync mood with completion percentage and pass task stats
   useEffect(() => {
-    deriveMoodFromCompletion(completionPercentage);
-  }, [completionPercentage, deriveMoodFromCompletion]);
+    deriveMoodFromCompletion(completionPercentage, total, done);
+  }, [completionPercentage, total, done, deriveMoodFromCompletion]);
 
   const toggleTask = useCallback(
     (id: string) => {

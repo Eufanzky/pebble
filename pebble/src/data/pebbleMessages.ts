@@ -1,80 +1,89 @@
-import type { PebblePersonality } from '@/lib/types';
+import type { PebblePersonality, TimeOfDay } from '@/lib/types';
 
-type MessagePool = {
-  idle: string[];
-  progress: string[];
-  done: string[];
-  late: string[];
-};
+type MessagesByPersonality = Record<PebblePersonality, string[]>;
+type MessagesByTime = Record<TimeOfDay, MessagesByPersonality>;
 
-export const messages: Record<PebblePersonality, MessagePool> = {
-  gentle: {
-    idle: [
-      "Let's take it one step at a time.",
-      "You're doing great. Keep going.",
-      'Remember, small steps count too.',
-      "I'm here with you. Let's focus.",
-      "One task at a time. You've got this.",
+export const messages: MessagesByTime = {
+  morning: {
+    gentle: [
+      "Good morning! You've got {taskCount} things today. No rush, we'll take it together.",
+      "How are you feeling today? I'm here either way.",
+      'A new day, a fresh start. Let\'s see what we\'ve got.',
+      'Take your time this morning. We\'ll ease into it.',
+      '{taskCount} things on the list. One step at a time.',
     ],
-    progress: [
-      "Nice! You're making progress.",
-      'Look at you go! Keep it up.',
-      'Every task done is a win.',
+    playful: [
+      "Rise and shine! Your favorite cat is ready to help.",
+      '{taskCount} tasks? Paw-sitively doable.',
+      "I've been napping all night. I'm SO ready.",
+      'Good morning! Let\'s make today awesome.',
+      'The early cat catches the... productivity?',
     ],
-    done: [
-      "You did it! I'm so proud of you.",
-      'All done! Time to rest.',
-    ],
-    late: [
-      "It's getting late. Be kind to yourself.",
-      "Rest is productive too. Don't forget.",
+    calm: [
+      'Good morning. {taskCount} tasks today.',
+      'Ready when you are.',
+      "Let's begin.",
+      'A new day.',
+      '{taskCount} things. No rush.',
     ],
   },
-  playful: {
-    idle: [
-      "Let's crush these tasks!",
-      "Your task list doesn't stand a chance!",
-      'Ready? Set? FOCUS!',
-      "These tasks won't know what hit them.",
-      "Let's gooooo!",
+  day: {
+    gentle: [
+      "You finished {completedCount} things already. That's really good.",
+      "No rush. We'll get through this together.",
+      'Remember: small steps count just as much as big ones.',
+      'Taking breaks is part of the work. It counts.',
+      "You're making steady progress. Keep going.",
     ],
-    progress: [
-      'BOOM! Another one bites the dust!',
-      "You're on fire! (metaphorically)",
-      'Unstoppable! Keep that streak!',
+    playful: [
+      'Look at you go! {completedCount} down already.',
+      'I believe in you. Also I believe in naps.',
+      "You're doing great. I'd give you a high five but... paws.",
+      '{completedCount} tasks crushed! Keep that energy going.',
+      "Productivity level: legendary. (That's a compliment.)",
     ],
-    done: [
-      'YOU DID IT! Party time!',
-      'Victory dance! All tasks done!',
-    ],
-    late: [
-      'Even night owls need sleep eventually!',
-      'Past bedtime, but I respect the grind.',
-    ],
-  },
-  calm: {
-    idle: [
-      'One thing at a time.',
-      'Breathe. Begin.',
-      'Focus.',
-      "You're here. That's enough.",
-      'Steady progress.',
-    ],
-    progress: [
-      'Good. Keep going.',
+    calm: [
+      '{completedCount} tasks done so far.',
+      'Still here.',
+      'At your own pace.',
       'Progress.',
-      'Moving forward.',
+      'Keep going.',
     ],
-    done: [
-      'Done. Well done.',
-      'Complete. Rest now.',
+  },
+  evening: {
+    gentle: [
+      "It's getting late — you've done enough today.",
+      'Rest is productive too. Seriously.',
+      "You did good today. Time to wind down.",
+      "Tomorrow is a new day. Tonight, be kind to yourself.",
+      "You've earned some rest.",
     ],
-    late: [
-      'Rest soon.',
-      'Tomorrow is another day.',
+    playful: [
+      "It's past my bedtime! Yours too, probably.",
+      "Tomorrow-you will handle the rest. Tonight-you can relax.",
+      "Even superheroes sleep. And cats. Especially cats.",
+      "Wrapping up? Same. My pillow is calling.",
+    ],
+    calm: [
+      "Evening. You've done enough.",
+      'Rest now.',
+      'Tomorrow.',
+      'Wind down.',
     ],
   },
 };
+
+/**
+ * Replace template variables in a message string.
+ */
+export function interpolateMessage(
+  message: string,
+  vars: { taskCount: number; completedCount: number }
+): string {
+  return message
+    .replace(/\{taskCount\}/g, String(vars.taskCount))
+    .replace(/\{completedCount\}/g, String(vars.completedCount));
+}
 
 export const pebbleTips = [
   'Start with the smallest task first. Momentum builds on itself.',
