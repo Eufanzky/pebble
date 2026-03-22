@@ -13,7 +13,8 @@
 }
 
 .task-card:hover {
-  transform: translateY(-2px);
+  transform: translateY(-1px);
+  border-color: rgba(255, 248, 235, 0.20);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.35);
 }
 
@@ -292,4 +293,48 @@
 .reduce-animations .task-title-strike.animate {
   animation: none !important;
   width: 100%;
+}
+
+/* ========== Checkbox ripple ========== */
+.checkbox-wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+@keyframes checkbox-ripple-expand {
+  0% { transform: scale(0.5); opacity: 0.4; }
+  100% { transform: scale(2.2); opacity: 0; }
+}
+
+.checkbox-ripple {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: var(--accent-sage);
+  pointer-events: none;
+  animation: checkbox-ripple-expand 0.4s ease-out forwards;
+}
+
+.reduce-animations .checkbox-ripple {
+  animation: none !important;
+  display: none;
+}
+
+/* ========== Adapted badge ========== */
+.adapted-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  border-radius: 5px;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  background: rgba(196, 181, 212, 0.15);
+  color: var(--accent-lavender);
+  cursor: help;
+}
+
+/* ========== Why toggle ========== */
+.reduce-animations .why-card-wrapper {
+  transition: none !important;
 }

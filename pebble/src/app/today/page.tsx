@@ -46,6 +46,12 @@ export default function TodayPage() {
         `Nice work! You finished "${task.title}". That's ${done + 1} of ${total} done today.`,
         'Task completed by user. Triggered encouragement message.'
       );
+    } else if (task && task.completed) {
+      addEntry(
+        'PebbleVoice',
+        `Unchecked "${task.title}". No worries — take your time.`,
+        'Task unchecked by user.'
+      );
     }
     toggleTask(id);
   };
@@ -61,6 +67,17 @@ export default function TodayPage() {
         'SimplifyCore',
         `Broke down "${task.title}" into ${task.subtasks.length} steps (${preferences.chunkSize} chunks, your preference).`,
         `Task decomposed based on user chunk size preference: ${preferences.chunkSize}.`
+      );
+    }
+  };
+
+  const handleWhyOpen = (id: string) => {
+    const task = tasks.find((t) => t.id === id);
+    if (task) {
+      addEntry(
+        'WhyBot',
+        `User asked why "${task.title}" was organized this way. Showed explanation.`,
+        'Explainability request fulfilled. Reasoning displayed to user.'
       );
     }
   };
@@ -161,6 +178,7 @@ export default function TodayPage() {
                   onToggle={handleToggle}
                   onToggleSubtask={handleToggleSubtask}
                   onBreakDown={handleBreakDown}
+                  onWhyOpen={handleWhyOpen}
                 />
               ))}
             </div>

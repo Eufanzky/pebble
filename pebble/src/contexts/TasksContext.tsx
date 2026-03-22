@@ -12,6 +12,7 @@ interface TasksContextValue {
   toggleTask: (id: string) => void;
   toggleSubtask: (taskId: string, subtaskId: string) => void;
   addTask: (task: Omit<Task, 'id'>) => void;
+  addTaskFromDocument: (title: string, docName: string, type: 'academic' | 'meeting') => void;
   breakDownTask: (taskId: string, subtasks: Omit<Subtask, 'id'>[]) => void;
   clearAll: () => void;
 }
@@ -68,6 +69,23 @@ export function TasksProvider({ children }: { children: ReactNode }) {
     [setTasks]
   );
 
+  const addTaskFromDocument = useCallback(
+    (title: string, docName: string, type: 'academic' | 'meeting') => {
+      const tag = type === 'meeting' ? 'communication' : 'study';
+      const newTask: Task = {
+        id: crypto.randomUUID(),
+        title,
+        timeEstimate: '~15 min',
+        tag,
+        priority: 'medium',
+        completed: false,
+        whyExplanation: `Created from "${docName}". Pebble extracted this as an action item from the document.`,
+      };
+      setTasks((prev) => [...prev, newTask]);
+    },
+    [setTasks]
+  );
+
   const breakDownTask = useCallback(
     (taskId: string, subtasks: Omit<Subtask, 'id'>[]) => {
       setTasks((prev) =>
@@ -96,6 +114,7 @@ export function TasksProvider({ children }: { children: ReactNode }) {
         toggleTask,
         toggleSubtask,
         addTask,
+        addTaskFromDocument,
         breakDownTask,
         clearAll,
       }}
