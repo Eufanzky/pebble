@@ -1,8 +1,8 @@
 'use client';
 
-import type { ReactNode } from 'react';
+import { type ReactNode, useEffect, useState, useRef } from 'react';
+import { usePathname } from 'next/navigation';
 import Sidebar from './Sidebar';
-import ScreenBackground from './ScreenBackground';
 import { PreferencesProvider, usePreferences } from '@/contexts/PreferencesContext';
 import { PebbleProvider } from '@/contexts/PebbleContext';
 import { TasksProvider } from '@/contexts/TasksContext';
@@ -21,16 +21,63 @@ function CSSVariableInjector() {
   );
 }
 
+function ReduceAnimationsInjector() {
+  const { preferences } = usePreferences();
+
+  useEffect(() => {
+    document.documentElement.classList.toggle('reduce-animations', preferences.reduceAnimations);
+  }, [preferences.reduceAnimations]);
+
+  return null;
+}
+
+function PageTransition({ children }: { children: ReactNode }) {
+  const pathname = usePathname();
+  const [displayChildren, setDisplayChildren] = useState(children);
+  const [phase, setPhase] = useState<'in' | 'out'>('in');
+  const prevPathname = useRef(pathname);
+
+  useEffect(() => {
+    if (pathname !== prevPathname.current) {
+      prevPathname.current = pathname;
+      setPhase('out');
+
+      const timeout = setTimeout(() => {
+        setDisplayChildren(children);
+        setPhase('in');
+      }, 200);
+
+      return () => clearTimeout(timeout);
+    } else {
+      setDisplayChildren(children);
+    }
+  }, [pathname, children]);
+
+  return (
+    <div
+      className="page-transition"
+      style={{
+        opacity: phase === 'out' ? 0 : 1,
+        transform: phase === 'out' ? 'translateY(8px)' : 'translateY(0)',
+      }}
+    >
+      {displayChildren}
+    </div>
+  );
+}
+
 function AppShellInner({ children }: { children: ReactNode }) {
   return (
     <>
       <CSSVariableInjector />
-      <div className="flex h-screen w-screen overflow-hidden">
+      <ReduceAnimationsInjector />
+      <div className="app-layout">
         <Sidebar />
-        <main className="flex-1 h-screen overflow-y-auto overflow-x-hidden relative">
-          <ScreenBackground />
-          <div className="relative z-[1] p-10 px-12">
-            {children}
+        <main className="main-content">
+          <div className="main-content-inner">
+            <PageTransition>
+              {children}
+            </PageTransition>
           </div>
         </main>
       </div>

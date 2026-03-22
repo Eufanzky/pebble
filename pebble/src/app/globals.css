@@ -30,7 +30,181 @@ body {
   background: var(--bg-deep);
 }
 
-/* Glass card utility */
+/* ========== Reduce Animations ========== */
+.reduce-animations *,
+.reduce-animations *::before,
+.reduce-animations *::after {
+  animation-duration: 0s !important;
+  animation-delay: 0s !important;
+  transition-duration: 0s !important;
+  transition-delay: 0s !important;
+}
+
+/* ========== App Layout ========== */
+.app-layout {
+  display: flex;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.main-content {
+  flex: 1;
+  height: 100vh;
+  overflow: hidden;
+  position: relative;
+}
+
+.main-content-inner {
+  position: relative;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* ========== Page Transitions ========== */
+.page-transition {
+  transition: opacity 250ms ease-out, transform 250ms ease-out;
+  min-height: 100%;
+}
+
+/* ========== Sidebar ========== */
+.sidebar {
+  width: 260px;
+  min-width: 260px;
+  height: 100vh;
+  background: var(--bg-deep);
+  border-right: 1px solid var(--border-soft);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  z-index: 20;
+}
+
+.sidebar-brand {
+  padding: 28px 24px 20px;
+}
+
+.sidebar-brand-main {
+  font-family: var(--font-baloo);
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--accent-lavender);
+  letter-spacing: -0.5px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+}
+
+.sidebar-brand-sub {
+  font-family: var(--font-nunito);
+  font-size: 11px;
+  color: var(--text-muted);
+  margin-top: 4px;
+  letter-spacing: 0.3px;
+}
+
+/* Sidebar navigation */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+  flex: 1;
+}
+
+.sidebar-nav-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-family: var(--font-nunito);
+  font-size: 14px;
+  font-weight: 400;
+  text-decoration: none;
+  transition: background 200ms ease, color 200ms ease;
+  border-left: 3px solid transparent;
+  position: relative;
+}
+
+.sidebar-nav-link:hover {
+  background: var(--bg-surface);
+  color: var(--text-primary);
+}
+
+.sidebar-nav-link.active {
+  background: rgba(196, 181, 212, 0.08);
+  color: var(--text-primary);
+  border-left-color: var(--accent-lavender);
+  font-weight: 600;
+}
+
+.sidebar-nav-icon {
+  width: 20px;
+  height: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Sidebar footer */
+.sidebar-footer {
+  padding: 16px 20px;
+  border-top: 1px solid var(--border-soft);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.sidebar-ring {
+  transform: rotate(-90deg);
+  flex-shrink: 0;
+}
+
+.sidebar-ring-fill {
+  transition: stroke-dashoffset 500ms ease;
+}
+
+.sidebar-footer-text {
+  font-family: var(--font-nunito);
+  font-size: 11px;
+  color: var(--text-muted);
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-footer-text strong {
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-family: var(--font-jetbrains);
+  font-size: 12px;
+}
+
+/* ========== Scene Backgrounds ========== */
+.scene-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.scene-base {
+  position: absolute;
+  inset: 0;
+}
+
+.scene-layer {
+  position: absolute;
+  pointer-events: none;
+}
+
+/* ========== Glass Card ========== */
 .glass-card {
   background: var(--glass-bg);
   backdrop-filter: blur(20px);
@@ -40,7 +214,7 @@ body {
   border-radius: 16px;
 }
 
-/* Custom scrollbar */
+/* ========== Custom Scrollbar ========== */
 * {
   scrollbar-width: thin;
   scrollbar-color: rgba(196, 181, 212, 0.3) transparent;
@@ -60,7 +234,7 @@ body {
   border-radius: 3px;
 }
 
-/* Screen title typography */
+/* ========== Screen Title Typography ========== */
 .screen-title {
   font-family: var(--font-baloo);
   font-size: 28px;
