@@ -130,7 +130,7 @@ export default function Sidebar() {
           <circle
             cx="18" cy="18" r="14"
             fill="none"
-            stroke="var(--accent-sage)"
+            stroke="var(--accent-lavender)"
             strokeWidth="3"
             strokeLinecap="round"
             strokeDasharray={circ}
@@ -139,7 +139,7 @@ export default function Sidebar() {
           />
         </svg>
         <div className="sidebar-footer-text">
-          <strong>{done} / {total}</strong>
+          <strong style={{ fontFamily: 'var(--font-jetbrains)', fontSize: 12 }}>{done} of {total}</strong>
           <span>tasks today</span>
         </div>
       </div>
