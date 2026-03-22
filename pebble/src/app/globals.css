@@ -229,3 +229,33 @@ body {
   color: var(--text-secondary);
   line-height: 1.5;
 }
+
+/* ========== Today Screen Layout ========== */
+.today-layout {
+  display: flex;
+  gap: 36px;
+}
+
+.today-left {
+  flex: 6;
+  min-width: 0;
+}
+
+.today-right {
+  flex: 4;
+  min-width: 240px;
+  max-width: 320px;
+  position: sticky;
+  top: 40px;
+  align-self: flex-start;
+}
+
+@media (max-width: 900px) {
+  .today-layout {
+    flex-direction: column;
+  }
+  .today-right {
+    max-width: 100%;
+    position: static;
+  }
+}
