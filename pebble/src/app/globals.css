@@ -259,3 +259,14 @@ body {
     position: static;
   }
 }
+
+/* ========== Focus Indicators (keyboard accessibility) ========== */
+*:focus-visible {
+  outline: 2px solid var(--accent-lavender);
+  outline-offset: 2px;
+}
+
+/* ========== Scrollbar (refined) ========== */
+*::-webkit-scrollbar-thumb:hover {
+  background: rgba(245, 237, 214, 0.25);
+}
