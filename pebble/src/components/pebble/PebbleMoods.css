@@ -1,0 +1,80 @@
+/* Pebble mood state animations */
+
+.cat-container {
+  position: relative;
+  width: 100px;
+  height: 110px;
+}
+
+@keyframes pebble-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes pebble-blink {
+  0%, 95%, 100% { transform: scaleY(1); }
+  97% { transform: scaleY(0.1); }
+}
+
+@keyframes pebble-tail-wag {
+  0%, 100% { transform: rotate(-25deg); }
+  50% { transform: rotate(-40deg); }
+}
+
+@keyframes sparkle-float {
+  0%, 100% { opacity: 0; transform: scale(0.5) translateY(0); }
+  50% { opacity: 1; transform: scale(1.1) translateY(-10px); }
+}
+
+.cat-container:not(.reduce-motion) {
+  animation: pebble-float 3s ease-in-out infinite;
+}
+
+.cat-eye:not(.sleepy) {
+  animation: pebble-blink 4s ease-in-out infinite;
+}
+
+.reduce-motion .cat-container,
+.reduce-motion .cat-eye,
+.reduce-motion .cat-tail,
+.reduce-motion .cat-sparkle {
+  animation: none !important;
+}
+
+/* Mood states */
+.mood-sleepy .cat-eye {
+  height: 3px !important;
+  top: 34px !important;
+  border-radius: 3px !important;
+  animation: none !important;
+}
+
+.mood-sleepy .cat-eye::after {
+  display: none;
+}
+
+.mood-sleepy .cat-zzz {
+  opacity: 1;
+}
+
+.mood-happy .cat-blush {
+  opacity: 1;
+}
+
+.mood-excited .cat-sparkles {
+  opacity: 1;
+}
+
+.cat-sparkle {
+  animation: sparkle-float 1.5s ease-in-out infinite;
+}
+
+.cat-sparkle:nth-child(1) { animation-delay: 0s; }
+.cat-sparkle:nth-child(2) { animation-delay: 0.3s; }
+.cat-sparkle:nth-child(3) { animation-delay: 0.6s; }
+.cat-sparkle:nth-child(4) { animation-delay: 0.9s; }
+
+.cat-tail {
+  animation: pebble-tail-wag 1.2s ease-in-out infinite;
+  transform-origin: left center;
+}

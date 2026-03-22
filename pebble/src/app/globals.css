@@ -1,0 +1,76 @@
+@import "tailwindcss";
+
+:root {
+  --bg-deep: #0F0D0A;
+  --bg-surface: rgba(255, 248, 235, 0.06);
+  --bg-card: rgba(255, 248, 235, 0.09);
+  --accent-lavender: #C4B5D4;
+  --accent-sage: #8FAF8A;
+  --accent-amber: #D4A843;
+  --accent-coral: #E8856A;
+  --accent-cream: #F5EDD6;
+  --accent-sky: #87CEEB;
+  --text-primary: #F5EDD6;
+  --text-secondary: rgba(245, 237, 214, 0.65);
+  --text-muted: rgba(245, 237, 214, 0.35);
+  --border-soft: rgba(255, 248, 235, 0.10);
+  --pebble-color: #C4B5D4;
+  --pebble-dark: #A89ABC;
+  --pebble-light: #D4C5E4;
+  --glass-bg: rgba(255, 248, 235, 0.08);
+  --glass-border: rgba(255, 248, 235, 0.12);
+  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  color: var(--text-primary);
+  background: var(--bg-deep);
+}
+
+/* Glass card utility */
+.glass-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid var(--glass-border);
+  box-shadow: var(--glass-shadow);
+  border-radius: 16px;
+}
+
+/* Custom scrollbar */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(196, 181, 212, 0.3) transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: rgba(196, 181, 212, 0.3);
+  border-radius: 3px;
+}
+
+/* Screen title typography */
+.screen-title {
+  font-family: var(--font-baloo);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.screen-subtitle {
+  font-size: 14px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
