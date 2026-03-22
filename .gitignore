@@ -137,3 +137,17 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# Text files
+*.txt
+
+# Editor and tool configs
+CLAUDE.md
+.claude/
+.claude.json
+.agents/
+skills-lock.json
+.cursor/
+.cursorrules
+.github/copilot-instructions.md
+.vscode/

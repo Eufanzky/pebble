@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Focusbuddy — Study with Pebble</title>
+
+<!-- CSS Modules -->
+<link rel="stylesheet" href="css/base.css">
+<link rel="stylesheet" href="css/sidebar.css">
+<link rel="stylesheet" href="css/pebble.css">
+<link rel="stylesheet" href="css/screens.css">
+<link rel="stylesheet" href="css/components.css">
+<link rel="stylesheet" href="css/settings.css">
+<link rel="stylesheet" href="css/responsive.css">
+<link rel="stylesheet" href="css/chatbot.css">
+</head>
+
+<body>
+
+<div class="app-layout">
+  <!-- LEFT SIDEBAR -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">focusbuddy</div>
+
+    <div class="sidebar-pebble-area">
+      <div class="sidebar-speech-bubble" id="speechBubble">
+        Let's have a calm, productive day together.
+      </div>
+
+      <!-- CSS Illustrated Cat -->
+      <div class="cat-container" id="catContainer">
+        <div class="cat-sparkles" id="catSparkles">
+          <span class="cat-sparkle">&#10022;</span>
+          <span class="cat-sparkle">&#10022;</span>
+          <span class="cat-sparkle">&#10022;</span>
+          <span class="cat-sparkle">&#10022;</span>
+        </div>
+        <div class="cat-zzz" id="catZzz">zzz</div>
+        <div class="cat-head">
+          <div class="cat-ear left"></div>
+          <div class="cat-ear right"></div>
+          <div class="cat-ear-inner left"></div>
+          <div class="cat-ear-inner right"></div>
+          <div class="cat-eye left" id="catEyeL"></div>
+          <div class="cat-eye right" id="catEyeR"></div>
+          <div class="cat-nose"></div>
+          <div class="cat-mouth"></div>
+          <div class="cat-whisker l1"></div>
+          <div class="cat-whisker l2"></div>
+          <div class="cat-whisker r1"></div>
+          <div class="cat-whisker r2"></div>
+          <div class="cat-blush left"></div>
+          <div class="cat-blush right"></div>
+        </div>
+        <div class="cat-body"></div>
+        <div class="cat-tail"></div>
+      </div>
+      <div class="pebble-name">Pebble</div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <button class="nav-link active" data-screen="today" onclick="switchScreen('today')">
+        <span class="nav-icon">&#10022;</span>
+        <span>Today</span>
+      </button>
+      <button class="nav-link" data-screen="documents" onclick="switchScreen('documents')">
+        <span class="nav-icon">&#10022;</span>
+        <span>Documents</span>
+      </button>
+      <button class="nav-link" data-screen="study" onclick="switchScreen('study')">
+        <span class="nav-icon">&#10022;</span>
+        <span>Study Room</span>
+      </button>
+      <button class="nav-link" data-screen="settings" onclick="switchScreen('settings')">
+        <span class="nav-icon">&#10022;</span>
+        <span>Settings</span>
+      </button>
+    </nav>
+
+    <div class="sidebar-stats">
+      <div class="stats-ring">
+        <svg viewBox="0 0 36 36">
+          <circle class="stats-ring-bg" cx="18" cy="18" r="15.5" />
+          <circle class="stats-ring-fill" id="sidebarRing" cx="18" cy="18" r="15.5"
+            stroke-dasharray="97.4" stroke-dashoffset="48.7" />
+        </svg>
+      </div>
+      <div class="stats-text">
+        <strong id="sidebarTaskCount">12 tasks</strong><br>this week
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main-content">
+
+    <!-- TODAY SCREEN -->
+    <section class="screen active" id="screen-today">
+      <div class="greeting-banner" id="greetingBanner">
+        <div id="greetingText"></div>
+        <div class="greeting-date" id="greetingDate"></div>
+      </div>
+
+      <div class="screen-header">
+        <h1 class="screen-title">Today</h1>
+      </div>
+
+      <div class="progress-area">
+        <div class="progress-info">
+          <span class="progress-label" id="progressLabel">Daily progress</span>
+          <span class="progress-count" id="progressCount">0 / 4</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+        </div>
+      </div>
+
+      <div class="today-layout">
+        <div class="today-left">
+          <div class="section-label">Tasks</div>
+          <div class="task-list" id="taskList"></div>
+        </div>
+        <div class="today-right">
+          <div class="focus-panel">
+            <div class="focus-panel-card glass-card" id="focusPanel">
+              <div class="focus-next-label">Up next</div>
+              <div class="focus-task-name" id="focusTaskName">—</div>
+              <div class="focus-task-time" id="focusTaskTime"></div>
+              <button class="focus-start-btn" onclick="startFocusFromPanel()">Start 25-min session</button>
+            </div>
+            <div class="pebble-tip glass-card" id="pebbleTip">
+              <div class="pebble-tip-label">Pebble's tip</div>
+              Start with the smallest task first. Momentum builds on itself.
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- DOCUMENTS SCREEN -->
+    <section class="screen" id="screen-documents">
+      <div class="screen-header">
+        <h1 class="screen-title">Documents</h1>
+        <p class="screen-subtitle">Your readings, simplified and organized.</p>
+      </div>
+
+      <div class="docs-grid" id="docsGrid"></div>
+
+      <div class="drop-zone" onclick="simulateUpload()">
+        <div class="drop-zone-icon">+</div>
+        <div class="drop-zone-text">Drop a file here, or click to upload</div>
+      </div>
+    </section>
+
+    <!-- STUDY ROOM SCREEN -->
+    <section class="screen" id="screen-study">
+      <div class="screen-header">
+        <h1 class="screen-title">Study Room</h1>
+        <p class="screen-subtitle">Focus together, even apart.</p>
+      </div>
+
+      <div class="study-main">
+        <div class="active-room-card glass-card">
+          <div class="room-header-info">
+            <div class="room-name-display">Late Night Club <span style="opacity:0.6">&#127769;</span></div>
+            <div class="room-status-text">Active now</div>
+          </div>
+          <div class="room-avatars" id="activeRoomAvatars">
+            <div class="room-avatar" style="background: var(--accent-lavender)">Y</div>
+            <div class="room-avatar" style="background: var(--accent-coral)">M</div>
+          </div>
+          <div class="timer-area">
+            <div class="timer-ring-container">
+              <svg class="timer-ring-svg" viewBox="0 0 200 200">
+                <circle class="timer-ring-bg" cx="100" cy="100" r="90" />
+                <circle class="timer-ring-progress" id="timerRingProgress" cx="100" cy="100" r="90"
+                  stroke-dasharray="565.5" stroke-dashoffset="0" />
+              </svg>
+              <div class="timer-display" id="timerDisplay">25:00</div>
+            </div>
+            <button class="timer-btn start" id="timerBtn" onclick="toggleTimer()">Start Focus Session</button>
+            <div class="timer-ambient-msg" id="timerAmbient">The room is focused. Pebble is studying with you.</div>
+          </div>
+        </div>
+
+        <div class="rooms-section">
+          <div class="section-label">Other rooms</div>
+          <div class="rooms-scroll" id="roomsScroll"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- SETTINGS SCREEN -->
+    <section class="screen" id="screen-settings">
+      <div class="screen-header">
+        <h1 class="screen-title">Settings</h1>
+        <p class="screen-subtitle">Make Focusbuddy yours.</p>
+      </div>
+
+      <div class="settings-grid">
+        <!-- Pebble Customization -->
+        <div class="settings-section glass-card">
+          <div class="settings-section-title">Pebble</div>
+          <div class="setting-item">
+            <div class="setting-item-label">Color</div>
+            <div class="color-swatches" id="colorSwatches">
+              <div class="color-swatch active" data-color="#C4B5D4" data-dark="#A89ABC" style="background:#C4B5D4" onclick="setPebbleColor(this)"></div>
+              <div class="color-swatch" data-color="#8FAF8A" data-dark="#7A9E76" style="background:#8FAF8A" onclick="setPebbleColor(this)"></div>
+              <div class="color-swatch" data-color="#E8856A" data-dark="#D07050" style="background:#E8856A" onclick="setPebbleColor(this)"></div>
+              <div class="color-swatch" data-color="#D4A843" data-dark="#B89030" style="background:#D4A843" onclick="setPebbleColor(this)"></div>
+              <div class="color-swatch" data-color="#7AB5D4" data-dark="#6098B5" style="background:#7AB5D4" onclick="setPebbleColor(this)"></div>
+            </div>
+          </div>
+          <div class="setting-item">
+            <div class="setting-item-label">Personality</div>
+            <div class="personality-options" id="personalityOptions">
+              <button class="personality-option active" data-personality="gentle" onclick="setPersonality(this)">
+                <div class="personality-radio"></div>
+                <span class="personality-label">Gentle & encouraging</span>
+              </button>
+              <button class="personality-option" data-personality="playful" onclick="setPersonality(this)">
+                <div class="personality-radio"></div>
+                <span class="personality-label">Playful & funny</span>
+              </button>
+              <button class="personality-option" data-personality="calm" onclick="setPersonality(this)">
+                <div class="personality-radio"></div>
+                <span class="personality-label">Calm & minimal</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reading & Tasks -->
+        <div class="settings-section glass-card">
+          <div class="settings-section-title">Reading & Tasks</div>
+          <div class="setting-item">
+            <div class="setting-item-label">Reading level</div>
+            <div class="setting-slider-row">
+              <input type="range" class="setting-slider" id="readingSlider" min="1" max="10" value="5" oninput="setReadingLevel(this.value)">
+              <span class="setting-value" id="readingValue">5</span>
+            </div>
+          </div>
+          <div class="setting-item">
+            <div class="setting-item-label">Task chunk size</div>
+            <div class="chunk-options" id="chunkOptions">
+              <button class="chunk-btn" data-chunk="small" onclick="setChunkSize(this)">Small<br><span style="font-size:10px;opacity:0.6">5-10 min</span></button>
+              <button class="chunk-btn active" data-chunk="medium" onclick="setChunkSize(this)">Medium<br><span style="font-size:10px;opacity:0.6">15-20 min</span></button>
+              <button class="chunk-btn" data-chunk="large" onclick="setChunkSize(this)">Large<br><span style="font-size:10px;opacity:0.6">30+ min</span></button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accessibility -->
+        <div class="settings-section glass-card">
+          <div class="settings-section-title">Preferences</div>
+          <div class="toggle-row">
+            <span class="toggle-label">Reduce animations</span>
+            <button class="toggle-switch" id="toggleAnimations" onclick="toggleSetting('animations')"></button>
+          </div>
+          <div class="toggle-row">
+            <span class="toggle-label">Calm mode (no emoji)</span>
+            <button class="toggle-switch" id="toggleCalm" onclick="toggleSetting('calm')"></button>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="settings-section glass-card">
+          <div class="settings-section-title">This week</div>
+          <div class="stats-row">
+            <div class="stat-card">
+              <div class="stat-value">12</div>
+              <div class="stat-label">Tasks done</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">3h 20m</div>
+              <div class="stat-label">Focus time</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">4</div>
+              <div class="stat-label">Docs read</div>
+            </div>
+          </div>
+          <div class="achievement-msg" id="achievementMsg">You're doing amazing. Seriously.</div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- RIGHT PANEL -->
+  <aside class="right-panel" id="rightPanel">
+    <!-- Today context -->
+    <div class="right-panel-section active" id="rightToday">
+      <div class="right-panel-title">Focus</div>
+      <div class="right-panel-card">
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Next up</div>
+        <div id="rightNextTask" style="font-family:'Baloo 2',cursive;font-size:16px;color:var(--text-primary);margin-bottom:4px;">—</div>
+        <div id="rightNextTime" style="font-size:11px;color:var(--text-muted);font-family:'JetBrains Mono',monospace;"></div>
+      </div>
+      <div class="right-panel-card" style="margin-top:12px;">
+        <div style="font-size:12px;color:var(--accent-lavender);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Pebble says</div>
+        <div id="rightPebbleMsg" style="font-size:13px;color:var(--text-secondary);line-height:1.6;font-family:'Baloo 2',cursive;">
+          Take your time. You don't have to do it all today.
+        </div>
+      </div>
+    </div>
+
+    <!-- Documents context -->
+    <div class="right-panel-section" id="rightDocuments">
+      <div class="right-panel-title">Reading</div>
+      <div class="right-panel-card">
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Reading level</div>
+        <div style="font-family:'Baloo 2',cursive;font-size:28px;color:var(--accent-amber);" id="rightReadingLevel">5</div>
+        <div style="font-size:11px;color:var(--text-muted);margin-top:4px;">Adjust in settings to change document complexity</div>
+      </div>
+      <div class="right-panel-card" style="margin-top:12px;">
+        <div style="font-size:12px;color:var(--accent-lavender);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Tip</div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;font-family:'Baloo 2',cursive;">
+          Try reading at a simpler level first, then increase complexity as you understand the content.
+        </div>
+      </div>
+    </div>
+
+    <!-- Study context -->
+    <div class="right-panel-section" id="rightStudy">
+      <div class="right-panel-title">Session</div>
+      <div class="right-panel-card">
+        <div style="font-size:12px;color:var(--text-muted);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Pomodoro</div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">
+          25 minutes of focused work, then a 5-minute break. Four cycles, then a longer rest.
+        </div>
+      </div>
+      <div class="right-panel-card" style="margin-top:12px;">
+        <div style="font-size:12px;color:var(--accent-lavender);margin-bottom:8px;font-weight:700;text-transform:uppercase;letter-spacing:1px;">Pebble says</div>
+        <div id="rightStudyMsg" style="font-size:13px;color:var(--text-secondary);line-height:1.6;font-family:'Baloo 2',cursive;">
+          You're not alone. Everyone in this room is working hard too.
+        </div>
+      </div>
+    </div>
+
+    <!-- Settings context -->
+    <div class="right-panel-section" id="rightSettings">
+      <div class="right-panel-title">About</div>
+      <div class="right-panel-card">
+        <div style="font-family:'Baloo 2',cursive;font-size:15px;color:var(--text-primary);margin-bottom:8px;">Focusbuddy</div>
+        <div style="font-size:13px;color:var(--text-secondary);line-height:1.6;">
+          A warm, calm space for studying. Built with care by people who think productivity doesn't have to feel cold.
+        </div>
+      </div>
+    </div>
+  </aside>
+</div>
+
+<!-- DOCUMENT MODAL -->
+<div class="modal-overlay" id="docModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Document</div>
+      <button class="modal-close" onclick="closeModal()">&times;</button>
+    </div>
+    <div class="reading-control">
+      <div class="reading-control-label">
+        Reading complexity
+        <span class="reading-level-label" id="modalReadingLabel">Level 5</span>
+      </div>
+      <div class="reading-slider-container">
+        <input type="range" class="reading-slider" id="modalReadingSlider" min="1" max="10" value="5" oninput="updateModalReading(this.value)">
+      </div>
+      <div class="reading-labels">
+        <span class="reading-label-text">Simplified</span>
+        <span class="reading-label-text">Standard</span>
+        <span class="reading-label-text">Academic</span>
+      </div>
+    </div>
+    <div class="modal-tags" id="modalTags"></div>
+    <div class="modal-body-columns">
+      <div>
+        <div class="modal-col-label">Original</div>
+        <div class="modal-text" id="modalOriginal"></div>
+      </div>
+      <div>
+        <div class="modal-col-label">Simplified</div>
+        <div class="modal-text" id="modalSimplified"></div>
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="modal-btn modal-btn-primary" onclick="addDocTasks()">Turn into tasks</button>
+      <button class="modal-btn modal-btn-secondary" onclick="closeModal()">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- CHATBOT -->
+<button class="chat-fab" id="chatFab" onclick="toggleChat()">
+  <div class="chat-fab-pulse"></div>
+  <span class="chat-fab-icon">🐱</span>
+</button>
+
+<div class="chat-window" id="chatWindow">
+  <div class="chat-header">
+    <div class="chat-header-avatar">🐱</div>
+    <div class="chat-header-info">
+      <div class="chat-header-name">Pebble</div>
+      <div class="chat-header-status">Online</div>
+    </div>
+    <button class="chat-header-close" onclick="toggleChat()">&times;</button>
+  </div>
+  <div class="chat-messages" id="chatMessages"></div>
+  <div class="chat-quick-replies" id="chatQuickReplies"></div>
+  <div class="chat-input-area">
+    <input type="text" class="chat-input" id="chatInput" placeholder="Ask Pebble anything..." onkeydown="handleChatKeydown(event)" autocomplete="off">
+    <button class="chat-send-btn" onclick="sendMessage()">&#10148;</button>
+  </div>
+</div>
+
+<!-- GSAP Library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+
+<!-- JS Modules -->
+<script src="js/data.js"></script>
+<script src="js/state.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/timer.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/animations.js"></script>
+<script src="js/chatbot.js"></script>
+<script src="js/app.js"></script>
+
+</body>
+</html>
