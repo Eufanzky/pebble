@@ -3,33 +3,32 @@
 import ScreenBackground from '@/components/layout/ScreenBackground';
 import PebbleCharacter from '@/components/pebble/PebbleCharacter';
 import PebbleSpeechBubble from '@/components/pebble/PebbleSpeechBubble';
+import ActivityFeed from '@/components/activity/ActivityFeed';
 import { usePebble } from '@/contexts/PebbleContext';
+import { useActivityLog } from '@/contexts/ActivityLogContext';
 
 export default function ActivityPage() {
   const { mood } = usePebble();
+  const { entries } = useActivityLog();
 
   return (
     <>
       <ScreenBackground scene="rooftop" />
       <div className="relative z-[1] p-10 px-12">
-        <div className="mb-7">
-          <h1 className="screen-title">Activity</h1>
-          <p className="screen-subtitle">A log of everything Pebble has helped you with.</p>
-        </div>
-
-        <div
-          className="glass-card p-8 text-center"
-          style={{ color: 'var(--text-muted)', fontFamily: 'var(--font-baloo)' }}
-        >
-          Activity feed and audit trail coming soon.
-        </div>
-
-        <div className="flex justify-end mt-6 mr-4">
-          <div className="flex flex-col items-center gap-3">
+        {/* Header with Pebble */}
+        <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28 }}>
+          <div>
+            <h1 className="screen-title" style={{ textTransform: 'lowercase' }}>activity</h1>
+            <p className="screen-subtitle">A log of everything Pebble has been thinking about.</p>
+          </div>
+          <div className="flex flex-col items-center gap-2">
             <PebbleSpeechBubble message="Here's what I've been thinking about" />
             <PebbleCharacter mood={mood} size="small" />
           </div>
         </div>
+
+        {/* Activity feed */}
+        <ActivityFeed entries={entries} />
       </div>
     </>
   );

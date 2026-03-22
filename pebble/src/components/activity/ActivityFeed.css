@@ -1,0 +1,114 @@
+/* ========== Activity Feed ========== */
+.activity-feed {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* ========== Filter Bar ========== */
+.activity-filters {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.activity-filter-btn {
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-family: var(--font-nunito);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: 1px solid var(--border-soft);
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+.activity-filter-btn:hover {
+  border-color: rgba(255, 248, 235, 0.2);
+}
+
+.activity-filter-btn.active {
+  border-color: var(--filter-color, var(--accent-lavender));
+  background: color-mix(in srgb, var(--filter-color, var(--accent-lavender)) 20%, transparent);
+  color: var(--filter-color, var(--accent-lavender));
+}
+
+/* ========== Entry Card ========== */
+.activity-entry {
+  background: rgba(255, 248, 235, 0.05);
+  border-radius: 12px;
+  padding: 14px 18px;
+  border-left: 3px solid var(--agent-color);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+@keyframes entry-slide-in {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.activity-entry.new-entry {
+  animation: entry-slide-in 0.3s ease-out;
+}
+
+/* ========== Agent Badge ========== */
+.agent-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-family: var(--font-nunito);
+  font-size: 11px;
+  font-weight: 600;
+}
+
+/* ========== Safety Badge ========== */
+.safety-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 600;
+  margin-left: 6px;
+  letter-spacing: 0.3px;
+}
+
+/* ========== Reasoning Toggle ========== */
+.reasoning-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: var(--font-nunito);
+  font-size: 11px;
+  color: var(--text-muted);
+  transition: color 0.15s ease;
+}
+
+.reasoning-toggle:hover {
+  color: var(--text-secondary);
+}
+
+.reasoning-content {
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+}
+
+/* ========== Reduce animations ========== */
+.reduce-animations .activity-entry.new-entry {
+  animation: none !important;
+}
+
+.reduce-animations .activity-filter-btn,
+.reduce-animations .activity-entry,
+.reduce-animations .reasoning-toggle {
+  transition: none !important;
+}
+
+.reduce-animations .reasoning-content {
+  transition: none !important;
+}
