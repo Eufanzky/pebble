@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect } from 'react';
 import ScreenBackground from '@/components/layout/ScreenBackground';
 import PebbleCharacter from '@/components/pebble/PebbleCharacter';
 import PebbleSpeechBubble from '@/components/pebble/PebbleSpeechBubble';
@@ -12,12 +13,24 @@ import { usePreferences } from '@/contexts/PreferencesContext';
 import { useTimeOfDay } from '@/hooks/useTimeOfDay';
 import { TAG_CONFIG } from '@/data/sampleTasks';
 
-function formatDate(): string {
-  return new Date().toLocaleDateString('en-US', {
-    weekday: 'long',
-    month: 'long',
-    day: 'numeric',
-  });
+function useFormattedDate(): string {
+  const [date, setDate] = useState('');
+  useEffect(() => {
+    setDate(new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+    }));
+  }, []);
+  return date;
+}
+
+function useCurrentHour(): number {
+  const [hour, setHour] = useState(12);
+  useEffect(() => {
+    setHour(new Date().getHours());
+  }, []);
+  return hour;
 }
 
 export default function TodayPage() {
@@ -26,6 +39,8 @@ export default function TodayPage() {
   const { addEntry } = useActivityLog();
   const { preferences, stripEmoji } = usePreferences();
   const timeOfDay = useTimeOfDay();
+  const formattedDate = useFormattedDate();
+  const currentHour = useCurrentHour();
 
   const done = tasks.filter((t) => t.completed).length;
   const total = tasks.length;
@@ -113,7 +128,7 @@ export default function TodayPage() {
 
   // Time-aware nudge
   const nudge = (() => {
-    const hour = new Date().getHours();
+    const hour = currentHour;
     if (done === total && total > 0) {
       return calm
         ? "You finished everything. That's impressive."
@@ -156,7 +171,7 @@ export default function TodayPage() {
                 {greeting.text}
               </div>
               <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 4 }}>
-                {formatDate()}
+                {formattedDate}
               </div>
               <div style={{ fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
                 {greeting.sub}
@@ -206,6 +221,7 @@ export default function TodayPage() {
                       onToggle={handleToggle}
                       onToggleSubtask={handleToggleSubtask}
                       onBreakDown={handleBreakDown}
+                      onWhyOpen={handleWhyOpen}
                     />
                   ))}
                 </div>
