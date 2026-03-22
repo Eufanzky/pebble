@@ -81,13 +81,13 @@ export default function DocumentCard({ document: doc, onClick }: DocumentCardPro
   );
 }
 
-export function UploadZone() {
+export function UploadZone({ onUpload }: { onUpload?: () => void }) {
   const { preferences } = usePreferences();
   const noMotion = preferences.reduceAnimations;
 
   return (
     <button
-      onClick={() => {/* no-op in demo */ }}
+      onClick={onUpload}
       style={{
         width: '100%', height: 160, padding: 20,
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8,

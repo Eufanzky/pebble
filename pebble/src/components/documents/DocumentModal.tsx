@@ -55,6 +55,11 @@ export default function DocumentModal({ document: doc, isOpen, onClose }: Props)
   const handleLevelChange = (newLevel: number) => {
     setLevel(newLevel);
     setTextKey((k) => k + 1);
+    addEntry(
+      'AdaptLens',
+      `Reading level adjusted to ${newLevel} for "${doc.title}"`,
+      `User manually changed reading level from ${level} to ${newLevel}.`
+    );
   };
 
   const handleTurnIntoTasks = useCallback(() => {
@@ -235,7 +240,7 @@ export default function DocumentModal({ document: doc, isOpen, onClose }: Props)
             }}>
               Turn into study plan
             </button>
-            <button onClick={() => setReaderOpen(true)} style={{
+            <button onClick={() => { setReaderOpen(true); addEntry('PebbleVoice', `Launched Immersive Reader for "${doc.title}"`, 'Azure AI Immersive Reader integration demo.'); }} style={{
               padding: '10px 20px', borderRadius: 12, cursor: 'pointer',
               background: 'transparent', border: '1px solid var(--border-soft)',
               color: 'var(--text-secondary)', fontFamily: 'var(--font-nunito)', fontSize: 13, fontWeight: 600,
