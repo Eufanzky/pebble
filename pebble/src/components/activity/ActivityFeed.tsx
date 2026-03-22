@@ -5,7 +5,7 @@ import { usePreferences } from '@/contexts/PreferencesContext';
 import type { ActivityEntry } from '@/lib/types';
 import './ActivityFeed.css';
 
-const AGENTS = ['All', 'CalmSense', 'AdaptLens', 'SimplifyCore', 'PebbleVoice', 'WhyBot'] as const;
+const AGENTS = ['All', 'CalmSense', 'AdaptLens', 'SimplifyCore', 'PebbleVoice', 'WhyBot', 'BridgeBot'] as const;
 
 const AGENT_COLORS: Record<string, string> = {
   CalmSense: 'var(--accent-sage)',
@@ -13,6 +13,7 @@ const AGENT_COLORS: Record<string, string> = {
   SimplifyCore: 'var(--accent-coral)',
   PebbleVoice: 'var(--accent-lavender)',
   WhyBot: 'var(--accent-amber)',
+  BridgeBot: 'var(--accent-sky)',
 };
 
 function formatTime(date: Date): string {
