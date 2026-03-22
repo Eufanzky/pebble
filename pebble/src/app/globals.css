@@ -40,6 +40,12 @@ body {
   transition-delay: 0s !important;
 }
 
+/* Exception: the toggle switch that disables animations should itself still animate */
+.reduce-animations [role="switch"],
+.reduce-animations [role="switch"] > div {
+  transition-duration: 0.2s !important;
+}
+
 /* ========== App Layout ========== */
 .app-layout {
   display: flex;

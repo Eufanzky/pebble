@@ -13,7 +13,7 @@ const AGENT_COLORS: Record<string, string> = {
   SimplifyCore: 'var(--accent-coral)',
   PebbleVoice: 'var(--accent-lavender)',
   WhyBot: 'var(--accent-amber)',
-  BridgeBot: 'var(--accent-sky)',
+  BridgeBot: 'var(--accent-cream)',
 };
 
 function formatTime(date: Date): string {
@@ -78,7 +78,7 @@ function EntryCard({ entry, isNew }: { entry: ActivityEntry; isNew: boolean }) {
         </button>
         <div
           className="reasoning-content"
-          style={{ maxHeight: showReasoning ? 200 : 0 }}
+          style={{ maxHeight: showReasoning ? 500 : 0 }}
         >
           <div style={{
             fontFamily: 'var(--font-nunito)', fontSize: 12, color: 'var(--text-secondary)',

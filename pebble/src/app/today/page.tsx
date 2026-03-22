@@ -137,9 +137,6 @@ export default function TodayPage() {
   };
 
   const handleDistressClear = () => {
-    // Remove all uncompleted tasks
-    const incomp = tasks.filter((t) => !t.completed);
-    incomp.forEach((t) => toggleTask(t.id)); // complete them first
     clearAll();
     addTask({
       title: 'Take 5 minutes to breathe',
@@ -150,7 +147,7 @@ export default function TodayPage() {
       whyExplanation: "Clean slate. Just this one thing whenever you're ready.",
     });
     setDistressState('none');
-    addEntry('CalmSense', 'User chose to clear and start fresh. Added a simple breathing task.', 'Distress response: cleared incomplete tasks, added wellbeing task.');
+    addEntry('CalmSense', 'User chose to clear and start fresh. Added a simple breathing task.', 'Distress response: cleared all tasks, added wellbeing task.');
   };
 
   const handleDistressDismiss = () => {

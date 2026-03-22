@@ -11,7 +11,7 @@ const scenes: Record<Scene, string> = {
 
 export default function ScreenBackground({ scene }: { scene: Scene }) {
   return (
-    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none" style={{ backgroundColor: 'var(--bg-deep)' }}>
       <Image
         src={scenes[scene]}
         alt=""
