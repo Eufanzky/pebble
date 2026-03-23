@@ -10,6 +10,16 @@ class Settings(BaseSettings):
     azure_ad_client_id: str = ""
     azure_ad_tenant_id: str = ""
 
+    # Azure OpenAI
+    azure_openai_endpoint: str = ""
+    azure_openai_key: str = ""
+    azure_openai_deployment: str = "gpt-4o"
+    azure_openai_api_version: str = "2024-12-01-preview"
+
+    # Azure Content Safety
+    content_safety_endpoint: str = ""
+    content_safety_key: str = ""
+
     # CORS
     frontend_url: str = "http://localhost:3000"
 
