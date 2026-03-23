@@ -1,3 +1,4 @@
+from azure.cosmos import PartitionKey
 from azure.cosmos.aio import CosmosClient, ContainerProxy, DatabaseProxy
 
 from app.config import settings
@@ -32,7 +33,7 @@ async def init_db() -> None:
     for name, container_id in CONTAINERS.items():
         container = await _database.create_container_if_not_exists(
             id=container_id,
-            partition_key={"paths": ["/userId"], "kind": "Hash"},
+            partition_key=PartitionKey("/userId"),
         )
         _containers[name] = container
 
