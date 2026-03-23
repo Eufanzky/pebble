@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import tasks, preferences, activity, agents
+from app.routers import tasks, preferences, activity, agents, documents
 from app.services.db import init_db, close_db
 
 
@@ -34,6 +34,7 @@ app.include_router(tasks.router, prefix="/api/tasks", tags=["Tasks"])
 app.include_router(preferences.router, prefix="/api/preferences", tags=["Preferences"])
 app.include_router(activity.router, prefix="/api/activity", tags=["Activity"])
 app.include_router(agents.router, prefix="/api/agents", tags=["AI Agents"])
+app.include_router(documents.router, prefix="/api/documents", tags=["Documents"])
 
 
 @app.get("/api/health")

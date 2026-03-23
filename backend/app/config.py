@@ -20,6 +20,19 @@ class Settings(BaseSettings):
     content_safety_endpoint: str = ""
     content_safety_key: str = ""
 
+    # Azure Blob Storage
+    blob_connection_string: str = ""
+    blob_container_name: str = "documents"
+
+    # Azure Document Intelligence
+    doc_intelligence_endpoint: str = ""
+    doc_intelligence_key: str = ""
+
+    # Azure AI Search
+    search_endpoint: str = ""
+    search_key: str = ""
+    search_index_name: str = "focusbuddy-documents"
+
     # CORS
     frontend_url: str = "http://localhost:3000"
 
