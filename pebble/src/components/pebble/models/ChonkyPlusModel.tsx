@@ -1,11 +1,11 @@
 import type { PebbleMood } from '@/lib/types';
-import { Sparkles, Zzz, Eye, TriangleEar, InnerEar, Nose, Mouth, Blush, Tail, Paw } from './SharedParts';
+import { Sparkles, Zzz, Eye, TriangleEar, InnerEar, Nose, Mouth, Blush, Tail } from './SharedParts';
 
 export default function ChonkyPlusModel({ mood }: { mood: PebbleMood }) {
   return (
     <>
       <Sparkles /><Zzz />
-      {/* Body with belly highlight + Pusheen stripes (via CSS ::before/::after) */}
+      {/* Body with belly highlight + Pusheen stripes */}
       <div className="pb-body" style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: 122, height: 68, background: 'var(--pebble-color)', borderRadius: '48% 48% 50% 50%', boxShadow: '0 6px 18px rgba(0,0,0,0.22)' }}>
         {/* Belly highlight */}
         <div style={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)', width: 58, height: 30, background: 'var(--pebble-light, rgba(255,255,255,0.1))', borderRadius: '50%', opacity: 0.18 }} />
@@ -21,9 +21,9 @@ export default function ChonkyPlusModel({ mood }: { mood: PebbleMood }) {
         <Eye side="l" mood={mood} size={17} top={40} offset={28} shine={6} secondShine />
         <Eye side="r" mood={mood} size={17} top={40} offset={28} shine={6} secondShine />
         <Nose top={58} />
-        <Mouth top={62} />
-        <Blush top={55} left={12} />
-        <Blush top={55} right={12} />
+        <Mouth top={62} mood={mood} />
+        <Blush top={53} left={10} />
+        <Blush top={53} right={10} />
       </div>
       <Tail bottom={14} right={-8} w={50} h={14} />
       {/* Paws with pads */}

@@ -8,6 +8,7 @@ const navItems = [
   { href: '/today', label: 'Today', icon: 'today' },
   { href: '/documents', label: 'Documents', icon: 'docs' },
   { href: '/activity', label: 'Activity', icon: 'activity' },
+  { href: '/focus', label: 'Focus', icon: 'focus' },
   { href: '/settings', label: 'Settings', icon: 'settings' },
 ] as const;
 
@@ -41,6 +42,16 @@ function NavIcon({ type, active }: { type: string; active: boolean }) {
           <circle cx="8" cy="8" r="6.5" stroke={color} strokeWidth="1.5" />
           <line x1="8" y1="4" x2="8" y2="8" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
           <line x1="8" y1="8" x2="11" y2="10" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+      );
+    case 'focus':
+      return (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <rect x="2" y="4" width="12" height="9" rx="2" stroke={color} strokeWidth="1.5" />
+          <circle cx="8" cy="8.5" r="2" stroke={color} strokeWidth="1.2" />
+          <circle cx="5" cy="8.5" r="1" fill={color} opacity="0.4" />
+          <circle cx="11" cy="8.5" r="1" fill={color} opacity="0.4" />
+          <line x1="6" y1="2" x2="10" y2="2" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
         </svg>
       );
     case 'settings':
@@ -79,7 +90,12 @@ function CatSilhouette() {
   );
 }
 
-export default function Sidebar() {
+interface SidebarProps {
+  className?: string;
+  onNavClick?: () => void;
+}
+
+export default function Sidebar({ className, onNavClick }: SidebarProps) {
   const pathname = usePathname();
   const { tasks, completionPercentage } = useTasks();
 
@@ -89,7 +105,7 @@ export default function Sidebar() {
   const offset = circ - (circ * completionPercentage) / 100;
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${className ?? ''}`} aria-label="Main navigation">
       {/* Brand */}
       <div className="sidebar-brand">
         <div className="sidebar-brand-main">
@@ -100,7 +116,7 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="sidebar-nav">
+      <nav className="sidebar-nav" aria-label="App sections">
         {navItems.map((item) => {
           const active = pathname === item.href || (pathname === '/' && item.href === '/today');
           return (
@@ -108,8 +124,10 @@ export default function Sidebar() {
               key={item.href}
               href={item.href}
               className={`sidebar-nav-link ${active ? 'active' : ''}`}
+              aria-current={active ? 'page' : undefined}
+              onClick={onNavClick}
             >
-              <span className="sidebar-nav-icon">
+              <span className="sidebar-nav-icon" aria-hidden="true">
                 <NavIcon type={item.icon} active={active} />
               </span>
               <span>{item.label}</span>
@@ -119,8 +137,8 @@ export default function Sidebar() {
       </nav>
 
       {/* Progress ring */}
-      <div className="sidebar-footer">
-        <svg viewBox="0 0 36 36" width={36} height={36} className="sidebar-ring">
+      <div className="sidebar-footer" role="status" aria-label={`${done} of ${total} tasks completed`}>
+        <svg viewBox="0 0 36 36" width={36} height={36} className="sidebar-ring" aria-hidden="true">
           <circle
             cx="18" cy="18" r="14"
             fill="none"

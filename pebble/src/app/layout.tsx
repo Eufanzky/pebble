@@ -28,6 +28,9 @@ export const metadata: Metadata = {
   title: 'pebble — your calm corner for getting things done',
   description:
     'An AI-powered assistant that reduces cognitive overload by transforming information into clear, personalized formats, guided by your companion Pebble.',
+  icons: {
+    icon: '/favicon.svg',
+  },
 };
 
 export default function RootLayout({

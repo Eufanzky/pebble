@@ -170,8 +170,12 @@ export default function TaskCard({ task, onToggle, onToggleSubtask, onBreakDown,
         {/* Right side: priority dot + break down button */}
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0, paddingTop: 2 }}>
           {canBreakDown && !task.completed && (
-            <button className="break-btn" onClick={handleBreakDown}>
-              <span className="sparkle">&#10022;</span>
+            <button
+              className="break-btn"
+              onClick={handleBreakDown}
+              aria-label={`Break down "${task.title}" into subtasks`}
+            >
+              <span className="sparkle" aria-hidden="true">&#10022;</span>
               Break it down
             </button>
           )}

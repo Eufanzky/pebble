@@ -37,7 +37,7 @@ export interface DocumentItem {
 export interface ActivityEntry {
   id: string;
   timestamp: Date;
-  agent: 'CalmSense' | 'AdaptLens' | 'SimplifyCore' | 'PebbleVoice' | 'WhyBot';
+  agent: 'CalmSense' | 'AdaptLens' | 'SimplifyCore' | 'PebbleVoice' | 'WhyBot' | 'BridgeBot';
   action: string;
   reasoning: string;
   safetyStatus: 'passed' | 'flagged';

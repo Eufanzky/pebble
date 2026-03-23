@@ -1,37 +1,109 @@
 import type { PebbleMood } from '@/lib/types';
 
-export function Sparkles() {
+/* ========== Mood Particles (excited burst) ========== */
+const PARTICLE_ANGLES = [0, 45, 90, 135, 180, 225, 270, 315];
+
+export function MoodParticles() {
   return (
-    <div className="pb-sparkles">
-      <span className="pb-sparkle">&#10022;</span>
-      <span className="pb-sparkle">&#10022;</span>
-      <span className="pb-sparkle">&#10022;</span>
-      <span className="pb-sparkle">&#10022;</span>
+    <div className="pb-particles">
+      {PARTICLE_ANGLES.map((angle, i) => (
+        <span
+          key={angle}
+          className="pb-particle"
+          style={{ '--angle': `${angle}deg`, '--delay': `${i * 0.1}s` } as React.CSSProperties}
+        >
+          &#9670;
+        </span>
+      ))}
     </div>
   );
 }
 
-export function Zzz() {
-  return <div className="pb-zzz">zzz</div>;
+/* ========== Sparkles (legacy wrapper, now uses particles) ========== */
+export function Sparkles() {
+  return <MoodParticles />;
 }
 
+/* ========== Zzz (3 staggered z letters) ========== */
+export function Zzz() {
+  return (
+    <div className="pb-zzz-group">
+      <span className="pb-zzz-letter pb-zzz-1">z</span>
+      <span className="pb-zzz-letter pb-zzz-2">z</span>
+      <span className="pb-zzz-letter pb-zzz-3">z</span>
+    </div>
+  );
+}
+
+/* ========== Eye (mood-aware: star eyes for excited, flat for sleepy) ========== */
 export function Eye({ side, mood, size = 12, top = 34, offset = 26, shine = 4, secondShine = false }: {
   side: 'l' | 'r'; mood: PebbleMood; size?: number; top?: number; offset?: number; shine?: number; secondShine?: boolean;
 }) {
   const pos = side === 'l' ? { left: offset } : { right: offset };
+
+  // Excited: star eyes — dark outline with amber fill and white highlight
+  if (mood === 'excited') {
+    const starSize = size * 1.4;
+    const starClip = 'polygon(50% 0%, 65% 35%, 100% 50%, 65% 65%, 50% 100%, 35% 65%, 0% 50%, 35% 35%)';
+    return (
+      <div
+        className={`pb-eye pb-star-eye ${side === 'l' ? 'eye-l' : 'eye-r'}`}
+        style={{
+          position: 'absolute', width: starSize, height: starSize,
+          top: top - (starSize - size) / 2, zIndex: 5, ...pos,
+        }}
+      >
+        {/* Dark outline star */}
+        <div style={{
+          position: 'absolute', inset: 0,
+          background: '#2A2A2E',
+          clipPath: starClip,
+        }} />
+        {/* Amber inner star */}
+        <div style={{
+          position: 'absolute', inset: '15%',
+          background: 'var(--accent-amber)',
+          clipPath: starClip,
+        }} />
+        {/* White shine dot */}
+        <div style={{
+          position: 'absolute',
+          width: Math.max(3, shine * 0.8), height: Math.max(3, shine * 0.8),
+          background: 'white', borderRadius: '50%',
+          top: '25%', right: '25%', zIndex: 1,
+        }} />
+      </div>
+    );
+  }
+
+  // Happy: slightly larger eyes
+  const scale = mood === 'happy' ? 1.15 : 1;
+  const eyeSize = size * scale;
+
   return (
     <div
       className={`pb-eye ${side === 'l' ? 'eye-l' : 'eye-r'} ${mood === 'sleepy' ? 'sleepy' : ''}`}
-      style={{ position: 'absolute', width: size, height: size, background: '#2A2A2E', borderRadius: '50%', top, zIndex: 5, ...pos }}
+      style={{
+        position: 'absolute', width: eyeSize, height: eyeSize,
+        background: '#2A2A2E', borderRadius: '50%',
+        top: top - (eyeSize - size) / 2, zIndex: 5, ...pos,
+      }}
     >
-      <div className="pb-shine" style={{ position: 'absolute', width: shine, height: shine, background: 'white', borderRadius: '50%', top: 2, right: 2 }} />
+      <div className="pb-shine" style={{
+        position: 'absolute', width: shine, height: shine,
+        background: 'white', borderRadius: '50%', top: 2, right: 2,
+      }} />
       {secondShine && (
-        <div style={{ position: 'absolute', width: Math.max(2, shine - 2), height: Math.max(2, shine - 2), background: 'rgba(255,255,255,0.5)', borderRadius: '50%', bottom: 3, left: 3 }} />
+        <div style={{
+          position: 'absolute', width: Math.max(2, shine - 2), height: Math.max(2, shine - 2),
+          background: 'rgba(255,255,255,0.5)', borderRadius: '50%', bottom: 3, left: 3,
+        }} />
       )}
     </div>
   );
 }
 
+/* ========== Triangle Ear ========== */
 export function TriangleEar({ side, top = -2, offset = 10, w = 14, h = 26, className = '' }: {
   side: 'l' | 'r'; top?: number; offset?: number; w?: number; h?: number; className?: string;
 }) {
@@ -45,6 +117,7 @@ export function TriangleEar({ side, top = -2, offset = 10, w = 14, h = 26, class
   );
 }
 
+/* ========== Inner Ear ========== */
 export function InnerEar({ side, top = 5, offset = 17, w = 7, h = 14 }: {
   side: 'l' | 'r'; top?: number; offset?: number; w?: number; h?: number;
 }) {
@@ -58,6 +131,7 @@ export function InnerEar({ side, top = 5, offset = 17, w = 7, h = 14 }: {
   );
 }
 
+/* ========== Nose ========== */
 export function Nose({ top = 53, style: extraStyle }: { top?: number; style?: 'triangle' | 'dot'; }) {
   if (extraStyle === 'dot') {
     return <div style={{ position: 'absolute', top, left: '50%', transform: 'translateX(-50%)', width: 5, height: 4, background: '#E8A0BF', borderRadius: '50% 50% 50% 50% / 30% 30% 70% 70%', zIndex: 5 }} />;
@@ -72,23 +146,29 @@ export function Nose({ top = 53, style: extraStyle }: { top?: number; style?: 't
   );
 }
 
-export function Mouth({ top = 57 }: { top?: number }) {
+/* ========== Mouth (mood-aware smile) ========== */
+export function Mouth({ top = 57, mood }: { top?: number; mood?: PebbleMood }) {
+  const width = mood === 'happy' || mood === 'excited' ? 18 : 14;
+  const height = mood === 'happy' || mood === 'excited' ? 6 : 5;
+  const half = width / 2;
+
   return (
-    <div style={{ position: 'absolute', top, left: '50%', transform: 'translateX(-50%)', width: 14, height: 5, zIndex: 5 }}>
-      <div style={{ position: 'absolute', left: 0, top: 0, width: 7, height: 4, borderBottom: '1.5px solid rgba(42,42,46,0.25)', borderRadius: '0 0 0 50%' }} />
-      <div style={{ position: 'absolute', right: 0, top: 0, width: 7, height: 4, borderBottom: '1.5px solid rgba(42,42,46,0.25)', borderRadius: '0 0 50% 0' }} />
+    <div className="pb-mouth" style={{ position: 'absolute', top, left: '50%', transform: 'translateX(-50%)', width, height, zIndex: 5 }}>
+      <div style={{ position: 'absolute', left: 0, top: 0, width: half, height: height - 1, borderBottom: '1.5px solid rgba(42,42,46,0.3)', borderRadius: '0 0 0 50%' }} />
+      <div style={{ position: 'absolute', right: 0, top: 0, width: half, height: height - 1, borderBottom: '1.5px solid rgba(42,42,46,0.3)', borderRadius: '0 0 50% 0' }} />
     </div>
   );
 }
 
-export function Blush({ top = 50, left, right, w = 16, h = 9, opacity }: {
+/* ========== Blush (mood-aware, much more visible) ========== */
+export function Blush({ top = 50, left, right, w = 12, h = 12, opacity }: {
   top?: number; left?: number; right?: number; w?: number; h?: number; opacity?: number;
 }) {
   const pos = left !== undefined ? { left } : { right };
   return (
     <div className="pb-blush" style={{
       position: 'absolute', width: w, height: h,
-      background: 'radial-gradient(ellipse, rgba(232,160,191,0.35) 0%, transparent 70%)',
+      background: 'radial-gradient(circle, #F0A0C0 0%, transparent 70%)',
       borderRadius: '50%', top, zIndex: 5,
       opacity: opacity ?? 0, transition: 'opacity 0.4s ease',
       ...pos,
@@ -96,6 +176,7 @@ export function Blush({ top = 50, left, right, w = 16, h = 9, opacity }: {
   );
 }
 
+/* ========== Tail ========== */
 export function Tail({ bottom = 16, right = -8, w = 50, h = 14 }: {
   bottom?: number; right?: number; w?: number; h?: number;
 }) {
@@ -107,6 +188,7 @@ export function Tail({ bottom = 16, right = -8, w = 50, h = 14 }: {
   );
 }
 
+/* ========== Paw ========== */
 export function Paw({ side, bottom = -2, offset = 22 }: { side: 'l' | 'r'; bottom?: number; offset?: number }) {
   const pos = side === 'l' ? { left: offset } : { right: offset };
   return (
@@ -118,6 +200,7 @@ export function Paw({ side, bottom = -2, offset = 22 }: { side: 'l' | 'r'; botto
   );
 }
 
+/* ========== Whiskers ========== */
 export function Whiskers({ top = 50 }: { top?: number }) {
   return (
     <>

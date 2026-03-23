@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, useRef, type ReactNode } from 'react';
 import { usePreferences } from './PreferencesContext';
 
 interface ToastContextValue {
@@ -13,6 +13,9 @@ function ToastDisplay({ message, onDone }: { message: string; onDone: () => void
   const { preferences } = usePreferences();
   const noMotion = preferences.reduceAnimations;
   const [phase, setPhase] = useState<'enter' | 'visible' | 'exit'>('enter');
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const remainingRef = useRef(5000);
+  const startTimeRef = useRef(Date.now());
 
   useEffect(() => {
     if (noMotion) setPhase('visible');
@@ -22,10 +25,26 @@ function ToastDisplay({ message, onDone }: { message: string; onDone: () => void
     }
   }, [noMotion]);
 
-  useEffect(() => {
-    const t = setTimeout(() => setPhase('exit'), 3000);
-    return () => clearTimeout(t);
+  const startTimer = useCallback(() => {
+    startTimeRef.current = Date.now();
+    timerRef.current = setTimeout(() => setPhase('exit'), remainingRef.current);
   }, []);
+
+  const pauseTimer = useCallback(() => {
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+      remainingRef.current -= Date.now() - startTimeRef.current;
+      if (remainingRef.current < 0) remainingRef.current = 0;
+    }
+  }, []);
+
+  useEffect(() => {
+    startTimer();
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
+  }, [startTimer]);
 
   useEffect(() => {
     if (phase === 'exit') {
@@ -36,6 +55,12 @@ function ToastDisplay({ message, onDone }: { message: string; onDone: () => void
 
   return (
     <div
+      role="status"
+      aria-live="polite"
+      onMouseEnter={pauseTimer}
+      onMouseLeave={startTimer}
+      onFocus={pauseTimer}
+      onBlur={startTimer}
       style={{
         position: 'fixed', bottom: 24, left: '50%', transform: 'translateX(-50%)',
         zIndex: 100, maxWidth: 400,

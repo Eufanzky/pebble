@@ -1,27 +1,27 @@
-import Image from 'next/image';
+import { memo } from 'react';
 
-type Scene = 'cafe' | 'library' | 'rooftop' | 'bedroom';
+type Scene = 'cafe' | 'library' | 'rooftop' | 'bedroom' | 'study';
 
-const scenes: Record<Scene, string> = {
-  cafe: '/backgrounds/cafe.jpg',
-  library: '/backgrounds/library.png',
-  rooftop: '/backgrounds/rooftop.webp',
-  bedroom: '/backgrounds/bedroom.jpg',
+const scenes: Record<Scene, { src: string; overlay?: string }> = {
+  cafe: { src: '/backgrounds/cafe.jpg' },
+  library: { src: '/backgrounds/library.png' },
+  rooftop: { src: '/backgrounds/rooftop.webp' },
+  bedroom: { src: '/backgrounds/bedroom.jpg' },
+  study: { src: '/backgrounds/rooftop.webp', overlay: 'rgba(20, 10, 30, 0.75)' },
 };
 
-export default function ScreenBackground({ scene }: { scene: Scene }) {
+export default memo(function ScreenBackground({ scene }: { scene: Scene }) {
+  const { src, overlay } = scenes[scene];
   return (
-    <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
-      <Image
-        src={scenes[scene]}
+    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none" style={{ backgroundColor: 'var(--bg-deep)' }}>
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src={src}
         alt=""
-        fill
-        priority
-        className="object-cover opacity-40"
-        sizes="(min-width: 260px) calc(100vw - 260px), 100vw"
+        className="absolute inset-0 w-full h-full object-cover opacity-40"
       />
       {/* Dark overlay for readability */}
-      <div className="absolute inset-0 bg-[var(--bg-deep)] opacity-30" />
+      <div className="absolute inset-0" style={{ background: overlay ?? 'var(--bg-deep)', opacity: overlay ? 1 : 0.3 }} />
     </div>
   );
-}
+});

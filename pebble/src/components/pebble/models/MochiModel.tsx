@@ -1,5 +1,5 @@
 import type { PebbleMood } from '@/lib/types';
-import { Sparkles, Zzz, Eye, TriangleEar, InnerEar, Nose, Blush, Tail } from './SharedParts';
+import { Sparkles, Zzz, Eye, TriangleEar, InnerEar, Nose, Mouth, Blush, Tail } from './SharedParts';
 
 export default function MochiModel({ mood }: { mood: PebbleMood }) {
   return (
@@ -13,8 +13,9 @@ export default function MochiModel({ mood }: { mood: PebbleMood }) {
         <Eye side="l" mood={mood} size={18} top={50} offset={30} shine={6} secondShine />
         <Eye side="r" mood={mood} size={18} top={50} offset={30} shine={6} secondShine />
         <Nose top={70} style="dot" />
-        <Blush top={65} left={16} opacity={0.7} />
-        <Blush top={65} right={16} opacity={0.7} />
+        <Mouth top={75} mood={mood} />
+        <Blush top={62} left={14} opacity={0.7} />
+        <Blush top={62} right={14} opacity={0.7} />
       </div>
       <Tail bottom={20} right={-6} w={40} h={12} />
     </>
