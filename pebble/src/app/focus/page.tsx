@@ -15,8 +15,8 @@ const FOCUS_DURATION = 25 * 60; // 25 minutes in seconds
 const OTHER_ROOMS = [
   { name: 'Morning Grind', people: 7, colors: ['var(--accent-amber)', 'var(--accent-sage)', 'var(--accent-lavender)', 'var(--accent-coral)', 'var(--accent-sky)'] },
   { name: 'Late Night Club', people: 2, colors: ['var(--accent-coral)', 'var(--accent-sky)'] },
-  { name: 'Chill Afternoon', people: 5, colors: ['var(--accent-sage)', 'var(--accent-lavender)', 'var(--accent-amber)'] },
-  { name: 'Quiet Focus', people: 1, colors: ['var(--accent-lavender)'] },
+  { name: 'Deep Work Den', people: 5, colors: ['var(--accent-sage)', 'var(--accent-lavender)', 'var(--accent-amber)'] },
+  { name: 'Quiet Corner', people: 1, colors: ['var(--accent-lavender)'] },
 ];
 
 function formatTime(seconds: number): string {
@@ -46,7 +46,7 @@ function playChime() {
   }
 }
 
-export default function StudyPage() {
+export default function FocusPage() {
   const { mood, flashMood } = usePebble();
   const { addEntry } = useActivityLog();
   const { preferences } = usePreferences();
@@ -55,7 +55,7 @@ export default function StudyPage() {
 
   const [timeLeft, setTimeLeft] = useState(FOCUS_DURATION);
   const [timerState, setTimerState] = useState<'idle' | 'running' | 'paused'>('idle');
-  const [pebbleMessage, setPebbleMessage] = useState('Study with others — no cameras, no pressure');
+  const [pebbleMessage, setPebbleMessage] = useState('Focus with others — no cameras, no pressure');
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const elapsed = FOCUS_DURATION - timeLeft;
@@ -76,7 +76,7 @@ export default function StudyPage() {
     playChime();
     flashMood('excited', 3000);
     setPebbleMessage('Great session! You focused for 25 minutes');
-    addEntry('PebbleVoice', 'Focus session completed. 25 minutes of focused study.', 'Pomodoro timer completed in Study Room.');
+    addEntry('PebbleVoice', 'Focus session completed. 25 minutes of deep focus.', 'Pomodoro timer completed in Focus Room.');
     setTimeLeft(FOCUS_DURATION);
     setTimerState('idle');
   }, [stopInterval, flashMood, addEntry]);
@@ -98,7 +98,7 @@ export default function StudyPage() {
 
   const handleStart = () => {
     setTimerState('running');
-    setPebbleMessage("The room is focused. I'm studying with you.");
+    setPebbleMessage("The room is focused. I'm right here with you.");
   };
 
   const handlePause = () => {
@@ -109,7 +109,7 @@ export default function StudyPage() {
 
   const handleResume = () => {
     setTimerState('running');
-    setPebbleMessage("The room is focused. I'm studying with you.");
+    setPebbleMessage("The room is focused. I'm right here with you.");
   };
 
   return (
@@ -119,8 +119,8 @@ export default function StudyPage() {
         {/* Header */}
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28 }}>
           <div>
-            <h1 className="screen-title" style={{ textTransform: 'lowercase' }}>study room</h1>
-            <p className="screen-subtitle">Virtual co-working. No cameras, no microphones, no pressure.</p>
+            <h1 className="screen-title" style={{ textTransform: 'lowercase' }}>focus room</h1>
+            <p className="screen-subtitle">Virtual co-working for studying, working, or creating. No cameras, no pressure.</p>
           </div>
           <div className="flex flex-col items-center gap-2">
             <PebbleSpeechBubble message={pebbleMessage} />
@@ -135,7 +135,7 @@ export default function StudyPage() {
           </div>
 
           <div style={{ display: 'flex', gap: 40, alignItems: 'flex-start', flexWrap: 'wrap' }}>
-            {/* Study Table Visualization */}
+            {/* Table Visualization */}
             <div style={{ flex: '1 1 260px', maxWidth: 320 }}>
               <div className="study-table-scene">
                 {/* Table surface */}
@@ -157,7 +157,7 @@ export default function StudyPage() {
               </div>
 
               <div style={{ textAlign: 'center', marginTop: 12, fontSize: 12, color: 'var(--text-secondary)' }}>
-                3 people studying
+                3 people focusing
               </div>
             </div>
 

@@ -8,7 +8,7 @@ const navItems = [
   { href: '/today', label: 'Today', icon: 'today' },
   { href: '/documents', label: 'Documents', icon: 'docs' },
   { href: '/activity', label: 'Activity', icon: 'activity' },
-  { href: '/study', label: 'Study', icon: 'study' },
+  { href: '/focus', label: 'Focus', icon: 'focus' },
   { href: '/settings', label: 'Settings', icon: 'settings' },
 ] as const;
 
@@ -44,7 +44,7 @@ function NavIcon({ type, active }: { type: string; active: boolean }) {
           <line x1="8" y1="8" x2="11" y2="10" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
         </svg>
       );
-    case 'study':
+    case 'focus':
       return (
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
           <rect x="2" y="4" width="12" height="9" rx="2" stroke={color} strokeWidth="1.5" />
