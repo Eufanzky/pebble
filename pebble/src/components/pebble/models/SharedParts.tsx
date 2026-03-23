@@ -41,9 +41,10 @@ export function Eye({ side, mood, size = 12, top = 34, offset = 26, shine = 4, s
 }) {
   const pos = side === 'l' ? { left: offset } : { right: offset };
 
-  // Excited: star eyes
+  // Excited: star eyes — dark outline with amber fill and white highlight
   if (mood === 'excited') {
-    const starSize = size * 1.2;
+    const starSize = size * 1.4;
+    const starClip = 'polygon(50% 0%, 65% 35%, 100% 50%, 65% 65%, 50% 100%, 35% 65%, 0% 50%, 35% 35%)';
     return (
       <div
         className={`pb-eye pb-star-eye ${side === 'l' ? 'eye-l' : 'eye-r'}`}
@@ -52,10 +53,24 @@ export function Eye({ side, mood, size = 12, top = 34, offset = 26, shine = 4, s
           top: top - (starSize - size) / 2, zIndex: 5, ...pos,
         }}
       >
+        {/* Dark outline star */}
         <div style={{
-          width: '100%', height: '100%',
+          position: 'absolute', inset: 0,
+          background: '#2A2A2E',
+          clipPath: starClip,
+        }} />
+        {/* Amber inner star */}
+        <div style={{
+          position: 'absolute', inset: '15%',
           background: 'var(--accent-amber)',
-          clipPath: 'polygon(50% 0%, 65% 35%, 100% 50%, 65% 65%, 50% 100%, 35% 65%, 0% 50%, 35% 35%)',
+          clipPath: starClip,
+        }} />
+        {/* White shine dot */}
+        <div style={{
+          position: 'absolute',
+          width: Math.max(3, shine * 0.8), height: Math.max(3, shine * 0.8),
+          background: 'white', borderRadius: '50%',
+          top: '25%', right: '25%', zIndex: 1,
         }} />
       </div>
     );

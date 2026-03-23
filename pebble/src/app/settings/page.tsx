@@ -206,7 +206,7 @@ export default function SettingsPage() {
                     transition: 'all 0.2s ease',
                   }}
                 >
-                  <div style={{ display: 'flex', justifyContent: 'center', height: 70, alignItems: 'flex-end', marginBottom: 6 }}>
+                  <div style={{ display: 'flex', justifyContent: 'center', height: 95, alignItems: 'flex-end', marginBottom: 6, overflow: 'visible' }}>
                     <PebbleCharacter mood="normal" size="small" model={m.id} />
                   </div>
                   <div style={{ fontFamily: 'var(--font-baloo)', fontSize: 12, color: active ? 'var(--text-primary)' : 'var(--text-secondary)' }}>{m.name}</div>

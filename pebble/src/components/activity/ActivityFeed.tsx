@@ -94,8 +94,11 @@ function EntryCard({ entry, isNew }: { entry: ActivityEntry; isNew: boolean }) {
   );
 }
 
+const PAGE_SIZE = 8;
+
 export default function ActivityFeed({ entries, maxHeight }: ActivityFeedProps) {
   const [filter, setFilter] = useState<string>('All');
+  const [visibleCount, setVisibleCount] = useState(PAGE_SIZE);
 
   const filtered = filter === 'All'
     ? entries
@@ -107,6 +110,14 @@ export default function ActivityFeed({ entries, maxHeight }: ActivityFeedProps) 
     const tb = b.timestamp instanceof Date ? b.timestamp.getTime() : new Date(b.timestamp).getTime();
     return tb - ta;
   });
+
+  const visible = sorted.slice(0, visibleCount);
+  const remaining = sorted.length - visibleCount;
+
+  const handleFilterChange = (agent: string) => {
+    setFilter(agent);
+    setVisibleCount(PAGE_SIZE);
+  };
 
   return (
     <div>
@@ -120,7 +131,7 @@ export default function ActivityFeed({ entries, maxHeight }: ActivityFeedProps) 
               key={agent}
               className={`activity-filter-btn ${active ? 'active' : ''}`}
               style={{ '--filter-color': color } as React.CSSProperties}
-              onClick={() => setFilter(agent)}
+              onClick={() => handleFilterChange(agent)}
               aria-pressed={active}
               aria-label={`Filter by ${agent}${active ? ' (active)' : ''}`}
             >
@@ -130,12 +141,19 @@ export default function ActivityFeed({ entries, maxHeight }: ActivityFeedProps) 
         })}
       </div>
 
+      {/* Count */}
+      {sorted.length > 0 && (
+        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 12 }}>
+          Showing {visible.length} of {sorted.length} entries
+        </div>
+      )}
+
       {/* Feed */}
       <div
         className="activity-feed"
         style={maxHeight ? { maxHeight, overflowY: 'auto' } : undefined}
       >
-        {sorted.map((entry, i) => (
+        {visible.map((entry, i) => (
           <EntryCard key={entry.id} entry={entry} isNew={i === 0} />
         ))}
         {sorted.length === 0 && (
@@ -144,6 +162,18 @@ export default function ActivityFeed({ entries, maxHeight }: ActivityFeedProps) 
           </div>
         )}
       </div>
+
+      {/* Show more */}
+      {remaining > 0 && (
+        <div style={{ textAlign: 'center', marginTop: 16 }}>
+          <button
+            onClick={() => setVisibleCount((c) => c + PAGE_SIZE)}
+            className="activity-show-more"
+          >
+            Show {Math.min(remaining, PAGE_SIZE)} more{remaining > PAGE_SIZE ? ` of ${remaining}` : ''}
+          </button>
+        </div>
+      )}
     </div>
   );
 }

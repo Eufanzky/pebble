@@ -100,6 +100,27 @@
   transition: max-height 0.3s ease-out;
 }
 
+/* ========== Show More Button ========== */
+.activity-show-more {
+  padding: 10px 24px;
+  border-radius: 12px;
+  border: 1px solid var(--border-soft);
+  background: var(--glass-bg);
+  color: var(--text-secondary);
+  font-family: var(--font-nunito);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  min-height: 44px;
+}
+
+.activity-show-more:hover {
+  border-color: var(--accent-lavender);
+  color: var(--accent-lavender);
+  background: rgba(196, 181, 212, 0.08);
+}
+
 /* ========== Reduce animations ========== */
 .reduce-animations .activity-entry.new-entry {
   animation: none !important;
