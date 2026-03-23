@@ -79,7 +79,12 @@ function CatSilhouette() {
   );
 }
 
-export default function Sidebar() {
+interface SidebarProps {
+  className?: string;
+  onNavClick?: () => void;
+}
+
+export default function Sidebar({ className, onNavClick }: SidebarProps) {
   const pathname = usePathname();
   const { tasks, completionPercentage } = useTasks();
 
@@ -89,7 +94,7 @@ export default function Sidebar() {
   const offset = circ - (circ * completionPercentage) / 100;
 
   return (
-    <aside className="sidebar">
+    <aside className={`sidebar ${className ?? ''}`} aria-label="Main navigation">
       {/* Brand */}
       <div className="sidebar-brand">
         <div className="sidebar-brand-main">
@@ -100,7 +105,7 @@ export default function Sidebar() {
       </div>
 
       {/* Navigation */}
-      <nav className="sidebar-nav">
+      <nav className="sidebar-nav" aria-label="App sections">
         {navItems.map((item) => {
           const active = pathname === item.href || (pathname === '/' && item.href === '/today');
           return (
@@ -108,8 +113,10 @@ export default function Sidebar() {
               key={item.href}
               href={item.href}
               className={`sidebar-nav-link ${active ? 'active' : ''}`}
+              aria-current={active ? 'page' : undefined}
+              onClick={onNavClick}
             >
-              <span className="sidebar-nav-icon">
+              <span className="sidebar-nav-icon" aria-hidden="true">
                 <NavIcon type={item.icon} active={active} />
               </span>
               <span>{item.label}</span>
@@ -119,8 +126,8 @@ export default function Sidebar() {
       </nav>
 
       {/* Progress ring */}
-      <div className="sidebar-footer">
-        <svg viewBox="0 0 36 36" width={36} height={36} className="sidebar-ring">
+      <div className="sidebar-footer" role="status" aria-label={`${done} of ${total} tasks completed`}>
+        <svg viewBox="0 0 36 36" width={36} height={36} className="sidebar-ring" aria-hidden="true">
           <circle
             cx="18" cy="18" r="14"
             fill="none"

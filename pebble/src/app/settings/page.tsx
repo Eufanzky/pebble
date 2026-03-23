@@ -58,11 +58,12 @@ function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }
   );
 }
 
-function ToggleSwitch({ on, onChange }: { on: boolean; onChange: () => void }) {
+function ToggleSwitch({ on, onChange, label }: { on: boolean; onChange: () => void; label?: string }) {
   return (
     <button
       role="switch"
       aria-checked={on}
+      aria-label={label}
       onClick={onChange}
       style={{
         width: 44, height: 24, borderRadius: 12, border: 'none', cursor: 'pointer',
@@ -281,12 +282,17 @@ export default function SettingsPage() {
           {/* Reading level */}
           <div className="glass-card" style={{ padding: '18px 20px' }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-              <span style={{ fontFamily: 'var(--font-nunito)', fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>Default reading level</span>
+              <label htmlFor="settings-reading-level" style={{ fontFamily: 'var(--font-nunito)', fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>Default reading level</label>
               <span style={{ fontFamily: 'var(--font-jetbrains)', fontSize: 12, color: 'var(--accent-lavender)' }}>Level {preferences.readingLevel}</span>
             </div>
             <input
+              id="settings-reading-level"
               type="range" min={1} max={10} value={preferences.readingLevel}
               onChange={(e) => handleReadingLevel(Number(e.target.value))}
+              aria-valuemin={1}
+              aria-valuemax={10}
+              aria-valuenow={preferences.readingLevel}
+              aria-valuetext={`Reading level ${preferences.readingLevel} of 10`}
               style={{
                 width: '100%', height: 4, appearance: 'none', WebkitAppearance: 'none',
                 background: `linear-gradient(to right, var(--accent-lavender) ${(preferences.readingLevel - 1) * 11.1}%, var(--border-soft) ${(preferences.readingLevel - 1) * 11.1}%)`,
@@ -352,7 +358,7 @@ export default function SettingsPage() {
                 <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Disables all motion, transitions, and animated effects</div>
                 <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 4 }}>Supports WCAG 2.2 criterion 2.3.3</div>
               </div>
-              <ToggleSwitch on={preferences.reduceAnimations} onChange={toggleReduceAnimations} />
+              <ToggleSwitch on={preferences.reduceAnimations} onChange={toggleReduceAnimations} label="Reduce animations" />
             </div>
 
             <div style={{ borderTop: '1px solid var(--border-soft)' }} />
@@ -363,7 +369,7 @@ export default function SettingsPage() {
                 <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>Calm mode</div>
                 <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Removes emoji and decorative symbols from all text</div>
               </div>
-              <ToggleSwitch on={preferences.calmMode} onChange={toggleCalmMode} />
+              <ToggleSwitch on={preferences.calmMode} onChange={toggleCalmMode} label="Calm mode" />
             </div>
 
             <div style={{ borderTop: '1px solid var(--border-soft)' }} />
@@ -375,7 +381,7 @@ export default function SettingsPage() {
                   <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>Voice input</div>
                   <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>Enable microphone for voice commands</div>
                 </div>
-                <ToggleSwitch on={preferences.voiceInput} onChange={toggleVoiceInput} />
+                <ToggleSwitch on={preferences.voiceInput} onChange={toggleVoiceInput} label="Voice input" />
               </div>
               {voiceBanner && preferences.voiceInput && (
                 <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 8, padding: '8px 12px', background: 'rgba(255,248,235,0.04)', borderRadius: 8 }}>
@@ -451,7 +457,7 @@ export default function SettingsPage() {
                     <span style={{ fontSize: 18 }}>{calm ? '' : app.emoji}</span>
                     <span style={{ fontFamily: 'var(--font-nunito)', fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{app.name}</span>
                   </div>
-                  <ToggleSwitch on={on} onChange={() => toggleApp(app.name)} />
+                  <ToggleSwitch on={on} onChange={() => toggleApp(app.name)} label={`Connect ${app.name}`} />
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>{app.desc}</div>
                 <div style={{ fontSize: 11, fontWeight: 600, color: on ? 'var(--accent-sage)' : 'var(--text-muted)' }}>

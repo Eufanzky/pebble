@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePreferences } from '@/contexts/PreferencesContext';
 import { useTasks } from '@/contexts/TasksContext';
@@ -17,6 +17,8 @@ interface Props {
   onClose: () => void;
 }
 
+const FOCUSABLE_SELECTOR = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
 export default function DocumentModal({ document: doc, isOpen, onClose }: Props) {
   const router = useRouter();
   const { preferences } = usePreferences();
@@ -32,11 +34,16 @@ export default function DocumentModal({ document: doc, isOpen, onClose }: Props)
   const [readerOpen, setReaderOpen] = useState(false);
   const [textKey, setTextKey] = useState(0);
 
+  const modalRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLElement | null>(null);
+
   const simplifiedText = getTextForLevel(doc, level);
   const isDefaultLevel = level === preferences.readingLevel;
 
   useEffect(() => {
     if (isOpen) {
+      // Store the element that triggered the modal
+      triggerRef.current = document.activeElement as HTMLElement;
       requestAnimationFrame(() => setVisible(true));
       setShowCheck(false);
       setLevel(preferences.readingLevel);
@@ -45,12 +52,52 @@ export default function DocumentModal({ document: doc, isOpen, onClose }: Props)
     }
   }, [isOpen, preferences.readingLevel]);
 
+  // Focus the modal when it becomes visible
+  useEffect(() => {
+    if (isOpen && visible && modalRef.current) {
+      const firstFocusable = modalRef.current.querySelector(FOCUSABLE_SELECTOR) as HTMLElement;
+      if (firstFocusable) firstFocusable.focus();
+    }
+  }, [isOpen, visible]);
+
+  const handleClose = useCallback(() => {
+    onClose();
+    // Return focus to the trigger element
+    requestAnimationFrame(() => {
+      triggerRef.current?.focus();
+    });
+  }, [onClose]);
+
   useEffect(() => {
     if (!isOpen) return;
-    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        handleClose();
+        return;
+      }
+
+      // Focus trap: Tab and Shift+Tab cycle within modal
+      if (e.key === 'Tab' && modalRef.current) {
+        const focusable = Array.from(
+          modalRef.current.querySelectorAll(FOCUSABLE_SELECTOR)
+        ) as HTMLElement[];
+        if (focusable.length === 0) return;
+
+        const first = focusable[0];
+        const last = focusable[focusable.length - 1];
+
+        if (e.shiftKey && document.activeElement === first) {
+          e.preventDefault();
+          last.focus();
+        } else if (!e.shiftKey && document.activeElement === last) {
+          e.preventDefault();
+          first.focus();
+        }
+      }
+    };
     window.addEventListener('keydown', handler);
     return () => window.removeEventListener('keydown', handler);
-  }, [isOpen, onClose]);
+  }, [isOpen, handleClose]);
 
   const handleLevelChange = (newLevel: number) => {
     setLevel(newLevel);
@@ -68,9 +115,9 @@ export default function DocumentModal({ document: doc, isOpen, onClose }: Props)
     });
     addEntry('SimplifyCore', `Extracted ${doc.extractedTasks.length} tasks from "${doc.title}" and added to Today`, `Document type: ${doc.type}. Tasks extracted based on action items.`);
     showToast(`Added ${doc.extractedTasks.length} tasks from ${doc.title}`);
-    onClose();
+    handleClose();
     router.push('/today');
-  }, [doc, addTaskFromDocument, addEntry, showToast, onClose, router]);
+  }, [doc, addTaskFromDocument, addEntry, showToast, handleClose, router]);
 
   const handleStudyPlan = useCallback(() => {
     doc.extractedTasks.forEach((t, i) => {
@@ -78,9 +125,9 @@ export default function DocumentModal({ document: doc, isOpen, onClose }: Props)
     });
     addEntry('SimplifyCore', `Created study plan from "${doc.title}" — ${doc.extractedTasks.length} reading sessions`, `Sequential study plan generated from document.`);
     showToast(`Created a study plan from ${doc.title}`);
-    onClose();
+    handleClose();
     router.push('/today');
-  }, [doc, addTaskFromDocument, addEntry, showToast, onClose, router]);
+  }, [doc, addTaskFromDocument, addEntry, showToast, handleClose, router]);
 
   if (!isOpen) return null;
 
@@ -88,7 +135,8 @@ export default function DocumentModal({ document: doc, isOpen, onClose }: Props)
     <>
       {/* Backdrop */}
       <div
-        onClick={onClose}
+        onClick={handleClose}
+        aria-hidden="true"
         style={{
           position: 'fixed', inset: 0, zIndex: 50,
           background: 'rgba(15,13,10,0.85)', backdropFilter: 'blur(12px)',
@@ -99,17 +147,23 @@ export default function DocumentModal({ document: doc, isOpen, onClose }: Props)
       />
 
       {/* Modal content */}
-      <div style={{
-        position: 'fixed', inset: 0, zIndex: 51,
-        display: 'flex', alignItems: 'center', justifyContent: 'center',
-        padding: 40, pointerEvents: 'none',
-      }}>
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={doc.title}
+        ref={modalRef}
+        style={{
+          position: 'fixed', inset: 0, zIndex: 51,
+          display: 'flex', alignItems: 'center', justifyContent: 'center',
+          padding: 40,
+        }}
+      >
         <div
           onClick={(e) => e.stopPropagation()}
           style={{
             width: '100%', maxWidth: 900, maxHeight: '85vh', overflowY: 'auto',
             background: 'rgba(20,18,14,0.95)', border: '1px solid var(--glass-border)',
-            borderRadius: 20, padding: 36, pointerEvents: 'auto',
+            borderRadius: 20, padding: 36,
             boxShadow: '0 24px 80px rgba(0,0,0,0.5)',
             opacity: visible ? 1 : 0,
             transform: visible ? 'scale(1)' : 'scale(0.95)',
@@ -121,9 +175,9 @@ export default function DocumentModal({ document: doc, isOpen, onClose }: Props)
           {/* Header */}
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 24 }}>
             <div>
-              <div style={{ fontFamily: 'var(--font-baloo)', fontSize: 22, color: 'var(--text-primary)', marginBottom: 4 }}>
+              <h2 style={{ fontFamily: 'var(--font-baloo)', fontSize: 22, color: 'var(--text-primary)', marginBottom: 4 }}>
                 {doc.title}
-              </div>
+              </h2>
               <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
                 {doc.tags.map((tag) => (
                   <span key={tag} style={{ fontSize: 10, fontWeight: 600, padding: '2px 8px', borderRadius: 6, background: 'rgba(196,181,212,0.12)', color: 'var(--accent-lavender)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
@@ -132,11 +186,15 @@ export default function DocumentModal({ document: doc, isOpen, onClose }: Props)
                 ))}
               </div>
             </div>
-            <button onClick={onClose} style={{
-              width: 36, height: 36, borderRadius: 10, border: '1px solid var(--border-soft)',
-              background: 'rgba(255,248,235,0.06)', color: 'var(--text-secondary)',
-              fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
-            }}>
+            <button
+              onClick={handleClose}
+              aria-label="Close document"
+              style={{
+                width: 44, height: 44, borderRadius: 10, border: '1px solid var(--border-soft)',
+                background: 'rgba(255,248,235,0.06)', color: 'var(--text-secondary)',
+                fontSize: 18, cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
+            >
               &times;
             </button>
           </div>
@@ -145,9 +203,9 @@ export default function DocumentModal({ document: doc, isOpen, onClose }: Props)
           <div style={{ display: 'grid', gridTemplateColumns: '45% 55%', gap: 24, marginBottom: 24 }}>
             {/* Left: Original */}
             <div>
-              <div style={{ fontFamily: 'var(--font-baloo)', fontSize: 14, color: 'var(--text-muted)', marginBottom: 12, paddingBottom: 8, borderBottom: '1px solid var(--border-soft)' }}>
+              <h3 style={{ fontFamily: 'var(--font-baloo)', fontSize: 14, color: 'var(--text-muted)', marginBottom: 12, paddingBottom: 8, borderBottom: '1px solid var(--border-soft)' }}>
                 Original
-              </div>
+              </h3>
               <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
                 {doc.original}
               </div>
@@ -155,9 +213,9 @@ export default function DocumentModal({ document: doc, isOpen, onClose }: Props)
 
             {/* Right: Pebble's version */}
             <div style={{ borderLeft: '1px solid var(--border-soft)', paddingLeft: 24 }}>
-              <div style={{ fontFamily: 'var(--font-baloo)', fontSize: 16, color: 'var(--accent-lavender)', marginBottom: 12, paddingBottom: 8, borderBottom: '1px solid var(--border-soft)' }}>
+              <h3 style={{ fontFamily: 'var(--font-baloo)', fontSize: 16, color: 'var(--accent-lavender)', marginBottom: 12, paddingBottom: 8, borderBottom: '1px solid var(--border-soft)' }}>
                 {calm ? "Pebble's version" : "Pebble's version \u2726"}
-              </div>
+              </h3>
               <div
                 key={textKey}
                 style={{
@@ -175,14 +233,19 @@ export default function DocumentModal({ document: doc, isOpen, onClose }: Props)
           {/* Reading level slider */}
           <div style={{ marginBottom: 20 }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
-              <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>Reading complexity</span>
+              <label htmlFor="modal-reading-level" style={{ fontSize: 12, color: 'var(--text-muted)' }}>Reading complexity</label>
               <span style={{ fontFamily: 'var(--font-jetbrains)', fontSize: 12, color: 'var(--accent-lavender)' }}>
                 Level {level}
               </span>
             </div>
             <input
+              id="modal-reading-level"
               type="range" min={1} max={10} value={level}
               onChange={(e) => handleLevelChange(Number(e.target.value))}
+              aria-valuemin={1}
+              aria-valuemax={10}
+              aria-valuenow={level}
+              aria-valuetext={`Reading level ${level} of 10`}
               style={{
                 width: '100%', height: 4, appearance: 'none', WebkitAppearance: 'none',
                 background: `linear-gradient(to right, var(--accent-lavender) ${(level - 1) * 11.1}%, var(--border-soft) ${(level - 1) * 11.1}%)`,
@@ -195,7 +258,7 @@ export default function DocumentModal({ document: doc, isOpen, onClose }: Props)
               <span style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' }}>Detailed</span>
             </div>
             {/* Dot indicator */}
-            <div style={{ display: 'flex', gap: 6, marginTop: 8, justifyContent: 'center' }}>
+            <div style={{ display: 'flex', gap: 6, marginTop: 8, justifyContent: 'center' }} aria-hidden="true">
               {Array.from({ length: 10 }, (_, i) => (
                 <div key={i} style={{
                   width: 8, height: 8, borderRadius: '50%',
@@ -213,7 +276,7 @@ export default function DocumentModal({ document: doc, isOpen, onClose }: Props)
             borderLeft: '2px solid var(--accent-lavender)', borderRadius: '0 10px 10px 0',
             marginBottom: 20,
           }}>
-            <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'var(--pebble-color)', flexShrink: 0, position: 'relative' }}>
+            <div style={{ width: 24, height: 24, borderRadius: '50%', background: 'var(--pebble-color)', flexShrink: 0, position: 'relative' }} aria-hidden="true">
               <div style={{ position: 'absolute', width: 4, height: 4, background: '#2A2A2E', borderRadius: '50%', top: 9, left: 6 }} />
               <div style={{ position: 'absolute', width: 4, height: 4, background: '#2A2A2E', borderRadius: '50%', top: 9, right: 6 }} />
             </div>
@@ -254,9 +317,10 @@ export default function DocumentModal({ document: doc, isOpen, onClose }: Props)
             <button onClick={() => setShowCheck(true)} style={{
               background: 'none', border: 'none', cursor: 'pointer',
               fontFamily: 'var(--font-nunito)', fontSize: 12, color: 'var(--text-muted)',
-              display: 'flex', alignItems: 'center', gap: 4, padding: 0,
+              display: 'flex', alignItems: 'center', gap: 4, padding: '8px 0',
+              minHeight: 44,
             }}>
-              <span style={{ fontSize: 14 }}>{calm ? '?' : '\uD83D\uDCA1'}</span>
+              <span style={{ fontSize: 14 }} aria-hidden="true">{calm ? '?' : '\uD83D\uDCA1'}</span>
               Check my understanding
             </button>
           )}

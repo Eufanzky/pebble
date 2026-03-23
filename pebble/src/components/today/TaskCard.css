@@ -113,13 +113,14 @@
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  padding: 5px 12px;
+  padding: 8px 14px;
+  min-height: 36px;
   border: 1px solid rgba(196, 181, 212, 0.2);
   border-radius: 8px;
   background: rgba(196, 181, 212, 0.08);
   color: var(--accent-lavender);
   font-family: var(--font-nunito);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s ease;

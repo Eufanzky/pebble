@@ -14,10 +14,11 @@
 }
 
 .activity-filter-btn {
-  padding: 5px 12px;
+  padding: 8px 14px;
+  min-height: 36px;
   border-radius: 20px;
   font-family: var(--font-nunito);
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.15s ease;
@@ -82,9 +83,10 @@
   background: none;
   border: none;
   cursor: pointer;
-  padding: 0;
+  padding: 6px 0;
+  min-height: 32px;
   font-family: var(--font-nunito);
-  font-size: 11px;
+  font-size: 12px;
   color: var(--text-muted);
   transition: color 0.15s ease;
 }

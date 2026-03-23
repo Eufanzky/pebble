@@ -73,6 +73,7 @@ function EntryCard({ entry, isNew }: { entry: ActivityEntry; isNew: boolean }) {
         <button
           className="reasoning-toggle"
           onClick={() => setShowReasoning(!showReasoning)}
+          aria-expanded={showReasoning}
         >
           {showReasoning ? 'Hide reasoning' : 'Show reasoning'}
         </button>
@@ -110,7 +111,7 @@ export default function ActivityFeed({ entries, maxHeight }: ActivityFeedProps) 
   return (
     <div>
       {/* Filter bar */}
-      <div className="activity-filters">
+      <div className="activity-filters" role="group" aria-label="Filter by agent">
         {AGENTS.map((agent) => {
           const active = filter === agent;
           const color = agent === 'All' ? 'var(--accent-lavender)' : AGENT_COLORS[agent];
@@ -120,6 +121,8 @@ export default function ActivityFeed({ entries, maxHeight }: ActivityFeedProps) 
               className={`activity-filter-btn ${active ? 'active' : ''}`}
               style={{ '--filter-color': color } as React.CSSProperties}
               onClick={() => setFilter(agent)}
+              aria-pressed={active}
+              aria-label={`Filter by ${agent}${active ? ' (active)' : ''}`}
             >
               {agent}
             </button>

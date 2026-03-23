@@ -12,7 +12,7 @@
   --accent-sky: #87CEEB;
   --text-primary: #F5EDD6;
   --text-secondary: rgba(245, 237, 214, 0.65);
-  --text-muted: rgba(245, 237, 214, 0.35);
+  --text-muted: rgba(245, 237, 214, 0.50);
   --border-soft: rgba(255, 248, 235, 0.10);
   --pebble-color: #C4B5D4;
   --pebble-dark: #A89ABC;
@@ -44,6 +44,29 @@ body {
 .reduce-animations [role="switch"],
 .reduce-animations [role="switch"] > div {
   transition-duration: 0.2s !important;
+}
+
+/* ========== Skip Link (a11y) ========== */
+.skip-link {
+  position: absolute;
+  top: -100%;
+  left: 16px;
+  z-index: 100;
+  padding: 12px 20px;
+  background: var(--accent-lavender);
+  color: var(--bg-deep);
+  font-family: var(--font-nunito);
+  font-size: 14px;
+  font-weight: 700;
+  border-radius: 0 0 10px 10px;
+  text-decoration: none;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 0;
+  outline: 2px solid var(--accent-lavender);
+  outline-offset: 2px;
 }
 
 /* ========== App Layout ========== */
@@ -266,10 +289,99 @@ body {
   }
 }
 
+/* ========== Mobile Responsive ========== */
+@media (max-width: 768px) {
+  .sidebar {
+    position: fixed;
+    left: 0;
+    top: 0;
+    transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    z-index: 40;
+  }
+
+  .sidebar.sidebar-open {
+    transform: translateX(0);
+  }
+
+  .sidebar-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 13, 10, 0.7);
+    z-index: 39;
+  }
+
+  .sidebar-overlay.visible {
+    display: block;
+  }
+
+  .mobile-menu-btn {
+    display: flex;
+  }
+
+  .main-content {
+    width: 100%;
+  }
+}
+
+@media (min-width: 769px) {
+  .mobile-menu-btn {
+    display: none;
+  }
+
+  .sidebar-overlay {
+    display: none !important;
+  }
+}
+
+.mobile-menu-btn {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  z-index: 38;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--border-soft);
+  background: rgba(15, 13, 10, 0.9);
+  color: var(--text-primary);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  display: none;
+  backdrop-filter: blur(12px);
+}
+
+/* ========== Visually Hidden (screen reader only) ========== */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
 /* ========== Focus Indicators (keyboard accessibility) ========== */
 *:focus-visible {
   outline: 2px solid var(--accent-lavender);
   outline-offset: 2px;
+}
+
+/* ========== Prefers Reduced Motion (OS-level fallback) ========== */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }
 
 /* ========== Scrollbar (refined) ========== */

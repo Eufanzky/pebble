@@ -298,7 +298,9 @@ export default function TodayPage() {
 
             {/* Add task input */}
             <form onSubmit={handleTaskSubmit} style={{ marginTop: 20 }}>
+              <label htmlFor="task-input" className="sr-only">Add a new task</label>
               <input
+                id="task-input"
                 type="text"
                 value={taskInput}
                 onChange={(e) => setTaskInput(e.target.value)}
@@ -324,6 +326,8 @@ export default function TodayPage() {
             {distressState === 'showing' && (
               <div
                 className="glass-card"
+                role="alert"
+                aria-live="assertive"
                 style={{
                   marginTop: 16,
                   padding: '20px 24px',
