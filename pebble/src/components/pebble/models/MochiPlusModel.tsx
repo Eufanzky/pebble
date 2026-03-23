@@ -1,5 +1,5 @@
 import type { PebbleMood } from '@/lib/types';
-import { Sparkles, Zzz, Eye, TriangleEar, InnerEar, Nose, Blush, Tail } from './SharedParts';
+import { Sparkles, Zzz, Eye, TriangleEar, InnerEar, Nose, Mouth, Blush, Tail } from './SharedParts';
 
 export default function MochiPlusModel({ mood }: { mood: PebbleMood }) {
   return (
@@ -15,11 +15,9 @@ export default function MochiPlusModel({ mood }: { mood: PebbleMood }) {
         <Eye side="l" mood={mood} size={20} top={54} offset={30} shine={7} secondShine />
         <Eye side="r" mood={mood} size={20} top={54} offset={30} shine={7} secondShine />
         <Nose top={76} style="dot" />
-        {/* Whisper mouth via tiny border */}
-        <div style={{ position: 'absolute', top: 81, left: '50%', transform: 'translateX(-50%)', width: 8, height: 3, borderBottom: '1px solid rgba(42,42,46,0.18)', borderRadius: '0 0 50% 50%', zIndex: 5 }} />
-        {/* Always-visible blush beside eyes */}
-        <Blush top={60} left={14} w={14} h={8} opacity={0.7} />
-        <Blush top={60} right={14} w={14} h={8} opacity={0.7} />
+        <Mouth top={81} mood={mood} />
+        <Blush top={58} left={12} w={14} h={12} opacity={0.7} />
+        <Blush top={58} right={12} w={14} h={12} opacity={0.7} />
       </div>
       <Tail bottom={22} right={-6} w={42} h={12} />
     </>

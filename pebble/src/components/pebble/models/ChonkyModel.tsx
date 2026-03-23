@@ -14,9 +14,9 @@ export default function ChonkyModel({ mood }: { mood: PebbleMood }) {
         <Eye side="l" mood={mood} size={14} top={38} offset={28} shine={5} secondShine />
         <Eye side="r" mood={mood} size={14} top={38} offset={28} shine={5} secondShine />
         <Nose top={53} />
-        <Mouth top={57} />
-        <Blush top={50} left={12} />
-        <Blush top={50} right={12} />
+        <Mouth top={57} mood={mood} />
+        <Blush top={48} left={10} />
+        <Blush top={48} right={10} />
       </div>
       <Tail bottom={16} right={-8} w={50} h={14} />
       <Paw side="l" offset={22} />

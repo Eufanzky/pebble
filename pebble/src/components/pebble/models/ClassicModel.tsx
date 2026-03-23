@@ -1,5 +1,5 @@
 import type { PebbleMood } from '@/lib/types';
-import { Sparkles, Zzz, Eye, TriangleEar, InnerEar, Nose, Blush, Tail, Whiskers } from './SharedParts';
+import { Sparkles, Zzz, Eye, TriangleEar, InnerEar, Nose, Mouth, Blush, Tail, Whiskers } from './SharedParts';
 
 export default function ClassicModel({ mood }: { mood: PebbleMood }) {
   return (
@@ -16,9 +16,10 @@ export default function ClassicModel({ mood }: { mood: PebbleMood }) {
           <Eye side="l" mood={mood} size={12} top={34} offset={26} shine={4} />
           <Eye side="r" mood={mood} size={12} top={34} offset={26} shine={4} />
           <Nose top={47} />
+          <Mouth top={51} mood={mood} />
           <Whiskers top={50} />
-          <Blush top={44} left={14} />
-          <Blush top={44} right={14} />
+          <Blush top={42} left={12} />
+          <Blush top={42} right={12} />
         </div>
       </div>
     </>
