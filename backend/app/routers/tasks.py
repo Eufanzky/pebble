@@ -1,6 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 
+from azure.cosmos.exceptions import CosmosHttpResponseError
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.models.schemas import TaskCreate, TaskUpdate, TaskResponse
@@ -59,8 +60,10 @@ async def get_task(
     try:
         item = await container.read_item(task_id, partition_key=user_id)
         return item
-    except Exception:
-        raise HTTPException(status_code=404, detail="Task not found")
+    except CosmosHttpResponseError as e:
+        if e.status_code == 404:
+            raise HTTPException(status_code=404, detail="Task not found")
+        raise HTTPException(status_code=500, detail="Database error")
 
 
 @router.patch("/{task_id}", response_model=TaskResponse)
@@ -74,8 +77,10 @@ async def update_task(
 
     try:
         existing = await container.read_item(task_id, partition_key=user_id)
-    except Exception:
-        raise HTTPException(status_code=404, detail="Task not found")
+    except CosmosHttpResponseError as e:
+        if e.status_code == 404:
+            raise HTTPException(status_code=404, detail="Task not found")
+        raise HTTPException(status_code=500, detail="Database error")
 
     updates = body.model_dump(by_alias=True, exclude_none=True)
     if "subtasks" in updates:
@@ -97,5 +102,7 @@ async def delete_task(
     container = await get_container("tasks")
     try:
         await container.delete_item(task_id, partition_key=user_id)
-    except Exception:
-        raise HTTPException(status_code=404, detail="Task not found")
+    except CosmosHttpResponseError as e:
+        if e.status_code == 404:
+            raise HTTPException(status_code=404, detail="Task not found")
+        raise HTTPException(status_code=500, detail="Database error")

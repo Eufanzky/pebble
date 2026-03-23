@@ -1,7 +1,7 @@
 import uuid
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, status
 
 from app.models.schemas import ActivityCreate, ActivityResponse
 from app.services.auth import get_current_user_id
@@ -13,7 +13,7 @@ router = APIRouter()
 @router.get("", response_model=list[ActivityResponse])
 async def list_activity(
     user_id: str = Depends(get_current_user_id),
-    limit: int = Query(default=50, le=200),
+    limit: int = Query(default=50, ge=1, le=200),
 ):
     """List activity entries for the authenticated user."""
     container = await get_container("activity")
@@ -31,7 +31,7 @@ async def list_activity(
     return [item async for item in items]
 
 
-@router.post("", response_model=ActivityResponse, status_code=201)
+@router.post("", response_model=ActivityResponse, status_code=status.HTTP_201_CREATED)
 async def create_activity(
     body: ActivityCreate,
     user_id: str = Depends(get_current_user_id),

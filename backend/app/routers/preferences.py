@@ -1,5 +1,6 @@
 from datetime import datetime, timezone
 
+from azure.cosmos.exceptions import CosmosHttpResponseError
 from fastapi import APIRouter, Depends
 
 from app.models.schemas import PreferencesUpdate, PreferencesResponse
@@ -30,7 +31,9 @@ async def get_preferences(user_id: str = Depends(get_current_user_id)):
     try:
         item = await container.read_item(PREFERENCES_DOC_ID, partition_key=user_id)
         return item
-    except Exception:
+    except CosmosHttpResponseError as e:
+        if e.status_code != 404:
+            raise
         # First time — create default preferences
         doc = {
             "id": PREFERENCES_DOC_ID,
@@ -52,7 +55,9 @@ async def update_preferences(
 
     try:
         existing = await container.read_item(PREFERENCES_DOC_ID, partition_key=user_id)
-    except Exception:
+    except CosmosHttpResponseError as e:
+        if e.status_code != 404:
+            raise
         existing = {
             "id": PREFERENCES_DOC_ID,
             "userId": user_id,
