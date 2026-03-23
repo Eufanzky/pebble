@@ -33,6 +33,13 @@ class Settings(BaseSettings):
     search_key: str = ""
     search_index_name: str = "focusbuddy-documents"
 
+    # Azure Web PubSub (Focus Room real-time)
+    webpubsub_connection_string: str = ""
+    webpubsub_hub_name: str = "focusroom"
+
+    # Azure Application Insights
+    applicationinsights_connection_string: str = ""
+
     # CORS
     frontend_url: str = "http://localhost:3000"
 

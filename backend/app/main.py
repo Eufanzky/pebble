@@ -1,15 +1,24 @@
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.config import settings
-from app.routers import tasks, preferences, activity, agents, documents
+from app.routers import tasks, preferences, activity, agents, documents, focus, audit
 from app.services.db import init_db, close_db
+from app.services.monitoring import RequestLoggingMiddleware, init_telemetry
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s [%(name)s] %(levelname)s: %(message)s",
+)
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    init_telemetry()
     await init_db()
     yield
     await close_db()
@@ -22,6 +31,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+app.add_middleware(RequestLoggingMiddleware)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[settings.frontend_url],
@@ -35,6 +45,8 @@ app.include_router(preferences.router, prefix="/api/preferences", tags=["Prefere
 app.include_router(activity.router, prefix="/api/activity", tags=["Activity"])
 app.include_router(agents.router, prefix="/api/agents", tags=["AI Agents"])
 app.include_router(documents.router, prefix="/api/documents", tags=["Documents"])
+app.include_router(focus.router, prefix="/api/focus", tags=["Focus Room"])
+app.include_router(audit.router, prefix="/api/audit", tags=["Audit Trail"])
 
 
 @app.get("/api/health")

@@ -10,6 +10,7 @@ CONTAINERS = {
     "activity": "activity",
     "users": "users",
     "documents": "documents",
+    "rooms": "rooms",
 }
 
 _client: CosmosClient | None = None
