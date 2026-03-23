@@ -11,9 +11,9 @@ from app.services.db import get_container
 router = APIRouter()
 
 
-@router.get("", response_model=list[TaskResponse])
+@router.get("", response_model=list[TaskResponse], summary="List tasks")
 async def list_tasks(user_id: str = Depends(get_current_user_id)):
-    """List all tasks for the authenticated user."""
+    """List all tasks for the authenticated user, ordered by creation date (newest first)."""
     container = await get_container("tasks")
     query = "SELECT * FROM c WHERE c.userId = @userId ORDER BY c.createdAt DESC"
     items = container.query_items(
@@ -23,12 +23,18 @@ async def list_tasks(user_id: str = Depends(get_current_user_id)):
     return [item async for item in items]
 
 
-@router.post("", response_model=TaskResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=TaskResponse, status_code=status.HTTP_201_CREATED, summary="Create a task")
 async def create_task(
     body: TaskCreate,
     user_id: str = Depends(get_current_user_id),
 ):
-    """Create a new task."""
+    """
+    Create a new task with a title, time estimate, tag, and priority.
+
+    Tags: `study`, `communication`, `project`, `wellbeing`.
+    Priorities: `high`, `medium`, `low`.
+    Subtasks can be included at creation time or added later via the decompose agent.
+    """
     now = datetime.now(timezone.utc).isoformat()
     task = {
         "id": str(uuid.uuid4()),
@@ -50,7 +56,7 @@ async def create_task(
     return result
 
 
-@router.get("/{task_id}", response_model=TaskResponse)
+@router.get("/{task_id}", response_model=TaskResponse, summary="Get a task")
 async def get_task(
     task_id: str,
     user_id: str = Depends(get_current_user_id),
@@ -66,13 +72,13 @@ async def get_task(
         raise HTTPException(status_code=500, detail="Database error")
 
 
-@router.patch("/{task_id}", response_model=TaskResponse)
+@router.patch("/{task_id}", response_model=TaskResponse, summary="Update a task")
 async def update_task(
     task_id: str,
     body: TaskUpdate,
     user_id: str = Depends(get_current_user_id),
 ):
-    """Partially update a task."""
+    """Partially update a task. Only provided fields are changed; omitted fields remain untouched."""
     container = await get_container("tasks")
 
     try:
@@ -93,12 +99,12 @@ async def update_task(
     return result
 
 
-@router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Delete a task")
 async def delete_task(
     task_id: str,
     user_id: str = Depends(get_current_user_id),
 ):
-    """Delete a task."""
+    """Permanently delete a task and its subtasks."""
     container = await get_container("tasks")
     try:
         await container.delete_item(task_id, partition_key=user_id)

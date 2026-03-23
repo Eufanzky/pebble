@@ -28,14 +28,27 @@ ALLOWED_CONTENT_TYPES = {
 }
 
 
-@router.post("/upload", response_model=DocumentResponse, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/upload",
+    response_model=DocumentResponse,
+    status_code=status.HTTP_201_CREATED,
+    summary="Upload and parse a document",
+)
 async def upload_and_process(
-    file: UploadFile = File(...),
+    file: UploadFile = File(..., description="PDF, Word (.doc/.docx), or plain text file. Max 10MB."),
     user_id: str = Depends(get_current_user_id),
 ):
     """
-    Upload a document, parse it with Document Intelligence,
-    and store in Cosmos DB + Blob Storage.
+    Upload a document and process it through the pipeline:
+
+    1. **Store** the file in Azure Blob Storage
+    2. **Parse** the content using Azure Document Intelligence
+    3. **Save** metadata and extracted text to Cosmos DB
+
+    After upload, call `POST /api/documents/{id}/simplify` to simplify the text,
+    then `POST /api/documents/{id}/tasks` to extract action items.
+
+    Supported formats: PDF, Word (.doc, .docx), plain text (.txt).
     """
     if file.content_type not in ALLOWED_CONTENT_TYPES:
         raise HTTPException(
@@ -92,9 +105,9 @@ async def upload_and_process(
     return doc
 
 
-@router.get("", response_model=list[DocumentResponse])
+@router.get("", response_model=list[DocumentResponse], summary="List documents")
 async def list_documents(user_id: str = Depends(get_current_user_id)):
-    """List all documents for the authenticated user."""
+    """List all documents for the authenticated user, ordered by creation date (newest first)."""
     container = await get_container("documents")
     query = "SELECT * FROM c WHERE c.userId = @userId ORDER BY c.createdAt DESC"
     items = container.query_items(
@@ -104,7 +117,7 @@ async def list_documents(user_id: str = Depends(get_current_user_id)):
     return [item async for item in items]
 
 
-@router.get("/{doc_id}", response_model=DocumentResponse)
+@router.get("/{doc_id}", response_model=DocumentResponse, summary="Get a document")
 async def get_document(
     doc_id: str,
     user_id: str = Depends(get_current_user_id),
@@ -120,13 +133,19 @@ async def get_document(
         raise HTTPException(status_code=500, detail="Database error")
 
 
-@router.post("/{doc_id}/simplify", response_model=DocumentResponse)
+@router.post("/{doc_id}/simplify", response_model=DocumentResponse, summary="Simplify a document")
 async def simplify_doc(
     doc_id: str,
     body: SimplifyDocumentRequest,
     user_id: str = Depends(get_current_user_id),
 ):
-    """Simplify a document's text using the Document Simplification Agent."""
+    """
+    Simplify a document's text using the **SimplifyCore** agent (GPT-4o).
+
+    Pass a `readingLevel` (1-10) to control simplification depth.
+    Also extracts topic tags and action items from the document.
+    The simplified version is indexed in Azure AI Search for RAG queries.
+    """
     container = await get_container("documents")
 
     try:
@@ -170,12 +189,18 @@ async def simplify_doc(
     return doc
 
 
-@router.post("/{doc_id}/tasks", response_model=ExtractTasksResponse)
+@router.post("/{doc_id}/tasks", response_model=ExtractTasksResponse, summary="Extract tasks from a document")
 async def extract_tasks(
     doc_id: str,
     user_id: str = Depends(get_current_user_id),
 ):
-    """Turn a document's extracted tasks into real tasks in the task list."""
+    """
+    Convert a document's extracted action items into real tasks in the user's task list.
+
+    The document must be simplified first (`POST /api/documents/{id}/simplify`)
+    to extract action items. Each extracted item becomes a task with an appropriate
+    tag and time estimate.
+    """
     docs_container = await get_container("documents")
     tasks_container = await get_container("tasks")
 
@@ -224,12 +249,12 @@ async def extract_tasks(
     }
 
 
-@router.delete("/{doc_id}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{doc_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Delete a document")
 async def delete_doc(
     doc_id: str,
     user_id: str = Depends(get_current_user_id),
 ):
-    """Delete a document from Cosmos DB (blob cleanup is async)."""
+    """Permanently delete a document from Cosmos DB."""
     container = await get_container("documents")
     try:
         await container.delete_item(doc_id, partition_key=user_id)
@@ -239,12 +264,17 @@ async def delete_doc(
         raise HTTPException(status_code=500, detail="Database error")
 
 
-@router.post("/search", response_model=list[SearchResult])
+@router.post("/search", response_model=list[SearchResult], summary="Search documents")
 async def search_docs(
     body: SearchRequest,
     user_id: str = Depends(get_current_user_id),
 ):
-    """Search across user's indexed documents (RAG-ready)."""
+    """
+    Full-text search across the user's indexed documents using Azure AI Search.
+
+    Documents are indexed after simplification. Results include the simplified text,
+    tags, and a relevance score. Use this for RAG (retrieval-augmented generation) queries.
+    """
     try:
         results = await search_documents(
             query=body.query,

@@ -22,12 +22,12 @@ router = APIRouter()
 FOCUS_DURATION_SECONDS = 25 * 60  # 25 min Pomodoro
 
 
-@router.post("/rooms", response_model=RoomResponse, status_code=status.HTTP_201_CREATED)
+@router.post("/rooms", response_model=RoomResponse, status_code=status.HTTP_201_CREATED, summary="Create a focus room")
 async def create_room(
     body: RoomCreate,
     user_id: str = Depends(get_current_user_id),
 ):
-    """Create a new focus room."""
+    """Create a new focus room. The creator automatically joins as the first participant."""
     now = datetime.now(timezone.utc).isoformat()
     room = {
         "id": str(uuid.uuid4()),
@@ -45,9 +45,9 @@ async def create_room(
     return room
 
 
-@router.get("/rooms", response_model=list[RoomResponse])
+@router.get("/rooms", response_model=list[RoomResponse], summary="List active rooms")
 async def list_rooms(user_id: str = Depends(get_current_user_id)):
-    """List all active focus rooms."""
+    """List all active focus rooms across all users. Rooms are shared — anyone can join."""
     container = await get_container("rooms")
     query = "SELECT * FROM c WHERE c.isActive = true ORDER BY c.createdAt DESC"
     items = container.query_items(
@@ -57,12 +57,12 @@ async def list_rooms(user_id: str = Depends(get_current_user_id)):
     return [item async for item in items]
 
 
-@router.get("/rooms/{room_id}", response_model=RoomResponse)
+@router.get("/rooms/{room_id}", response_model=RoomResponse, summary="Get a room")
 async def get_room(
     room_id: str,
     user_id: str = Depends(get_current_user_id),
 ):
-    """Get a focus room by ID."""
+    """Get a focus room by ID, including participant count."""
     container = await get_container("rooms")
     # Rooms need cross-partition read since any user can access any room
     query = "SELECT * FROM c WHERE c.id = @roomId"
@@ -77,13 +77,20 @@ async def get_room(
     return results[0]
 
 
-@router.post("/rooms/{room_id}/join", response_model=JoinRoomResponse)
+@router.post("/rooms/{room_id}/join", response_model=JoinRoomResponse, summary="Join a room")
 async def join_room(
     room_id: str,
     user_id: str = Depends(get_current_user_id),
 ):
     """
-    Join a focus room. Returns a WebSocket URL for real-time presence.
+    Join a focus room and receive a WebSocket URL for real-time presence.
+
+    The WebSocket connection (via Azure Web PubSub) enables:
+    - Presence events (join/leave notifications)
+    - Pomodoro timer sync across all participants
+    - Session completion broadcasts
+
+    No cameras, no microphones — just shared focus.
     """
     # Verify room exists
     container = await get_container("rooms")
@@ -127,12 +134,12 @@ async def join_room(
     }
 
 
-@router.post("/rooms/{room_id}/leave")
+@router.post("/rooms/{room_id}/leave", summary="Leave a room")
 async def leave_room(
     room_id: str,
     user_id: str = Depends(get_current_user_id),
 ):
-    """Leave a focus room."""
+    """Leave a focus room. Broadcasts a leave event to other participants."""
     container = await get_container("rooms")
     query = "SELECT * FROM c WHERE c.id = @roomId"
     items = container.query_items(
@@ -160,13 +167,18 @@ async def leave_room(
     return {"message": "Left the room. See you next time."}
 
 
-@router.post("/rooms/{room_id}/timer", response_model=TimerState)
+@router.post("/rooms/{room_id}/timer", response_model=TimerState, summary="Control the Pomodoro timer")
 async def control_timer(
     room_id: str,
     body: TimerAction,
     user_id: str = Depends(get_current_user_id),
 ):
-    """Start, pause, or reset the Pomodoro timer for a room."""
+    """
+    Start, pause, or reset the 25-minute Pomodoro timer for a room.
+
+    Actions: `start`, `pause`, `reset`. The timer state is broadcast
+    to all room participants via WebSocket.
+    """
     if body.action == "start":
         timer_state = {
             "roomId": room_id,
@@ -201,14 +213,19 @@ async def control_timer(
     return timer_state
 
 
-@router.post("/rooms/{room_id}/complete", response_model=FocusSessionComplete)
+@router.post("/rooms/{room_id}/complete", response_model=FocusSessionComplete, summary="Complete a focus session")
 async def complete_session(
     room_id: str,
     user_id: str = Depends(get_current_user_id),
 ):
     """
-    Called when a Pomodoro session completes. Logs activity and
-    generates a motivational message via the Motivation Agent.
+    Called when a 25-minute Pomodoro session completes.
+
+    1. Logs the session in the activity trail
+    2. Generates a personalized motivational message via the **PebbleVoice** agent
+    3. Broadcasts the completion to all room participants
+
+    Returns a Pebble mood (`excited`, `happy`, etc.) for the frontend animation.
     """
     # Log the focus session as an activity
     activity_container = await get_container("activity")

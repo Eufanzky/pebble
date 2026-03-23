@@ -6,15 +6,23 @@ from app.services.db import get_container
 router = APIRouter()
 
 
-@router.get("/decisions")
+@router.get("/decisions", summary="List agent decisions")
 async def list_agent_decisions(
     user_id: str = Depends(get_current_user_id),
-    agent: str | None = Query(default=None, description="Filter by agent name"),
-    limit: int = Query(default=50, ge=1, le=200),
+    agent: str | None = Query(
+        default=None,
+        description="Filter by agent name: CalmSense, AdaptLens, SimplifyCore, PebbleVoice, WhyBot, BridgeBot",
+    ),
+    limit: int = Query(default=50, ge=1, le=200, description="Max results to return"),
 ):
     """
-    List all agent decisions for the authenticated user.
-    This powers the Activity Feed in the frontend with full explainability.
+    List all agent decisions for the authenticated user, with optional filtering by agent.
+
+    Powers the **Activity Feed** in the frontend. Each decision includes:
+    - `agent`: which agent made the decision
+    - `action`: what was done
+    - `reasoning`: why it was done (explainability)
+    - `safetyStatus`: whether Content Safety passed or flagged the output
     """
     container = await get_container("activity")
 
@@ -44,11 +52,13 @@ async def list_agent_decisions(
     return [item async for item in items]
 
 
-@router.get("/agents")
+@router.get("/agents", summary="List all agents")
 async def list_agents():
     """
-    List all available agents and their roles.
-    Used by the frontend to explain what each agent does.
+    List all available Focusbuddy agents with their names, roles, and descriptions.
+
+    Used by the frontend to render the agent cards and explain what each agent does
+    when the user asks *"Why did Pebble do this?"*
     """
     return [
         {
