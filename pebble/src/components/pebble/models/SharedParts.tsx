@@ -153,7 +153,7 @@ export function Blush({ top = 50, left, right, w = 12, h = 12, opacity }: {
   return (
     <div className="pb-blush" style={{
       position: 'absolute', width: w, height: h,
-      background: 'radial-gradient(circle, #E8A0BF 0%, transparent 70%)',
+      background: 'radial-gradient(circle, #F0A0C0 0%, transparent 70%)',
       borderRadius: '50%', top, zIndex: 5,
       opacity: opacity ?? 0, transition: 'opacity 0.4s ease',
       ...pos,
