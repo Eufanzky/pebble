@@ -8,6 +8,7 @@ const navItems = [
   { href: '/today', label: 'Today', icon: 'today' },
   { href: '/documents', label: 'Documents', icon: 'docs' },
   { href: '/activity', label: 'Activity', icon: 'activity' },
+  { href: '/study', label: 'Study', icon: 'study' },
   { href: '/settings', label: 'Settings', icon: 'settings' },
 ] as const;
 
@@ -41,6 +42,16 @@ function NavIcon({ type, active }: { type: string; active: boolean }) {
           <circle cx="8" cy="8" r="6.5" stroke={color} strokeWidth="1.5" />
           <line x1="8" y1="4" x2="8" y2="8" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
           <line x1="8" y1="8" x2="11" y2="10" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
+        </svg>
+      );
+    case 'study':
+      return (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <rect x="2" y="4" width="12" height="9" rx="2" stroke={color} strokeWidth="1.5" />
+          <circle cx="8" cy="8.5" r="2" stroke={color} strokeWidth="1.2" />
+          <circle cx="5" cy="8.5" r="1" fill={color} opacity="0.4" />
+          <circle cx="11" cy="8.5" r="1" fill={color} opacity="0.4" />
+          <line x1="6" y1="2" x2="10" y2="2" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
         </svg>
       );
     case 'settings':

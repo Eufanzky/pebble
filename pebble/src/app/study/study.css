@@ -1,0 +1,157 @@
+/* ========== Study Table Scene ========== */
+.study-table-scene {
+  position: relative;
+  width: 260px;
+  height: 190px;
+  margin: 0 auto;
+}
+
+.study-table {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 180px;
+  height: 110px;
+  background: #2a2218;
+  border-radius: 16px;
+  border: 1px solid rgba(212, 168, 67, 0.12);
+  overflow: hidden;
+}
+
+/* Subtle wood grain */
+.study-table-grain {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    90deg,
+    transparent 0px,
+    rgba(255, 248, 235, 0.015) 1px,
+    transparent 2px,
+    transparent 12px
+  );
+}
+
+/* Center lamp glow */
+.study-table-lamp {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 50px;
+  height: 50px;
+  background: radial-gradient(circle, rgba(212, 168, 67, 0.25) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+/* ========== Seat Avatars ========== */
+.study-seat {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  z-index: 2;
+}
+
+.study-seat-1 { background: var(--accent-lavender); }
+.study-seat-2 { background: var(--accent-sage); }
+.study-seat-3 { background: var(--accent-coral); }
+
+@keyframes study-typing {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}
+
+.study-seat.typing.study-seat-1 {
+  animation: study-typing 1.5s ease-in-out infinite;
+}
+
+.study-seat.typing.study-seat-2 {
+  animation: study-typing 1.5s ease-in-out infinite 0.5s;
+}
+
+.study-seat.typing.study-seat-3 {
+  animation: study-typing 1.5s ease-in-out infinite 1.0s;
+}
+
+/* Offset transform for seat 1 (it uses translateX too) */
+.study-seat.typing.study-seat-1 {
+  animation: study-typing-centered 1.5s ease-in-out infinite;
+}
+
+@keyframes study-typing-centered {
+  0%, 100% { transform: translateX(-50%) scale(1); }
+  50% { transform: translateX(-50%) scale(1.15); }
+}
+
+/* Empty seats */
+.study-seat-empty {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 1.5px dashed var(--border-soft);
+  z-index: 2;
+}
+
+/* ========== Timer Buttons ========== */
+.study-btn {
+  padding: 12px 28px;
+  min-height: 44px;
+  border-radius: 12px;
+  font-family: var(--font-nunito);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  letter-spacing: 0.3px;
+}
+
+.study-btn-primary {
+  background: linear-gradient(135deg, var(--accent-lavender), var(--pebble-dark));
+  color: var(--bg-deep);
+}
+
+.study-btn-primary:hover {
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--accent-lavender) 30%, transparent);
+}
+
+.study-btn-secondary {
+  background: rgba(255, 248, 235, 0.08);
+  border: 1px solid var(--border-soft);
+  color: var(--text-secondary);
+}
+
+.study-btn-secondary:hover {
+  border-color: var(--accent-lavender);
+  color: var(--accent-lavender);
+}
+
+/* ========== Room Cards ========== */
+.study-room-card {
+  flex-shrink: 0;
+  width: 160px;
+  padding: 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+  border: 1px solid var(--glass-border);
+}
+
+.study-room-card:hover {
+  border-color: rgba(255, 248, 235, 0.2);
+}
+
+/* ========== Reduce Animations ========== */
+.reduce-animations .study-seat {
+  animation: none !important;
+}
+
+.reduce-animations .study-btn {
+  transition: none;
+}
+
+.reduce-animations .study-room-card {
+  transition: none;
+}
