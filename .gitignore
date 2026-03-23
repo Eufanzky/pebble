@@ -140,6 +140,7 @@ vite.config.ts.timestamp-*
 
 # Text files
 *.txt
+!requirements.txt
 
 # Editor and tool configs
 CLAUDE.md
