@@ -1,16 +1,17 @@
-from azure.ai.formrecognizer.aio import DocumentAnalysisClient
+from azure.ai.documentintelligence.aio import DocumentIntelligenceClient
+from azure.ai.documentintelligence.models import AnalyzeDocumentRequest
 from azure.core.credentials import AzureKeyCredential
 
 from app.config import settings
 
-_client: DocumentAnalysisClient | None = None
+_client: DocumentIntelligenceClient | None = None
 
 
-def _get_client() -> DocumentAnalysisClient:
-    """Get the Document Intelligence async client (singleton)."""
+def _get_client() -> DocumentIntelligenceClient:
+    """Get the Azure AI Document Intelligence async client (singleton)."""
     global _client
     if _client is None:
-        _client = DocumentAnalysisClient(
+        _client = DocumentIntelligenceClient(
             endpoint=settings.doc_intelligence_endpoint,
             credential=AzureKeyCredential(settings.doc_intelligence_key),
         )
@@ -19,7 +20,7 @@ def _get_client() -> DocumentAnalysisClient:
 
 async def extract_text(file_bytes: bytes) -> dict:
     """
-    Parse a document using Azure Document Intelligence.
+    Parse a document using Azure AI Document Intelligence.
 
     Returns:
         {
@@ -32,7 +33,7 @@ async def extract_text(file_bytes: bytes) -> dict:
 
     poller = await client.begin_analyze_document(
         "prebuilt-read",
-        document=file_bytes,
+        analyze_request=AnalyzeDocumentRequest(bytes_source=file_bytes),
     )
     result = await poller.result()
 

@@ -1,17 +1,18 @@
 # Focusbuddy Backend
 
-FastAPI backend for the Focusbuddy cognitive load reduction assistant. Powers the AI agents, document pipeline, focus rooms, and data persistence behind the Next.js frontend.
+FastAPI backend for the Focusbuddy cognitive load reduction assistant. Powers the AI agents, document pipeline, focus rooms, and data persistence behind the Next.js frontend. Built on **Microsoft Foundry** (formerly Azure AI Foundry) and Azure services.
 
 ## Prerequisites
 
 - Python 3.12+
 - [Conda](https://docs.conda.io/en/latest/) (Miniconda or Anaconda)
 - Azure account with the following services provisioned:
+  - **Microsoft Foundry** project (orchestrates agents and AI services)
   - Azure Cosmos DB (NoSQL)
   - Azure OpenAI (GPT-4o deployment)
-  - Azure Content Safety
+  - Azure AI Content Safety
   - Azure Blob Storage
-  - Azure Document Intelligence
+  - Azure AI Document Intelligence
   - Azure AI Search
   - Azure Web PubSub
   - Azure Application Insights (optional)
@@ -168,15 +169,17 @@ backend/
 └── README.md
 ```
 
-## Azure Services Used
+## Azure & Microsoft Foundry Services
 
 | Service | Purpose |
 |---------|---------|
+| **Microsoft Foundry** | AI platform — agent orchestration, model deployments, project management |
+| Microsoft Foundry Agent Service | Multi-agent orchestration (Pebble orchestrator + sub-agents) |
 | Azure Cosmos DB | Tasks, preferences, activity log, documents, rooms |
 | Azure OpenAI (GPT-4o) | Task decomposition, document simplification, motivation |
-| Azure Content Safety | Input/output safety filtering on all agent responses |
+| Azure AI Content Safety | Input/output safety filtering on all agent responses |
 | Azure Blob Storage | Uploaded document files |
-| Azure Document Intelligence | PDF/Word parsing and text extraction |
+| Azure AI Document Intelligence | PDF/Word parsing and text extraction |
 | Azure AI Search | Vector index for RAG search over user documents |
 | Azure Web PubSub | Real-time presence in focus rooms (WebSocket) |
 | Azure Application Insights | Request logging, agent decision audit trail |
