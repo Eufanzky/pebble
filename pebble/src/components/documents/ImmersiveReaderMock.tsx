@@ -1,13 +1,55 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { usePreferences } from '@/contexts/PreferencesContext';
 
 interface Props {
   text: string;
+  title?: string;
+  lang?: string;
   isOpen: boolean;
   onClose: () => void;
 }
+
+// ---------------------------------------------------------------------------
+// Attempt to launch the real Azure Immersive Reader SDK.
+// Falls back to the built-in mock reader if the backend token endpoint is
+// unavailable or the SDK fails to load.
+// ---------------------------------------------------------------------------
+
+async function tryLaunchRealReader(
+  text: string,
+  title: string,
+  lang: string,
+  onClose: () => void,
+): Promise<boolean> {
+  try {
+    const { launchAsync } = await import('@microsoft/immersive-reader-sdk');
+
+    // Fetch token from our backend
+    const tokenResp = await fetch('/api/documents/immersive-reader/token');
+    if (!tokenResp.ok) return false;
+
+    const { token, subdomain } = await tokenResp.json();
+
+    const content = {
+      title,
+      chunks: [{ content: text, lang, mimeType: 'text/plain' }],
+    };
+
+    await launchAsync(token, subdomain, content, {
+      onExit: onClose,
+      uiZIndex: 70,
+    });
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Mock Immersive Reader — CSS-only fallback with the same feature set
+// ---------------------------------------------------------------------------
 
 const syllableMap: Record<string, string> = {
   methodology: 'meth\u00B7od\u00B7ol\u00B7o\u00B7gy',
@@ -43,7 +85,7 @@ function applySyllables(text: string): string {
   return result;
 }
 
-export default function ImmersiveReaderMock({ text, isOpen, onClose }: Props) {
+export default function ImmersiveReaderMock({ text, title, lang, isOpen, onClose }: Props) {
   const { preferences } = usePreferences();
   const noMotion = preferences.reduceAnimations;
   const [readAloud, setReadAloud] = useState(false);
@@ -53,19 +95,69 @@ export default function ImmersiveReaderMock({ text, isOpen, onClose }: Props) {
   const [langMenu, setLangMenu] = useState(false);
   const [selectedLang, setSelectedLang] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
+  const [useMock, setUseMock] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  const handleClose = useCallback(() => {
+    onClose();
+  }, [onClose]);
 
   useEffect(() => {
-    if (isOpen) {
-      requestAnimationFrame(() => setVisible(true));
-      const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
-      window.addEventListener('keydown', handler);
-      return () => window.removeEventListener('keydown', handler);
-    } else {
+    if (!isOpen) {
       setVisible(false);
+      setLoading(true);
+      setUseMock(false);
+      return;
     }
-  }, [isOpen, onClose]);
+
+    // Try to launch the real Azure Immersive Reader first
+    let cancelled = false;
+    tryLaunchRealReader(text, title || 'Document', lang || 'en', handleClose).then(
+      (launched) => {
+        if (cancelled) return;
+        if (!launched) {
+          // Fall back to mock reader
+          setUseMock(true);
+          setLoading(false);
+          requestAnimationFrame(() => setVisible(true));
+        } else {
+          setLoading(false);
+        }
+      },
+    );
+
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') handleClose();
+    };
+    window.addEventListener('keydown', handler);
+    return () => {
+      cancelled = true;
+      window.removeEventListener('keydown', handler);
+    };
+  }, [isOpen, text, title, lang, handleClose]);
 
   if (!isOpen) return null;
+
+  // While trying the real SDK, show a brief loading state
+  if (loading) {
+    return (
+      <div style={{
+        position: 'fixed', inset: 0, zIndex: 60, background: '#1a1a2e',
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+      }}>
+        <div style={{ textAlign: 'center', color: 'var(--text-muted)' }}>
+          <div style={{ fontSize: 14, fontFamily: 'var(--font-nunito)' }}>
+            Launching Azure Immersive Reader...
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // If the real SDK launched, it handles its own UI — return nothing
+  if (!useMock) return null;
+
+  // --- Mock reader below ---
 
   const displayText = syllables ? applySyllables(text) : text;
 
@@ -117,20 +209,20 @@ export default function ImmersiveReaderMock({ text, isOpen, onClose }: Props) {
                 background: 'rgba(26,26,46,0.95)', border: '1px solid rgba(255,248,235,0.1)',
                 borderRadius: 10, padding: '6px 0', zIndex: 2, minWidth: 140,
               }}>
-                {languages.map((lang) => (
-                  <button key={lang} onClick={() => { setSelectedLang(lang); setLangMenu(false); }} style={{
+                {languages.map((l) => (
+                  <button key={l} onClick={() => { setSelectedLang(l); setLangMenu(false); }} style={{
                     display: 'block', width: '100%', padding: '6px 14px', border: 'none',
                     background: 'transparent', color: 'var(--text-secondary)', fontSize: 12,
                     fontFamily: 'var(--font-nunito)', cursor: 'pointer', textAlign: 'left',
                   }}>
-                    {lang}
+                    {l}
                   </button>
                 ))}
               </div>
             )}
           </div>
         </div>
-        <button onClick={onClose} style={{
+        <button onClick={handleClose} style={{
           background: 'none', border: '1px solid rgba(255,248,235,0.1)', borderRadius: 8,
           padding: '6px 14px', color: 'var(--text-secondary)', fontFamily: 'var(--font-nunito)',
           fontSize: 12, cursor: 'pointer',

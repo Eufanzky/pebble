@@ -5,11 +5,12 @@ from app.agents.task_decomposition import decompose_task
 from app.agents.document_simplification import simplify_document
 from app.agents.motivation import generate_motivation
 from app.services.openai_client import chat_completion
-from app.services.content_safety import ensure_safe
+from app.services.content_safety import ensure_safe, ensure_no_prompt_attack
 
 
 async def _classify_intent(user_message: str) -> dict:
     """Use the orchestrator to classify user intent and generate a response."""
+    await ensure_no_prompt_attack(user_message)
     await ensure_safe(user_message)
 
     response_text = await chat_completion(

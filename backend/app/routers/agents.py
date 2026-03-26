@@ -1,3 +1,5 @@
+import time
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.models.agent_schemas import (
@@ -15,6 +17,12 @@ from app.agents.document_simplification import simplify_document
 from app.agents.motivation import generate_motivation
 from app.agents.orchestrator import handle_chat
 from app.services.auth import get_current_user_id
+from app.services.monitoring import (
+    record_agent_latency,
+    record_agent_call,
+    record_groundedness_check,
+    record_prompt_shield_check,
+)
 
 router = APIRouter()
 
@@ -42,16 +50,21 @@ async def decompose(
 
     Both input and output are filtered through Azure Content Safety.
     """
+    start = time.perf_counter()
     try:
         result = await decompose_task(
             task_title=body.task_title,
             chunk_size=body.chunk_size,
             time_of_day=body.time_of_day,
         )
+        record_agent_call("CalmSense", success=True)
+        record_agent_latency("CalmSense", (time.perf_counter() - start) * 1000)
         return result
     except ValueError as e:
+        record_agent_call("CalmSense", success=False)
         raise HTTPException(status_code=422, detail=str(e))
     except Exception as e:
+        record_agent_call("CalmSense", success=False)
         raise HTTPException(status_code=500, detail=f"Agent error: {e}")
 
 
@@ -76,16 +89,23 @@ async def simplify(
 
     Also extracts action items (`extractedTasks`) and topic tags from the text.
     Includes a `whyExplanation` describing what was changed and why.
+    Output is verified against the original text using Groundedness Detection.
     """
+    start = time.perf_counter()
     try:
         result = await simplify_document(
             text=body.text,
             reading_level=body.reading_level,
         )
+        record_agent_call("SimplifyCore", success=True)
+        record_agent_latency("SimplifyCore", (time.perf_counter() - start) * 1000)
+        record_groundedness_check(result.get("groundedness", {}).get("grounded", True))
         return result
     except ValueError as e:
+        record_agent_call("SimplifyCore", success=False)
         raise HTTPException(status_code=422, detail=str(e))
     except Exception as e:
+        record_agent_call("SimplifyCore", success=False)
         raise HTTPException(status_code=500, detail=f"Agent error: {e}")
 
 
@@ -109,6 +129,7 @@ async def motivate(
     Returns a `mood` that the frontend uses to update Pebble's expression:
     `sleepy`, `normal`, `happy`, or `excited`.
     """
+    start = time.perf_counter()
     try:
         result = await generate_motivation(
             tasks_completed=body.tasks_completed,
@@ -117,10 +138,14 @@ async def motivate(
             time_of_day=body.time_of_day,
             personality=body.personality,
         )
+        record_agent_call("PebbleVoice", success=True)
+        record_agent_latency("PebbleVoice", (time.perf_counter() - start) * 1000)
         return result
     except ValueError as e:
+        record_agent_call("PebbleVoice", success=False)
         raise HTTPException(status_code=422, detail=str(e))
     except Exception as e:
+        record_agent_call("PebbleVoice", success=False)
         raise HTTPException(status_code=500, detail=f"Agent error: {e}")
 
 
@@ -144,12 +169,15 @@ async def chat(
     - `chat` → Direct response from Pebble
     - `distress` → Immediate empathetic response with support
 
+    All input is screened by Prompt Shields (anti-jailbreak) and Content Safety.
+
     If the user expresses distress (*"I'm overwhelmed"*, *"I can't do this"*),
     Pebble responds with empathy and offers to simplify their day.
 
     The `data` field contains structured output from the sub-agent (e.g., subtasks
     for decompose, simplified text for simplify), or `null` for chat/distress.
     """
+    start = time.perf_counter()
     try:
         result = await handle_chat(
             user_message=body.message,
@@ -161,8 +189,14 @@ async def chat(
             time_of_day=body.time_of_day,
             personality=body.personality,
         )
+        agent_name = result.get("agentName", "Orchestrator")
+        record_agent_call(agent_name, success=True)
+        record_agent_latency(agent_name, (time.perf_counter() - start) * 1000)
+        record_prompt_shield_check(attack_detected=False)
         return result
     except ValueError as e:
+        record_prompt_shield_check(attack_detected="injection" in str(e).lower())
         raise HTTPException(status_code=422, detail=str(e))
     except Exception as e:
+        record_agent_call("Orchestrator", success=False)
         raise HTTPException(status_code=500, detail=f"Agent error: {e}")

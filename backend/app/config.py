@@ -40,6 +40,12 @@ class Settings(BaseSettings):
     # Azure Application Insights
     applicationinsights_connection_string: str = ""
 
+    # Azure Immersive Reader
+    immersive_reader_tenant_id: str = ""
+    immersive_reader_client_id: str = ""
+    immersive_reader_client_secret: str = ""
+    immersive_reader_subdomain: str = ""
+
     # CORS
     frontend_url: str = "http://localhost:3000"
 

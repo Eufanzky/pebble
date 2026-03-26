@@ -1,9 +1,11 @@
 import uuid
 from datetime import datetime, timezone
 
+import httpx
 from azure.cosmos.exceptions import CosmosHttpResponseError
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
 
+from app.config import settings
 from app.models.document_schemas import (
     DocumentResponse,
     ExtractTasksResponse,
@@ -284,3 +286,46 @@ async def search_docs(
         return results
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Search error: {e}")
+
+
+@router.get("/immersive-reader/token", summary="Get Immersive Reader token")
+async def get_immersive_reader_token(
+    user_id: str = Depends(get_current_user_id),
+):
+    """
+    Acquire a Microsoft Entra authentication token for the Azure Immersive Reader.
+
+    Returns a token and subdomain that the frontend uses to launch the
+    Immersive Reader SDK with `ImmersiveReader.launchAsync(token, subdomain, content)`.
+    """
+    if not settings.immersive_reader_client_id or not settings.immersive_reader_subdomain:
+        raise HTTPException(
+            status_code=503,
+            detail="Immersive Reader not configured",
+        )
+
+    token_url = (
+        f"https://login.microsoftonline.com/{settings.immersive_reader_tenant_id}"
+        f"/oauth2/token"
+    )
+
+    async with httpx.AsyncClient() as client:
+        resp = await client.post(
+            token_url,
+            data={
+                "grant_type": "client_credentials",
+                "client_id": settings.immersive_reader_client_id,
+                "client_secret": settings.immersive_reader_client_secret,
+                "resource": "https://cognitiveservices.azure.com/",
+            },
+            timeout=10.0,
+        )
+
+    if resp.status_code != 200:
+        raise HTTPException(status_code=502, detail="Failed to acquire Immersive Reader token")
+
+    data = resp.json()
+    return {
+        "token": data["access_token"],
+        "subdomain": settings.immersive_reader_subdomain,
+    }

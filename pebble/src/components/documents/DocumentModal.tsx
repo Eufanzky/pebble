@@ -338,8 +338,8 @@ export default function DocumentModal({ document: doc, isOpen, onClose }: Props)
         </div>
       </div>
 
-      {/* Immersive Reader overlay */}
-      <ImmersiveReaderMock text={simplifiedText} isOpen={readerOpen} onClose={() => setReaderOpen(false)} />
+      {/* Immersive Reader overlay — tries real Azure SDK, falls back to mock */}
+      <ImmersiveReaderMock text={simplifiedText} title={doc.title} isOpen={readerOpen} onClose={() => setReaderOpen(false)} />
     </>
   );
 }
