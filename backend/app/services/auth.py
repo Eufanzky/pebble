@@ -6,7 +6,7 @@ import httpx
 
 from app.config import settings
 
-security = HTTPBearer()
+security = HTTPBearer(auto_error=False)
 
 _jwks_cache: dict | None = None
 
@@ -27,9 +27,18 @@ async def _get_jwks() -> dict:
 
 
 async def get_current_user_id(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    credentials: HTTPAuthorizationCredentials | None = Depends(security),
 ) -> str:
     """Validate the Entra ID JWT and return the user's object ID."""
+    if settings.dev_mode:
+        return "dev-user-00000000"
+
+    if credentials is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Missing authorization header",
+        )
+
     token = credentials.credentials
 
     try:

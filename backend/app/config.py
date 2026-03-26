@@ -46,6 +46,9 @@ class Settings(BaseSettings):
     immersive_reader_client_secret: str = ""
     immersive_reader_subdomain: str = ""
 
+    # Dev mode (bypasses JWT auth for local demos)
+    dev_mode: bool = False
+
     # CORS
     frontend_url: str = "http://localhost:3000"
 

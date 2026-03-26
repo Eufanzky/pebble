@@ -9,6 +9,7 @@ import { TasksProvider } from '@/contexts/TasksContext';
 import { ActivityLogProvider } from '@/contexts/ActivityLogContext';
 import { ToastProvider } from '@/contexts/ToastContext';
 import { useFocusOnNavigation } from '@/hooks/useFocusOnNavigation';
+import PebbleChat from '@/components/chat/PebbleChat';
 
 function PageTransition({ children }: { children: ReactNode }) {
   const pathname = usePathname();
@@ -79,6 +80,7 @@ function AppShellInner({ children }: { children: ReactNode }) {
           </PageTransition>
         </div>
       </main>
+      <PebbleChat />
     </div>
   );
 }

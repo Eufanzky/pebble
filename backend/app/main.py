@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 
 from app.config import settings
-from app.routers import tasks, preferences, activity, agents, documents, focus, audit
+from app.routers import tasks, preferences, activity, agents, documents, focus, audit, verify
 from app.services.db import init_db, close_db
 from app.services.monitoring import RequestLoggingMiddleware, init_telemetry
 
@@ -150,6 +150,7 @@ app.include_router(agents.router, prefix="/api/agents", tags=["AI Agents"])
 app.include_router(documents.router, prefix="/api/documents", tags=["Documents"])
 app.include_router(focus.router, prefix="/api/focus", tags=["Focus Room"])
 app.include_router(audit.router, prefix="/api/audit", tags=["Audit Trail"])
+app.include_router(verify.router, prefix="/api/verify", tags=["Service Verification"])
 
 
 @app.get("/api/health", tags=["Health"])

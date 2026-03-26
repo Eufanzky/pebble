@@ -17,12 +17,13 @@ _safety_flag_counter = None
 _task_op_counter = None
 _groundedness_counter = None
 _prompt_shield_counter = None
+_pii_counter = None
 
 
 def init_telemetry() -> None:
     """Initialize Azure Monitor / Application Insights telemetry with custom metrics."""
     global _telemetry_initialized, _meter
-    global _agent_latency_histogram, _agent_call_counter, _safety_flag_counter
+    global _agent_latency_histogram, _agent_call_counter, _safety_flag_counter, _pii_counter
     global _task_op_counter, _groundedness_counter, _prompt_shield_counter
     if _telemetry_initialized:
         return
@@ -69,6 +70,10 @@ def init_telemetry() -> None:
             name="focusbuddy.prompt_shield.checks",
             description="Prompt Shield detection results",
         )
+        _pii_counter = _meter.create_counter(
+            name="focusbuddy.pii.detections",
+            description="PII detection events",
+        )
 
         logger.info("Azure Monitor telemetry initialized with custom metrics")
     except Exception as e:
@@ -111,6 +116,12 @@ def record_prompt_shield_check(attack_detected: bool) -> None:
     """Record a Prompt Shield detection result."""
     if _prompt_shield_counter:
         _prompt_shield_counter.add(1, {"attack_detected": str(attack_detected)})
+
+
+def record_pii_detection(detected: bool, categories: list[str] | None = None) -> None:
+    """Record a PII detection event."""
+    if _pii_counter:
+        _pii_counter.add(1, {"detected": str(detected), "categories": ",".join(categories or [])})
 
 
 def log_agent_decision(
