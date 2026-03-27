@@ -8,6 +8,7 @@ import { usePebble } from '@/contexts/PebbleContext';
 import { useActivityLog } from '@/contexts/ActivityLogContext';
 import { usePreferences } from '@/contexts/PreferencesContext';
 import { useToast } from '@/contexts/ToastContext';
+import { playChime } from '@/lib/audio';
 import './study.css';
 
 const FOCUS_DURATION = 25 * 60; // 25 minutes in seconds
@@ -65,27 +66,6 @@ function formatTime(seconds: number): string {
   const m = Math.floor(seconds / 60);
   const s = seconds % 60;
   return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-}
-
-function playChime() {
-  try {
-    const ctx = new AudioContext();
-    const freqs = [523, 659, 784];
-    freqs.forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'sine';
-      osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0.3, ctx.currentTime + i * 0.2);
-      gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + i * 0.2 + 0.5);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(ctx.currentTime + i * 0.2);
-      osc.stop(ctx.currentTime + i * 0.2 + 0.5);
-    });
-  } catch {
-    // Web Audio not available — fail silently
-  }
 }
 
 export default function FocusPage() {

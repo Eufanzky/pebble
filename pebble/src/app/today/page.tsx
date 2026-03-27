@@ -13,6 +13,7 @@ import { useActivityLog } from '@/contexts/ActivityLogContext';
 import { usePreferences } from '@/contexts/PreferencesContext';
 import { useTimeOfDay } from '@/hooks/useTimeOfDay';
 import { TAG_CONFIG } from '@/data/sampleTasks';
+import { playTaskComplete } from '@/lib/audio';
 
 const DISTRESS_PHRASES = [
   "i can't do this",
@@ -65,6 +66,7 @@ export default function TodayPage() {
   const handleToggle = (id: string) => {
     const task = tasks.find((t) => t.id === id);
     if (task && !task.completed) {
+      playTaskComplete();
       addEntry(
         'PebbleVoice',
         `Nice work! You finished "${task.title}". That's ${done + 1} of ${total} done today.`,

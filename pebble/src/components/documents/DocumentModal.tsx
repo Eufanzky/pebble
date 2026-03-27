@@ -34,6 +34,7 @@ export default function DocumentModal({ document: doc, isOpen, onClose }: Props)
   const [readerOpen, setReaderOpen] = useState(false);
   const [textKey, setTextKey] = useState(0);
   const [showOriginal, setShowOriginal] = useState(false);
+  const [docView, setDocView] = useState<'split' | 'reader'>('split');
 
   const modalRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLElement | null>(null);
@@ -223,92 +224,198 @@ export default function DocumentModal({ document: doc, isOpen, onClose }: Props)
               }}>
                 {calm ? 'Reader' : 'Reader'}
               </button>
+
+              <div style={{ width: 1, height: 18, background: 'var(--border-soft)', margin: '0 4px' }} />
+
+              {/* Split / Reader toggle */}
+              <div style={{ display: 'flex', gap: 2, background: 'var(--bg-surface)', borderRadius: 6, padding: 2 }}>
+                {(['split', 'reader'] as const).map((m) => (
+                  <button
+                    key={m}
+                    onClick={() => setDocView(m)}
+                    aria-pressed={docView === m}
+                    style={{
+                      padding: '3px 10px', borderRadius: 5, border: 'none', cursor: 'pointer',
+                      fontSize: 10, fontWeight: 600, fontFamily: 'var(--font-nunito)',
+                      background: docView === m ? 'rgba(196,181,212,0.2)' : 'transparent',
+                      color: docView === m ? 'var(--accent-lavender)' : 'var(--text-muted)',
+                      textTransform: 'capitalize',
+                    }}
+                  >
+                    {m}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
           {/* ===== SCROLLABLE CONTENT ===== */}
           <div style={{
-            flex: 1, overflowY: 'auto', padding: '20px 28px 28px',
+            flex: 1, overflowY: docView === 'split' ? 'hidden' : 'auto',
+            padding: docView === 'split' ? '0' : '20px 28px 28px',
             scrollbarWidth: 'thin', scrollbarColor: 'rgba(196,181,212,0.2) transparent',
+            display: 'flex', flexDirection: 'column',
           }}>
-            {/* Explainability card */}
-            <div style={{
-              display: 'flex', gap: 10, alignItems: 'flex-start',
-              padding: '10px 14px', background: 'rgba(255,248,235,0.04)',
-              borderLeft: '2px solid var(--accent-lavender)', borderRadius: '0 10px 10px 0',
-              marginBottom: 20,
-            }}>
-              <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'var(--pebble-color)', flexShrink: 0, position: 'relative' }} aria-hidden="true">
-                <div style={{ position: 'absolute', width: 3, height: 3, background: '#2A2A2E', borderRadius: '50%', top: 8, left: 5 }} />
-                <div style={{ position: 'absolute', width: 3, height: 3, background: '#2A2A2E', borderRadius: '50%', top: 8, right: 5 }} />
-              </div>
-              <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
-                {isDefaultLevel
-                  ? `Simplified to level ${level} (your default). Drag the slider above to adjust.`
-                  : `Showing level ${level}. Your default is ${preferences.readingLevel}. Update it in Settings to remember.`}
-              </div>
-            </div>
-
-            {/* Simplified text (primary) */}
-            <div
-              key={textKey}
-              style={{
-                fontFamily: 'var(--font-nunito)', fontSize: 15, color: 'var(--text-primary)',
-                lineHeight: 1.8, whiteSpace: 'pre-wrap', marginBottom: 20,
-                animation: noMotion ? 'none' : 'docFadeIn 0.4s ease',
-              }}
-            >
-              {simplifiedText}
-            </div>
             <style>{`@keyframes docFadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }`}</style>
 
-            {/* Original text toggle */}
-            <button
-              onClick={() => setShowOriginal(!showOriginal)}
-              aria-expanded={showOriginal}
-              style={{
-                background: 'none', border: 'none', cursor: 'pointer',
-                fontFamily: 'var(--font-nunito)', fontSize: 12, color: 'var(--text-muted)',
-                display: 'flex', alignItems: 'center', gap: 6, padding: '8px 0', marginBottom: 8,
-              }}
-            >
-              <span style={{ fontSize: 10, transition: noMotion ? 'none' : 'transform 0.2s', transform: showOriginal ? 'rotate(90deg)' : 'rotate(0deg)', display: 'inline-block' }}>{'\u25B6'}</span>
-              {showOriginal ? 'Hide original text' : 'Show original text'}
-            </button>
+            {/* ===== SPLIT VIEW ===== */}
+            {docView === 'split' && (
+              <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '45% 55%', minHeight: 0 }}>
+                {/* Left: Original */}
+                <div style={{
+                  overflowY: 'auto', padding: '20px 20px 20px 28px',
+                  borderRight: '1px solid rgba(255,248,235,0.06)',
+                  scrollbarWidth: 'thin', scrollbarColor: 'rgba(196,181,212,0.1) transparent',
+                }}>
+                  <h3 style={{ fontFamily: 'var(--font-baloo)', fontSize: 13, color: 'var(--text-muted)', marginBottom: 12, paddingBottom: 8, borderBottom: '1px solid var(--border-soft)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    Original
+                  </h3>
+                  <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
+                    {doc.original}
+                  </div>
+                </div>
 
-            {showOriginal && (
-              <div style={{
-                fontFamily: 'var(--font-nunito)', fontSize: 13, color: 'var(--text-muted)',
-                lineHeight: 1.7, whiteSpace: 'pre-wrap', marginBottom: 20,
-                padding: '16px 18px', background: 'rgba(255,248,235,0.03)', borderRadius: 12,
-                borderLeft: '2px solid var(--border-soft)',
-              }}>
-                {doc.original}
+                {/* Right: Simplified */}
+                <div style={{
+                  overflowY: 'auto', padding: '20px 28px 20px 20px',
+                  scrollbarWidth: 'thin', scrollbarColor: 'rgba(196,181,212,0.2) transparent',
+                }}>
+                  <h3 style={{ fontFamily: 'var(--font-baloo)', fontSize: 13, color: 'var(--accent-lavender)', marginBottom: 12, paddingBottom: 8, borderBottom: '1px solid var(--border-soft)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
+                    {calm ? "Pebble's version" : "Pebble's version \u2726"} — Level {level}
+                  </h3>
+                  <div
+                    key={textKey}
+                    style={{
+                      fontFamily: 'var(--font-nunito)', fontSize: 15, color: 'var(--text-primary)',
+                      lineHeight: 1.8, whiteSpace: 'pre-wrap',
+                      animation: noMotion ? 'none' : 'docFadeIn 0.4s ease',
+                    }}
+                  >
+                    {simplifiedText}
+                  </div>
+
+                  {/* Explainability */}
+                  <div style={{
+                    display: 'flex', gap: 8, alignItems: 'flex-start', marginTop: 20,
+                    padding: '10px 12px', background: 'rgba(255,248,235,0.04)',
+                    borderLeft: '2px solid var(--accent-lavender)', borderRadius: '0 8px 8px 0',
+                  }}>
+                    <div style={{ width: 18, height: 18, borderRadius: '50%', background: 'var(--pebble-color)', flexShrink: 0, position: 'relative' }} aria-hidden="true">
+                      <div style={{ position: 'absolute', width: 2.5, height: 2.5, background: '#2A2A2E', borderRadius: '50%', top: 6, left: 4 }} />
+                      <div style={{ position: 'absolute', width: 2.5, height: 2.5, background: '#2A2A2E', borderRadius: '50%', top: 6, right: 4 }} />
+                    </div>
+                    <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 11, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                      {isDefaultLevel
+                        ? `Simplified to level ${level} (your default).`
+                        : `Showing level ${level}. Your default is ${preferences.readingLevel}.`}
+                    </div>
+                  </div>
+
+                  {/* Comprehension + actions in split view */}
+                  <div style={{ marginTop: 16 }}>
+                    {!showCheck && doc.comprehensionQuestion.question && (
+                      <button onClick={() => setShowCheck(true)} style={{
+                        background: 'none', border: 'none', cursor: 'pointer',
+                        fontFamily: 'var(--font-nunito)', fontSize: 12, color: 'var(--text-muted)',
+                        display: 'flex', alignItems: 'center', gap: 4, padding: '8px 0', minHeight: 44,
+                      }}>
+                        <span style={{ fontSize: 14 }} aria-hidden="true">{calm ? '?' : '\uD83D\uDCA1'}</span>
+                        Check my understanding
+                      </button>
+                    )}
+                    {showCheck && (
+                      <ComprehensionCheck
+                        question={doc.comprehensionQuestion.question}
+                        correctAnswer={doc.comprehensionQuestion.correctAnswer}
+                        wrongAnswer={doc.comprehensionQuestion.wrongAnswer}
+                        pebbleCorrect={doc.comprehensionQuestion.pebbleCorrect}
+                        pebbleWrong={doc.comprehensionQuestion.pebbleWrong}
+                        docTitle={doc.title}
+                      />
+                    )}
+                  </div>
+                </div>
               </div>
             )}
 
-            {/* Comprehension check */}
-            {!showCheck && doc.comprehensionQuestion.question && (
-              <button onClick={() => setShowCheck(true)} style={{
-                background: 'none', border: 'none', cursor: 'pointer',
-                fontFamily: 'var(--font-nunito)', fontSize: 12, color: 'var(--text-muted)',
-                display: 'flex', alignItems: 'center', gap: 4, padding: '8px 0',
-                minHeight: 44,
-              }}>
-                <span style={{ fontSize: 14 }} aria-hidden="true">{calm ? '?' : '\uD83D\uDCA1'}</span>
-                Check my understanding
-              </button>
-            )}
+            {/* ===== READER VIEW (single column) ===== */}
+            {docView === 'reader' && (
+              <div style={{ padding: docView === 'reader' ? '20px 28px 28px' : 0 }}>
+                {/* Explainability card */}
+                <div style={{
+                  display: 'flex', gap: 10, alignItems: 'flex-start',
+                  padding: '10px 14px', background: 'rgba(255,248,235,0.04)',
+                  borderLeft: '2px solid var(--accent-lavender)', borderRadius: '0 10px 10px 0',
+                  marginBottom: 20,
+                }}>
+                  <div style={{ width: 22, height: 22, borderRadius: '50%', background: 'var(--pebble-color)', flexShrink: 0, position: 'relative' }} aria-hidden="true">
+                    <div style={{ position: 'absolute', width: 3, height: 3, background: '#2A2A2E', borderRadius: '50%', top: 8, left: 5 }} />
+                    <div style={{ position: 'absolute', width: 3, height: 3, background: '#2A2A2E', borderRadius: '50%', top: 8, right: 5 }} />
+                  </div>
+                  <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5 }}>
+                    {isDefaultLevel
+                      ? `Simplified to level ${level} (your default). Drag the slider above to adjust.`
+                      : `Showing level ${level}. Your default is ${preferences.readingLevel}. Update it in Settings to remember.`}
+                  </div>
+                </div>
 
-            {showCheck && (
-              <ComprehensionCheck
-                question={doc.comprehensionQuestion.question}
-                correctAnswer={doc.comprehensionQuestion.correctAnswer}
-                wrongAnswer={doc.comprehensionQuestion.wrongAnswer}
-                pebbleCorrect={doc.comprehensionQuestion.pebbleCorrect}
-                pebbleWrong={doc.comprehensionQuestion.pebbleWrong}
-                docTitle={doc.title}
-              />
+                <div
+                  key={textKey}
+                  style={{
+                    fontFamily: 'var(--font-nunito)', fontSize: 15, color: 'var(--text-primary)',
+                    lineHeight: 1.8, whiteSpace: 'pre-wrap', marginBottom: 20,
+                    animation: noMotion ? 'none' : 'docFadeIn 0.4s ease',
+                  }}
+                >
+                  {simplifiedText}
+                </div>
+
+                <button
+                  onClick={() => setShowOriginal(!showOriginal)}
+                  aria-expanded={showOriginal}
+                  style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    fontFamily: 'var(--font-nunito)', fontSize: 12, color: 'var(--text-muted)',
+                    display: 'flex', alignItems: 'center', gap: 6, padding: '8px 0', marginBottom: 8,
+                  }}
+                >
+                  <span style={{ fontSize: 10, transition: noMotion ? 'none' : 'transform 0.2s', transform: showOriginal ? 'rotate(90deg)' : 'rotate(0deg)', display: 'inline-block' }}>{'\u25B6'}</span>
+                  {showOriginal ? 'Hide original text' : 'Show original text'}
+                </button>
+
+                {showOriginal && (
+                  <div style={{
+                    fontFamily: 'var(--font-nunito)', fontSize: 13, color: 'var(--text-muted)',
+                    lineHeight: 1.7, whiteSpace: 'pre-wrap', marginBottom: 20,
+                    padding: '16px 18px', background: 'rgba(255,248,235,0.03)', borderRadius: 12,
+                    borderLeft: '2px solid var(--border-soft)',
+                  }}>
+                    {doc.original}
+                  </div>
+                )}
+
+                {!showCheck && doc.comprehensionQuestion.question && (
+                  <button onClick={() => setShowCheck(true)} style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    fontFamily: 'var(--font-nunito)', fontSize: 12, color: 'var(--text-muted)',
+                    display: 'flex', alignItems: 'center', gap: 4, padding: '8px 0', minHeight: 44,
+                  }}>
+                    <span style={{ fontSize: 14 }} aria-hidden="true">{calm ? '?' : '\uD83D\uDCA1'}</span>
+                    Check my understanding
+                  </button>
+                )}
+
+                {showCheck && (
+                  <ComprehensionCheck
+                    question={doc.comprehensionQuestion.question}
+                    correctAnswer={doc.comprehensionQuestion.correctAnswer}
+                    wrongAnswer={doc.comprehensionQuestion.wrongAnswer}
+                    pebbleCorrect={doc.comprehensionQuestion.pebbleCorrect}
+                    pebbleWrong={doc.comprehensionQuestion.pebbleWrong}
+                    docTitle={doc.title}
+                  />
+                )}
+              </div>
             )}
           </div>
         </div>
