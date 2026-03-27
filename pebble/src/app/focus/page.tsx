@@ -12,11 +12,53 @@ import './study.css';
 
 const FOCUS_DURATION = 25 * 60; // 25 minutes in seconds
 
-const OTHER_ROOMS = [
-  { name: 'Morning Grind', people: 7, colors: ['var(--accent-amber)', 'var(--accent-sage)', 'var(--accent-lavender)', 'var(--accent-coral)', 'var(--accent-sky)'] },
-  { name: 'Late Night Club', people: 2, colors: ['var(--accent-coral)', 'var(--accent-sky)'] },
-  { name: 'Deep Work Den', people: 5, colors: ['var(--accent-sage)', 'var(--accent-lavender)', 'var(--accent-amber)'] },
-  { name: 'Quiet Corner', people: 1, colors: ['var(--accent-lavender)'] },
+interface RoomInfo {
+  name: string;
+  people: number;
+  colors: string[];
+  users: Array<{ name: string; color: string; focusing: boolean }>;
+}
+
+const OTHER_ROOMS: RoomInfo[] = [
+  {
+    name: 'Morning Grind', people: 7,
+    colors: ['var(--accent-amber)', 'var(--accent-sage)', 'var(--accent-lavender)', 'var(--accent-coral)', 'var(--accent-sky)'],
+    users: [
+      { name: 'Alex', color: 'var(--accent-amber)', focusing: true },
+      { name: 'Sam', color: 'var(--accent-sage)', focusing: true },
+      { name: 'Jordan', color: 'var(--accent-lavender)', focusing: false },
+      { name: 'Riley', color: 'var(--accent-coral)', focusing: true },
+      { name: 'Casey', color: 'var(--accent-sky)', focusing: true },
+      { name: 'Morgan', color: 'var(--accent-cream)', focusing: true },
+      { name: 'Taylor', color: 'var(--accent-sage)', focusing: false },
+    ],
+  },
+  {
+    name: 'Late Night Club', people: 2,
+    colors: ['var(--accent-coral)', 'var(--accent-sky)'],
+    users: [
+      { name: 'Noor', color: 'var(--accent-coral)', focusing: true },
+      { name: 'Quinn', color: 'var(--accent-sky)', focusing: true },
+    ],
+  },
+  {
+    name: 'Deep Work Den', people: 5,
+    colors: ['var(--accent-sage)', 'var(--accent-lavender)', 'var(--accent-amber)'],
+    users: [
+      { name: 'Avery', color: 'var(--accent-sage)', focusing: true },
+      { name: 'Kai', color: 'var(--accent-lavender)', focusing: true },
+      { name: 'Reese', color: 'var(--accent-amber)', focusing: true },
+      { name: 'Drew', color: 'var(--accent-coral)', focusing: false },
+      { name: 'Blake', color: 'var(--accent-sky)', focusing: true },
+    ],
+  },
+  {
+    name: 'Quiet Corner', people: 1,
+    colors: ['var(--accent-lavender)'],
+    users: [
+      { name: 'Luna', color: 'var(--accent-lavender)', focusing: true },
+    ],
+  },
 ];
 
 function formatTime(seconds: number): string {
@@ -52,10 +94,12 @@ export default function FocusPage() {
   const { preferences } = usePreferences();
   const { showToast } = useToast();
   const noMotion = preferences.reduceAnimations;
+  const calm = preferences.calmMode;
 
   const [timeLeft, setTimeLeft] = useState(FOCUS_DURATION);
   const [timerState, setTimerState] = useState<'idle' | 'running' | 'paused'>('idle');
   const [pebbleMessage, setPebbleMessage] = useState('Focus with others — no cameras, no pressure');
+  const [activeRoom, setActiveRoom] = useState<RoomInfo | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const elapsed = FOCUS_DURATION - timeLeft;
@@ -231,7 +275,11 @@ export default function FocusPage() {
               <button
                 key={room.name}
                 className="glass-card study-room-card"
-                onClick={() => showToast('Room switching coming soon!')}
+                onClick={() => {
+                  setActiveRoom(room);
+                  addEntry('PebbleVoice', `Joined room "${room.name}"`, `Room has ${room.people} participants. No cameras, presence only.`);
+                  setPebbleMessage(`Welcome to ${room.name}! ${room.people} others are here.`);
+                }}
               >
                 <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>
                   {room.name}
@@ -259,6 +307,160 @@ export default function FocusPage() {
           No cameras. No microphones. Just the comfort of knowing others are focused too.
         </div>
       </div>
+
+      {/* ===== ROOM INTERIOR OVERLAY ===== */}
+      {activeRoom && (
+        <div
+          style={{
+            position: 'fixed', inset: 0, zIndex: 55,
+            background: 'rgba(15,13,10,0.92)',
+            backdropFilter: 'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+            display: 'flex', flexDirection: 'column',
+            animation: noMotion ? 'none' : 'chatSlideUp 0.3s ease',
+          }}
+        >
+          <style>{`@keyframes chatSlideUp { from { opacity: 0; } to { opacity: 1; } }`}</style>
+
+          {/* Room header */}
+          <div style={{
+            padding: '20px 28px', display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+            borderBottom: '1px solid rgba(255,248,235,0.06)',
+          }}>
+            <div>
+              <div style={{ fontFamily: 'var(--font-baloo)', fontSize: 20, color: 'var(--text-primary)' }}>
+                {activeRoom.name}
+              </div>
+              <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                {activeRoom.people + 1} people in room {calm ? '' : '  '} {/* +1 for current user */}
+              </div>
+            </div>
+            <button
+              onClick={() => {
+                setActiveRoom(null);
+                setPebbleMessage('Welcome back! You can join another room anytime.');
+                addEntry('PebbleVoice', `Left room "${activeRoom.name}"`, 'User returned to room lobby.');
+              }}
+              className="study-btn study-btn-secondary"
+              style={{ padding: '8px 20px' }}
+            >
+              Leave Room
+            </button>
+          </div>
+
+          {/* Room interior — circular seating around Pebble */}
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 24, padding: 20 }}>
+
+            {/* Pebble speech */}
+            <PebbleSpeechBubble message={pebbleMessage} />
+
+            {/* Circle scene */}
+            <div style={{ position: 'relative', width: 320, height: 320 }}>
+
+              {/* Ambient glow */}
+              <div style={{
+                position: 'absolute', inset: 30,
+                borderRadius: '50%',
+                background: 'radial-gradient(circle, rgba(196,181,212,0.06) 0%, transparent 70%)',
+              }} />
+
+              {/* Orbit ring */}
+              <div style={{
+                position: 'absolute', inset: 20,
+                borderRadius: '50%',
+                border: '1px dashed rgba(255,248,235,0.06)',
+              }} />
+
+              {/* Pebble in center */}
+              <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+                <PebbleCharacter mood={timerState === 'running' ? 'happy' : mood} size="medium" />
+              </div>
+
+              {/* User avatars in a circle */}
+              {[...activeRoom.users, { name: 'You', color: 'var(--pebble-color)', focusing: timerState === 'running' }].map((user, i, arr) => {
+                const angle = (2 * Math.PI * i) / arr.length - Math.PI / 2;
+                const radius = 130;
+                const x = 160 + radius * Math.cos(angle) - 18;
+                const y = 160 + radius * Math.sin(angle) - 18;
+
+                return (
+                  <div
+                    key={user.name}
+                    style={{
+                      position: 'absolute', left: x, top: y,
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4,
+                    }}
+                  >
+                    {/* Avatar circle */}
+                    <div style={{
+                      width: 36, height: 36, borderRadius: '50%',
+                      background: user.color,
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      boxShadow: user.focusing && !noMotion ? `0 0 12px color-mix(in srgb, ${user.color} 40%, transparent)` : 'none',
+                      border: user.name === 'You' ? '2px solid var(--accent-lavender)' : '2px solid transparent',
+                      position: 'relative',
+                    }}>
+                      {/* Eyes */}
+                      <div style={{ position: 'absolute', width: 4, height: 4, background: '#2A2A2E', borderRadius: '50%', top: 12, left: 9 }} />
+                      <div style={{ position: 'absolute', width: 4, height: 4, background: '#2A2A2E', borderRadius: '50%', top: 12, right: 9 }} />
+
+                      {/* Focusing indicator */}
+                      {user.focusing && (
+                        <div style={{
+                          position: 'absolute', bottom: -2, right: -2,
+                          width: 10, height: 10, borderRadius: '50%',
+                          background: 'var(--accent-sage)', border: '2px solid var(--bg-deep)',
+                        }} />
+                      )}
+                    </div>
+
+                    {/* Name */}
+                    <span style={{
+                      fontSize: 10, color: user.name === 'You' ? 'var(--accent-lavender)' : 'var(--text-muted)',
+                      fontFamily: 'var(--font-nunito)', fontWeight: user.name === 'You' ? 700 : 400,
+                    }}>
+                      {user.name}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Timer in room */}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 14 }}>
+              <div style={{
+                fontFamily: 'var(--font-jetbrains)', fontSize: 40, color: 'var(--text-primary)',
+                letterSpacing: '2px',
+              }}>
+                {formatTime(timeLeft)}
+              </div>
+
+              <div style={{ display: 'flex', gap: 10 }}>
+                {timerState === 'idle' && (
+                  <button onClick={handleStart} className="study-btn study-btn-primary">
+                    Start Focus Session
+                  </button>
+                )}
+                {timerState === 'running' && (
+                  <button onClick={handlePause} className="study-btn study-btn-secondary">
+                    Pause
+                  </button>
+                )}
+                {timerState === 'paused' && (
+                  <button onClick={handleResume} className="study-btn study-btn-primary">
+                    Resume
+                  </button>
+                )}
+              </div>
+
+              {/* Focusing count */}
+              <div style={{ fontSize: 12, color: 'var(--text-muted)' }}>
+                {activeRoom.users.filter((u) => u.focusing).length + (timerState === 'running' ? 1 : 0)} of {activeRoom.people + 1} focusing right now
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 }
