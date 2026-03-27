@@ -40,7 +40,7 @@ export default function DocumentCard({ document: doc, onClick }: DocumentCardPro
       onClick={onClick}
       className="glass-card"
       style={{
-        width: '100%', height: 160, padding: '20px 22px',
+        width: '100%', minHeight: 180, padding: '20px 22px',
         display: 'flex', flexDirection: 'column', justifyContent: 'space-between',
         cursor: 'pointer', textAlign: 'left',
         transition: noMotion ? 'none' : 'transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease',
@@ -60,7 +60,11 @@ export default function DocumentCard({ document: doc, onClick }: DocumentCardPro
     >
       <div>
         <DocIcon type={doc.type} calm={preferences.calmMode} />
-        <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', marginTop: 10, lineHeight: 1.3 }}>
+        <div style={{
+          fontFamily: 'var(--font-nunito)', fontSize: 14, fontWeight: 600, color: 'var(--text-primary)',
+          marginTop: 10, lineHeight: 1.4,
+          display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' as const, overflow: 'hidden',
+        }}>
           {doc.title}
         </div>
         <div style={{ fontSize: 12, color: 'var(--text-muted)', marginTop: 3 }}>
@@ -112,7 +116,7 @@ export function UploadZone({ onUpload }: { onUpload?: (file: File) => void }) {
         if (file) handleFile(file);
       }}
       style={{
-        width: '100%', height: 160, padding: 20,
+        width: '100%', minHeight: 180, padding: 20,
         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 8,
         border: `2px dashed ${isDragging ? 'var(--accent-lavender)' : 'var(--border-soft)'}`,
         borderRadius: 16,
