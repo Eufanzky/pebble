@@ -20,6 +20,7 @@ def get_kernel() -> Kernel:
                 deployment_name=settings.azure_openai_deployment,
                 endpoint=settings.azure_openai_endpoint,
                 api_key=settings.azure_openai_key,
+                api_version=settings.azure_openai_api_version,
             )
         )
         logger.info("Semantic Kernel initialized with Azure OpenAI")

@@ -49,12 +49,11 @@ async def create_room(
 async def list_rooms(user_id: str = Depends(get_current_user_id)):
     """List all active focus rooms across all users. Rooms are shared — anyone can join."""
     container = await get_container("rooms")
-    query = "SELECT * FROM c WHERE c.isActive = true ORDER BY c.createdAt DESC"
-    items = container.query_items(
-        query=query,
-        enable_cross_partition_query=True,
-    )
-    return [item async for item in items]
+    query = "SELECT * FROM c WHERE c.isActive = true"
+    items = container.query_items(query=query)
+    rooms = [item async for item in items]
+    rooms.sort(key=lambda r: r.get("createdAt", ""), reverse=True)
+    return rooms
 
 
 @router.get("/rooms/{room_id}", response_model=RoomResponse, summary="Get a room")
