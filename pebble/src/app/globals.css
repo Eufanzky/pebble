@@ -323,6 +323,27 @@ body {
   .main-content {
     width: 100%;
   }
+
+  /* Roadmap: stack nodes left on mobile */
+  .roadmap-line {
+    left: 20px !important;
+  }
+
+  .roadmap-node {
+    flex-direction: row !important;
+    justify-content: flex-start !important;
+  }
+
+  .roadmap-card-slot {
+    flex: none !important;
+    padding-left: 20px !important;
+    padding-right: 0 !important;
+    justify-content: flex-start !important;
+  }
+
+  .roadmap-card-slot:first-child {
+    display: none !important;
+  }
 }
 
 @media (min-width: 769px) {

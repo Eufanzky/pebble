@@ -6,6 +6,7 @@ import PebbleCharacter from '@/components/pebble/PebbleCharacter';
 import PebbleSpeechBubble from '@/components/pebble/PebbleSpeechBubble';
 import TaskCard from '@/components/today/TaskCard';
 import ProgressPath from '@/components/today/ProgressPath';
+import RoadmapView from '@/components/today/RoadmapView';
 import { usePebble } from '@/contexts/PebbleContext';
 import { useTasks } from '@/contexts/TasksContext';
 import { useActivityLog } from '@/contexts/ActivityLogContext';
@@ -49,6 +50,7 @@ export default function TodayPage() {
 
   const [taskInput, setTaskInput] = useState('');
   const [distressState, setDistressState] = useState<'none' | 'showing'>('none');
+  const [viewMode, setViewMode] = useState<'list' | 'roadmap'>('list');
 
   const done = tasks.filter((t) => t.completed).length;
   const total = tasks.length;
@@ -236,53 +238,39 @@ export default function TodayPage() {
               </div>
             </div>
 
-            {/* Screen header */}
-            <div style={{ marginBottom: 20 }}>
-              <h1 className="screen-title">Today</h1>
-              <p className="screen-subtitle">Your tasks for today, one step at a time.</p>
-            </div>
-
-            {/* Task list — incomplete */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {incompleteTasks.map((task) => (
-                <TaskCard
-                  key={task.id}
-                  task={task}
-                  onToggle={handleToggle}
-                  onToggleSubtask={handleToggleSubtask}
-                  onBreakDown={handleBreakDown}
-                  onWhyOpen={handleWhyOpen}
-                />
-              ))}
-            </div>
-
-            {/* Empty state for tasks */}
-            {incompleteTasks.length === 0 && completedTasks.length === 0 && (
-              <div style={{ textAlign: 'center', padding: '32px 0' }}>
-                <PebbleCharacter mood="normal" size="small" />
-                <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 12 }}>
-                  All clear! Add a task when you&apos;re ready, or just rest.
-                </p>
+            {/* Screen header + view toggle */}
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 20 }}>
+              <div>
+                <h1 className="screen-title">Today</h1>
+                <p className="screen-subtitle">Your tasks for today, one step at a time.</p>
               </div>
-            )}
+              <div style={{ display: 'flex', gap: 4, background: 'var(--bg-surface)', borderRadius: 10, padding: 3 }}>
+                {(['list', 'roadmap'] as const).map((mode) => (
+                  <button
+                    key={mode}
+                    onClick={() => setViewMode(mode)}
+                    aria-pressed={viewMode === mode}
+                    style={{
+                      padding: '6px 14px', borderRadius: 8, border: 'none', cursor: 'pointer',
+                      fontFamily: 'var(--font-nunito)', fontSize: 12, fontWeight: 600,
+                      background: viewMode === mode ? 'rgba(196,181,212,0.2)' : 'transparent',
+                      color: viewMode === mode ? 'var(--accent-lavender)' : 'var(--text-muted)',
+                      transition: noMotion ? 'none' : 'all 0.15s ease',
+                      textTransform: 'capitalize',
+                    }}
+                  >
+                    {mode === 'list' ? (calm ? 'List' : 'List') : (calm ? 'Roadmap' : 'Roadmap')}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-            {/* Completed section */}
-            {completedTasks.length > 0 && (
+            {/* ===== LIST VIEW ===== */}
+            {viewMode === 'list' && (
               <>
-                <div style={{
-                  fontSize: 10,
-                  fontWeight: 700,
-                  textTransform: 'uppercase',
-                  letterSpacing: '1.5px',
-                  color: 'var(--text-muted)',
-                  marginTop: 24,
-                  marginBottom: 10,
-                  paddingLeft: 4,
-                }}>
-                  done today
-                </div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-                  {completedTasks.map((task) => (
+                {/* Task list — incomplete */}
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {incompleteTasks.map((task) => (
                     <TaskCard
                       key={task.id}
                       task={task}
@@ -293,7 +281,58 @@ export default function TodayPage() {
                     />
                   ))}
                 </div>
+
+                {/* Empty state for tasks */}
+                {incompleteTasks.length === 0 && completedTasks.length === 0 && (
+                  <div style={{ textAlign: 'center', padding: '32px 0' }}>
+                    <PebbleCharacter mood="normal" size="small" />
+                    <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 12 }}>
+                      All clear! Add a task when you&apos;re ready, or just rest.
+                    </p>
+                  </div>
+                )}
+
+                {/* Completed section */}
+                {completedTasks.length > 0 && (
+                  <>
+                    <div style={{
+                      fontSize: 10,
+                      fontWeight: 700,
+                      textTransform: 'uppercase',
+                      letterSpacing: '1.5px',
+                      color: 'var(--text-muted)',
+                      marginTop: 24,
+                      marginBottom: 10,
+                      paddingLeft: 4,
+                    }}>
+                      done today
+                    </div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
+                      {completedTasks.map((task) => (
+                        <TaskCard
+                          key={task.id}
+                          task={task}
+                          onToggle={handleToggle}
+                          onToggleSubtask={handleToggleSubtask}
+                          onBreakDown={handleBreakDown}
+                          onWhyOpen={handleWhyOpen}
+                        />
+                      ))}
+                    </div>
+                  </>
+                )}
               </>
+            )}
+
+            {/* ===== ROADMAP VIEW ===== */}
+            {viewMode === 'roadmap' && (
+              <RoadmapView
+                tasks={tasks}
+                completionPercentage={completionPercentage}
+                onToggle={handleToggle}
+                calm={calm}
+                noMotion={noMotion}
+              />
             )}
 
             {/* Add task input */}
