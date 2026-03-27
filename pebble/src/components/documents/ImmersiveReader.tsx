@@ -206,6 +206,7 @@ export default function ImmersiveReader({ text, title, lang, isOpen, onClose }: 
   const [syllables, setSyllables] = useState(false);
   const [partsOn, setPartsOn] = useState(false);
   const [lineFocus, setLineFocus] = useState(false);
+  const [focusY, setFocusY] = useState(50);
   const [langMenu, setLangMenu] = useState(false);
   const [selectedLang, setSelectedLang] = useState<string>('English');
   const [visible, setVisible] = useState(false);
@@ -455,22 +456,46 @@ export default function ImmersiveReader({ text, title, lang, isOpen, onClose }: 
       )}
 
       {/* Reading area */}
-      <div style={{
-        flex: 1, overflowY: 'auto', display: 'flex', justifyContent: 'center',
-        padding: '40px 24px',
-      }}>
+      <div
+        style={{
+          flex: 1, overflowY: 'auto', display: 'flex', justifyContent: 'center',
+          padding: '40px 24px', position: 'relative',
+        }}
+        onMouseMove={(e) => {
+          if (!lineFocus) return;
+          const rect = e.currentTarget.getBoundingClientRect();
+          const pct = ((e.clientY - rect.top) / rect.height) * 100;
+          setFocusY(Math.max(5, Math.min(95, pct)));
+        }}
+      >
         <div style={{
           maxWidth: 600, width: '100%',
           fontFamily: 'var(--font-nunito)', fontSize, lineHeight: 1.8,
           color: 'var(--text-primary)', letterSpacing: '0.02em',
           whiteSpace: 'pre-wrap',
-          ...(lineFocus ? {
-            maskImage: 'linear-gradient(transparent 0%, transparent 35%, black 40%, black 60%, transparent 65%, transparent 100%)',
-            WebkitMaskImage: 'linear-gradient(transparent 0%, transparent 35%, black 40%, black 60%, transparent 65%, transparent 100%)',
-          } : {}),
         }}>
           {renderText()}
         </div>
+
+        {/* Line Focus overlay — darkens everything except a 3-line strip that follows the cursor */}
+        {lineFocus && (
+          <div
+            aria-hidden="true"
+            style={{
+              position: 'absolute', inset: 0, pointerEvents: 'none', zIndex: 2,
+              background: `linear-gradient(
+                to bottom,
+                rgba(15,13,10,0.82) 0%,
+                rgba(15,13,10,0.82) ${focusY - 8}%,
+                transparent ${focusY - 5}%,
+                transparent ${focusY + 5}%,
+                rgba(15,13,10,0.82) ${focusY + 8}%,
+                rgba(15,13,10,0.82) 100%
+              )`,
+              transition: noMotion ? 'none' : 'background 0.1s ease',
+            }}
+          />
+        )}
       </div>
 
       {/* Bottom info */}
