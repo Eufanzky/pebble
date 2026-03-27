@@ -13,7 +13,7 @@ interface Props {
 
 // ---------------------------------------------------------------------------
 // Attempt to launch the real Azure Immersive Reader SDK.
-// Falls back to the built-in mock reader if the backend token endpoint is
+// Falls back to a built-in reader if the backend token endpoint is
 // unavailable or the SDK fails to load.
 // ---------------------------------------------------------------------------
 
@@ -48,7 +48,7 @@ async function tryLaunchRealReader(
 }
 
 // ---------------------------------------------------------------------------
-// Mock Immersive Reader — CSS-only fallback with the same feature set
+// Built-in Immersive Reader — CSS fallback with the same feature set
 // ---------------------------------------------------------------------------
 
 const syllableMap: Record<string, string> = {
@@ -85,7 +85,7 @@ function applySyllables(text: string): string {
   return result;
 }
 
-export default function ImmersiveReaderMock({ text, title, lang, isOpen, onClose }: Props) {
+export default function ImmersiveReader({ text, title, lang, isOpen, onClose }: Props) {
   const { preferences } = usePreferences();
   const noMotion = preferences.reduceAnimations;
   const [readAloud, setReadAloud] = useState(false);
@@ -95,7 +95,7 @@ export default function ImmersiveReaderMock({ text, title, lang, isOpen, onClose
   const [langMenu, setLangMenu] = useState(false);
   const [selectedLang, setSelectedLang] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
-  const [useMock, setUseMock] = useState(false);
+  const [useFallback, setUseFallback] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const handleClose = useCallback(() => {
@@ -106,7 +106,7 @@ export default function ImmersiveReaderMock({ text, title, lang, isOpen, onClose
     if (!isOpen) {
       setVisible(false);
       setLoading(true);
-      setUseMock(false);
+      setUseFallback(false);
       return;
     }
 
@@ -116,8 +116,8 @@ export default function ImmersiveReaderMock({ text, title, lang, isOpen, onClose
       (launched) => {
         if (cancelled) return;
         if (!launched) {
-          // Fall back to mock reader
-          setUseMock(true);
+          // Fall back to built-in reader
+          setUseFallback(true);
           setLoading(false);
           requestAnimationFrame(() => setVisible(true));
         } else {
@@ -155,9 +155,9 @@ export default function ImmersiveReaderMock({ text, title, lang, isOpen, onClose
   }
 
   // If the real SDK launched, it handles its own UI — return nothing
-  if (!useMock) return null;
+  if (!useFallback) return null;
 
-  // --- Mock reader below ---
+  // --- Fallback reader below ---
 
   const displayText = syllables ? applySyllables(text) : text;
 

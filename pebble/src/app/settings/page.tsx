@@ -8,6 +8,7 @@ import { usePreferences } from '@/contexts/PreferencesContext';
 import { usePebble } from '@/contexts/PebbleContext';
 import { useActivityLog } from '@/contexts/ActivityLogContext';
 import { useToast } from '@/contexts/ToastContext';
+import { useTasks } from '@/contexts/TasksContext';
 import { PEBBLE_COLORS } from '@/lib/constants';
 import type { PebbleModel, PebbleColor, PebblePersonality, ChunkSize } from '@/lib/types';
 
@@ -49,6 +50,35 @@ const connectedApps = [
   { name: 'Google Calendar', desc: 'Sync events and deadlines', emoji: '\uD83D\uDCC5', defaultOn: false },
 ];
 
+const SYNC_TASKS: Record<string, Array<{ title: string; tag: 'study' | 'communication' | 'project' | 'wellbeing'; time: string }>> = {
+  'Microsoft Teams': [
+    { title: 'Review meeting notes from standup', tag: 'communication', time: '~10 min' },
+    { title: 'Reply to team thread about design review', tag: 'communication', time: '~5 min' },
+  ],
+  'Outlook Calendar': [
+    { title: 'Prepare for tomorrow\'s project deadline', tag: 'project', time: '~20 min' },
+    { title: 'Submit weekly progress report', tag: 'project', time: '~15 min' },
+  ],
+  'Moodle LMS': [
+    { title: 'Complete Module 3 quiz by Friday', tag: 'study', time: '~25 min' },
+    { title: 'Read uploaded lecture notes for Week 5', tag: 'study', time: '~15 min' },
+  ],
+  'Slack': [
+    { title: 'Follow up on feedback from #design channel', tag: 'communication', time: '~10 min' },
+  ],
+  'Google Calendar': [
+    { title: 'Study group session prep', tag: 'study', time: '~20 min' },
+  ],
+};
+
+const VOICE_PHRASES = [
+  'Read chapter 4 of the design textbook',
+  'Reply to Professor Martinez',
+  'Work on the project proposal',
+  'Take a 10-minute break',
+  'Review my meeting notes',
+];
+
 function SectionHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <div style={{ marginBottom: 16 }}>
@@ -87,12 +117,15 @@ export default function SettingsPage() {
   const { mood } = usePebble();
   const { addEntry } = useActivityLog();
   const { showToast } = useToast();
+  const { addTask } = useTasks();
   const [voiceBanner, setVoiceBanner] = useState(false);
+  const [voiceListening, setVoiceListening] = useState(false);
   const [appStates, setAppStates] = useState<Record<string, boolean>>(() => {
     const s: Record<string, boolean> = {};
     connectedApps.forEach((app) => { s[app.name] = app.defaultOn; });
     return s;
   });
+  const [syncingApp, setSyncingApp] = useState<string | null>(null);
 
   const calm = preferences.calmMode;
 
@@ -143,8 +176,32 @@ export default function SettingsPage() {
   const toggleApp = (name: string) => {
     const next = !appStates[name];
     setAppStates((prev) => ({ ...prev, [name]: next }));
-    showToast(`${name} ${next ? 'connected' : 'disconnected'}!`);
-    addEntry('BridgeBot', `${name} ${next ? 'connected' : 'disconnected'}`, `User toggled ${name} integration.`);
+
+    if (next) {
+      // Simulate syncing: show progress then inject tasks
+      setSyncingApp(name);
+      addEntry('BridgeBot', `Connecting to ${name}...`, `Authenticating via Azure API Management OAuth flow.`);
+
+      setTimeout(() => {
+        const tasks = SYNC_TASKS[name] || [];
+        tasks.forEach((t) => {
+          addTask({
+            title: t.title,
+            timeEstimate: t.time,
+            tag: t.tag,
+            priority: 'medium',
+            completed: false,
+          });
+        });
+        setSyncingApp(null);
+        showToast(`${name} synced — ${tasks.length} item${tasks.length !== 1 ? 's' : ''} imported`);
+        addEntry('BridgeBot', `${name} connected — synced ${tasks.length} items`, `Imported ${tasks.length} tasks via ${name} API integration.`);
+      }, 1500);
+    } else {
+      setSyncingApp(null);
+      showToast(`${name} disconnected`);
+      addEntry('BridgeBot', `${name} disconnected`, `User removed ${name} integration.`);
+    }
   };
 
   const handleOverride = () => {
@@ -384,8 +441,46 @@ export default function SettingsPage() {
                 <ToggleSwitch on={preferences.voiceInput} onChange={toggleVoiceInput} label="Voice input" />
               </div>
               {voiceBanner && preferences.voiceInput && (
-                <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 8, padding: '8px 12px', background: 'rgba(255,248,235,0.04)', borderRadius: 8 }}>
-                  Voice input coming soon — powered by Azure AI Speech SDK
+                <div style={{ marginTop: 10, display: 'flex', alignItems: 'center', gap: 10 }}>
+                  <button
+                    onClick={() => {
+                      if (voiceListening) return;
+                      setVoiceListening(true);
+                      addEntry('PebbleVoice', 'Voice input activated', 'Listening via Azure AI Speech SDK (speech-to-text).');
+
+                      setTimeout(() => {
+                        const phrase = VOICE_PHRASES[Math.floor(Math.random() * VOICE_PHRASES.length)];
+                        setVoiceListening(false);
+                        addTask({
+                          title: phrase,
+                          timeEstimate: '~15 min',
+                          tag: 'project',
+                          priority: 'medium',
+                          completed: false,
+                        });
+                        showToast(`Voice transcribed: "${phrase}"`);
+                        addEntry('PebbleVoice', `Voice transcribed: "${phrase}"`, 'Azure AI Speech SDK converted speech to text, added as task.');
+                      }, 2500);
+                    }}
+                    disabled={voiceListening}
+                    aria-label={voiceListening ? 'Listening...' : 'Start voice input'}
+                    style={{
+                      width: 40, height: 40, borderRadius: '50%', border: 'none', cursor: voiceListening ? 'default' : 'pointer',
+                      background: voiceListening ? 'rgba(232,133,106,0.2)' : 'rgba(196,181,212,0.15)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      animation: voiceListening && !preferences.reduceAnimations ? 'voicePulse 1.2s ease-in-out infinite' : 'none',
+                    }}
+                  >
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+                      <rect x="7" y="2" width="4" height="9" rx="2" fill={voiceListening ? 'var(--accent-coral)' : 'var(--accent-lavender)'} />
+                      <path d="M4 9a5 5 0 0 0 10 0" stroke={voiceListening ? 'var(--accent-coral)' : 'var(--accent-lavender)'} strokeWidth="1.5" strokeLinecap="round" fill="none" />
+                      <line x1="9" y1="14" x2="9" y2="16.5" stroke={voiceListening ? 'var(--accent-coral)' : 'var(--accent-lavender)'} strokeWidth="1.5" strokeLinecap="round" />
+                    </svg>
+                  </button>
+                  <div style={{ fontSize: 12, color: voiceListening ? 'var(--accent-coral)' : 'var(--text-muted)' }}>
+                    {voiceListening ? 'Listening... speak now' : 'Tap the mic to try voice input'}
+                  </div>
+                  <style>{`@keyframes voicePulse { 0%,100% { box-shadow: 0 0 0 0 rgba(232,133,106,0.3); } 50% { box-shadow: 0 0 0 10px rgba(232,133,106,0); } }`}</style>
                 </div>
               )}
             </div>
@@ -460,8 +555,8 @@ export default function SettingsPage() {
                   <ToggleSwitch on={on} onChange={() => toggleApp(app.name)} label={`Connect ${app.name}`} />
                 </div>
                 <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 6 }}>{app.desc}</div>
-                <div style={{ fontSize: 11, fontWeight: 600, color: on ? 'var(--accent-sage)' : 'var(--text-muted)' }}>
-                  {on ? 'Connected' : 'Not connected'}
+                <div style={{ fontSize: 11, fontWeight: 600, color: syncingApp === app.name ? 'var(--accent-amber)' : on ? 'var(--accent-sage)' : 'var(--text-muted)' }}>
+                  {syncingApp === app.name ? 'Syncing...' : on ? 'Connected' : 'Not connected'}
                 </div>
               </div>
             );

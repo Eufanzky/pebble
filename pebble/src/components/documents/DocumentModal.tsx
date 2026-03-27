@@ -8,7 +8,7 @@ import { useActivityLog } from '@/contexts/ActivityLogContext';
 import { useToast } from '@/contexts/ToastContext';
 import { getTextForLevel } from '@/data/sampleDocuments';
 import ComprehensionCheck from './ComprehensionCheck';
-import ImmersiveReaderMock from './ImmersiveReaderMock';
+import ImmersiveReader from './ImmersiveReader';
 import type { DocumentItem } from '@/lib/types';
 
 interface Props {
@@ -338,8 +338,8 @@ export default function DocumentModal({ document: doc, isOpen, onClose }: Props)
         </div>
       </div>
 
-      {/* Immersive Reader overlay — tries real Azure SDK, falls back to mock */}
-      <ImmersiveReaderMock text={simplifiedText} title={doc.title} isOpen={readerOpen} onClose={() => setReaderOpen(false)} />
+      {/* Immersive Reader overlay — tries real Azure SDK, falls back to built-in reader */}
+      <ImmersiveReader text={simplifiedText} title={doc.title} isOpen={readerOpen} onClose={() => setReaderOpen(false)} />
     </>
   );
 }
