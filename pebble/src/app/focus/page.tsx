@@ -100,6 +100,8 @@ export default function FocusPage() {
   const [timerState, setTimerState] = useState<'idle' | 'running' | 'paused'>('idle');
   const [pebbleMessage, setPebbleMessage] = useState('Focus with others — no cameras, no pressure');
   const [activeRoom, setActiveRoom] = useState<RoomInfo | null>(null);
+  const [roomLoading, setRoomLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const elapsed = FOCUS_DURATION - timeLeft;
@@ -276,9 +278,21 @@ export default function FocusPage() {
                 key={room.name}
                 className="glass-card study-room-card"
                 onClick={() => {
-                  setActiveRoom(room);
-                  addEntry('PebbleVoice', `Joined room "${room.name}"`, `Room has ${room.people} participants. No cameras, presence only.`);
-                  setPebbleMessage(`Welcome to ${room.name}! ${room.people} others are here.`);
+                  setRoomLoading(true);
+                  setLoadingStep(0);
+                  const steps = [
+                    { delay: 600, step: 1 },
+                    { delay: 1200, step: 2 },
+                    { delay: 1800, step: 3 },
+                    { delay: 2400, step: 4 },
+                  ];
+                  steps.forEach(({ delay, step }) => setTimeout(() => setLoadingStep(step), delay));
+                  setTimeout(() => {
+                    setRoomLoading(false);
+                    setActiveRoom(room);
+                    addEntry('PebbleVoice', `Joined room "${room.name}"`, `Room has ${room.people} participants. No cameras, presence only.`);
+                    setPebbleMessage(`Welcome to ${room.name}! ${room.people} others are here.`);
+                  }, 3000);
                 }}
               >
                 <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 8 }}>
@@ -307,6 +321,65 @@ export default function FocusPage() {
           No cameras. No microphones. Just the comfort of knowing others are focused too.
         </div>
       </div>
+
+      {/* ===== LOADING SCREEN ===== */}
+      {roomLoading && (
+        <div style={{
+          position: 'fixed', inset: 0, zIndex: 56,
+          background: 'var(--bg-deep)',
+          display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 28,
+        }}>
+          {/* Pebble walking animation */}
+          <div style={{
+            animation: noMotion ? 'none' : 'pebbleBounce 0.8s ease-in-out infinite',
+          }}>
+            <PebbleCharacter mood="happy" size="medium" />
+          </div>
+          <style>{`
+            @keyframes pebbleBounce {
+              0%, 100% { transform: translateY(0); }
+              50% { transform: translateY(-8px); }
+            }
+            @keyframes stepFade {
+              from { opacity: 0; transform: translateY(6px); }
+              to { opacity: 1; transform: translateY(0); }
+            }
+          `}</style>
+
+          {/* Loading steps */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 10 }}>
+            {[
+              'Connecting to room...',
+              'Finding your seat...',
+              'Saying hi to everyone...',
+              'Setting up your space...',
+              'Almost there...',
+            ].map((text, i) => (
+              <div
+                key={i}
+                style={{
+                  fontFamily: 'var(--font-nunito)', fontSize: 13,
+                  color: i <= loadingStep ? 'var(--text-secondary)' : 'transparent',
+                  transition: noMotion ? 'none' : 'color 0.3s ease',
+                  animation: i === loadingStep && !noMotion ? 'stepFade 0.3s ease' : 'none',
+                }}
+              >
+                {i < loadingStep ? (calm ? 'Done' : '\u2713') : ''} {text}
+              </div>
+            ))}
+          </div>
+
+          {/* Progress bar */}
+          <div style={{ width: 200, height: 3, borderRadius: 2, background: 'var(--border-soft)', overflow: 'hidden' }}>
+            <div style={{
+              height: '100%', borderRadius: 2,
+              background: 'var(--accent-lavender)',
+              width: `${(loadingStep / 4) * 100}%`,
+              transition: noMotion ? 'none' : 'width 0.4s ease',
+            }} />
+          </div>
+        </div>
+      )}
 
       {/* ===== ROOM INTERIOR OVERLAY ===== */}
       {activeRoom && (
