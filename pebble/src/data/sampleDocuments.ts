@@ -22,7 +22,7 @@ export const sampleDocuments: DocumentItem[] = [
       question: "What's the main idea of human-centered design?",
       correctAnswer: "Designing with real people's needs in mind",
       wrongAnswer: 'Using the latest technology tools',
-      pebbleCorrect: "That's right! It's all about the people, not the tools.",
+      pebbleCorrect: "That's right! It's all about designing with real people's needs in mind.",
       pebbleWrong: "Not quite — it's more about people than technology. Want me to simplify that section a bit more?",
     },
   },

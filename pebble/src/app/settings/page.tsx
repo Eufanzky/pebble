@@ -19,7 +19,7 @@ const models: { id: PebbleModel; name: string; desc: string }[] = [
   { id: 'minimal', name: 'Sleek', desc: 'Tamagotchi-like' },
   { id: 'chonky-plus', name: 'Chonky+', desc: 'Stripes, purrs on hover' },
   { id: 'mochi-plus', name: 'Mochi+', desc: 'Jelly wobble, nuzzle hover' },
-  { id: 'minimal-plus', name: 'Sleek+', desc: 'Pixel-bob, eye widen' },
+  { id: 'minimal-plus', name: 'Minimal+', desc: 'Pixel-bob, eye widen' },
 ];
 
 const colorOptions: { id: PebbleColor; label: string }[] = [

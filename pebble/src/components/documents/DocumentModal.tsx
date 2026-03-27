@@ -183,7 +183,7 @@ export default function DocumentModal({ document: doc, isOpen, onClose }: Props)
 
             {/* Reading level slider — always visible */}
             <div style={{ padding: '0 28px 14px', display: 'flex', alignItems: 'center', gap: 14 }}>
-              <label htmlFor="modal-reading-level" style={{ fontSize: 11, color: 'var(--text-muted)', whiteSpace: 'nowrap' }}>Complexity</label>
+              <label htmlFor="modal-reading-level" title="Based on Flesch-Kincaid readability grades" style={{ fontSize: 11, color: 'var(--text-muted)', whiteSpace: 'nowrap', cursor: 'help', borderBottom: '1px dotted var(--text-muted)' }}>Complexity (FK)</label>
               <input
                 id="modal-reading-level"
                 type="range" min={1} max={10} value={level}
