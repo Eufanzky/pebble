@@ -152,3 +152,11 @@ skills-lock.json
 .cursorrules
 .github/copilot-instructions.md
 .vscode/
+
+# Python
+__pycache__/
+*.pyc
+
+# Large files
+*.pdf
+!backend/.env.example

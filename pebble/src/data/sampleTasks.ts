@@ -30,14 +30,14 @@ export const sampleTasks: Task[] = [
   },
   {
     id: 'task-3',
-    title: 'Work on project proposal',
+    title: 'Work on group project proposal',
     timeEstimate: '~40 min',
     tag: 'project',
     priority: 'high',
     completed: false,
     showSubtasks: false,
     whyExplanation:
-      "I broke this into 4 parts because the full proposal felt like a lot. Each part is about 10-15 minutes. You can do them in any order — I just suggested starting with re-reading the brief because it helps the rest flow easier.",
+      "Forty minutes is above your preferred chunk size. I split it into steps you can start and finish without losing momentum. Each part is about 10-15 minutes — starting with re-reading the brief helps the rest flow easier.",
     subtasks: [
       { id: 'st-3a', title: 'Re-read the project brief', timeEstimate: '~5 min', completed: false },
       { id: 'st-3b', title: 'List 3 core features to include', timeEstimate: '~10 min', completed: false },
