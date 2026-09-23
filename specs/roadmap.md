@@ -16,7 +16,7 @@ Rules for every phase:
 
 - [x] **0.1 Audit.** Install dependencies and run `build`, `lint`, and `tsc` in the frontend, and import-check the backend. Walk through every page by hand. Record each error and broken flow in `specs/audit.md`.
   *Done:* `audit.md` lists every known issue, tagged by severity.
-- [ ] **0.2 Green build.** Fix every type, lint, and build error from the audit.
+- [x] **0.2 Green build.** Fix every type, lint, and build error from the audit.
   *Done:* `npm run build` and `npm run lint` pass cleanly.
 
 ## Phase 1: Test tooling, safety net, and CI

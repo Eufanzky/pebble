@@ -12,17 +12,15 @@ const ToastContext = createContext<ToastContextValue | null>(null);
 function ToastDisplay({ message, onDone }: { message: string; onDone: () => void }) {
   const { preferences } = usePreferences();
   const noMotion = preferences.reduceAnimations;
-  const [phase, setPhase] = useState<'enter' | 'visible' | 'exit'>('enter');
+  const [phase, setPhase] = useState<'enter' | 'visible' | 'exit'>(() => (noMotion ? 'visible' : 'enter'));
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const remainingRef = useRef(5000);
-  const startTimeRef = useRef(Date.now());
+  const startTimeRef = useRef(0); // set by startTimer before it is read
 
   useEffect(() => {
-    if (noMotion) setPhase('visible');
-    else {
-      const t = setTimeout(() => setPhase('visible'), 20);
-      return () => clearTimeout(t);
-    }
+    if (noMotion) return;
+    const t = setTimeout(() => setPhase('visible'), 20);
+    return () => clearTimeout(t);
   }, [noMotion]);
 
   const startTimer = useCallback(() => {

@@ -7,7 +7,6 @@ import PebbleSpeechBubble from '@/components/pebble/PebbleSpeechBubble';
 import { usePebble } from '@/contexts/PebbleContext';
 import { useActivityLog } from '@/contexts/ActivityLogContext';
 import { usePreferences } from '@/contexts/PreferencesContext';
-import { useToast } from '@/contexts/ToastContext';
 import { playChime } from '@/lib/audio';
 import './study.css';
 
@@ -72,7 +71,6 @@ export default function FocusPage() {
   const { mood, flashMood } = usePebble();
   const { addEntry } = useActivityLog();
   const { preferences } = usePreferences();
-  const { showToast } = useToast();
   const noMotion = preferences.reduceAnimations;
   const calm = preferences.calmMode;
 

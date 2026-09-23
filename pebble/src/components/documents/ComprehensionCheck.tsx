@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState } from 'react';
 import { usePreferences } from '@/contexts/PreferencesContext';
 import { useActivityLog } from '@/contexts/ActivityLogContext';
 
@@ -33,7 +33,7 @@ export default function ComprehensionCheck({ question, correctAnswer, wrongAnswe
   const [answered, setAnswered] = useState<'correct' | 'wrong' | null>(null);
 
   // Randomize button order once per mount
-  const correctFirst = useMemo(() => Math.random() > 0.5, []);
+  const [correctFirst] = useState(() => Math.random() > 0.5);
   const optionA = correctFirst ? correctAnswer : wrongAnswer;
   const optionB = correctFirst ? wrongAnswer : correctAnswer;
 

@@ -1,6 +1,5 @@
 'use client';
 
-import { useRef, useEffect, useState } from 'react';
 import './PebbleMoods.css';
 
 interface PebbleSpeechBubbleProps {
@@ -9,22 +8,11 @@ interface PebbleSpeechBubbleProps {
 }
 
 export default function PebbleSpeechBubble({ message, className = '' }: PebbleSpeechBubbleProps) {
-  const [displayMessage, setDisplayMessage] = useState(message);
-  const [animKey, setAnimKey] = useState(0);
-  const prevMessage = useRef(message);
-
-  useEffect(() => {
-    if (message !== prevMessage.current) {
-      prevMessage.current = message;
-      setAnimKey((k) => k + 1);
-      setDisplayMessage(message);
-    }
-  }, [message]);
-
   return (
     <div className={`relative text-center max-w-[220px] ${className}`}>
       <div
-        key={animKey}
+        // Remount on a new message so the bubble animation replays
+        key={message}
         className="pebble-speech-bubble rounded-[14px] px-4 py-2.5"
         style={{
           background: 'var(--glass-bg)',
@@ -37,7 +25,7 @@ export default function PebbleSpeechBubble({ message, className = '' }: PebbleSp
           lineHeight: 1.55,
         }}
       >
-        {displayMessage}
+        {message}
       </div>
       {/* Triangle pointer pointing up */}
       <div

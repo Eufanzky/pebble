@@ -1,6 +1,6 @@
 'use client';
 
-import { type ReactNode, useEffect, useState, useRef } from 'react';
+import { type ReactNode, useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Sidebar from './Sidebar';
 import { PreferencesProvider } from '@/contexts/PreferencesContext';
@@ -13,35 +13,30 @@ import PebbleChat from '@/components/chat/PebbleChat';
 
 function PageTransition({ children }: { children: ReactNode }) {
   const pathname = usePathname();
-  const [displayChildren, setDisplayChildren] = useState(children);
-  const [phase, setPhase] = useState<'in' | 'out'>('in');
-  const prevPathname = useRef(pathname);
+  // The page currently on screen. On navigation it stays up while fading out.
+  const [shown, setShown] = useState({ pathname, children });
+  const navigating = pathname !== shown.pathname;
+
+  // Same page re-rendered: keep the shown children current
+  if (!navigating && shown.children !== children) {
+    setShown({ pathname, children });
+  }
 
   useEffect(() => {
-    if (pathname !== prevPathname.current) {
-      prevPathname.current = pathname;
-      setPhase('out');
-
-      const timeout = setTimeout(() => {
-        setDisplayChildren(children);
-        setPhase('in');
-      }, 200);
-
-      return () => clearTimeout(timeout);
-    } else {
-      setDisplayChildren(children);
-    }
-  }, [pathname, children]);
+    if (!navigating) return;
+    const timeout = setTimeout(() => setShown({ pathname, children }), 200);
+    return () => clearTimeout(timeout);
+  }, [navigating, pathname, children]);
 
   return (
     <div
       className="page-transition"
       style={{
-        opacity: phase === 'out' ? 0 : 1,
-        transform: phase === 'out' ? 'translateY(8px)' : 'none',
+        opacity: navigating ? 0 : 1,
+        transform: navigating ? 'translateY(8px)' : 'none',
       }}
     >
-      {displayChildren}
+      {shown.children}
     </div>
   );
 }
