@@ -1,0 +1,76 @@
+[project]
+name = "focusbuddy-backend"
+version = "0.1.0"
+description = "Pebble (Focusbuddy) API: FastAPI backend for the Pebble companion."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.0",
+    "azure-cosmos>=4.7.0",
+    "azure-identity>=1.17.0",
+    "pydantic>=2.9.0",
+    "pydantic-settings>=2.5.0",
+    "python-jose[cryptography]>=3.3.0",
+    "httpx>=0.27.0",
+    "python-multipart>=0.0.9",
+    "openai>=1.40.0",
+    "semantic-kernel>=1.41.0",
+    "azure-ai-contentsafety>=1.0.0",
+    "azure-ai-documentintelligence>=1.0.0",
+    "azure-storage-blob>=12.19.0",
+    "azure-search-documents>=11.4.0",
+    "azure-messaging-webpubsubservice>=1.1.0",
+    "azure-monitor-opentelemetry>=1.0.0",
+    "azure-ai-projects>=2.0.0",
+    "aiohttp>=3.9.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "pytest-asyncio>=0.25",
+    "pytest-cov>=6.0",
+    "respx>=0.22",
+    "ruff>=0.9",
+]
+
+# The backend is an application, not a library: uv installs the dependencies only.
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+# Real-LLM evals are opt-in: `uv run pytest -m eval`.
+addopts = ["-m", "not eval", "--strict-markers"]
+markers = [
+    "eval: calls the real LLM provider; never runs on PRs",
+]
+filterwarnings = [
+    # A-008 in specs/audit.md: raised inside semantic_kernel, not project code. Goes away in 2.7.
+    "ignore:The `__get_pydantic_core_schema__` method of the `BaseModel` class is deprecated:DeprecationWarning",
+]
+
+[tool.coverage.run]
+source = ["app"]
+branch = true
+
+[tool.ruff]
+target-version = "py312"
+line-length = 120
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = [
+    "B008", # FastAPI's Depends(...) in argument defaults is the intended pattern
+    # Deferred to phase 2, which rewrites this code. Fixing them now would change
+    # behaviour (exception chaining, StrEnum's str()) right before 1.3 pins it.
+    "B904",
+    "UP042",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Prompt text: rewrapping the lines would change what the model sees.
+"app/agents/prompts.py" = ["E501"]
