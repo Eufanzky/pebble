@@ -1,9 +1,9 @@
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from azure.cosmos.exceptions import CosmosHttpResponseError
 from fastapi import APIRouter, Depends
 
-from app.models.schemas import PreferencesUpdate, PreferencesResponse
+from app.models.schemas import PreferencesResponse, PreferencesUpdate
 from app.services.auth import get_current_user_id
 from app.services.db import get_container
 
@@ -39,7 +39,7 @@ async def get_preferences(user_id: str = Depends(get_current_user_id)):
             "id": PREFERENCES_DOC_ID,
             "userId": user_id,
             **DEFAULT_PREFERENCES,
-            "updatedAt": datetime.now(timezone.utc).isoformat(),
+            "updatedAt": datetime.now(UTC).isoformat(),
         }
         result = await container.create_item(doc)
         return result
@@ -66,7 +66,7 @@ async def update_preferences(
 
     updates = body.model_dump(by_alias=True, exclude_none=True)
     existing.update(updates)
-    existing["updatedAt"] = datetime.now(timezone.utc).isoformat()
+    existing["updatedAt"] = datetime.now(UTC).isoformat()
 
     result = await container.upsert_item(existing)
     return result

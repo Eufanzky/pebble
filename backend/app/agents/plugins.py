@@ -2,9 +2,9 @@ import json
 
 from semantic_kernel.functions import kernel_function
 
-from app.agents.task_decomposition import decompose_task
 from app.agents.document_simplification import simplify_document
 from app.agents.motivation import generate_motivation
+from app.agents.task_decomposition import decompose_task
 
 
 class TaskDecompositionPlugin:
@@ -23,6 +23,8 @@ class DocumentSimplificationPlugin:
 
 class MotivationPlugin:
     @kernel_function(name="generate_motivation", description="Generate personalized encouragement")
-    async def motivate(self, tasks_completed: int = 0, tasks_total: int = 0, time_of_day: str = "day", personality: str = "gentle") -> str:
+    async def motivate(
+        self, tasks_completed: int = 0, tasks_total: int = 0, time_of_day: str = "day", personality: str = "gentle"
+    ) -> str:
         result = await generate_motivation(tasks_completed, tasks_total, [], time_of_day, personality)
         return json.dumps(result)

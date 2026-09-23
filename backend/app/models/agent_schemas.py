@@ -1,7 +1,5 @@
-from typing import Optional
 
 from pydantic import BaseModel, Field
-
 
 # --- Task Decomposition ---
 
@@ -92,6 +90,6 @@ class ChatResponse(BaseModel):
     response: str
     mood: str
     agent_name: str = Field(alias="agentName")
-    data: Optional[dict] = None
+    data: dict | None = None
 
     model_config = {"populate_by_name": True, "by_alias": True}

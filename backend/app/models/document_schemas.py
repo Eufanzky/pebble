@@ -1,4 +1,3 @@
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -10,10 +9,10 @@ class DocumentResponse(BaseModel):
     type: str
     blob_url: str = Field(alias="blobUrl")
     original_text: str = Field(alias="originalText")
-    simplified_text: Optional[str] = Field(alias="simplifiedText", default=None)
+    simplified_text: str | None = Field(alias="simplifiedText", default=None)
     tags: list[str] = []
     extracted_tasks: list[dict] = Field(alias="extractedTasks", default=[])
-    why_explanation: Optional[str] = Field(alias="whyExplanation", default=None)
+    why_explanation: str | None = Field(alias="whyExplanation", default=None)
     pages: int = 0
     created_at: str = Field(alias="createdAt")
 

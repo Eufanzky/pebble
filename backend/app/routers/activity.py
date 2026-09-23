@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, Query, status
 
@@ -44,7 +44,7 @@ async def create_activity(
         "action": body.action,
         "reasoning": body.reasoning,
         "safetyStatus": body.safety_status.value,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
     container = await get_container("activity")

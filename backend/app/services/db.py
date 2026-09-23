@@ -1,5 +1,5 @@
 from azure.cosmos import PartitionKey
-from azure.cosmos.aio import CosmosClient, ContainerProxy, DatabaseProxy
+from azure.cosmos.aio import ContainerProxy, CosmosClient, DatabaseProxy
 
 from app.config import settings
 

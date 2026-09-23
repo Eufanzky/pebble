@@ -1,6 +1,6 @@
-import time
 import logging
-from datetime import datetime, timezone
+import time
+from datetime import UTC, datetime
 
 from fastapi import APIRouter, HTTPException
 
@@ -36,7 +36,7 @@ async def verify_services():
 
     return {
         "services": results,
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     }
 
 
@@ -51,7 +51,7 @@ async def _test_service(name: str, test_fn) -> dict:
 
 async def _test_cosmos():
     from app.services.db import get_container
-    container = await get_container("tasks")
+    await get_container("tasks")
     # Just verify connection, don't read data
     return True
 

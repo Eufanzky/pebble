@@ -1,8 +1,8 @@
 import json
 
 from app.agents.prompts import MOTIVATION_PROMPT
-from app.services.openai_client import chat_completion
 from app.services.content_safety import ensure_safe
+from app.services.openai_client import chat_completion
 
 
 async def generate_motivation(

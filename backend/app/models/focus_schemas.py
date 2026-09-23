@@ -1,17 +1,16 @@
-from typing import Optional
 
 from pydantic import BaseModel, Field
 
 
 class RoomCreate(BaseModel):
     name: str = Field(min_length=1, max_length=100)
-    description: Optional[str] = None
+    description: str | None = None
 
 
 class RoomResponse(BaseModel):
     id: str
     name: str
-    description: Optional[str] = None
+    description: str | None = None
     created_by: str = Field(alias="createdBy")
     participant_count: int = Field(alias="participantCount", default=0)
     is_active: bool = Field(alias="isActive", default=True)
@@ -36,7 +35,7 @@ class TimerState(BaseModel):
     room_id: str = Field(alias="roomId")
     status: str  # "running" | "paused" | "idle"
     remaining_seconds: int = Field(alias="remainingSeconds")
-    started_by: Optional[str] = Field(alias="startedBy", default=None)
+    started_by: str | None = Field(alias="startedBy", default=None)
 
     model_config = {"populate_by_name": True, "by_alias": True}
 

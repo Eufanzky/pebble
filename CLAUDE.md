@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository layout
 
-Pebble (also called "Focusbuddy" in backend code and the Cosmos DB/conda names) is an AI assistant for neurodivergent users, with an animated CSS cat companion. It has three separate parts:
+Pebble (also called "Focusbuddy" in backend code and the Cosmos DB names) is an AI assistant for neurodivergent users, with an animated CSS cat companion. It has three separate parts:
 
 - `pebble/`: the real frontend. Next.js 16 App Router, React 19, TypeScript, Tailwind 4.
 - `backend/`: FastAPI (Python 3.12+) on Azure / Microsoft Foundry (Azure OpenAI GPT-4o via Semantic Kernel, Cosmos DB, Content Safety, and more).
@@ -37,15 +37,16 @@ npm run build    # production build; also the TypeScript type check
 npm run lint     # ESLint (next core-web-vitals + typescript configs)
 ```
 
-Backend (run from `backend/`, conda env `focusbuddy`):
+Backend (run from `backend/`, managed by `uv`; dependencies and tool config live in `pyproject.toml`, versions in `uv.lock`):
 ```bash
-conda activate focusbuddy
-pip install -r requirements.txt
+uv sync                           # create .venv with app + dev dependencies
 cp .env.example .env              # fill in Azure credentials
-uvicorn app.main:app --port 8000 --reload   # Swagger at http://localhost:8000/docs
+uv run uvicorn app.main:app --port 8000 --reload   # Swagger at http://localhost:8000/docs
+uv run pytest                     # tests (evals excluded; `-m eval` runs them)
+uv run ruff check                 # lint
 ```
 
-Neither part has a test suite yet. Roadmap phase 1 adds one; `specs/testing.md` has the planned commands. Until then, to verify changes, run `npm run build`, run `npm run lint`, and exercise the endpoints through Swagger. `backend/deploy.ps1` is a PowerShell script that provisions the Azure resources with the `az` CLI.
+`requirements.txt` is legacy (removed in roadmap 2.7); add dependencies to `pyproject.toml` and run `uv lock`. Backend tests use the `app` and `client` fixtures in `backend/tests/conftest.py`; the client runs the app in-process through `httpx.ASGITransport`, so the lifespan (Cosmos, telemetry) never runs. The frontend has no test suite yet (roadmap 1.2); verify frontend changes with `npm run build` and `npm run lint`. `specs/testing.md` has the planned commands. `backend/deploy.ps1` is a PowerShell script that provisions the Azure resources with the `az` CLI.
 
 ## Architecture
 

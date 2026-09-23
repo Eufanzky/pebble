@@ -6,8 +6,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 
 from app.config import settings
-from app.routers import tasks, preferences, activity, agents, documents, focus, audit, verify
-from app.services.db import init_db, close_db
+from app.routers import activity, agents, audit, documents, focus, preferences, tasks, verify
+from app.services.db import close_db, init_db
 from app.services.monitoring import RequestLoggingMiddleware, init_telemetry
 
 # Configure logging
