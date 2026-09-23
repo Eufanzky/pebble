@@ -44,6 +44,8 @@ The frontend was checked in a clean copy of `pebble/` (no `node_modules`, no `.n
 | A-004 | major | `react-hooks/set-state-in-effect` (6 errors): `setState` is called synchronously inside `useEffect`. Files: `components/documents/DocumentModal.tsx:49`, `components/layout/AppShell.tsx:23`, `components/pebble/PebbleSpeechBubble.tsx:19`, `hooks/useLocalStorage.ts:13`, `hooks/useReduceMotion.ts:12`, `hooks/useTimeOfDay.ts:17`. | `npm run lint` | 0.2 |
 | A-005 | major | `react-hooks/purity` (2 errors): an impure function is called during render. Files: `components/documents/ComprehensionCheck.tsx:36` (`Math.random` in `useMemo`), `contexts/ToastContext.tsx:18` (`Date.now` in `useRef`). | `npm run lint` | 0.2 |
 | A-006 | minor | `@typescript-eslint/no-unused-vars` (2 warnings): `showToast` in `app/focus/page.tsx:75` and `words` in `components/documents/ImmersiveReader.tsx:294`. | `npm run lint` | 0.2 |
+| A-009 | major | `react-hooks/set-state-in-effect` in `contexts/ToastContext.tsx:21` (`setPhase('visible')` inside the enter effect). It was hidden behind A-005: the React Compiler lint reports only the first error per component. Found during 0.2. | `npm run lint` after fixing A-005 | 0.2 |
+| A-010 | minor | `hooks/useReduceMotion.ts` is not imported anywhere. Components read `preferences.reduceAnimations` directly, so the OS `prefers-reduced-motion` setting is ignored. Found during 0.2. | `grep -rn useReduceMotion src` | 3.4 |
 
 ## Frontend types
 
@@ -67,7 +69,21 @@ The frontend was checked in a clean copy of `pebble/` (no `node_modules`, no `.n
 
 ## Summary
 
-**blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues)
+Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010).
 
-- The frontend builds and type-checks. `npm run lint` is the only failing gate (A-004, A-005), and a Next.js security bump is due (A-001). All of these belong to 0.2.
-- The backend installs and every module imports with no configuration. Its two warnings are removed by 1.1 (`uv` lockfile) and 2.7 (Semantic Kernel removal).
+## Status
+
+| ID | Status |
+|:--|:--|
+| A-001 | Fixed in 0.2: `next` and `eslint-config-next` bumped to 16.3.6. |
+| A-002 | **Deferred to 3.3.** npm's only fix is a downgrade of a runtime SDK. 3.3 makes the Azure reader optional behind the built-in reader. The remaining `npm audit` findings (`minimatch`, `decode-uri-component`) all come through this package. |
+| A-003 | Fixed in 0.2: `npm audit fix`. |
+| A-004 | Fixed in 0.2: `useSyncExternalStore` in `useLocalStorage`, `useReduceMotion` and `useTimeOfDay`; render-time state adjustment in `PageTransition` and `DocumentModal`; `key` remount in `PebbleSpeechBubble`. |
+| A-005 | Fixed in 0.2: lazy `useState` in `ComprehensionCheck`, `useRef(0)` in `ToastContext`. |
+| A-006 | Fixed in 0.2. |
+| A-007 | Open, 1.1. |
+| A-008 | Open, 2.7. |
+| A-009 | Fixed in 0.2: the initial toast phase is derived from `reduceAnimations`. |
+| A-010 | Open, 3.4. |
+
+Open: 4 (A-002, A-007, A-008, A-010). The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
