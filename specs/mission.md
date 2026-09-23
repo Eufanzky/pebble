@@ -65,4 +65,4 @@ Each capability belongs to a named agent. Every named agent must be backed by re
 - **Clean demo flow:** a 3-minute walkthrough on the live site with no mocked or broken steps.
 - **Deployed live:** a public URL anyone can sign in to and try.
 - **Honest README:** the features, architecture, and setup match the code.
-- **Well-structured code:** clean architecture in the backend, feature-based frontend, tests and CI green (see `tech.stack.md`).
+- **Well-structured code:** clean architecture in the backend, feature-based frontend, tests and CI green (see `tech-stack.md`).
