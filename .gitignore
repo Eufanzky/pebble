@@ -143,7 +143,6 @@ vite.config.ts.timestamp-*
 !requirements.txt
 
 # Editor and tool configs
-CLAUDE.md
 .claude/
 .claude.json
 .agents/
