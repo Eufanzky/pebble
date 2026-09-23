@@ -2,7 +2,7 @@
 
 The order is foundation first: fix, set up tests, and restructure, then build new features on solid ground.
 Each phase is **one PR, about one work session**, with a clear "done" check.
-Read `mission.md` for the why, `tech.stack.md` for the how, and `testing.md` for how it's verified.
+Read `mission.md` for the why, `tech-stack.md` for the how, and `testing.md` for how it's verified.
 
 Rules for every phase:
 - The app still builds and runs at the end of the phase.
@@ -14,7 +14,7 @@ Rules for every phase:
 
 ## Phase 0: Baseline
 
-- [x] **0.1 Audit.** Install dependencies and run `build`, `lint`, and `tsc` in the frontend, and import-check the backend. Walk through every page by hand. Record each error and broken flow in `specs/audit.md`.
+- [x] **0.1 Audit.** Install dependencies and run `build`, `lint`, and `tsc` in the frontend, and import-check the backend. Record each error in `specs/audit.md`. (The manual page walkthrough was deferred: flow bugs are caught by 1.4 and fixed in 1.7.)
   *Done:* `audit.md` lists every known issue, tagged by severity.
 - [x] **0.2 Green build.** Fix every type, lint, and build error from the audit.
   *Done:* `npm run build` and `npm run lint` pass cleanly.
@@ -156,7 +156,7 @@ See principle 1 in `mission.md`.
 ## Phase 9: Presentation
 
 - [ ] **9.1 Architecture diagram.** Redraw it for the new stack as Mermaid in the README (so it stays in sync with the code) and remove the old PNG.
-  *Done:* the diagram matches `tech.stack.md`.
+  *Done:* the diagram matches `tech-stack.md`.
 - [ ] **9.2 README rewrite.** Cover honest features, screenshots/GIFs, the live link, local setup in five commands or fewer, and how to run the tests.
   *Done:* every claimed feature is covered by the E2E demo flow.
 - [ ] **9.3 Production smoke test.** Run the E2E demo flow against production after each deploy.

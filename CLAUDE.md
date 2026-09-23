@@ -10,7 +10,7 @@ Pebble (also called "Focusbuddy" in backend code and the Cosmos DB/conda names) 
 - `backend/`: FastAPI (Python 3.12+) on Azure / Microsoft Foundry (Azure OpenAI GPT-4o via Semantic Kernel, Cosmos DB, Content Safety, and more).
 - `demo/`: an older standalone static HTML/CSS/JS prototype (vanilla JS plus GSAP). It is not wired to anything. Don't edit it when changing the app unless asked.
 
-`specs/` is the project constitution: `mission.md` (product scope and principles), `tech.stack.md` (the target stack and code-structure rules), `testing.md` (test rules, layers, and CI gates; no roadmap item is done without tests), and `roadmap.md` (small, ordered phases, each one PR). The rest of this file describes the code as it is today; the specs describe where it is going. Read them before planning any feature or refactor, and tick off roadmap items as they land.
+`specs/` is the project constitution: `mission.md` (product scope and principles), `tech-stack.md` (the target stack and code-structure rules), `testing.md` (test rules, layers, and CI gates; no roadmap item is done without tests), and `roadmap.md` (small, ordered phases, each one PR). The rest of this file describes the code as it is today; the specs describe where it is going. Read them before planning any feature or refactor, and tick off roadmap items as they land.
 
 `docs/` holds the architecture diagram and slides. `pebble/api/`, `pebble/docs/` and `pebble/presentation/` are placeholder stubs, and `pebble/README.md` is create-next-app boilerplate. The real docs are the root `README.md` and `backend/README.md`, which has the full endpoint table. `.claude/`, `.cursor/` and similar files are gitignored; `CLAUDE.md` is committed.
 
@@ -25,7 +25,7 @@ The tag `v0.1.0-hackathon` (with a GitHub Release) marks the original hackathon 
   - the roadmap checkbox is ticked in the same PR
   - this file and the README are updated if structure, commands or features changed
 - **Commits** use Conventional Commit prefixes (`feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`). PRs are squash-merged; GitHub deletes the branch on merge.
-- **Code is organised by feature too.** New frontend code goes in `src/features/<feature>/` with a public `index.ts`, and shared pieces go in `src/shared/`. New backend code follows the clean-architecture layers. Both are described in `specs/tech.stack.md`. Code still in the old layout moves over during roadmap phases 2 and 3; don't add new code to the old layout.
+- **Code is organised by feature too.** New frontend code goes in `src/features/<feature>/` with a public `index.ts`, and shared pieces go in `src/shared/`. New backend code follows the clean-architecture layers. Both are described in `specs/tech-stack.md`. Code still in the old layout moves over during roadmap phases 2 and 3; don't add new code to the old layout.
 
 ## Commands
 
