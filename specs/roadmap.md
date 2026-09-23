@@ -14,7 +14,7 @@ Rules for every phase:
 
 ## Phase 0: Baseline
 
-- [ ] **0.1 Audit.** Install dependencies and run `build`, `lint`, and `tsc` in the frontend, and import-check the backend. Walk through every page by hand. Record each error and broken flow in `specs/audit.md`.
+- [x] **0.1 Audit.** Install dependencies and run `build`, `lint`, and `tsc` in the frontend, and import-check the backend. Walk through every page by hand. Record each error and broken flow in `specs/audit.md`.
   *Done:* `audit.md` lists every known issue, tagged by severity.
 - [ ] **0.2 Green build.** Fix every type, lint, and build error from the audit.
   *Done:* `npm run build` and `npm run lint` pass cleanly.
