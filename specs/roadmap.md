@@ -23,7 +23,7 @@ Rules for every phase:
 
 - [x] **1.1 Backend test tooling.** Add `pyproject.toml` with `uv`, ruff, pytest, pytest-asyncio, pytest-cov, and respx. Add a `conftest.py` with an app factory, and a health-endpoint test.
   *Done:* `uv run pytest` and `uv run ruff check` pass.
-- [ ] **1.2 Frontend test tooling.** Add Vitest, Testing Library, user-event, MSW, and vitest-axe, with a `src/test/` setup and render helpers. Add a first test for `stripEmoji`.
+- [x] **1.2 Frontend test tooling.** Add Vitest, Testing Library, user-event, MSW, and vitest-axe, with a `src/test/` setup and render helpers. Add a first test for `stripEmoji`.
   *Done:* `npm test` passes.
 - [ ] **1.3 Backend characterization tests.** Pin today's behaviour with the LLM and Content Safety mocked:
   - intent routing, including distress and the chat fallback

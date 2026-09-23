@@ -154,7 +154,7 @@ All agents are orchestrated through **Microsoft Foundry** using **Semantic Kerne
 
 | Requirement | Version |
 |:------------|:--------|
-| **Node.js** | 18+ |
+| **Node.js** | 22.13+ (Vitest and jsdom need it) |
 | **Python** | 3.12+ |
 | **uv** | [Install guide](https://docs.astral.sh/uv/getting-started/installation/) |
 | **Azure account** | With services provisioned (see backend setup) |
@@ -174,6 +174,7 @@ The frontend runs at **http://localhost:3000**. No environment variables or exte
 | `npm run dev` | Development server with hot reload |
 | `npm run build` | Production build (catches TypeScript errors) |
 | `npm run lint` | ESLint check |
+| `npm test` | Vitest unit and component tests (`npm run test:watch` to watch) |
 | `npm start` | Serve production build |
 
 ### ⚙️ Backend
@@ -230,7 +231,8 @@ Focusbuddy/
 │   │   ├── contexts/                # React context providers (preferences, pebble, tasks, activity, toast)
 │   │   ├── hooks/                   # Custom hooks (localStorage, timeOfDay, reduceMotion, focusOnNav)
 │   │   ├── data/                    # Sample data (tasks, documents, activity, pebble messages)
-│   │   └── lib/                     # Types, constants, API client, utilities
+│   │   ├── lib/                     # Types, constants, API client, utilities
+│   │   └── test/                    # Vitest setup, MSW server, render helpers
 │   └── public/                      # Static assets (backgrounds, icons)
 ├── ⚙️ backend/                      # Backend API (FastAPI)
 │   ├── app/

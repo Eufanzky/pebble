@@ -51,6 +51,14 @@ The frontend was checked in a clean copy of `pebble/` (no `node_modules`, no `.n
 
 `npx tsc --noEmit`: **passes**. No issues.
 
+## Frontend behaviour
+
+Found by the first unit tests (1.2 onwards), not by the static checks above.
+
+| ID | Sev | Issue | Repro | Fix in |
+|:--|:--|:--|:--|:--|
+| A-011 | minor | In calm mode, `stripEmoji` (`contexts/PreferencesContext.tsx`) misses emoji outside its hand-listed code-point ranges: for example ⭐ (U+2B50), ⏰ (U+23F0), ⌛ (U+231B), ⬆️ (U+2B06, leaves ⬆) and flags (regional indicators). The app's own sample data is covered, but chat replies from the LLM can contain these. Found during 1.2. | `stripEmoji('⭐ Star')` with calm mode on returns `'⭐ Star'` | 1.7 |
+
 ## Backend install
 
 `pip install -r requirements.txt` on Python 3.12: **succeeds**, and `pip check` finds no broken requirements.
@@ -69,7 +77,7 @@ The frontend was checked in a clean copy of `pebble/` (no `node_modules`, no `.n
 
 ## Summary
 
-Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010).
+Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011).
 
 ## Status
 
@@ -85,5 +93,6 @@ Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Foun
 | A-008 | Open, 2.7. |
 | A-009 | Fixed in 0.2: the initial toast phase is derived from `reduceAnimations`. |
 | A-010 | Open, 3.4. |
+| A-011 | Open, 1.7. |
 
-Open: 3 (A-002, A-008, A-010). The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
+Open: 4 (A-002, A-008, A-010, A-011). The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
