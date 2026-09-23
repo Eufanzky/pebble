@@ -35,6 +35,7 @@ npm install
 npm run dev      # http://localhost:3000
 npm run build    # production build; also the TypeScript type check
 npm run lint     # ESLint (next core-web-vitals + typescript configs)
+npm test         # Vitest (jsdom); `npm test -- <path>` for one file or folder
 ```
 
 Backend (run from `backend/`, managed by `uv`; dependencies and tool config live in `pyproject.toml`, versions in `uv.lock`):
@@ -46,7 +47,7 @@ uv run pytest                     # tests (evals excluded; `-m eval` runs them)
 uv run ruff check                 # lint
 ```
 
-`requirements.txt` is legacy (removed in roadmap 2.7); add dependencies to `pyproject.toml` and run `uv lock`. Backend tests use the `app` and `client` fixtures in `backend/tests/conftest.py`; the client runs the app in-process through `httpx.ASGITransport`, so the lifespan (Cosmos, telemetry) never runs. The frontend has no test suite yet (roadmap 1.2); verify frontend changes with `npm run build` and `npm run lint`. `specs/testing.md` has the planned commands. `backend/deploy.ps1` is a PowerShell script that provisions the Azure resources with the `az` CLI.
+`requirements.txt` is legacy (removed in roadmap 2.7); add dependencies to `pyproject.toml` and run `uv lock`. Backend tests use the `app` and `client` fixtures in `backend/tests/conftest.py`; the client runs the app in-process through `httpx.ASGITransport`, so the lifespan (Cosmos, telemetry) never runs. Frontend tests are colocated `*.test.ts(x)` files run by Vitest (`vitest.config.mts`). `src/test/setup.ts` loads the jest-dom and vitest-axe matchers and starts an MSW server that fails any request without a handler; add per-test handlers with `server.use(...)` from `src/test/msw/server.ts`. `src/test/render.tsx` has `renderWithProviders` (returns a `user` from user-event) and `renderHookWithProviders`, which wrap the same provider tree as `AppShell`. `useLocalStorage` caches values at module level, so state set in one test can leak into the next test in the same file; set the state each test depends on. Verify frontend changes with `npm test`, `npm run build` and `npm run lint`. `specs/testing.md` has the planned commands. `backend/deploy.ps1` is a PowerShell script that provisions the Azure resources with the `az` CLI.
 
 ## Architecture
 
