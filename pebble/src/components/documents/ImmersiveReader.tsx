@@ -291,7 +291,6 @@ export default function ImmersiveReader({ text, title, lang, isOpen, onClose }: 
   useEffect(() => {
     if (!readAloud || !useFallback) return;
 
-    const words = text.split(/\s+/);
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.rate = 0.9;
     utterance.pitch = 1.0;
