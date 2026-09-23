@@ -2,6 +2,10 @@ import time
 
 from fastapi import APIRouter, Depends, HTTPException
 
+from app.agents.document_simplification import simplify_document
+from app.agents.motivation import generate_motivation
+from app.agents.orchestrator import handle_chat
+from app.agents.task_decomposition import decompose_task
 from app.models.agent_schemas import (
     ChatRequest,
     ChatResponse,
@@ -12,14 +16,10 @@ from app.models.agent_schemas import (
     SimplifyRequest,
     SimplifyResponse,
 )
-from app.agents.task_decomposition import decompose_task
-from app.agents.document_simplification import simplify_document
-from app.agents.motivation import generate_motivation
-from app.agents.orchestrator import handle_chat
 from app.services.auth import get_current_user_id
 from app.services.monitoring import (
-    record_agent_latency,
     record_agent_call,
+    record_agent_latency,
     record_groundedness_check,
     record_prompt_shield_check,
 )

@@ -1,10 +1,11 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import httpx
 from azure.cosmos.exceptions import CosmosHttpResponseError
-from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, status
+from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 
+from app.agents.document_simplification import simplify_document
 from app.config import settings
 from app.models.document_schemas import (
     DocumentResponse,
@@ -18,7 +19,6 @@ from app.services.blob_storage import upload_document
 from app.services.db import get_container
 from app.services.doc_intelligence import extract_text
 from app.services.search import index_document, search_documents
-from app.agents.document_simplification import simplify_document
 
 router = APIRouter()
 
@@ -82,7 +82,7 @@ async def upload_and_process(
     elif any(w in filename_lower for w in ["meeting", "minutes", "agenda", "notes"]):
         doc_type = "meeting"
 
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
     doc_id = str(uuid.uuid4())
 
     doc = {
@@ -220,7 +220,7 @@ async def extract_tasks(
             detail="No tasks extracted. Simplify the document first.",
         )
 
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
     created_tasks = []
 
     for task_data in extracted:

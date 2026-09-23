@@ -1,12 +1,13 @@
+from datetime import UTC
+
 from azure.core.credentials import AzureKeyCredential
 from azure.search.documents.aio import SearchClient
 from azure.search.documents.indexes.aio import SearchIndexClient
 from azure.search.documents.indexes.models import (
-    SearchIndex,
-    SearchField,
-    SearchFieldDataType,
-    SimpleField,
     SearchableField,
+    SearchFieldDataType,
+    SearchIndex,
+    SimpleField,
 )
 
 from app.config import settings
@@ -73,7 +74,7 @@ async def index_document(
     await _ensure_index()
     client = _get_client()
 
-    from datetime import datetime, timezone
+    from datetime import datetime
     doc = {
         "id": doc_id,
         "userId": user_id,
@@ -82,7 +83,7 @@ async def index_document(
         "content": content,
         "simplified": simplified,
         "tags": tags,
-        "createdAt": datetime.now(timezone.utc).isoformat(),
+        "createdAt": datetime.now(UTC).isoformat(),
     }
 
     async with client:

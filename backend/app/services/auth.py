@@ -1,8 +1,8 @@
+import httpx
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from jose.backends import RSAKey
-import httpx
 
 from app.config import settings
 

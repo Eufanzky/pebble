@@ -1,10 +1,10 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 from azure.cosmos.exceptions import CosmosHttpResponseError
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.models.schemas import TaskCreate, TaskUpdate, TaskResponse
+from app.models.schemas import TaskCreate, TaskResponse, TaskUpdate
 from app.services.auth import get_current_user_id
 from app.services.db import get_container
 
@@ -35,7 +35,7 @@ async def create_task(
     Priorities: `high`, `medium`, `low`.
     Subtasks can be included at creation time or added later via the decompose agent.
     """
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
     task = {
         "id": str(uuid.uuid4()),
         "userId": user_id,
@@ -93,7 +93,7 @@ async def update_task(
         updates["subtasks"] = [s.model_dump(by_alias=True) for s in body.subtasks]
 
     existing.update(updates)
-    existing["updatedAt"] = datetime.now(timezone.utc).isoformat()
+    existing["updatedAt"] = datetime.now(UTC).isoformat()
 
     result = await container.replace_item(task_id, existing)
     return result

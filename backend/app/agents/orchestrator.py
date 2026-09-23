@@ -1,14 +1,14 @@
 import json
 import logging
 
-from app.agents.prompts import ORCHESTRATOR_PROMPT
-from app.agents.task_decomposition import decompose_task
 from app.agents.document_simplification import simplify_document
 from app.agents.motivation import generate_motivation
-from app.services.openai_client import chat_completion
-from app.services.content_safety import ensure_safe, ensure_no_prompt_attack
-from app.services.pii_detector import detect_pii, redact_pii
+from app.agents.prompts import ORCHESTRATOR_PROMPT
+from app.agents.task_decomposition import decompose_task
+from app.services.content_safety import ensure_no_prompt_attack, ensure_safe
 from app.services.kernel import get_kernel
+from app.services.openai_client import chat_completion
+from app.services.pii_detector import detect_pii, redact_pii
 
 logger = logging.getLogger("focusbuddy.orchestrator")
 

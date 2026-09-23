@@ -1,9 +1,9 @@
 import uuid
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
-from azure.cosmos.exceptions import CosmosHttpResponseError
 from fastapi import APIRouter, Depends, HTTPException, status
 
+from app.agents.motivation import generate_motivation
 from app.models.focus_schemas import (
     FocusSessionComplete,
     JoinRoomResponse,
@@ -15,7 +15,6 @@ from app.models.focus_schemas import (
 from app.services.auth import get_current_user_id
 from app.services.db import get_container
 from app.services.webpubsub import get_client_access_url, send_to_room
-from app.agents.motivation import generate_motivation
 
 router = APIRouter()
 
@@ -28,7 +27,7 @@ async def create_room(
     user_id: str = Depends(get_current_user_id),
 ):
     """Create a new focus room. The creator automatically joins as the first participant."""
-    now = datetime.now(timezone.utc).isoformat()
+    now = datetime.now(UTC).isoformat()
     room = {
         "id": str(uuid.uuid4()),
         "userId": user_id,  # partition key
@@ -235,7 +234,7 @@ async def complete_session(
         "action": f"Completed 25-minute focus session in room {room_id}",
         "reasoning": "User completed a full Pomodoro timer session",
         "safetyStatus": "passed",
-        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "timestamp": datetime.now(UTC).isoformat(),
     })
 
     # Generate motivational message

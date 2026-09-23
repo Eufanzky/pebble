@@ -1,8 +1,8 @@
 import json
 
 from app.agents.prompts import DOCUMENT_SIMPLIFICATION_PROMPT
+from app.services.content_safety import check_groundedness, ensure_safe
 from app.services.openai_client import chat_completion
-from app.services.content_safety import ensure_safe, check_groundedness
 
 
 async def simplify_document(

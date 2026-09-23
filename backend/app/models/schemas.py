@@ -1,9 +1,6 @@
-from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 from pydantic import BaseModel, Field
-
 
 # --- Enums matching frontend types ---
 
@@ -83,20 +80,20 @@ class TaskCreate(BaseModel):
     tag: TaskTag = TaskTag.project
     priority: Priority = Priority.medium
     subtasks: list[Subtask] = []
-    why_explanation: Optional[str] = Field(alias="whyExplanation", default=None)
+    why_explanation: str | None = Field(alias="whyExplanation", default=None)
 
     model_config = {"populate_by_name": True}
 
 
 class TaskUpdate(BaseModel):
-    title: Optional[str] = None
-    time_estimate: Optional[str] = Field(alias="timeEstimate", default=None)
-    tag: Optional[TaskTag] = None
-    priority: Optional[Priority] = None
-    completed: Optional[bool] = None
-    subtasks: Optional[list[Subtask]] = None
-    show_subtasks: Optional[bool] = Field(alias="showSubtasks", default=None)
-    why_explanation: Optional[str] = Field(alias="whyExplanation", default=None)
+    title: str | None = None
+    time_estimate: str | None = Field(alias="timeEstimate", default=None)
+    tag: TaskTag | None = None
+    priority: Priority | None = None
+    completed: bool | None = None
+    subtasks: list[Subtask] | None = None
+    show_subtasks: bool | None = Field(alias="showSubtasks", default=None)
+    why_explanation: str | None = Field(alias="whyExplanation", default=None)
 
     model_config = {"populate_by_name": True}
 
@@ -111,7 +108,7 @@ class TaskResponse(BaseModel):
     completed: bool
     subtasks: list[Subtask] = []
     show_subtasks: bool = Field(alias="showSubtasks", default=False)
-    why_explanation: Optional[str] = Field(alias="whyExplanation", default=None)
+    why_explanation: str | None = Field(alias="whyExplanation", default=None)
     created_at: str = Field(alias="createdAt")
     updated_at: str = Field(alias="updatedAt")
 
@@ -121,14 +118,14 @@ class TaskResponse(BaseModel):
 # --- Preferences ---
 
 class PreferencesUpdate(BaseModel):
-    reading_level: Optional[int] = Field(alias="readingLevel", default=None)
-    chunk_size: Optional[ChunkSize] = Field(alias="chunkSize", default=None)
-    reduce_animations: Optional[bool] = Field(alias="reduceAnimations", default=None)
-    calm_mode: Optional[bool] = Field(alias="calmMode", default=None)
-    pebble_color: Optional[PebbleColor] = Field(alias="pebbleColor", default=None)
-    pebble_personality: Optional[PebblePersonality] = Field(alias="pebblePersonality", default=None)
-    pebble_model: Optional[PebbleModel] = Field(alias="pebbleModel", default=None)
-    voice_input: Optional[bool] = Field(alias="voiceInput", default=None)
+    reading_level: int | None = Field(alias="readingLevel", default=None)
+    chunk_size: ChunkSize | None = Field(alias="chunkSize", default=None)
+    reduce_animations: bool | None = Field(alias="reduceAnimations", default=None)
+    calm_mode: bool | None = Field(alias="calmMode", default=None)
+    pebble_color: PebbleColor | None = Field(alias="pebbleColor", default=None)
+    pebble_personality: PebblePersonality | None = Field(alias="pebblePersonality", default=None)
+    pebble_model: PebbleModel | None = Field(alias="pebbleModel", default=None)
+    voice_input: bool | None = Field(alias="voiceInput", default=None)
 
     model_config = {"populate_by_name": True}
 
