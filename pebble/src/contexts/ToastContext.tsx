@@ -15,7 +15,7 @@ function ToastDisplay({ message, onDone }: { message: string; onDone: () => void
   const [phase, setPhase] = useState<'enter' | 'visible' | 'exit'>('enter');
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const remainingRef = useRef(5000);
-  const startTimeRef = useRef(Date.now());
+  const startTimeRef = useRef(0); // set by startTimer before it is read
 
   useEffect(() => {
     if (noMotion) setPhase('visible');
