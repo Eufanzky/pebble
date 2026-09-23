@@ -81,9 +81,9 @@ Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Foun
 | A-004 | Fixed in 0.2: `useSyncExternalStore` in `useLocalStorage`, `useReduceMotion` and `useTimeOfDay`; render-time state adjustment in `PageTransition` and `DocumentModal`; `key` remount in `PebbleSpeechBubble`. |
 | A-005 | Fixed in 0.2: lazy `useState` in `ComprehensionCheck`, `useRef(0)` in `ToastContext`. |
 | A-006 | Fixed in 0.2. |
-| A-007 | Open, 1.1. |
+| A-007 | Fixed in 1.1: dependencies are in `pyproject.toml` and locked in `uv.lock`. |
 | A-008 | Open, 2.7. |
 | A-009 | Fixed in 0.2: the initial toast phase is derived from `reduceAnimations`. |
 | A-010 | Open, 3.4. |
 
-Open: 4 (A-002, A-007, A-008, A-010). The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
+Open: 3 (A-002, A-008, A-010). The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.

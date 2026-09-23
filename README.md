@@ -156,7 +156,7 @@ All agents are orchestrated through **Microsoft Foundry** using **Semantic Kerne
 |:------------|:--------|
 | **Node.js** | 18+ |
 | **Python** | 3.12+ |
-| **Conda** | [Install guide](https://docs.conda.io/en/latest/) |
+| **uv** | [Install guide](https://docs.astral.sh/uv/getting-started/installation/) |
 | **Azure account** | With services provisioned (see backend setup) |
 
 ### 🖥️ Frontend
@@ -179,21 +179,19 @@ The frontend runs at **http://localhost:3000**. No environment variables or exte
 ### ⚙️ Backend
 
 ```bash
-# 1. Create and activate environment
-conda create -n focusbuddy python=3.12 -y
-conda activate focusbuddy
-
-# 2. Install dependencies
+# 1. Install dependencies (creates .venv from uv.lock)
 cd backend
-pip install -r requirements.txt
+uv sync
 
-# 3. Configure credentials
+# 2. Configure credentials
 cp .env.example .env
 # Edit .env with your Azure credentials
 
-# 4. Start the server
-uvicorn app.main:app --port 8000 --reload
+# 3. Start the server
+uv run uvicorn app.main:app --port 8000 --reload
 ```
+
+Run the backend tests with `uv run pytest` and the linter with `uv run ruff check`.
 
 The API runs at **http://localhost:8000**. Swagger docs at **http://localhost:8000/docs**.
 
@@ -205,9 +203,8 @@ In two terminals:
 
 ```bash
 # Terminal 1 — Backend
-conda activate focusbuddy
 cd backend
-uvicorn app.main:app --port 8000 --reload
+uv run uvicorn app.main:app --port 8000 --reload
 
 # Terminal 2 — Frontend
 cd pebble
@@ -243,7 +240,9 @@ Focusbuddy/
 │   │   ├── models/                  # Pydantic request/response schemas
 │   │   ├── routers/                 # API route handlers (/api/*)
 │   │   └── services/                # Azure & Foundry service clients
-│   ├── requirements.txt
+│   ├── tests/                       # pytest suite
+│   ├── pyproject.toml               # Dependencies (uv), pytest and ruff config
+│   ├── uv.lock
 │   └── .env.example
 ├── 📐 docs/
 │   ├── architecture.png             # System architecture diagram

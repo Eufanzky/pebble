@@ -5,7 +5,7 @@ FastAPI backend for the Focusbuddy cognitive load reduction assistant. Powers th
 ## Prerequisites
 
 - Python 3.12+
-- [Conda](https://docs.conda.io/en/latest/) (Miniconda or Anaconda)
+- [uv](https://docs.astral.sh/uv/getting-started/installation/) (installs Python 3.12 for you if needed)
 - Azure account with the following services provisioned:
   - **Microsoft Foundry** project (orchestrates agents and AI services)
   - Azure Cosmos DB (NoSQL)
@@ -20,19 +20,14 @@ FastAPI backend for the Focusbuddy cognitive load reduction assistant. Powers th
 
 ## Setup
 
-### 1. Create the conda environment
-
-```bash
-conda create -n focusbuddy python=3.12 -y
-conda activate focusbuddy
-```
-
-### 2. Install dependencies
+### 1–2. Install dependencies
 
 ```bash
 cd backend
-pip install -r requirements.txt
+uv sync
 ```
+
+This creates `.venv/` from `pyproject.toml` and the locked versions in `uv.lock`, including the dev tools (pytest, ruff). After changing dependencies, run `uv lock` and commit `uv.lock`. `requirements.txt` is legacy and goes away in roadmap 2.7.
 
 ### 3. Configure environment variables
 
@@ -45,14 +40,23 @@ Edit `.env` with your Azure credentials. See `.env.example` for all required var
 ### 4. Run the server
 
 ```bash
-conda activate focusbuddy
 cd backend
-uvicorn app.main:app --port 8000 --reload
+uv run uvicorn app.main:app --port 8000 --reload
 ```
 
 The API is available at **http://localhost:8000**.
 
 Interactive API docs (Swagger UI): **http://localhost:8000/docs**
+
+### Tests and lint
+
+```bash
+uv run pytest            # all tests except the real-LLM evals
+uv run pytest --cov      # with a coverage report
+uv run ruff check        # lint (add --fix for the safe autofixes)
+```
+
+Tests live in `tests/` (layout in `specs/testing.md`). They run the app in-process with `httpx.ASGITransport`, which skips the lifespan, so no Azure service or network is needed.
 
 ### 5. Run the frontend (separate terminal)
 
@@ -164,7 +168,10 @@ backend/
 │       ├── search.py           # AI Search indexing + RAG
 │       ├── webpubsub.py        # Web PubSub real-time
 │       └── monitoring.py       # App Insights + request logging
-├── requirements.txt
+├── tests/                      # pytest suite (conftest.py has the app and client fixtures)
+├── pyproject.toml              # dependencies, pytest and ruff config
+├── uv.lock                     # locked dependency versions
+├── requirements.txt            # legacy, removed in roadmap 2.7
 ├── .env.example
 └── README.md
 ```
