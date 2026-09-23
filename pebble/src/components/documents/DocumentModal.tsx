@@ -42,17 +42,25 @@ export default function DocumentModal({ document: doc, isOpen, onClose }: Props)
   const simplifiedText = getTextForLevel(doc, level);
   const isDefaultLevel = level === preferences.readingLevel;
 
-  useEffect(() => {
+  // Reset per-open state when the modal opens or the default reading level changes
+  const [openedWith, setOpenedWith] = useState({ isOpen, readingLevel: preferences.readingLevel });
+  if (openedWith.isOpen !== isOpen || openedWith.readingLevel !== preferences.readingLevel) {
+    setOpenedWith({ isOpen, readingLevel: preferences.readingLevel });
     if (isOpen) {
-      triggerRef.current = document.activeElement as HTMLElement;
-      requestAnimationFrame(() => setVisible(true));
       setShowCheck(false);
       setShowOriginal(false);
       setLevel(preferences.readingLevel);
     } else {
       setVisible(false);
     }
-  }, [isOpen, preferences.readingLevel]);
+  }
+
+  useEffect(() => {
+    if (isOpen) {
+      triggerRef.current = document.activeElement as HTMLElement;
+      requestAnimationFrame(() => setVisible(true));
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (isOpen && visible && modalRef.current) {

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useSyncExternalStore } from 'react';
 import type { TimeOfDay } from '@/lib/types';
 
 function getTimeOfDay(): TimeOfDay {
@@ -10,14 +10,11 @@ function getTimeOfDay(): TimeOfDay {
   return 'evening';
 }
 
+function subscribe(onChange: () => void) {
+  const interval = setInterval(onChange, 60_000);
+  return () => clearInterval(interval);
+}
+
 export function useTimeOfDay(): TimeOfDay {
-  const [timeOfDay, setTimeOfDay] = useState<TimeOfDay>('day');
-
-  useEffect(() => {
-    setTimeOfDay(getTimeOfDay());
-    const interval = setInterval(() => setTimeOfDay(getTimeOfDay()), 60_000);
-    return () => clearInterval(interval);
-  }, []);
-
-  return timeOfDay;
+  return useSyncExternalStore(subscribe, getTimeOfDay, () => 'day');
 }
