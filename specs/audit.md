@@ -59,6 +59,15 @@ Found by the first unit tests (1.2 onwards), not by the static checks above.
 |:--|:--|:--|:--|:--|
 | A-011 | minor | In calm mode, `stripEmoji` (`contexts/PreferencesContext.tsx`) misses emoji outside its hand-listed code-point ranges: for example ⭐ (U+2B50), ⏰ (U+23F0), ⌛ (U+231B), ⬆️ (U+2B06, leaves ⬆) and flags (regional indicators). The app's own sample data is covered, but chat replies from the LLM can contain these. Found during 1.2. | `stripEmoji('⭐ Star')` with calm mode on returns `'⭐ Star'` | 1.7 |
 
+## Backend behaviour
+
+Found by the characterization tests (1.3 onwards), not by the static checks above.
+
+| ID | Sev | Issue | Repro | Fix in |
+|:--|:--|:--|:--|:--|
+| A-012 | major | `handle_chat` redacts PII only for the intent classifier. The `decompose` and `simplify` routes pass the **raw** chat message to their sub-agents, so emails, phone numbers and similar reach the LLM. Sub-agent output isn't PII-redacted either. Found during 1.3. | `tests/api/test_chat.py::test_sub_agents_never_receive_raw_pii` (strict `xfail`) | 2.4 |
+| A-013 | minor | Errors come back as 422 with the internal message as `detail`: malformed LLM JSON (including code-fenced JSON) gives `Expecting value: line 1 column 1 (char 0)`, and unsafe LLM *output* gives the same "Content flagged" 422 as unsafe input, not a safe reply. Found during 1.3. | `tests/api/test_chat.py::test_malformed_classifier_json_is_a_422` | 2.4 |
+
 ## Backend install
 
 `pip install -r requirements.txt` on Python 3.12: **succeeds**, and `pip check` finds no broken requirements.
@@ -77,7 +86,7 @@ Found by the first unit tests (1.2 onwards), not by the static checks above.
 
 ## Summary
 
-Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011).
+Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011). Found during 1.3: 1 major, 1 minor (A-012, A-013).
 
 ## Status
 
@@ -94,5 +103,7 @@ Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Foun
 | A-009 | Fixed in 0.2: the initial toast phase is derived from `reduceAnimations`. |
 | A-010 | Open, 3.4. |
 | A-011 | Open, 1.7. |
+| A-012 | Open, 2.4. |
+| A-013 | Open, 2.4. |
 
-Open: 4 (A-002, A-008, A-010, A-011). The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
+Open: 6 (A-002, A-008, A-010, A-011, A-012, A-013). The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
