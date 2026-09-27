@@ -1,6 +1,7 @@
 import pytest
 
 from app.domain.agents import Intent, Mood
+from app.domain.documents import DocumentType
 from app.domain.tasks import Step, TaskBreakdown, TaskTag
 
 
@@ -26,3 +27,17 @@ def test_breakdown_texts_and_mapping():
 def test_unknown_task_tag_is_project():
     assert TaskTag.parse("study") is TaskTag.STUDY
     assert TaskTag.parse("homework") is TaskTag.PROJECT
+
+
+@pytest.mark.parametrize(
+    ("filename", "kind"),
+    [
+        ("Syllabus 2026.pdf", DocumentType.ACADEMIC),
+        ("chapter-4.docx", DocumentType.ACADEMIC),
+        ("Team meeting minutes.docx", DocumentType.MEETING),
+        ("notes.txt", DocumentType.MEETING),
+        ("api-spec.pdf", DocumentType.TECHNICAL),
+    ],
+)
+def test_document_type_is_guessed_from_the_file_name(filename, kind):
+    assert DocumentType.guess(filename) is kind

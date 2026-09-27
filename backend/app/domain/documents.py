@@ -2,9 +2,36 @@
 
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from enum import StrEnum
 
 from app.domain.safety import Groundedness
 from app.domain.tasks import TaskTag
+
+
+class DocumentType(StrEnum):
+    ACADEMIC = "academic"
+    MEETING = "meeting"
+    TECHNICAL = "technical"
+
+    @classmethod
+    def guess(cls, filename: str) -> "DocumentType":
+        """A first guess from the file name; technical when nothing matches."""
+        name = filename.lower()
+        if any(word in name for word in ("syllabus", "lecture", "chapter", "textbook")):
+            return cls.ACADEMIC
+        if any(word in name for word in ("meeting", "minutes", "agenda", "notes")):
+            return cls.MEETING
+        return cls.TECHNICAL
+
+
+@dataclass(frozen=True)
+class ParsedDocument:
+    """A document's text, read in memory. The file itself is never stored."""
+
+    title: str
+    text: str
+    pages: int
+    type: DocumentType = DocumentType.TECHNICAL
 
 
 @dataclass(frozen=True)

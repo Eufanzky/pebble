@@ -5,7 +5,9 @@ import logging
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
+from app.application.documents import DocumentTooLargeError
 from app.application.errors import AgentReplyError, PromptAttackError, UnsafeContentError, UnsafeOutputError
+from app.application.ports.documents import DocumentError, UnsupportedDocumentError
 from app.application.ports.llm import LLMError, LLMRateLimitedError
 from app.application.ports.safety import SafetyCheckError
 
@@ -37,7 +39,16 @@ async def _unavailable(_: Request, exc: Exception) -> JSONResponse:
     return _detail(503, UNAVAILABLE)
 
 
+async def _document(_: Request, exc: Exception) -> JSONResponse:
+    if isinstance(exc, DocumentTooLargeError):
+        return _detail(413, str(exc))
+    if isinstance(exc, UnsupportedDocumentError):
+        return _detail(415, str(exc))
+    return _detail(422, str(exc))
+
+
 def register_error_handlers(app: FastAPI) -> None:
+    app.add_exception_handler(DocumentError, _document)
     app.add_exception_handler(PromptAttackError, _rejected_input)
     app.add_exception_handler(UnsafeContentError, _rejected_input)
     app.add_exception_handler(UnsafeOutputError, _unsafe_output)

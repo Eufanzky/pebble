@@ -58,7 +58,7 @@ The characterization tests from 1.3 must stay green through every item in this p
   *Done:* pipeline tests cover the safety order, PII redaction before the LLM, and the routing table; the 1.3 tests are ported and still pass.
 - [x] **2.5 SimplifyCore and PebbleVoice as use cases.** Same pattern as 2.4.
   *Done:* use-case and API tests cover both.
-- [ ] **2.6 Local document parsing.** Add a `DocumentParser` port with a `pypdf` + `python-docx` adapter. Files are parsed in memory and not stored.
+- [x] **2.6 Local document parsing.** Add a `DocumentParser` port with a `pypdf` + `python-docx` adapter. Files are parsed in memory and not stored.
   *Done:* tests with small fixture files (PDF, DOCX, TXT, plus one corrupt file) pass with no Azure services.
 - [ ] **2.7 Remove dead services.** Delete Semantic Kernel, Cosmos, AI Search, Web PubSub, the focus router, Blob Storage, Document Intelligence, App Insights, and `deploy.ps1`, along with their dependencies.
   *Done:* the backend runs with only an LLM key set, the whole suite passes, and `requirements.txt` is gone.
