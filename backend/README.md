@@ -36,6 +36,8 @@ Tests run the app in-process with `httpx.ASGITransport`, so they need no network
 
 Warnings fail the run.
 
+Real-LLM evals live in `tests/evals/` (`uv run pytest -m eval`). They're excluded from the normal run and run weekly in CI; see `tests/evals/README.md` for the scores and baselines.
+
 ## API Endpoints
 
 | Method | Endpoint | Description |
