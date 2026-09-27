@@ -3,8 +3,8 @@ from datetime import UTC, datetime
 from azure.cosmos.exceptions import CosmosHttpResponseError
 from fastapi import APIRouter, Depends
 
-from app.models.schemas import PreferencesResponse, PreferencesUpdate
-from app.services.auth import get_current_user_id
+from app.api.auth import get_current_user_id
+from app.api.schemas.records import PreferencesResponse, PreferencesUpdate
 from app.services.db import get_container
 
 router = APIRouter()

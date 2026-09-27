@@ -6,15 +6,15 @@ from azure.cosmos.exceptions import CosmosHttpResponseError
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 
 from app.agents.document_simplification import simplify_document
-from app.config import settings
-from app.models.document_schemas import (
+from app.api.auth import get_current_user_id
+from app.api.schemas.documents import (
     DocumentResponse,
     ExtractTasksResponse,
     SearchRequest,
     SearchResult,
     SimplifyDocumentRequest,
 )
-from app.services.auth import get_current_user_id
+from app.infrastructure.config import settings
 from app.services.blob_storage import upload_document
 from app.services.db import get_container
 from app.services.doc_intelligence import extract_text

@@ -1,6 +1,6 @@
 from azure.messaging.webpubsubservice import WebPubSubServiceClient
 
-from app.config import settings
+from app.infrastructure.config import settings
 
 _client: WebPubSubServiceClient | None = None
 

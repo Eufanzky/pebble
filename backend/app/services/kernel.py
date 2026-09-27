@@ -3,7 +3,7 @@ import logging
 from semantic_kernel import Kernel
 from semantic_kernel.connectors.ai.open_ai import AzureChatCompletion
 
-from app.config import settings
+from app.infrastructure.config import settings
 
 logger = logging.getLogger("focusbuddy.kernel")
 

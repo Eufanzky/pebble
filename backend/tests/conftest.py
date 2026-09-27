@@ -12,7 +12,7 @@ import respx
 from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
-from app.config import settings
+from app.infrastructure.config import settings
 from tests.fakes import FakeContentSafety, FakeLLM
 
 CONTENT_SAFETY_ENDPOINT = "https://content-safety.test"

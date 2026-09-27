@@ -8,7 +8,7 @@ ported in 2.4 and must keep passing until then.
 import pytest
 from httpx import AsyncClient
 
-from app.services.auth import get_current_user_id
+from app.api.auth import get_current_user_id
 from tests.fakes import FakeContentSafety, FakeLLM
 
 CHAT_URL = "/api/agents/chat"
@@ -362,7 +362,7 @@ async def test_content_safety_checks_the_input_then_the_output(client, llm: Fake
 
 
 async def test_unconfigured_content_safety_lets_everything_through(client, llm: FakeLLM, monkeypatch):
-    from app.config import settings
+    from app.infrastructure.config import settings
 
     monkeypatch.setattr(settings, "content_safety_endpoint", "")
     llm.script("orchestrator", classification("chat"))

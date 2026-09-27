@@ -67,7 +67,9 @@ The frontend sends no `Authorization` header, but both endpoints it calls requir
 The 7 models in `components/pebble/models/` are built only from CSS and divs (`border-radius` shapes), with no SVG or images. They share pieces through `models/SharedParts.tsx`. Model styles live in `PebbleModels.css` and mood animations in `PebbleMoods.css`. Keep new character work in that style.
 
 ### Backend request flow
-`app/main.py` registers routers under `/api/<name>`. Routes get the user through `Depends(get_current_user_id)` (`services/auth.py`), which validates Entra ID JWTs. With `DEV_MODE=true` it skips validation and returns `dev-user-00000000`. `/api/verify/services`, which smoke-tests every Azure service, only works in dev mode.
+The backend is mid-way to the clean architecture in `specs/tech-stack.md`: `app/domain`, `app/application`, `app/infrastructure` (adapters, `config.py`) and `app/api` (routers, schemas, `auth.py`). `tests/unit/test_architecture.py` enforces the dependency rule (domain pure; application → domain only; infrastructure never imports api). `app/agents` and `app/services` are legacy and move into the layers during phase 2.
+
+`app/main.py` registers routers under `/api/<name>`. Routes get the user through `Depends(get_current_user_id)` (`api/auth.py`), which validates Entra ID JWTs. With `DEV_MODE=true` it skips validation and returns `dev-user-00000000`. `/api/verify/services`, which smoke-tests every Azure service, only works in dev mode.
 
 Missing Azure configuration is handled gracefully at startup, not at request time:
 - `services/db.py` skips Cosmos init when there are no credentials, and `get_container()` then raises `RuntimeError`.
@@ -98,4 +100,4 @@ The response shape is `{intent, response, mood, agentName, data}`. It must stay 
   - Respect `reduceAnimations` and `calmMode` (use `stripEmoji` for user-facing text).
   - Keep keyboard navigation and ARIA working (`useFocusOnNavigation`, skip link).
 - Every AI action should be explainable. The activity log records the agent name, reasoning, and safety status. Tasks have "Why?" cards (`WhyCard`).
-- The named agents shown in the UI are CalmSense, SimplifyCore, PebbleVoice, AdaptLens, WhyBot, and BridgeBot. Only the first three plus the orchestrator have agent code. The other three appear only as names in schemas, `routers/audit.py`, and the frontend.
+- The named agents shown in the UI are CalmSense, SimplifyCore, PebbleVoice, AdaptLens, WhyBot, and BridgeBot. Only the first three plus the orchestrator have agent code. The other three appear only as names in schemas, `api/routers/audit.py`, and the frontend.

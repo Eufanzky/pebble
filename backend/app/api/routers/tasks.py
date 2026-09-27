@@ -4,8 +4,8 @@ from datetime import UTC, datetime
 from azure.cosmos.exceptions import CosmosHttpResponseError
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.models.schemas import TaskCreate, TaskResponse, TaskUpdate
-from app.services.auth import get_current_user_id
+from app.api.auth import get_current_user_id
+from app.api.schemas.records import TaskCreate, TaskResponse, TaskUpdate
 from app.services.db import get_container
 
 router = APIRouter()

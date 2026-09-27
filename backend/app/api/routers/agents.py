@@ -6,7 +6,8 @@ from app.agents.document_simplification import simplify_document
 from app.agents.motivation import generate_motivation
 from app.agents.orchestrator import handle_chat
 from app.agents.task_decomposition import decompose_task
-from app.models.agent_schemas import (
+from app.api.auth import get_current_user_id
+from app.api.schemas.agents import (
     ChatRequest,
     ChatResponse,
     DecomposeRequest,
@@ -16,7 +17,6 @@ from app.models.agent_schemas import (
     SimplifyRequest,
     SimplifyResponse,
 )
-from app.services.auth import get_current_user_id
 from app.services.monitoring import (
     record_agent_call,
     record_agent_latency,

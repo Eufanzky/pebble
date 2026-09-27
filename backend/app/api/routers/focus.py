@@ -4,7 +4,8 @@ from datetime import UTC, datetime
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.agents.motivation import generate_motivation
-from app.models.focus_schemas import (
+from app.api.auth import get_current_user_id
+from app.api.schemas.focus import (
     FocusSessionComplete,
     JoinRoomResponse,
     RoomCreate,
@@ -12,7 +13,6 @@ from app.models.focus_schemas import (
     TimerAction,
     TimerState,
 )
-from app.services.auth import get_current_user_id
 from app.services.db import get_container
 from app.services.webpubsub import get_client_access_url, send_to_room
 
