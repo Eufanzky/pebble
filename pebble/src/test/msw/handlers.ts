@@ -1,5 +1,5 @@
 import { http, HttpResponse, type RequestHandler } from 'msw';
-import type { ChatResponse } from '@/lib/api';
+import type { ChatResponse } from '@/features/chat';
 
 // A chat reply as the backend sends it. Tests override the fields they check.
 export function chatReply(overrides: Partial<ChatResponse> = {}): ChatResponse {

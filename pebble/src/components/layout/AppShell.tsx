@@ -9,7 +9,7 @@ import { TasksProvider } from '@/contexts/TasksContext';
 import { ActivityLogProvider } from '@/contexts/ActivityLogContext';
 import { ToastProvider } from '@/contexts/ToastContext';
 import { useFocusOnNavigation } from '@/hooks/useFocusOnNavigation';
-import PebbleChat from '@/components/chat/PebbleChat';
+import { PebbleChat } from '@/features/chat';
 
 function PageTransition({ children }: { children: ReactNode }) {
   const pathname = usePathname();
