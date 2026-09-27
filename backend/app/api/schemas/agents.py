@@ -42,11 +42,19 @@ class ExtractedTask(BaseModel):
     model_config = {"populate_by_name": True, "by_alias": True}
 
 
+class GroundednessResult(BaseModel):
+    grounded: bool
+    ungrounded_percentage: float = Field(alias="ungroundedPercentage")
+
+    model_config = {"populate_by_name": True, "by_alias": True}
+
+
 class SimplifyResponse(BaseModel):
     simplified: str
     extracted_tasks: list[ExtractedTask] = Field(alias="extractedTasks")
     tags: list[str]
     why_explanation: str = Field(alias="whyExplanation")
+    groundedness: GroundednessResult
 
     model_config = {"populate_by_name": True, "by_alias": True}
 

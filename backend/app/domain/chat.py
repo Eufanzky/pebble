@@ -24,3 +24,9 @@ class ChatReply:
     agent: AgentName
     data: object | None = None
     """The sub-agent's structured result (a ``TaskBreakdown``, a simplification), or None."""
+
+
+@dataclass(frozen=True)
+class Encouragement:
+    message: str
+    mood: Mood = Mood.NORMAL

@@ -3,8 +3,8 @@ from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, HTTPException, status
 
-from app.agents.motivation import generate_motivation
 from app.api.auth import get_current_user_id
+from app.api.dependencies import get_encourage
 from app.api.schemas.focus import (
     FocusSessionComplete,
     JoinRoomResponse,
@@ -13,6 +13,7 @@ from app.api.schemas.focus import (
     TimerAction,
     TimerState,
 )
+from app.domain.chat import ChatContext
 from app.services.db import get_container
 from app.services.webpubsub import get_client_access_url, send_to_room
 
@@ -239,15 +240,9 @@ async def complete_session(
 
     # Generate motivational message
     try:
-        motivation = await generate_motivation(
-            tasks_completed=0,
-            tasks_total=0,
-            recent_task_titles=["25-minute focus session"],
-            time_of_day="day",
-            personality="gentle",
-        )
-        message = motivation["message"]
-        mood = motivation["mood"]
+        encouragement = await get_encourage()(ChatContext(recent_task_titles=("25-minute focus session",)))
+        message = encouragement.message
+        mood = str(encouragement.mood)
     except Exception:
         message = "Great session! You focused for 25 minutes. That's real progress."
         mood = "excited"

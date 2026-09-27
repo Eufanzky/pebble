@@ -10,7 +10,8 @@ from app.application.errors import AgentReplyError, PromptAttackError, UnsafeCon
 from app.application.ports.llm import LLMRequest
 from app.application.safety import SafetyGate
 from app.domain.agents import AgentName, Intent, Mood
-from app.domain.chat import ChatContext
+from app.domain.chat import ChatContext, Encouragement
+from app.domain.documents import Simplification
 from app.domain.tasks import TaskBreakdown
 from app.infrastructure.llm.fake import FakeLLM
 from app.infrastructure.pii.regex_redactor import RegexPIIRedactor
@@ -50,7 +51,7 @@ class RecordingLLM(FakeLLM):
 
 @dataclass
 class StubSimplifier:
-    result: object = field(default_factory=lambda: {"simplified": "Short."})
+    result: Simplification = field(default_factory=lambda: Simplification("Short."))
     error: Exception | None = None
     calls: list[tuple[str, int]] = field(default_factory=list)
 
@@ -63,7 +64,7 @@ class StubSimplifier:
 
 @dataclass
 class StubMotivator:
-    reply: tuple[str, Mood] = ("You finished 2 things.", Mood.EXCITED)
+    reply: Encouragement = field(default_factory=lambda: Encouragement("You finished 2 things.", Mood.EXCITED))
     error: Exception | None = None
     contexts: list[ChatContext] = field(default_factory=list)
 
@@ -196,14 +197,14 @@ async def test_simplify_gets_the_redacted_text_and_reading_level(handle_chat, ll
     assert simplifier.calls == [("Simplify: mail [REDACTED]", 3)]
 
 
-async def test_motivate_gets_redacted_task_titles(handle_chat, llm, motivator):
+async def test_motivate_gets_the_context_and_its_reply_is_the_response(handle_chat, llm, motivator):
     classify(llm, "motivate")
+    context = ChatContext(tasks_completed=2, recent_task_titles=("Email",))
 
-    reply = await handle_chat("Cheer me on", ChatContext(tasks_completed=2, recent_task_titles=("Email sam@x.io",)))
+    reply = await handle_chat("Cheer me on", context)
 
-    assert motivator.contexts[0].recent_task_titles == ("Email [REDACTED]",)
-    assert motivator.contexts[0].tasks_completed == 2
-    assert reply.response == "You finished 2 things."
+    assert motivator.contexts == [context]
+    assert (reply.response, reply.mood, reply.data) == ("You finished 2 things.", Mood.EXCITED, None)
 
 
 @pytest.mark.parametrize(

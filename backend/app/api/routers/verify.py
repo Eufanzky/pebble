@@ -70,12 +70,13 @@ async def _test_prompt_shields():
 
 
 async def _test_openai():
-    from app.services.openai_client import chat_completion
-    result = await chat_completion(
-        system_prompt="Reply with exactly: OK",
-        user_message="Test",
-        temperature=0,
-        max_tokens=5,
+    from app.api.dependencies import get_container
+    from app.application.ports.llm import LLMRequest
+
+    result = await get_container().llm.complete(
+        LLMRequest(
+            agent="verify", system_prompt="Reply with exactly: OK", user_message="Test", max_tokens=5, json_mode=False
+        )
     )
     assert len(result) > 0, "Empty response from OpenAI"
 

@@ -1,4 +1,4 @@
-"""Legacy helpers for the code in ``app.agents`` and the verify router (removed in 2.5 and 2.7).
+"""Legacy helpers for the verify router (removed in 2.7).
 
 They delegate to the ``SafetyChecker`` port, keeping their old dict-and-ValueError shapes.
 """

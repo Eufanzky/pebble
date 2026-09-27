@@ -56,7 +56,7 @@ The characterization tests from 1.3 must stay green through every item in this p
   *Done:* contract tests cover the severity mapping; unit tests cover the reject path.
 - [x] **2.4 Orchestrator and CalmSense as use cases.** Move them into `application/` so `handle_chat` runs the shared agent pipeline. The router becomes thin.
   *Done:* pipeline tests cover the safety order, PII redaction before the LLM, and the routing table; the 1.3 tests are ported and still pass.
-- [ ] **2.5 SimplifyCore and PebbleVoice as use cases.** Same pattern as 2.4.
+- [x] **2.5 SimplifyCore and PebbleVoice as use cases.** Same pattern as 2.4.
   *Done:* use-case and API tests cover both.
 - [ ] **2.6 Local document parsing.** Add a `DocumentParser` port with a `pypdf` + `python-docx` adapter. Files are parsed in memory and not stored.
   *Done:* tests with small fixture files (PDF, DOCX, TXT, plus one corrupt file) pass with no Azure services.

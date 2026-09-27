@@ -5,8 +5,9 @@ import httpx
 from azure.cosmos.exceptions import CosmosHttpResponseError
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile, status
 
-from app.agents.document_simplification import simplify_document
 from app.api.auth import get_current_user_id
+from app.api.dependencies import get_simplify_document
+from app.api.presenters import simplification_data
 from app.api.schemas.documents import (
     DocumentResponse,
     ExtractTasksResponse,
@@ -14,6 +15,7 @@ from app.api.schemas.documents import (
     SearchResult,
     SimplifyDocumentRequest,
 )
+from app.application.agents.simplifycore import SimplifyDocument
 from app.infrastructure.config import settings
 from app.services.blob_storage import upload_document
 from app.services.db import get_container
@@ -140,6 +142,7 @@ async def simplify_doc(
     doc_id: str,
     body: SimplifyDocumentRequest,
     user_id: str = Depends(get_current_user_id),
+    simplify_document: SimplifyDocument = Depends(get_simplify_document),
 ):
     """
     Simplify a document's text using the **SimplifyCore** agent (GPT-4o).
@@ -161,10 +164,7 @@ async def simplify_doc(
         raise HTTPException(status_code=400, detail="Document has no text to simplify")
 
     # Simplify with GPT-4o agent
-    result = await simplify_document(
-        text=doc["originalText"],
-        reading_level=body.reading_level,
-    )
+    result = simplification_data(await simplify_document(doc["originalText"], body.reading_level))
 
     # Update document with simplified version
     doc["simplifiedText"] = result["simplified"]

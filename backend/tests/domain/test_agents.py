@@ -1,7 +1,7 @@
 import pytest
 
 from app.domain.agents import Intent, Mood
-from app.domain.tasks import Step, TaskBreakdown
+from app.domain.tasks import Step, TaskBreakdown, TaskTag
 
 
 @pytest.mark.parametrize(
@@ -21,3 +21,8 @@ def test_breakdown_texts_and_mapping():
 
     assert breakdown.texts() == ["a", "b", "c"]
     assert breakdown.map_text(str.upper) == TaskBreakdown((Step("A", "~5 min"), Step("B")), why="C")
+
+
+def test_unknown_task_tag_is_project():
+    assert TaskTag.parse("study") is TaskTag.STUDY
+    assert TaskTag.parse("homework") is TaskTag.PROJECT
