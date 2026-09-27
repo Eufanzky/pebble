@@ -103,7 +103,7 @@ Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Foun
 | A-005 | Fixed in 0.2: lazy `useState` in `ComprehensionCheck`, `useRef(0)` in `ToastContext`. |
 | A-006 | Fixed in 0.2. |
 | A-007 | Fixed in 1.1: dependencies are in `pyproject.toml` and locked in `uv.lock`. |
-| A-008 | Open, 2.7. |
+| A-008 | Fixed in 2.7: Semantic Kernel is removed, and backend tests now fail on any warning. |
 | A-009 | Fixed in 0.2: the initial toast phase is derived from `reduceAnimations`. |
 | A-010 | Open, 3.4. |
 | A-011 | Fixed in 1.7: `stripEmoji` also removes anything with emoji presentation, pictographs followed by U+FE0F, and regional indicators. Regression tests in `PreferencesContext.test.tsx`. |
@@ -114,4 +114,4 @@ Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Foun
 | A-016 | Fixed in 1.7: assistant replies go through `stripEmoji`. Regression tests in `PebbleChat.test.tsx`. |
 | A-017 | Open, 3.1. |
 
-Open: 5 (A-002, A-008, A-010, A-015, A-017), each linked to the phase that fixes or removes it. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
+Open: 4 (A-002, A-010, A-015, A-017), each linked to the phase that fixes or removes it. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.

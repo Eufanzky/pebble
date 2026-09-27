@@ -13,7 +13,6 @@ Pebble helps neurodivergent users (ADHD, autism, dyslexia) manage tasks, simplif
 [![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)](https://python.org/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://typescriptlang.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
-[![Microsoft Foundry](https://img.shields.io/badge/Microsoft_Foundry-AI_Platform-0078D4?logo=microsoft&logoColor=white)](https://ai.azure.com/)
 
 </div>
 
@@ -114,38 +113,34 @@ The project has two main components:
 | Layer | Stack | Directory |
 |:------|:------|:----------|
 | **🖥️ Frontend** | Next.js 16, React 19, TypeScript, Tailwind CSS 4 | `pebble/` |
-| **⚙️ Backend** | FastAPI, Python 3.12+, Microsoft Foundry, Cosmos DB | `backend/` |
+| **⚙️ Backend** | FastAPI, Python 3.12+, clean architecture, any OpenAI-compatible LLM | `backend/` |
 
 ### 🤖 Multi-Agent System
 
-All agents are orchestrated through **Microsoft Foundry** using **Semantic Kernel** and **Foundry Models (GPT-4o)**.
+Each agent is a use case behind small interfaces (ports), so the LLM and the safety service can be swapped. The default LLM is GPT-4o on **GitHub Models** (free); OpenAI and Azure OpenAI work by config, and `LLM_PROVIDER=fake` runs everything offline.
 
-| Agent | Role |
-|:------|:-----|
-| **🧠 Pebble Orchestrator** | Classifies user intent and routes to the right agent |
-| **🧩 CalmSense** | Task decomposition with time-boxed subtasks |
-| **📖 SimplifyCore** | Document simplification at target reading levels |
-| **💬 PebbleVoice** | Personalized encouragement (never generic platitudes) |
-| **🔄 AdaptLens** | User preference adaptation over time |
-| **❓ WhyBot** | Explainability generation for every AI decision |
-| **🔗 BridgeBot** | Third-party integrations (Teams, Outlook, Slack, etc.) |
+| Agent | Role | Status |
+|:------|:-----|:-------|
+| **🧠 Pebble Orchestrator** | Classifies user intent and routes to the right agent | Working |
+| **🧩 CalmSense** | Task decomposition with time-boxed subtasks | Working |
+| **📖 SimplifyCore** | Document simplification at target reading levels | Working |
+| **💬 PebbleVoice** | Specific encouragement (never generic platitudes) | Working |
+| **🔄 AdaptLens** | Suggests preference changes from how you use Pebble | Planned (roadmap 5.3) |
+| **❓ WhyBot** | A plain-language "why" for every AI decision | Planned (roadmap 5.1) |
+| **🔗 BridgeBot** | Calendar export and integrations | Planned (roadmap 5.4) |
 
-### ☁️ Microsoft Foundry & Azure Services
+### 🛡️ Safety and privacy
 
-| Service | Purpose |
-|:--------|:--------|
-| **Microsoft Foundry** | AI platform — agent orchestration, Foundry Models (GPT-4o), and inference |
-| **Foundry Tools — Content Safety** | Input/output safety filtering (severity ≥ 2 = rejected) |
-| **Foundry Tools — Document Intelligence** | PDF/Word document parsing |
-| **Foundry Tools — Immersive Reader** | Text-to-speech, syllable highlighting, line focus |
-| **Azure AI Search** | Vector indexing and RAG queries |
-| **Azure Cosmos DB** | NoSQL storage for all collections |
-| **Microsoft Entra ID** | JWT authentication |
-| **Azure Blob Storage** | Document file uploads |
-| **Azure Web PubSub** | Real-time WebSocket for focus rooms |
-| **Azure Monitor — Application Insights** | Telemetry and audit logging |
+Every message goes through Prompt Shields, Content Safety (severity ≥ 2 is rejected) and PII redaction before any model sees it, and every reply is checked again. Documents are parsed in memory and never stored.
 
-> **Note:** The platform formerly known as *Azure AI Services* / *Azure Cognitive Services* is now **Foundry Tools** under the unified **Microsoft Foundry** platform. See [What is Microsoft Foundry?](https://learn.microsoft.com/en-us/azure/foundry/what-is-foundry) for details.
+### ☁️ External services
+
+| Service | Purpose | Needed? |
+|:--------|:--------|:--------|
+| **GitHub Models** (or OpenAI / Azure OpenAI) | The LLM behind every agent | Yes, or `LLM_PROVIDER=fake` |
+| **Azure AI Content Safety** (free F0 tier) | Content Safety and Prompt Shields | Optional; PII redaction always runs |
+| **Azure Immersive Reader** | Microsoft's reader for documents | Optional; the built-in reader is the fallback |
+| **Microsoft Entra ID** | Sign-in (replaced by Auth.js in roadmap 4.3) | Optional with `DEV_MODE=true` |
 
 ---
 
@@ -185,9 +180,8 @@ The frontend runs at **http://localhost:3000**. No environment variables or exte
 cd backend
 uv sync
 
-# 2. Configure credentials
+# 2. Configure: set LLM_API_KEY (a GitHub token with models:read), or LLM_PROVIDER=fake
 cp .env.example .env
-# Edit .env with your Azure credentials
 
 # 3. Start the server
 uv run uvicorn app.main:app --port 8000 --reload
@@ -243,8 +237,7 @@ Focusbuddy/
 │   │   ├── domain/                  # Entities and rules (pure Python)
 │   │   ├── application/             # Use cases, ports, prompts
 │   │   ├── infrastructure/          # Adapters for the ports, settings (config.py)
-│   │   ├── api/                     # Routers, schemas, auth, wiring
-│   │   └── services/                # Legacy Azure clients (move or go in phase 2)
+│   │   └── api/                     # Routers, schemas, auth, wiring
 │   ├── tests/                       # pytest suite
 │   ├── pyproject.toml               # Dependencies (uv), pytest and ruff config
 │   ├── uv.lock
@@ -263,13 +256,12 @@ See [**backend/README.md**](backend/README.md) for full API endpoint documentati
 
 | Endpoint | Description |
 |:---------|:------------|
-| `GET/POST /api/tasks` | Task CRUD |
-| `GET/PUT /api/preferences` | User preferences |
-| `GET/POST /api/activity` | Activity log |
-| `POST /api/agents/*` | AI agents — decompose, simplify, motivate, chat |
-| `POST /api/documents/*` | Upload, parse, simplify, extract, RAG search |
-| `GET/POST /api/focus/rooms` | Focus rooms with Pomodoro timer |
-| `GET /api/audit` | Agent decision audit trail |
+| `POST /api/agents/chat` | Talk to Pebble: the orchestrator routes to the right agent |
+| `POST /api/agents/{decompose,simplify,motivate}` | Call CalmSense, SimplifyCore or PebbleVoice directly |
+| `POST /api/documents/parse` | Read a PDF, Word or text file's text (in memory, never stored) |
+| `GET /api/documents/immersive-reader/token` | Optional Immersive Reader token |
+
+Tasks, preferences and the activity log live in the browser for now; roadmap phase 4 moves them to Postgres.
 
 ---
 

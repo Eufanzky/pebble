@@ -1,0 +1,66 @@
+"""The app as a whole: it starts with only an LLM key, and exposes only what works."""
+
+from asgi_lifespan import LifespanManager
+
+from app.api import dependencies
+from app.api.auth import get_current_user_id
+from app.api.dependencies import Container
+from app.application.ports.reader import ReaderToken
+from app.infrastructure.config import Settings
+from app.infrastructure.llm.openai_compatible import OpenAICompatibleLLM
+from app.infrastructure.safety.noop import NoOpSafetyChecker
+
+
+async def test_starts_and_stops_with_only_an_llm_key(app, client):
+    dependencies.set_container(Container.from_settings(Settings(_env_file=None, llm_api_key="gh-token")))
+    container = dependencies.get_container()
+
+    async with LifespanManager(app):
+        resp = await client.get("/api/health")
+
+    assert resp.json() == {"status": "ok"}
+    assert isinstance(container.llm, OpenAICompatibleLLM)
+    assert isinstance(container.safety_checker, NoOpSafetyChecker)
+
+
+async def test_only_working_routes_are_exposed(client):
+    paths = set((await client.get("/openapi.json")).json()["paths"])
+
+    assert paths == {
+        "/api/health",
+        "/api/agents/chat",
+        "/api/agents/decompose",
+        "/api/agents/simplify",
+        "/api/agents/motivate",
+        "/api/documents/parse",
+        "/api/documents/immersive-reader/token",
+    }
+
+
+async def test_openapi_schema_builds(client):
+    resp = await client.get("/openapi.json")
+
+    assert resp.status_code == 200
+    assert resp.json()["info"]["title"] == "Pebble API"
+
+
+class StubReader:
+    async def get_token(self) -> ReaderToken:
+        return ReaderToken("abc", "pebble")
+
+
+async def test_immersive_reader_token(app, client, container):
+    app.dependency_overrides[get_current_user_id] = lambda: "user-1"
+    container.reader = StubReader()
+
+    resp = await client.get("/api/documents/immersive-reader/token")
+
+    assert resp.json() == {"token": "abc", "subdomain": "pebble"}
+
+
+async def test_immersive_reader_unconfigured_is_a_503(app, client):
+    app.dependency_overrides[get_current_user_id] = lambda: "user-1"
+
+    resp = await client.get("/api/documents/immersive-reader/token")
+
+    assert resp.status_code == 503
