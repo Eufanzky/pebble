@@ -39,7 +39,7 @@ const AGENT_COLORS: Record<string, string> = {
 // ---------------------------------------------------------------------------
 
 export default function PebbleChat() {
-  const { preferences } = usePreferences();
+  const { preferences, stripEmoji } = usePreferences();
   const { flashMood } = usePebble();
   const { tasks } = useTasks();
   const { addEntry } = useActivityLog();
@@ -111,11 +111,12 @@ export default function PebbleChat() {
         `Chat: ${response.intent} — "${text.slice(0, 50)}"`,
         `Routed to ${response.agentName}. Mood: ${response.mood}.`,
       );
-    } catch (err) {
+    } catch {
+      // The raw error (status code, backend detail) means nothing to the user.
       const errorMsg: Message = {
         id: `e-${Date.now()}`,
         role: 'error',
-        text: err instanceof Error ? err.message : 'Something went wrong. Pebble is taking a nap.',
+        text: "Pebble couldn't answer just now. Try again whenever you're ready.",
       };
       setMessages((prev) => [...prev, errorMsg]);
     } finally {
@@ -262,7 +263,7 @@ export default function PebbleChat() {
                     } : {}),
                   }),
                 }}>
-                  {msg.text}
+                  {msg.role === 'assistant' ? stripEmoji(msg.text) : msg.text}
                 </div>
               </div>
             ))}

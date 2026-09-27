@@ -41,7 +41,7 @@ Rules for every phase:
   *Done:* it runs in `npm test` and passes today.
 - [x] **1.6 CI.** Add a GitHub Actions workflow that runs lint, typecheck, and all tests for both parts on every PR.
   *Done:* the workflow is green on a PR.
-- [ ] **1.7 Runtime bugs.** Fix the broken flows from the audit that won't be rewritten later, each with a regression test.
+- [x] **1.7 Runtime bugs.** Fix the broken flows from the audit that won't be rewritten later, each with a regression test.
   *Done:* every remaining audit item is either fixed or linked to the phase that removes it.
 
 ## Phase 2: Backend clean architecture
