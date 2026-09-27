@@ -8,11 +8,10 @@ on:
 
 permissions:
   contents: read
-  models: read # lets GITHUB_TOKEN call GitHub Models
 
 jobs:
   evals:
-    name: Evals (GitHub Models)
+    name: Evals
     runs-on: ubuntu-latest
     timeout-minutes: 30
     defaults:
@@ -26,9 +25,13 @@ jobs:
           cache-dependency-glob: backend/uv.lock
       - run: uv sync --locked
       - name: Run evals
+        # The provider comes from repository settings. GitHub Models was retired on 2026-07-30 (A-018).
+        # Without the LLM_API_KEY secret the evals skip, so the job stays green until a provider is chosen.
         env:
-          LLM_PROVIDER: github
-          LLM_API_KEY: ${{ secrets.GITHUB_TOKEN }}
+          LLM_PROVIDER: ${{ vars.LLM_PROVIDER || 'openai' }}
+          LLM_BASE_URL: ${{ vars.LLM_BASE_URL }}
+          LLM_MODEL: ${{ vars.LLM_MODEL }}
+          LLM_API_KEY: ${{ secrets.LLM_API_KEY }}
         run: uv run pytest -m eval -s -v
       - name: Upload the report
         if: always()

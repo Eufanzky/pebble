@@ -62,6 +62,7 @@ Found by the first unit tests (1.2 onwards), not by the static checks above.
 | A-015 | minor | Two sample-data lines are close to principle 1 but not caught by the 1.5 guilt scan: task 2's "why" says it's high priority "because it's been in your list since yesterday" (counting time), and task 3's says "without losing momentum" (mild loss framing). Found during 1.5. | `pebble/src/data/sampleTasks.ts` | 6.1 |
 | A-016 | major | Calm mode doesn't apply to chat: `PebbleChat` never calls `stripEmoji`, so LLM replies keep their emoji. (Its `calm ? 'x' : 'x'` branches show the same text either way.) Found during 1.7. | Calm mode on, a chat reply with ✨ shows ✨ | 1.7 |
 | A-017 | cosmetic | The chat button's mouth uses `transform: 'translateX(-50)'` with no unit, which is invalid CSS, so the mouth isn't centred. Found during 1.7. | `components/chat/PebbleChat.tsx`, the floating button | 3.1 |
+| A-018 | major | GitHub Models, the default LLM provider in `tech-stack.md`, was fully retired on 2026-07-30 ([GitHub docs](https://docs.github.com/en/rest/models/inference)). Its endpoint now answers every request with a plain-text `200 OK`, so `LLM_PROVIDER=github` can't work, and the 2.8 eval baseline can't be recorded. Found during 2.8. | `LLM_PROVIDER=github` with any key: every agent returns 503 ("isn't a chat completion (HTTP 200, text/plain, 4 bytes, not JSON)") | decision needed |
 
 ## Backend behaviour
 
@@ -90,7 +91,7 @@ Found by the characterization tests (1.3 onwards), not by the static checks abov
 
 ## Summary
 
-Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011). Found during 1.3: 1 major, 1 minor (A-012, A-013). Found during 1.4: 1 major (A-014). Found during 1.5: 1 minor (A-015). Found during 1.7: 1 major, 1 cosmetic (A-016, A-017).
+Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011). Found during 1.3: 1 major, 1 minor (A-012, A-013). Found during 1.4: 1 major (A-014). Found during 1.5: 1 minor (A-015). Found during 1.7: 1 major, 1 cosmetic (A-016, A-017). Found during 2.8: 1 major (A-018).
 
 ## Status
 
@@ -113,5 +114,6 @@ Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Foun
 | A-015 | Open, 6.1. |
 | A-016 | Fixed in 1.7: assistant replies go through `stripEmoji`. Regression tests in `PebbleChat.test.tsx`. |
 | A-017 | Open, 3.1. |
+| A-018 | Open: choose a new default provider (any OpenAI-compatible API works today with `LLM_PROVIDER=openai` and `LLM_BASE_URL`), update `tech-stack.md`, set the eval secrets, and record the 2.8 baseline. |
 
-Open: 4 (A-002, A-010, A-015, A-017), each linked to the phase that fixes or removes it. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
+Open: 5 (A-002, A-010, A-015, A-017, A-018), each linked to the phase that fixes or removes it. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.

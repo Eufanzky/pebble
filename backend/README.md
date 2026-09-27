@@ -1,6 +1,6 @@
 # Pebble backend
 
-FastAPI backend for Pebble. It runs the AI agents (the orchestrator, CalmSense, SimplifyCore and PebbleVoice) behind a safety pipeline, and reads uploaded documents in memory. The only thing it needs is an LLM: GitHub Models by default, or `LLM_PROVIDER=fake` to run with no model at all.
+FastAPI backend for Pebble. It runs the AI agents (the orchestrator, CalmSense, SimplifyCore and PebbleVoice) behind a safety pipeline, and reads uploaded documents in memory. The only thing it needs is an LLM: any OpenAI-compatible API, or `LLM_PROVIDER=fake` to run with no model at all.
 
 Tasks, preferences and the activity log live in the browser for now. Roadmap phase 4 adds Postgres.
 
@@ -64,8 +64,8 @@ The agents reach the model through the `LLMProvider` port (`app/application/port
 
 | `LLM_PROVIDER` | Adapter | Needs |
 |:--|:--|:--|
-| `github` (default) | `OpenAICompatibleLLM.github_models` | `LLM_API_KEY`: a GitHub token with `models:read` |
-| `openai` | `OpenAICompatibleLLM.openai` | `LLM_API_KEY` |
+| `github` (default) | `OpenAICompatibleLLM.github_models` | Retired: GitHub Models shut down on 2026-07-30 (A-018). A new default is pending. |
+| `openai` | `OpenAICompatibleLLM.openai` | `LLM_API_KEY`; with `LLM_BASE_URL`, any OpenAI-compatible provider |
 | `azure` | `OpenAICompatibleLLM.azure` | `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_KEY`, `AZURE_OPENAI_DEPLOYMENT` |
 | `fake` | `FakeLLM` (`app/infrastructure/llm/fake.py`) | nothing: deterministic offline replies |
 

@@ -100,9 +100,11 @@ class OpenAICompatibleLLM:
         try:
             content = response.json()["choices"][0]["message"]["content"]
         except (ValueError, KeyError, IndexError, TypeError) as e:
-            raise LLMResponseError(f"{request.agent}: the LLM response isn't a chat completion") from e
+            raise LLMResponseError(
+                f"{request.agent}: the LLM response isn't a chat completion ({_describe(response)})"
+            ) from e
         if not isinstance(content, str):
-            raise LLMResponseError(f"{request.agent}: the LLM returned no text")
+            raise LLMResponseError(f"{request.agent}: the LLM returned no text ({_describe(response)})")
         return content
 
     async def aclose(self) -> None:
@@ -114,3 +116,20 @@ def _retry_after(response: httpx.Response) -> float | None:
         return float(response.headers["retry-after"])
     except (KeyError, ValueError):
         return None
+
+
+def _describe(response: httpx.Response) -> str:
+    """The response's shape for error messages: never its content, which may echo the user's text."""
+    parts = [f"HTTP {response.status_code}", response.headers.get("content-type", "no content-type")]
+    try:
+        body = response.json()
+    except ValueError:
+        return ", ".join([*parts, f"{len(response.content)} bytes, not JSON"])
+    if isinstance(body, dict):
+        parts.append(f"keys {sorted(body)[:10]}")
+        choices = body.get("choices")
+        if isinstance(choices, list) and choices and isinstance(choices[0], dict):
+            parts.append(f"finish_reason {choices[0].get('finish_reason')!r}")
+    else:
+        parts.append(f"JSON {type(body).__name__}")
+    return ", ".join(parts)
