@@ -6,6 +6,7 @@
 
 Pebble helps neurodivergent users (ADHD, autism, dyslexia) manage tasks, simplify documents, and stay focused through a calm, supportive interface.
 
+[![CI](https://github.com/Eufanzky/pebble/actions/workflows/ci.yml/badge.svg)](https://github.com/Eufanzky/pebble/actions/workflows/ci.yml)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -193,6 +194,8 @@ uv run uvicorn app.main:app --port 8000 --reload
 ```
 
 Run the backend tests with `uv run pytest` and the linter with `uv run ruff check`.
+
+CI (`.github/workflows/ci.yml`) runs the same checks on every pull request and on `main`: frontend lint, `tsc --noEmit`, tests and build; backend `ruff check` and `pytest`.
 
 The API runs at **http://localhost:8000**. Swagger docs at **http://localhost:8000/docs**.
 
