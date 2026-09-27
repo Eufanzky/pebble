@@ -13,9 +13,11 @@ from app.application.agents.simplifycore import SimplifyDocument
 from app.application.documents import ParseDocument
 from app.application.ports.documents import DocumentParser
 from app.application.ports.llm import LLMProvider
+from app.application.ports.reader import ReaderTokenProvider
 from app.application.ports.safety import PIIRedactor, SafetyChecker
 from app.application.safety import SafetyGate
 from app.infrastructure.config import Settings, settings
+from app.infrastructure.immersive_reader import UnconfiguredReader, build_reader
 from app.infrastructure.llm.factory import build_llm_provider
 from app.infrastructure.parsing.local_parser import LocalDocumentParser
 from app.infrastructure.pii.regex_redactor import RegexPIIRedactor
@@ -28,10 +30,15 @@ class Container:
     safety_checker: SafetyChecker
     pii_redactor: PIIRedactor = field(default_factory=RegexPIIRedactor)
     document_parser: DocumentParser = field(default_factory=LocalDocumentParser)
+    reader: ReaderTokenProvider = field(default_factory=UnconfiguredReader)
 
     @classmethod
     def from_settings(cls, config: Settings) -> "Container":
-        return cls(llm=build_llm_provider(config), safety_checker=build_safety_checker(config))
+        return cls(
+            llm=build_llm_provider(config),
+            safety_checker=build_safety_checker(config),
+            reader=build_reader(config),
+        )
 
     @property
     def gate(self) -> SafetyGate:
@@ -97,3 +104,7 @@ def get_encourage() -> Encourage:
 
 def get_parse_document() -> ParseDocument:
     return get_container().parse_document
+
+
+def get_reader() -> ReaderTokenProvider:
+    return get_container().reader

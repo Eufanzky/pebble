@@ -4,10 +4,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Repository layout
 
-Pebble (also called "Focusbuddy" in backend code and the Cosmos DB names) is an AI assistant for neurodivergent users, with an animated CSS cat companion. It has three separate parts:
+Pebble (called "Focusbuddy" in some older code and docs) is an AI assistant for neurodivergent users, with an animated CSS cat companion. It has three separate parts:
 
 - `pebble/`: the real frontend. Next.js 16 App Router, React 19, TypeScript, Tailwind 4.
-- `backend/`: FastAPI (Python 3.12+) on Azure / Microsoft Foundry (Azure OpenAI GPT-4o via Semantic Kernel, Cosmos DB, Content Safety, and more).
+- `backend/`: FastAPI (Python 3.12+) in a clean architecture. It needs only an LLM (GitHub Models by default; OpenAI, Azure OpenAI, or an offline fake by config). Azure Content Safety and Immersive Reader are optional.
 - `demo/`: an older standalone static HTML/CSS/JS prototype (vanilla JS plus GSAP). It is not wired to anything. Don't edit it when changing the app unless asked.
 
 `specs/` is the project constitution: `mission.md` (product scope and principles), `tech-stack.md` (the target stack and code-structure rules), `testing.md` (test rules, layers, and CI gates; no roadmap item is done without tests), and `roadmap.md` (small, ordered phases, each one PR). The rest of this file describes the code as it is today; the specs describe where it is going. Read them before planning any feature or refactor, and tick off roadmap items as they land.
@@ -41,18 +41,18 @@ npm test         # Vitest (jsdom); `npm test -- <path>` for one file or folder
 Backend (run from `backend/`, managed by `uv`; dependencies and tool config live in `pyproject.toml`, versions in `uv.lock`):
 ```bash
 uv sync                           # create .venv with app + dev dependencies
-cp .env.example .env              # fill in Azure credentials
+cp .env.example .env              # set LLM_API_KEY, or LLM_PROVIDER=fake (and DEV_MODE=true for the frontend's chat)
 uv run uvicorn app.main:app --port 8000 --reload   # Swagger at http://localhost:8000/docs
 uv run pytest                     # tests (evals excluded; `-m eval` runs them)
 uv run ruff check                 # lint
 ```
 
-`requirements.txt` is legacy (removed in roadmap 2.7); add dependencies to `pyproject.toml` and run `uv lock`. Backend tests use the `app` and `client` fixtures in `backend/tests/conftest.py`; the client runs the app in-process through `httpx.ASGITransport`, so the lifespan (Cosmos, telemetry) never runs. Every test runs with a container of fakes (autouse `container` fixture): `llm` is the scripted `FakeLLM` from `app/infrastructure/llm/fake.py` (`llm.script("orchestrator", {...})`, inspect `llm.calls`, which are `LLMRequest`s), and `safety` is `ScriptedSafety` from `tests/fakes.py` (`safety.flag(text, category, severity)`, `safety.attack_on(text)`, `safety.analyzed`, `safety.shielded`). Adapters are tested separately with respx in `tests/contract/`. Frontend tests are colocated `*.test.ts(x)` files run by Vitest (`vitest.config.mts`). `src/test/setup.ts` loads the jest-dom and vitest-axe matchers and starts an MSW server that fails any request without a handler; add per-test handlers with `server.use(...)` from `src/test/msw/server.ts`. `src/test/msw/handlers.ts` has `chatHandlers` (`reply`, `status`, `networkError`) for `POST /api/agents/chat`; a successful reply is a default handler. `src/test/render.tsx` has `renderWithProviders` (returns a `user` from user-event) and `renderHookWithProviders`, which wrap the same provider tree as `AppShell`. `useLocalStorage` caches values at module level, so state set in one test can leak into the next test in the same file; set the state each test depends on. Verify frontend changes with `npm test`, `npm run build` and `npm run lint`. `src/test/guilt-scan.test.ts` runs in `npm test` and fails on principle-1 patterns (streaks, "overdue", missed days or time away, loss framing, red or alarm styling) in `pebble/src` and `backend/app`. A justified match goes in its `EXCEPTIONS` list with a written reason. `.github/workflows/ci.yml` runs on every PR and push to `main`: a frontend job (`npm ci`, lint, `tsc --noEmit`, `npm test`, build) and a backend job (`uv sync --locked`, `ruff check`, `pytest`). Merge only when it's green. `specs/testing.md` has the planned commands. `backend/deploy.ps1` is a PowerShell script that provisions the Azure resources with the `az` CLI.
+Add dependencies to `pyproject.toml` and run `uv lock` (or `uv add`). Warnings fail the backend tests (`filterwarnings = error`). Backend tests use the `app` and `client` fixtures in `backend/tests/conftest.py`; the client runs the app in-process through `httpx.ASGITransport`, so the lifespan never runs. Every test runs with a container of fakes (autouse `container` fixture): `llm` is the scripted `FakeLLM` from `app/infrastructure/llm/fake.py` (`llm.script("orchestrator", {...})`, inspect `llm.calls`, which are `LLMRequest`s), and `safety` is `ScriptedSafety` from `tests/fakes.py` (`safety.flag(text, category, severity)`, `safety.attack_on(text)`, `safety.analyzed`, `safety.shielded`). Adapters are tested separately with respx in `tests/contract/`. Frontend tests are colocated `*.test.ts(x)` files run by Vitest (`vitest.config.mts`). `src/test/setup.ts` loads the jest-dom and vitest-axe matchers and starts an MSW server that fails any request without a handler; add per-test handlers with `server.use(...)` from `src/test/msw/server.ts`. `src/test/msw/handlers.ts` has `chatHandlers` (`reply`, `status`, `networkError`) for `POST /api/agents/chat`; a successful reply is a default handler. `src/test/render.tsx` has `renderWithProviders` (returns a `user` from user-event) and `renderHookWithProviders`, which wrap the same provider tree as `AppShell`. `useLocalStorage` caches values at module level, so state set in one test can leak into the next test in the same file; set the state each test depends on. Verify frontend changes with `npm test`, `npm run build` and `npm run lint`. `src/test/guilt-scan.test.ts` runs in `npm test` and fails on principle-1 patterns (streaks, "overdue", missed days or time away, loss framing, red or alarm styling) in `pebble/src` and `backend/app`. A justified match goes in its `EXCEPTIONS` list with a written reason. `.github/workflows/ci.yml` runs on every PR and push to `main`: a frontend job (`npm ci`, lint, `tsc --noEmit`, `npm test`, build) and a backend job (`uv sync --locked`, `ruff check`, `pytest`). Merge only when it's green. `specs/testing.md` has the planned commands.
 
 ## Architecture
 
 ### Frontend works standalone; the backend is optional
-Almost all frontend state lives in the browser, not in the backend. The React contexts in `pebble/src/contexts/` keep their data in `localStorage` through `useLocalStorage`, under keys such as `pebble-tasks` and `pebble-preferences`, and seed it from `src/data/*` sample data. The backend's task, preferences, and activity CRUD endpoints exist but the UI doesn't call them. The frontend makes only two backend calls:
+Almost all frontend state lives in the browser, not in the backend. The React contexts in `pebble/src/contexts/` keep their data in `localStorage` through `useLocalStorage`, under keys such as `pebble-tasks` and `pebble-preferences`, and seed it from `src/data/*` sample data. The backend has no task, preferences or activity endpoints yet; roadmap phase 4 adds them on Postgres. The frontend makes only two backend calls:
 - `POST /api/agents/chat` in `src/lib/api.ts`, used by `components/chat/PebbleChat.tsx`
 - `GET /api/documents/immersive-reader/token` in `components/documents/ImmersiveReader.tsx`
 
@@ -67,15 +67,14 @@ The frontend sends no `Authorization` header, but both endpoints it calls requir
 The 7 models in `components/pebble/models/` are built only from CSS and divs (`border-radius` shapes), with no SVG or images. They share pieces through `models/SharedParts.tsx`. Model styles live in `PebbleModels.css` and mood animations in `PebbleMoods.css`. Keep new character work in that style.
 
 ### Backend request flow
-The backend is mid-way to the clean architecture in `specs/tech-stack.md`: `app/domain`, `app/application`, `app/infrastructure` (adapters, `config.py`) and `app/api` (routers, schemas, `auth.py`). `tests/unit/test_architecture.py` enforces the dependency rule (domain pure; application → domain only; infrastructure never imports api). `app/services` (Cosmos, Blob, Search, Web PubSub, App Insights, and a Content Safety shim for the verify router) is legacy and goes in 2.7.
+The backend follows the clean architecture in `specs/tech-stack.md`: `app/domain`, `app/application` (use cases, ports, prompts), `app/infrastructure` (adapters, `config.py`) and `app/api` (routers, schemas, `auth.py`, wiring). `tests/unit/test_architecture.py` enforces the dependency rule (domain pure; application → domain only; infrastructure never imports api) and that only these four packages exist.
 
-`app/main.py` registers routers under `/api/<name>`. Routes get the user through `Depends(get_current_user_id)` (`api/auth.py`), which validates Entra ID JWTs. With `DEV_MODE=true` it skips validation and returns `dev-user-00000000`. `/api/verify/services`, which smoke-tests every Azure service, only works in dev mode.
+`app/main.py` registers routers under `/api/<name>`. Routes get the user through `Depends(get_current_user_id)` (`api/auth.py`), which validates Entra ID JWTs. With `DEV_MODE=true` it skips validation and returns `dev-user-00000000`.
 
-Missing Azure configuration is handled gracefully at startup, not at request time:
-- `services/db.py` skips Cosmos init when there are no credentials, and `get_container()` then raises `RuntimeError`.
-- Content Safety and the other services check `_is_configured()` and skip their work when unconfigured.
-
-All Cosmos containers are partitioned by `/userId`.
+A missing optional service disables its feature cleanly. The adapters are chosen in `api/dependencies.py` from the settings:
+- No LLM key gives `UnconfiguredLLM`, and agents answer 503.
+- No Content Safety gives `NoOpSafetyChecker`; PII redaction still runs.
+- No Immersive Reader gives a 503 on the token endpoint, and the frontend uses its built-in reader.
 
 ### Agent pipeline (`backend/app/application/agents/`)
 `HandleChat` (`orchestrator.py`) is the chat use case. `POST /api/agents/chat` builds a `ChatContext` and calls it through `api/dependencies.py`, which wires adapters into use cases (`get_container()`; tests install fakes with `set_container()`).
@@ -100,4 +99,4 @@ Each agent is a use case in `application/agents/`: `DecomposeTask` (CalmSense), 
   - Respect `reduceAnimations` and `calmMode` (use `stripEmoji` for user-facing text).
   - Keep keyboard navigation and ARIA working (`useFocusOnNavigation`, skip link).
 - Every AI action should be explainable. The activity log records the agent name, reasoning, and safety status. Tasks have "Why?" cards (`WhyCard`).
-- The named agents shown in the UI are CalmSense, SimplifyCore, PebbleVoice, AdaptLens, WhyBot, and BridgeBot. Only the first three plus the orchestrator have agent code. The other three appear only as names in schemas, `api/routers/audit.py`, and the frontend.
+- The named agents shown in the UI are CalmSense, SimplifyCore, PebbleVoice, AdaptLens, WhyBot, and BridgeBot. Only the first three plus the orchestrator have agent code. The other three appear only as names in `domain/agents.py` and the frontend (roadmap phase 5 makes them real).

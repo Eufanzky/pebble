@@ -87,3 +87,12 @@ def test_the_rule_catches_a_violation(tmp_path, monkeypatch):
         "app/domain/bad.py imports third-party fastapi",
         "app/domain/bad.py imports app.api",
     ]
+
+
+def test_only_the_four_layers_exist():
+    """The legacy ``agents``, ``models``, ``routers`` and ``services`` packages are gone (2.7)."""
+    packages = sorted(p.name for p in APP.iterdir() if p.is_dir() and any(p.rglob("*.py")))
+    modules_ = sorted(p.name for p in APP.glob("*.py"))
+
+    assert packages == ["api", "application", "domain", "infrastructure"]
+    assert modules_ == ["__init__.py", "main.py"]
