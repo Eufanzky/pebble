@@ -1,4 +1,4 @@
-"""System prompts for all Focusbuddy agents.
+"""System prompts for all Pebble agents.
 
 Every agent follows the Pebble voice guidelines:
 - Never shame, rush, or use anxiety-inducing language

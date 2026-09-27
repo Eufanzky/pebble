@@ -26,11 +26,15 @@ class SafetyGate:
 
     async def screen_output(self, text: str) -> str:
         """Content Safety, then PII redaction. Returns the text that may reach the user."""
-        verdict = await self.checker.analyze_text(text)
+        await self.ensure_output_safe(text)
+        return self.redact(text)
+
+    async def ensure_output_safe(self, *texts: str) -> None:
+        """One Content Safety check over all of an agent's texts. Raises ``UnsafeOutputError``."""
+        verdict = await self.checker.analyze_text("\n".join(texts))
         if not verdict.is_safe:
             logger.info("Output replaced: %s", [str(c) for c in verdict.flagged])
             raise UnsafeOutputError()
-        return self.redact(text)
 
     def redact(self, text: str) -> str:
         redaction = self.redactor.redact(text)

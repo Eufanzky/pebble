@@ -5,6 +5,8 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.openapi.utils import get_openapi
 
+from app.api import dependencies
+from app.api.errors import register_error_handlers
 from app.api.routers import activity, agents, audit, documents, focus, preferences, tasks, verify
 from app.infrastructure.config import settings
 from app.services.db import close_db, init_db
@@ -75,6 +77,8 @@ async def lifespan(app: FastAPI):
     await init_db()
     yield
     await close_db()
+    await dependencies.get_container().aclose()
+    dependencies.set_container(None)
 
 
 app = FastAPI(
@@ -133,6 +137,7 @@ def custom_openapi():
 
 
 app.openapi = custom_openapi
+register_error_handlers(app)
 
 app.add_middleware(RequestLoggingMiddleware)
 app.add_middleware(

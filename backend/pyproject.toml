@@ -73,4 +73,4 @@ ignore = [
 
 [tool.ruff.lint.per-file-ignores]
 # Prompt text: rewrapping the lines would change what the model sees.
-"app/agents/prompts.py" = ["E501"]
+"app/application/prompts.py" = ["E501"]
