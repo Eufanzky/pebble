@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, renderWithProviders, screen, within } from '@/test/render';
+import { documentHandlers } from '@/test/msw/handlers';
+import { server } from '@/test/msw/server';
 import DocumentsView from './DocumentsView';
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }));
@@ -25,6 +27,18 @@ describe('DocumentsView', () => {
 
     await user.click(await screen.findByRole('button', { name: /My notes/ }));
     expect(within(screen.getByRole('dialog', { name: 'My notes' })).getByTestId('simplified-text')).toHaveTextContent('Plain words.');
+  });
+
+  // A-019: PDFs used to become a placeholder crediting a service the app doesn't use.
+  it('shows the text of an uploaded PDF, read by the backend', async () => {
+    server.use(documentHandlers.parsed('Words from the PDF.'));
+    const { user } = renderWithProviders(<DocumentsView />);
+
+    await user.upload(screen.getByLabelText('Upload a document'), new File(['%PDF'], 'Spec.pdf', { type: 'application/pdf' }));
+
+    await user.click(await screen.findByRole('button', { name: /Spec/ }));
+    expect(within(screen.getByRole('dialog', { name: 'Spec' })).getByTestId('simplified-text')).toHaveTextContent('Words from the PDF.');
+    expect(screen.queryByText(/Document Intelligence/)).not.toBeInTheDocument();
   });
 
   it('ignores files it cannot read', async () => {

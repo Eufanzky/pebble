@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { MAX_UPLOAD_BYTES, documentFromBinary, documentFromText, isAcceptedUpload, isTextFile } from './upload';
+import { ApiError } from '@/shared/lib/api';
+import { MAX_UPLOAD_BYTES, documentFromText, isAcceptedUpload, isTextFile, uploadErrorMessage } from './upload';
 
 const file = (name: string, type: string, size = 1024) => ({ name, type, size });
 
@@ -29,20 +30,33 @@ describe('isTextFile', () => {
 
 describe('documentFromText', () => {
   it('uses the text at every level, titled after the file', () => {
-    const doc = documentFromText('My notes.txt', 'Hello', 7);
+    const doc = documentFromText('My notes.txt', 'Hello', undefined, 7);
 
     expect(doc).toMatchObject({ id: 'upload-7', title: 'My notes', type: 'academic', tags: ['uploaded'], original: 'Hello' });
     expect(Object.values(doc.levels)).toEqual(['Hello', 'Hello', 'Hello', 'Hello', 'Hello']);
     expect(doc.comprehensionQuestion.question).toBe('');
   });
+
+  it('keeps the type the backend guessed', () => {
+    expect(documentFromText('Meeting minutes.pdf', 'Hi', 'meeting').type).toBe('meeting');
+  });
 });
 
-describe('documentFromBinary', () => {
-  it('is a technical placeholder with the file name and size', () => {
-    const doc = documentFromBinary(file('Spec.pdf', 'application/pdf', 20480), 9);
+describe('uploadErrorMessage', () => {
+  const general = 'Pebble couldn\'t read "a.pdf" just now. Text files always work.';
 
-    expect(doc).toMatchObject({ id: 'upload-9', title: 'Spec', type: 'technical', levels: {} });
-    expect(doc.original).toContain('[Spec.pdf]');
-    expect(doc.original).toContain('File size: 20 KB');
+  it("passes on the backend's explanation for a file it can't read", () => {
+    const error = new ApiError(422, JSON.stringify({ detail: 'Pebble found no text in a.pdf.' }));
+    expect(uploadErrorMessage(error, 'a.pdf')).toBe('Pebble found no text in a.pdf.');
+  });
+
+  it.each([
+    ['a server error', new ApiError(503, JSON.stringify({ detail: 'LLM down' }))],
+    ['no connection', new ApiError(null, 'Failed to fetch')],
+    ['a non-JSON body', new ApiError(413, 'Too large')],
+    ['a detail that is not text', new ApiError(422, JSON.stringify({ detail: [{ loc: 'file' }] }))],
+    ['any other error', new Error('boom')],
+  ])('uses a general message for %s', (_, error) => {
+    expect(uploadErrorMessage(error, 'a.pdf')).toBe(general);
   });
 });

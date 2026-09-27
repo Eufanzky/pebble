@@ -111,7 +111,7 @@ export default function BuiltInReader({ text, onClose }: { text: string; onClose
 
       <div style={{ padding: '12px 24px', borderTop: '1px solid rgba(255,248,235,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
-          Powered by Azure AI Immersive Reader — designed for dyslexia, ADHD, and emerging readers
+          Pebble&apos;s built-in reader — designed for dyslexia, ADHD, and emerging readers
         </span>
         <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-jetbrains)' }}>
           {fontSize}px

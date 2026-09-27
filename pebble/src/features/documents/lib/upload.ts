@@ -1,3 +1,4 @@
+import { ApiError } from '@/shared/lib/api';
 import type { DocumentItem } from '../types';
 
 const ALLOWED_TYPES = [
@@ -19,16 +20,19 @@ export function isTextFile(file: Pick<File, 'name' | 'type'>): boolean {
 }
 
 const titleOf = (fileName: string) => fileName.replace(/\.[^.]+$/, '');
-const extensionOf = (fileName: string) => fileName.split('.').pop()?.toLowerCase() || '';
 export const sizeInKb = (bytes: number) => (bytes / 1024).toFixed(0);
 
-/** A document from an uploaded text file: the same text at every level. */
-export function documentFromText(fileName: string, text: string, now = Date.now()): DocumentItem {
-  const ext = extensionOf(fileName);
+/** A document from a file's text: the same text at every level, for now. */
+export function documentFromText(
+  fileName: string,
+  text: string,
+  type: DocumentItem['type'] = 'academic',
+  now = Date.now(),
+): DocumentItem {
   return {
     id: `upload-${now}`,
     title: titleOf(fileName),
-    type: ext === 'pdf' || ext === 'doc' || ext === 'docx' ? 'technical' : 'academic',
+    type,
     tags: ['uploaded'],
     original: text,
     levels: { 1: text, 3: text, 5: text, 7: text, 10: text },
@@ -43,16 +47,19 @@ export function documentFromText(fileName: string, text: string, now = Date.now(
   };
 }
 
-/** A placeholder document for a PDF or Word file, which isn't parsed here yet. */
-export function documentFromBinary(file: Pick<File, 'name' | 'type' | 'size'>, now = Date.now()): DocumentItem {
-  return {
-    id: `upload-${now}`,
-    title: titleOf(file.name),
-    type: 'technical',
-    tags: ['uploaded'],
-    original: `[${file.name}] — This document will be parsed by Azure Document Intelligence.\n\nFile size: ${sizeInKb(file.size)} KB\nType: ${file.type}`,
-    levels: {},
-    extractedTasks: [],
-    comprehensionQuestion: { question: '', correctAnswer: '', wrongAnswer: '', pebbleCorrect: '', pebbleWrong: '' },
-  };
+/**
+ * What to tell the user when a file can't be read. The backend explains a
+ * damaged, locked or scanned file itself, in Pebble's voice; anything else
+ * (the backend is down, a 5xx) gets a general message.
+ */
+export function uploadErrorMessage(error: unknown, fileName: string): string {
+  if (error instanceof ApiError && error.status !== null && error.status < 500) {
+    try {
+      const { detail } = JSON.parse(error.detail) as { detail?: unknown };
+      if (typeof detail === 'string' && detail) return detail;
+    } catch {
+      // Not JSON: fall through to the general message
+    }
+  }
+  return `Pebble couldn't read "${fileName}" just now. Text files always work.`;
 }

@@ -5,7 +5,7 @@ export function TranslationBanner({ language, calm }: { language: string; calm: 
   return (
     <div style={{ padding: '8px 24px', background: 'rgba(196,181,212,0.08)', fontSize: 12, color: 'var(--accent-lavender)', display: 'flex', alignItems: 'center', gap: 8 }}>
       {!calm && <span aria-hidden="true">{LANGUAGES.find((l) => l.name === language)?.flag}</span>}
-      Translated to {language} via Azure AI Translator. 100+ languages supported.
+      A rough word-by-word preview in {language}. Only common words change.
     </div>
   );
 }
@@ -14,7 +14,7 @@ export function ReadAloudBanner({ word, total, noMotion }: { word: number; total
   return (
     <div role="status" style={{ padding: '8px 24px', background: 'rgba(143,175,138,0.08)', fontSize: 12, color: 'var(--accent-sage)', display: 'flex', alignItems: 'center', gap: 8 }}>
       <span style={{ width: 8, height: 8, borderRadius: '50%', background: 'var(--accent-sage)', animation: noMotion ? 'none' : 'irPulse 1.5s ease-in-out infinite' }} />
-      Reading aloud — powered by Azure AI Speech. Word {word} of {total}
+      Reading aloud with your browser&apos;s voice. Word {word} of {total}
       <style>{`@keyframes irPulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }`}</style>
     </div>
   );

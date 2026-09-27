@@ -26,7 +26,7 @@ export default function ImmersiveReader({ text, title = 'Document', lang = 'en',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
         <div style={{ fontSize: 14, fontFamily: 'var(--font-nunito)', color: 'var(--text-muted)' }}>
-          Launching Azure Immersive Reader...
+          Opening the reader...
         </div>
       </div>
     );

@@ -1,5 +1,7 @@
 import { describe, expect, it, vi } from 'vitest';
-import { act, renderHookWithProviders } from '@/test/render';
+import { act, renderHookWithProviders, screen } from '@/test/render';
+import { documentHandlers } from '@/test/msw/handlers';
+import { server } from '@/test/msw/server';
 import { useActivityLog } from '@/contexts/ActivityLogContext';
 import type { DocumentItem } from '../types';
 import { useDocumentUpload } from './useDocumentUpload';
@@ -20,16 +22,32 @@ describe('useDocumentUpload', () => {
     expect(result.current.log.entries[0]).toMatchObject({
       agent: 'SimplifyCore',
       action: 'User uploaded "notes.txt" (0 KB)',
-      reasoning: expect.stringContaining('Ready for simplification'),
+      reasoning: expect.stringContaining('read in the browser'),
     });
   });
 
-  it('adds a placeholder for a PDF', async () => {
+  it('has the backend read a PDF, without storing it', async () => {
+    server.use(documentHandlers.parsed('The PDF text.', 'meeting'));
     const { result, onAdded } = renderUpload();
+
+    await act(() => result.current.upload(new File(['%PDF'], 'Minutes.pdf', { type: 'application/pdf' })));
+
+    expect(onAdded).toHaveBeenCalledWith(expect.objectContaining({ title: 'Minutes', type: 'meeting', original: 'The PDF text.' }));
+    expect(result.current.log.entries[0]).toMatchObject({ reasoning: expect.stringContaining('the file was not stored') });
+  });
+
+  it.each([
+    ['the file is damaged', () => documentHandlers.status(422), 'Could not read it'],
+    ['the backend is down', () => documentHandlers.status(503), 'Pebble couldn\'t read "Spec.pdf" just now. Text files always work.'],
+  ])('adds nothing and says so gently when %s', async (_, handler, message) => {
+    server.use(handler());
+    const { result, onAdded } = renderUpload();
+    const before = result.current.log.entries.length;
 
     await act(() => result.current.upload(new File(['%PDF'], 'Spec.pdf', { type: 'application/pdf' })));
 
-    expect(onAdded).toHaveBeenCalledWith(expect.objectContaining({ title: 'Spec', type: 'technical' }));
-    expect(result.current.log.entries[0]).toMatchObject({ reasoning: expect.stringContaining('application/pdf') });
+    expect(onAdded).not.toHaveBeenCalled();
+    expect(result.current.log.entries).toHaveLength(before);
+    expect(await screen.findByText(message)).toBeInTheDocument();
   });
 });
