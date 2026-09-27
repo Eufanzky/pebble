@@ -2,9 +2,12 @@ import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 import { chatHandlers, chatReply } from '@/test/msw/handlers';
 import { server } from '@/test/msw/server';
-import { renderWithProviders, screen } from '@/test/render';
+import { act, renderHookWithProviders, renderWithProviders, screen } from '@/test/render';
+import { usePreferences } from '@/contexts/PreferencesContext';
 import type { ActivityEntry } from '@/lib/types';
 import PebbleChat from './PebbleChat';
+
+const GENTLE_ERROR = "Pebble couldn't answer just now. Try again whenever you're ready.";
 
 async function openAndSend(message: string) {
   const view = renderWithProviders(<PebbleChat />);
@@ -92,30 +95,45 @@ describe('PebbleChat', () => {
     expect(screen.queryByText('Pebble is thinking...')).not.toBeInTheDocument();
   });
 
-  // Today the raw error, status code included, is shown to the user (A-014).
-  it('shows the error in the chat when the backend returns 500', async () => {
-    server.use(chatHandlers.status(500));
+  // A-014: the error used to be shown raw, status code and JSON included.
+  it.each([
+    ['the backend returns 500', () => chatHandlers.status(500)],
+    ['the backend is unreachable', () => chatHandlers.networkError()],
+  ])('shows a gentle message when %s', async (_, handler) => {
+    server.use(handler());
 
     await openAndSend('Hello');
 
-    expect(
-      await screen.findByText('Chat request failed (500): {"detail":"Internal Server Error"}')
-    ).toBeInTheDocument();
+    expect(await screen.findByText(GENTLE_ERROR)).toBeInTheDocument();
+    expect(screen.queryByText(/Chat request failed|Failed to fetch|Internal Server Error/)).not.toBeInTheDocument();
     expect(screen.queryByText('Pebble is thinking...')).not.toBeInTheDocument();
   });
 
-  it('shows the error in the chat when the backend is unreachable', async () => {
-    server.use(chatHandlers.networkError());
+  // A-016: calm mode didn't apply to chat replies.
+  it('strips emoji from replies in calm mode', async () => {
+    server.use(chatHandlers.reply({ response: 'You did 3 things today ✨🎉' }));
+    const { result } = renderHookWithProviders(() => usePreferences());
+    act(() => result.current.setPreferences((prev) => ({ ...prev, calmMode: true })));
 
     await openAndSend('Hello');
 
-    expect(await screen.findByText('Failed to fetch')).toBeInTheDocument();
+    expect(await screen.findByText('You did 3 things today')).toBeInTheDocument();
+  });
+
+  it('keeps emoji in replies when calm mode is off', async () => {
+    server.use(chatHandlers.reply({ response: 'You did 3 things today ✨' }));
+    const { result } = renderHookWithProviders(() => usePreferences());
+    act(() => result.current.setPreferences((prev) => ({ ...prev, calmMode: false })));
+
+    await openAndSend('Hello');
+
+    expect(await screen.findByText('You did 3 things today ✨')).toBeInTheDocument();
   });
 
   it('lets the user send again after an error', async () => {
     server.use(chatHandlers.status(500));
     const { user } = await openAndSend('Hello');
-    await screen.findByText(/Chat request failed/);
+    await screen.findByText(GENTLE_ERROR);
 
     server.use(chatHandlers.reply({ response: 'Back again.' }));
     await user.type(screen.getByRole('textbox', { name: 'Message to Pebble' }), 'Try again{Enter}');

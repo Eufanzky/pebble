@@ -40,6 +40,27 @@ describe('stripEmoji', () => {
     );
   });
 
+  // A-011: emoji outside the old hand-listed code-point ranges.
+  it.each([
+    ['⭐ Star', 'Star'], // U+2B50
+    ['⏰ Alarm set', 'Alarm set'], // U+23F0
+    ['⌛ Waiting', 'Waiting'], // U+231B
+    ['⬆️ Up next', 'Up next'], // U+2B06 with a variation selector
+    ['🇪🇸 Spanish', 'Spanish'], // flag: two regional indicators
+    ['👋🏽 Hi', 'Hi'], // skin-tone modifier
+    ['🫠 Melting', 'Melting'], // Unicode 14
+  ])('removes %j', (text, expected) => {
+    const result = renderPreferences({ calmMode: true });
+
+    expect(result.current.stripEmoji(text)).toBe(expected);
+  });
+
+  it('keeps symbols that show as text, not emoji, when calm mode is on', () => {
+    const result = renderPreferences({ calmMode: true });
+
+    expect(result.current.stripEmoji('Step #1 * note © 2026 ↔ ok')).toBe('Step #1 * note © 2026 ↔ ok');
+  });
+
   it('follows calm mode when it is toggled', () => {
     const result = renderPreferences({ calmMode: true });
     expect(result.current.stripEmoji('💬 Comms')).toBe('Comms');
