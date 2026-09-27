@@ -174,7 +174,7 @@ The frontend runs at **http://localhost:3000**. No environment variables or exte
 | `npm run dev` | Development server with hot reload |
 | `npm run build` | Production build (catches TypeScript errors) |
 | `npm run lint` | ESLint check |
-| `npm test` | Vitest unit and component tests (`npm run test:watch` to watch) |
+| `npm test` | Vitest unit and component tests, plus the guilt scan (`npm run test:watch` to watch) |
 | `npm start` | Serve production build |
 
 ### ⚙️ Backend
