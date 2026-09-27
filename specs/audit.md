@@ -113,7 +113,7 @@ Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Foun
 | A-014 | Fixed in 1.7: the chat shows "Pebble couldn't answer just now. Try again whenever you're ready." Regression tests in `PebbleChat.test.tsx`. |
 | A-015 | Open, 6.1. |
 | A-016 | Fixed in 1.7: assistant replies go through `stripEmoji`. Regression tests in `PebbleChat.test.tsx`. |
-| A-017 | Open, 3.1. |
+| A-017 | Fixed after 3.1: the mouth uses `translateX(-50%)`. Regression test in `features/chat/components/ChatLauncher.test.tsx`. |
 | A-018 | Fixed in 2.8: the default is now Groq's free tier (`openai/gpt-oss-120b`); the `github` provider is removed; the evals run on Groq with a recorded baseline. |
 
-Open: 4 (A-002, A-010, A-015, A-017), each linked to the phase that fixes or removes it. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
+Open: 3 (A-002, A-010, A-015), each linked to the phase that fixes or removes it. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
