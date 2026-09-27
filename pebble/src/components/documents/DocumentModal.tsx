@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { usePreferences } from '@/contexts/PreferencesContext';
-import { useTasks } from '@/contexts/TasksContext';
+import { useTasks } from '@/features/tasks';
 import { useActivityLog } from '@/contexts/ActivityLogContext';
 import { useToast } from '@/contexts/ToastContext';
 import { getTextForLevel } from '@/data/sampleDocuments';

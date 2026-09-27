@@ -172,9 +172,9 @@ describe('guilt scan', () => {
   it('scans the UI source, sample data and agent prompts', () => {
     const files = SCANNED.flatMap(({ dir, extensions }) => listFiles(dir, extensions));
 
-    expect(files).toContain('pebble/src/data/sampleTasks.ts');
+    expect(files).toContain('pebble/src/features/tasks/data/sampleTasks.ts');
     expect(files).toContain('pebble/src/data/pebbleMessages.ts');
-    expect(files).toContain('pebble/src/app/today/page.tsx');
+    expect(files).toContain('pebble/src/features/tasks/components/TodayView.tsx');
     expect(files).toContain('pebble/src/app/globals.css');
     expect(files).toContain('backend/app/application/prompts.py');
     expect(files).toContain('backend/app/application/agents/orchestrator.py');

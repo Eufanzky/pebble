@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { useTasks } from '@/contexts/TasksContext';
+import { useTasks } from '@/features/tasks';
 
 const navItems = [
   { href: '/today', label: 'Today', icon: 'today' },

@@ -7,7 +7,7 @@ import PebbleSpeechBubble from '@/components/pebble/PebbleSpeechBubble';
 import { usePebble } from '@/contexts/PebbleContext';
 import { useActivityLog } from '@/contexts/ActivityLogContext';
 import { usePreferences } from '@/contexts/PreferencesContext';
-import { playChime } from '@/lib/audio';
+import { playChime } from '@/shared/lib/audio';
 import './study.css';
 
 const FOCUS_DURATION = 25 * 60; // 25 minutes in seconds

@@ -73,7 +73,7 @@ The characterization tests from 1.4 must stay green through every item in this p
 
 - [x] **3.1 Skeleton and chat.** Create `features/` and `shared/`, then move the chat feature and the API client there.
   *Done:* chat works, the 1.4 chat tests pass, and the import boundaries are documented.
-- [ ] **3.2 Tasks.** Split `today/page.tsx` into `features/tasks` (list, card, roadmap view, WhyCard, hooks).
+- [x] **3.2 Tasks.** Split `today/page.tsx` into `features/tasks` (list, card, roadmap view, WhyCard, hooks).
   *Done:* the page file is under ~100 lines, each hook has unit tests, and `TaskCard` and `WhyCard` have component tests.
 - [ ] **3.3 Documents.** Split `DocumentModal` and `ImmersiveReader` into `features/documents`.
   *Done:* no file exceeds ~200 lines, and tests cover the reading-level slider, the comprehension check, and the built-in reader fallback.

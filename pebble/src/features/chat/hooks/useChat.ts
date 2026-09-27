@@ -3,7 +3,7 @@
 import { useCallback, useState } from 'react';
 import { usePreferences } from '@/contexts/PreferencesContext';
 import { usePebble } from '@/contexts/PebbleContext';
-import { useTasks } from '@/contexts/TasksContext';
+import { useTasks } from '@/features/tasks';
 import { useActivityLog } from '@/contexts/ActivityLogContext';
 import { useTimeOfDay } from '@/hooks/useTimeOfDay';
 import { sendChatMessage } from '../api/sendChatMessage';

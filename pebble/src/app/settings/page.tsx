@@ -8,7 +8,7 @@ import { usePreferences } from '@/contexts/PreferencesContext';
 import { usePebble } from '@/contexts/PebbleContext';
 import { useActivityLog } from '@/contexts/ActivityLogContext';
 import { useToast } from '@/contexts/ToastContext';
-import { useTasks } from '@/contexts/TasksContext';
+import { useTasks } from '@/features/tasks';
 import { PEBBLE_COLORS } from '@/lib/constants';
 import type { PebbleModel, PebbleColor, PebblePersonality, ChunkSize } from '@/lib/types';
 

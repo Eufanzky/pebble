@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import type { Task, UserPreferences } from '@/lib/types';
+import type { Task } from '@/features/tasks';
+import type { UserPreferences } from '@/lib/types';
 import type { ChatResponse } from '../types';
 import {
   CHAT_ERROR_TEXT,

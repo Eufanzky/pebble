@@ -3,7 +3,7 @@ import { render, renderHook, type RenderOptions } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { PreferencesProvider } from '@/contexts/PreferencesContext';
 import { PebbleProvider } from '@/contexts/PebbleContext';
-import { TasksProvider } from '@/contexts/TasksContext';
+import { TasksProvider } from '@/features/tasks';
 import { ActivityLogProvider } from '@/contexts/ActivityLogContext';
 import { ToastProvider } from '@/contexts/ToastContext';
 
