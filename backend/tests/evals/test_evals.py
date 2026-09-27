@@ -66,6 +66,11 @@ class PacedLLM:
         self.replies.append((request, reply))
         return reply
 
+    async def aclose(self) -> None:
+        close = getattr(self.llm, "aclose", None)
+        if close is not None:
+            await close()
+
 
 @dataclass
 class CaseResult:
