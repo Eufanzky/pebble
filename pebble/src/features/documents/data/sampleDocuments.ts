@@ -1,4 +1,4 @@
-import type { DocumentItem } from '@/lib/types';
+import type { DocumentItem } from '../types';
 
 export const sampleDocuments: DocumentItem[] = [
   {
@@ -103,14 +103,3 @@ export const sampleDocuments: DocumentItem[] = [
     },
   },
 ];
-
-/**
- * Get the closest available reading level text for a given slider value.
- * Maps 1-3 → level 3, 4-6 → level 5, 7-9 → level 8, 10 → original.
- */
-export function getTextForLevel(doc: DocumentItem, level: number): string {
-  if (level >= 10) return doc.original;
-  if (level >= 7) return doc.levels[8] ?? doc.original;
-  if (level >= 4) return doc.levels[5] ?? doc.levels[8] ?? doc.original;
-  return doc.levels[3] ?? doc.levels[5] ?? doc.original;
-}

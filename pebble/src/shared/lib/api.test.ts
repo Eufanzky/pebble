@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 import { server } from '@/test/msw/server';
-import { ApiError, postJson } from './api';
+import { ApiError, getJson, postJson } from './api';
 
 describe('postJson', () => {
   it('sends the body as JSON and returns the parsed reply', async () => {
@@ -33,5 +33,19 @@ describe('postJson', () => {
 
     expect(error).toBeInstanceOf(ApiError);
     expect(error).toMatchObject({ status: null });
+  });
+});
+
+describe('getJson', () => {
+  it('returns the parsed reply', async () => {
+    server.use(http.get('/api/thing', () => HttpResponse.json({ id: 1 })));
+
+    await expect(getJson('/api/thing')).resolves.toEqual({ id: 1 });
+  });
+
+  it('throws an ApiError on an error status', async () => {
+    server.use(http.get('/api/thing', () => new HttpResponse('down', { status: 503 })));
+
+    await expect(getJson('/api/thing')).rejects.toMatchObject({ status: 503, detail: 'down' });
   });
 });

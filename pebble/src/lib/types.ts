@@ -1,20 +1,3 @@
-export interface DocumentItem {
-  id: string;
-  title: string;
-  type: 'academic' | 'technical' | 'meeting';
-  tags: string[];
-  original: string;
-  levels: Record<number, string>;
-  extractedTasks: Array<{ title: string; timeEstimate: string; tag: string }>;
-  comprehensionQuestion: {
-    question: string;
-    correctAnswer: string;
-    wrongAnswer: string;
-    pebbleCorrect: string;
-    pebbleWrong: string;
-  };
-}
-
 export interface ActivityEntry {
   id: string;
   timestamp: Date;

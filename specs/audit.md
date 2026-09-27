@@ -63,6 +63,7 @@ Found by the first unit tests (1.2 onwards), not by the static checks above.
 | A-016 | major | Calm mode doesn't apply to chat: `PebbleChat` never calls `stripEmoji`, so LLM replies keep their emoji. (Its `calm ? 'x' : 'x'` branches show the same text either way.) Found during 1.7. | Calm mode on, a chat reply with ✨ shows ✨ | 1.7 |
 | A-017 | cosmetic | The chat button's mouth uses `transform: 'translateX(-50)'` with no unit, which is invalid CSS, so the mouth isn't centred. Found during 1.7. | `components/chat/PebbleChat.tsx`, the floating button | 3.1 |
 | A-018 | major | GitHub Models, the default LLM provider in `tech-stack.md`, was fully retired on 2026-07-30 ([GitHub docs](https://docs.github.com/en/rest/models/inference)). Its endpoint now answers every request with a plain-text `200 OK`, so `LLM_PROVIDER=github` can't work, and the 2.8 eval baseline can't be recorded. Found during 2.8. | `LLM_PROVIDER=github` with any key: every agent returns 503 ("isn't a chat completion (HTTP 200, text/plain, 4 bytes, not JSON)") | 2.8 |
+| A-019 | major | The documents feature credits services it doesn't use. A PDF or Word upload says it "will be parsed by Azure Document Intelligence" (removed in 2.7; the backend now has `POST /api/documents/parse`, which the frontend never calls). The built-in reader, which runs only when Immersive Reader is unavailable, says "Powered by Azure AI Immersive Reader", "powered by Azure AI Speech" and "via Azure AI Translator", but it uses the browser's speech synthesis and a word-substitution stand-in for translation. Found during 3.3. | Upload a PDF on /documents; open Reader with no Immersive Reader configured | fix after 3.3 |
 
 ## Backend behaviour
 
@@ -91,7 +92,7 @@ Found by the characterization tests (1.3 onwards), not by the static checks abov
 
 ## Summary
 
-Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011). Found during 1.3: 1 major, 1 minor (A-012, A-013). Found during 1.4: 1 major (A-014). Found during 1.5: 1 minor (A-015). Found during 1.7: 1 major, 1 cosmetic (A-016, A-017). Found during 2.8: 1 major (A-018).
+Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011). Found during 1.3: 1 major, 1 minor (A-012, A-013). Found during 1.4: 1 major (A-014). Found during 1.5: 1 minor (A-015). Found during 1.7: 1 major, 1 cosmetic (A-016, A-017). Found during 2.8: 1 major (A-018). Found during 3.3: 1 major (A-019).
 
 ## Status
 
@@ -115,5 +116,6 @@ Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Foun
 | A-016 | Fixed in 1.7: assistant replies go through `stripEmoji`. Regression tests in `PebbleChat.test.tsx`. |
 | A-017 | Fixed after 3.1: the mouth uses `translateX(-50%)`. Regression test in `features/chat/components/ChatLauncher.test.tsx`. |
 | A-018 | Fixed in 2.8: the default is now Groq's free tier (`openai/gpt-oss-120b`); the `github` provider is removed; the evals run on Groq with a recorded baseline. |
+| A-019 | Open, fix after 3.3. |
 
-Open: 3 (A-002, A-010, A-015), each linked to the phase that fixes or removes it. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
+Open: 4 (A-002, A-010, A-015, A-019), each linked to the phase that fixes or removes it. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.

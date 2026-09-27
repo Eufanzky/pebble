@@ -1,0 +1,64 @@
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { act, renderHookWithProviders } from '@/test/render';
+import { useActivityLog } from '@/contexts/ActivityLogContext';
+import { useTasks } from '@/features/tasks';
+import { testDocument } from '../testing';
+import { useDocumentActions } from './useDocumentActions';
+
+const push = vi.fn();
+vi.mock('next/navigation', () => ({ useRouter: () => ({ push }) }));
+
+function renderActions(doc = testDocument(), onDone = vi.fn()) {
+  const { result } = renderHookWithProviders(() => ({
+    ...useDocumentActions(doc, onDone),
+    tasks: useTasks(),
+    log: useActivityLog(),
+  }));
+  act(() => result.current.tasks.clearAll());
+  return { result, onDone };
+}
+
+beforeEach(() => {
+  push.mockClear();
+});
+
+describe('useDocumentActions', () => {
+  it('adds each extracted task to Today, then closes and goes there', () => {
+    const { result, onDone } = renderActions();
+
+    act(() => result.current.turnIntoTasks());
+
+    expect(result.current.tasks.tasks.map((t) => t.title)).toEqual(['Read chapter 1', 'Summarise the goal']);
+    expect(result.current.tasks.tasks[0].whyExplanation).toContain('"Clean Architecture"');
+    expect(result.current.log.entries[0]).toMatchObject({ agent: 'SimplifyCore', action: expect.stringContaining('Extracted 2 tasks') });
+    expect(onDone).toHaveBeenCalledOnce();
+    expect(push).toHaveBeenCalledWith('/today');
+  });
+
+  it('makes a study plan with one day per task', () => {
+    const { result } = renderActions();
+
+    act(() => result.current.makeStudyPlan());
+
+    expect(result.current.tasks.tasks.map((t) => t.title)).toEqual(['Day 1: Read chapter 1', 'Day 2: Summarise the goal']);
+    expect(result.current.log.entries[0]).toMatchObject({ action: expect.stringContaining('study plan') });
+  });
+
+  it('tags tasks from a meeting as communication, others as study', () => {
+    const meeting = renderActions(testDocument({ type: 'meeting' }));
+    act(() => meeting.result.current.turnIntoTasks());
+    expect(meeting.result.current.tasks.tasks[0].tag).toBe('communication');
+
+    const reading = renderActions(testDocument({ type: 'academic' }));
+    act(() => reading.result.current.turnIntoTasks());
+    expect(reading.result.current.tasks.tasks[0].tag).toBe('study');
+  });
+
+  it('logs opening the reader', () => {
+    const { result } = renderActions();
+
+    act(() => result.current.logReaderOpened());
+
+    expect(result.current.log.entries[0]).toMatchObject({ agent: 'PebbleVoice', action: 'Launched Immersive Reader for "Clean Architecture"' });
+  });
+});
