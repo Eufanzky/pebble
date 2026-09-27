@@ -26,7 +26,7 @@ describe('ImmersiveReader', () => {
   it('shows a loading message, then the built-in reader when Immersive Reader is not configured', async () => {
     renderWithProviders(<ImmersiveReader text="Hello there" onClose={vi.fn()} />);
 
-    expect(screen.getByRole('status')).toHaveTextContent('Launching Azure Immersive Reader...');
+    expect(screen.getByRole('status')).toHaveTextContent('Opening the reader...');
     expect(await screen.findByRole('dialog', { name: 'Reader' })).toHaveTextContent('Hello there');
     expect(launchAsync).not.toHaveBeenCalled();
   });
@@ -77,7 +77,7 @@ describe('ImmersiveReader', () => {
       await user.click(screen.getByRole('button', { name: /Spanish/ }));
 
       expect(text()).toHaveTextContent('El diseño es bueno');
-      expect(screen.getByText(/Translated to Spanish/)).toBeInTheDocument();
+      expect(screen.getByText(/A rough word-by-word preview in Spanish/)).toBeInTheDocument();
     });
 
     it('changes the text size within limits', async () => {
@@ -88,6 +88,13 @@ describe('ImmersiveReader', () => {
 
       for (let i = 0; i < 6; i++) await user.click(screen.getByRole('button', { name: 'Smaller text' }));
       expect(screen.getByText('12px')).toBeInTheDocument();
+    });
+
+    it('credits only what it uses', async () => {
+      await openBuiltIn();
+
+      expect(screen.getByText(/Pebble's built-in reader/)).toBeInTheDocument();
+      expect(screen.queryByText(/Azure/)).not.toBeInTheDocument();
     });
 
     it('turns line focus on', async () => {

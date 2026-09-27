@@ -4,7 +4,8 @@ import { useCallback } from 'react';
 import { usePebble } from '@/contexts/PebbleContext';
 import { useActivityLog } from '@/contexts/ActivityLogContext';
 import { useToast } from '@/contexts/ToastContext';
-import { documentFromBinary, documentFromText, isTextFile, sizeInKb } from '../lib/upload';
+import { parseDocument } from '../api/parseDocument';
+import { documentFromText, isTextFile, sizeInKb, uploadErrorMessage } from '../lib/upload';
 import type { DocumentItem } from '../types';
 
 function readText(file: File): Promise<string> {
@@ -16,9 +17,16 @@ function readText(file: File): Promise<string> {
   });
 }
 
+/** A file's text: read in the browser for text files, by the backend for PDF and Word. */
+async function readDocument(file: File): Promise<DocumentItem> {
+  if (isTextFile(file)) return documentFromText(file.name, await readText(file));
+  const parsed = await parseDocument(file);
+  return documentFromText(file.name, parsed.text, parsed.type);
+}
+
 /**
- * Adds an uploaded file as a document. Text files are read in the browser;
- * PDF and Word files get a placeholder until they're parsed by the backend.
+ * Adds an uploaded file as a document. If it can't be read (the backend is
+ * down, or the file is damaged), Pebble says so gently and adds nothing.
  */
 export function useDocumentUpload(onAdded: (doc: DocumentItem) => void) {
   const { flashMood } = usePebble();
@@ -27,8 +35,13 @@ export function useDocumentUpload(onAdded: (doc: DocumentItem) => void) {
 
   return useCallback(
     async (file: File) => {
-      const text = isTextFile(file);
-      const doc = text ? documentFromText(file.name, await readText(file)) : documentFromBinary(file);
+      let doc: DocumentItem;
+      try {
+        doc = await readDocument(file);
+      } catch (error) {
+        showToast(uploadErrorMessage(error, file.name));
+        return;
+      }
 
       onAdded(doc);
       flashMood('excited', 2000);
@@ -36,9 +49,9 @@ export function useDocumentUpload(onAdded: (doc: DocumentItem) => void) {
       addEntry(
         'SimplifyCore',
         `User uploaded "${file.name}" (${sizeInKb(file.size)} KB)`,
-        text
-          ? `File type: ${file.type || 'txt'}. Ready for simplification at user's reading level.`
-          : `File type: ${file.type}. Queued for Azure Document Intelligence parsing.`,
+        isTextFile(file)
+          ? 'Text file read in the browser. Ready for simplification at user\'s reading level.'
+          : 'Text read by the backend in memory; the file was not stored. Ready for simplification at user\'s reading level.',
       );
     },
     [onAdded, flashMood, showToast, addEntry],

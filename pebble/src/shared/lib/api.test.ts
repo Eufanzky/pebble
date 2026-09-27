@@ -1,7 +1,7 @@
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 import { server } from '@/test/msw/server';
-import { ApiError, getJson, postJson } from './api';
+import { ApiError, getJson, postForm, postJson } from './api';
 
 describe('postJson', () => {
   it('sends the body as JSON and returns the parsed reply', async () => {
@@ -47,5 +47,23 @@ describe('getJson', () => {
     server.use(http.get('/api/thing', () => new HttpResponse('down', { status: 503 })));
 
     await expect(getJson('/api/thing')).rejects.toMatchObject({ status: 503, detail: 'down' });
+  });
+});
+
+describe('postForm', () => {
+  it('sends multipart form data', async () => {
+    let contentType: string | null = null;
+    server.use(
+      http.post('/api/upload', ({ request }) => {
+        // Reading a multipart body hangs under jsdom; the header is enough.
+        contentType = request.headers.get('Content-Type');
+        return HttpResponse.json({ ok: true });
+      }),
+    );
+    const form = new FormData();
+    form.append('file', new File(['x'], 'a.pdf'));
+
+    await expect(postForm('/api/upload', form)).resolves.toEqual({ ok: true });
+    expect(contentType).toMatch(/^multipart\/form-data; boundary=/);
   });
 });

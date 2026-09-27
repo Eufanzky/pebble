@@ -59,6 +59,6 @@ describe('useDocumentActions', () => {
 
     act(() => result.current.logReaderOpened());
 
-    expect(result.current.log.entries[0]).toMatchObject({ agent: 'PebbleVoice', action: 'Launched Immersive Reader for "Clean Architecture"' });
+    expect(result.current.log.entries[0]).toMatchObject({ agent: 'PebbleVoice', action: 'Opened the reader for "Clean Architecture"' });
   });
 });

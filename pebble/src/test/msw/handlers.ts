@@ -30,6 +30,18 @@ export const readerHandlers = {
     http.get(READER_TOKEN, () => HttpResponse.json({ detail: 'Immersive Reader is not configured' }, { status: 503 })),
 };
 
+export const documentHandlers = {
+  // Reading a multipart body hangs under jsdom, so the handler only checks
+  // that one was sent.
+  parsed: (text = 'Parsed text.', type = 'technical') =>
+    http.post('/api/documents/parse', ({ request }) =>
+      request.headers.get('Content-Type')?.startsWith('multipart/form-data')
+        ? HttpResponse.json({ title: 'document', type, text, pages: 1 })
+        : HttpResponse.json({ detail: 'Expected a file upload' }, { status: 422 })),
+  status: (status: number) =>
+    http.post('/api/documents/parse', () => HttpResponse.json({ detail: 'Could not read it' }, { status })),
+};
+
 // Default handlers shared by every test. Tests add their own per case with
 // `server.use(...)`.
 export const handlers: RequestHandler[] = [chatHandlers.reply(), readerHandlers.unavailable()];

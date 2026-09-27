@@ -38,7 +38,7 @@ export function useDocumentActions(doc: DocumentItem, onDone: () => void) {
   }, [doc, kind, count, addTaskFromDocument, addEntry, finish]);
 
   const logReaderOpened = useCallback(() => {
-    addEntry('PebbleVoice', `Launched Immersive Reader for "${doc.title}"`, 'Azure AI Immersive Reader launched.');
+    addEntry('PebbleVoice', `Opened the reader for "${doc.title}"`, 'Azure Immersive Reader when it is set up, otherwise the built-in reader.');
   }, [addEntry, doc.title]);
 
   return { turnIntoTasks, makeStudyPlan, logReaderOpened };

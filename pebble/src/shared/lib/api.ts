@@ -44,3 +44,8 @@ export function postJson<Response>(path: string, body: unknown): Promise<Respons
     body: JSON.stringify(body),
   });
 }
+
+/** POSTs `form` as multipart form data (file uploads). Throws `ApiError`. */
+export function postForm<Response>(path: string, form: FormData): Promise<Response> {
+  return request<Response>(path, { method: 'POST', body: form });
+}
