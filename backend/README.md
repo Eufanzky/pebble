@@ -56,7 +56,7 @@ uv run pytest --cov      # with a coverage report
 uv run ruff check        # lint (add --fix for the safe autofixes)
 ```
 
-Tests live in `tests/` (layout in `specs/testing.md`). They run the app in-process with `httpx.ASGITransport`, which skips the lifespan, so no Azure service or network is needed. The LLM and Content Safety are faked: `tests/fakes.py` has a scripted `FakeLLM` and a `FakeContentSafety`, and the `llm`, `content_safety` and `content_safety_http` fixtures in `tests/conftest.py` install them (the last one fakes Prompt Shields and Groundedness Detection with respx). `tests/api/test_chat.py` pins today's `/api/agents/chat` behaviour: routing, safety, PII redaction and the response shape.
+Tests live in `tests/` (layout in `specs/testing.md`). They run the app in-process with `httpx.ASGITransport`, which skips the lifespan, so no Azure service or network is needed. Every test runs with fakes behind the ports: `tests/conftest.py` installs a container with the scripted `FakeLLM` (`llm` fixture) and `ScriptedSafety` from `tests/fakes.py` (`safety` fixture). Use cases are tested with fakes in `tests/unit/application/`, domain rules in `tests/domain/`, adapters against recorded response shapes with respx in `tests/contract/`, and HTTP behaviour in `tests/api/`.
 
 ### 5. Run the frontend (separate terminal)
 

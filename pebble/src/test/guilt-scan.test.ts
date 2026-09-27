@@ -121,7 +121,7 @@ interface Exception {
 
 const EXCEPTIONS: Exception[] = [
   {
-    file: 'backend/app/agents/prompts.py',
+    file: 'backend/app/application/prompts.py',
     pattern: 'loss-framing',
     line: 'Never say "you should have", "you\'re behind"',
     reason: 'The voice rules quote the phrase to forbid it.',
@@ -176,7 +176,9 @@ describe('guilt scan', () => {
     expect(files).toContain('pebble/src/data/pebbleMessages.ts');
     expect(files).toContain('pebble/src/app/today/page.tsx');
     expect(files).toContain('pebble/src/app/globals.css');
-    expect(files).toContain('backend/app/agents/prompts.py');
+    expect(files).toContain('backend/app/application/prompts.py');
+    expect(files).toContain('backend/app/application/agents/orchestrator.py');
+    expect(files).toContain('backend/app/infrastructure/llm/fake.py');
     expect(files).not.toContain('pebble/src/test/guilt-scan.test.ts');
   });
 

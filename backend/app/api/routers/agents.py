@@ -1,12 +1,9 @@
-import time
-
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.agents.document_simplification import simplify_document
 from app.agents.motivation import generate_motivation
-from app.agents.orchestrator import handle_chat
-from app.agents.task_decomposition import decompose_task
 from app.api.auth import get_current_user_id
+from app.api.dependencies import get_decompose_task, get_handle_chat
 from app.api.schemas.agents import (
     ChatRequest,
     ChatResponse,
@@ -17,12 +14,10 @@ from app.api.schemas.agents import (
     SimplifyRequest,
     SimplifyResponse,
 )
-from app.services.monitoring import (
-    record_agent_call,
-    record_agent_latency,
-    record_groundedness_check,
-    record_prompt_shield_check,
-)
+from app.application.agents.calmsense import DecomposeTask
+from app.application.agents.orchestrator import HandleChat
+from app.domain.chat import ChatContext, ChatReply
+from app.domain.tasks import TaskBreakdown
 
 router = APIRouter()
 
@@ -36,6 +31,7 @@ router = APIRouter()
 async def decompose(
     body: DecomposeRequest,
     user_id: str = Depends(get_current_user_id),
+    decompose_task: DecomposeTask = Depends(get_decompose_task),
 ):
     """
     **Agent: CalmSense** — Takes a task title and breaks it into smaller, achievable subtasks.
@@ -48,24 +44,10 @@ async def decompose(
     The agent starts with the easiest step to reduce task initiation friction,
     and includes a `whyExplanation` describing why it chose this breakdown.
 
-    Both input and output are filtered through Azure Content Safety.
+    Input and output go through the safety gate (Content Safety and PII redaction).
     """
-    start = time.perf_counter()
-    try:
-        result = await decompose_task(
-            task_title=body.task_title,
-            chunk_size=body.chunk_size,
-            time_of_day=body.time_of_day,
-        )
-        record_agent_call("CalmSense", success=True)
-        record_agent_latency("CalmSense", (time.perf_counter() - start) * 1000)
-        return result
-    except ValueError as e:
-        record_agent_call("CalmSense", success=False)
-        raise HTTPException(status_code=422, detail=str(e))
-    except Exception as e:
-        record_agent_call("CalmSense", success=False)
-        raise HTTPException(status_code=500, detail=f"Agent error: {e}")
+    breakdown = await decompose_task(body.task_title, body.chunk_size, body.time_of_day)
+    return breakdown_data(breakdown)
 
 
 @router.post(
@@ -91,22 +73,10 @@ async def simplify(
     Includes a `whyExplanation` describing what was changed and why.
     Output is verified against the original text using Groundedness Detection.
     """
-    start = time.perf_counter()
     try:
-        result = await simplify_document(
-            text=body.text,
-            reading_level=body.reading_level,
-        )
-        record_agent_call("SimplifyCore", success=True)
-        record_agent_latency("SimplifyCore", (time.perf_counter() - start) * 1000)
-        record_groundedness_check(result.get("groundedness", {}).get("grounded", True))
-        return result
+        return await simplify_document(text=body.text, reading_level=body.reading_level)
     except ValueError as e:
-        record_agent_call("SimplifyCore", success=False)
         raise HTTPException(status_code=422, detail=str(e))
-    except Exception as e:
-        record_agent_call("SimplifyCore", success=False)
-        raise HTTPException(status_code=500, detail=f"Agent error: {e}")
 
 
 @router.post(
@@ -129,24 +99,16 @@ async def motivate(
     Returns a `mood` that the frontend uses to update Pebble's expression:
     `sleepy`, `normal`, `happy`, or `excited`.
     """
-    start = time.perf_counter()
     try:
-        result = await generate_motivation(
+        return await generate_motivation(
             tasks_completed=body.tasks_completed,
             tasks_total=body.tasks_total,
             recent_task_titles=body.recent_task_titles,
             time_of_day=body.time_of_day,
             personality=body.personality,
         )
-        record_agent_call("PebbleVoice", success=True)
-        record_agent_latency("PebbleVoice", (time.perf_counter() - start) * 1000)
-        return result
     except ValueError as e:
-        record_agent_call("PebbleVoice", success=False)
         raise HTTPException(status_code=422, detail=str(e))
-    except Exception as e:
-        record_agent_call("PebbleVoice", success=False)
-        raise HTTPException(status_code=500, detail=f"Agent error: {e}")
 
 
 @router.post(
@@ -158,6 +120,7 @@ async def motivate(
 async def chat(
     body: ChatRequest,
     user_id: str = Depends(get_current_user_id),
+    handle_chat: HandleChat = Depends(get_handle_chat),
 ):
     """
     **Pebble Orchestrator** — The main entry point for talking to Pebble.
@@ -169,7 +132,9 @@ async def chat(
     - `chat` → Direct response from Pebble
     - `distress` → Immediate empathetic response with support
 
-    All input is screened by Prompt Shields (anti-jailbreak) and Content Safety.
+    All input is screened by Prompt Shields (anti-jailbreak) and Content Safety, then PII-redacted:
+    the classifier and every sub-agent see only the redacted message. A flagged reply is replaced
+    with a safe one.
 
     If the user expresses distress (*"I'm overwhelmed"*, *"I can't do this"*),
     Pebble responds with empathy and offers to simplify their day.
@@ -177,26 +142,31 @@ async def chat(
     The `data` field contains structured output from the sub-agent (e.g., subtasks
     for decompose, simplified text for simplify), or `null` for chat/distress.
     """
-    start = time.perf_counter()
-    try:
-        result = await handle_chat(
-            user_message=body.message,
-            tasks_completed=body.tasks_completed,
-            tasks_total=body.tasks_total,
-            recent_task_titles=body.recent_task_titles,
-            chunk_size=body.chunk_size,
-            reading_level=body.reading_level,
-            time_of_day=body.time_of_day,
-            personality=body.personality,
-        )
-        agent_name = result.get("agentName", "Orchestrator")
-        record_agent_call(agent_name, success=True)
-        record_agent_latency(agent_name, (time.perf_counter() - start) * 1000)
-        record_prompt_shield_check(attack_detected=False)
-        return result
-    except ValueError as e:
-        record_prompt_shield_check(attack_detected="injection" in str(e).lower())
-        raise HTTPException(status_code=422, detail=str(e))
-    except Exception as e:
-        record_agent_call("Orchestrator", success=False)
-        raise HTTPException(status_code=500, detail=f"Agent error: {e}")
+    context = ChatContext(
+        tasks_completed=body.tasks_completed,
+        tasks_total=body.tasks_total,
+        recent_task_titles=tuple(body.recent_task_titles),
+        chunk_size=body.chunk_size,
+        reading_level=body.reading_level,
+        time_of_day=body.time_of_day,
+        personality=body.personality,
+    )
+    return chat_response(await handle_chat(body.message, context))
+
+
+def breakdown_data(breakdown: TaskBreakdown) -> dict:
+    return {
+        "subtasks": [{"title": s.title, "timeEstimate": s.time_estimate} for s in breakdown.steps],
+        "whyExplanation": breakdown.why,
+    }
+
+
+def chat_response(reply: ChatReply) -> dict:
+    data = breakdown_data(reply.data) if isinstance(reply.data, TaskBreakdown) else reply.data
+    return {
+        "intent": str(reply.intent),
+        "response": reply.response,
+        "mood": str(reply.mood),
+        "agentName": str(reply.agent),
+        "data": data,
+    }

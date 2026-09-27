@@ -107,11 +107,11 @@ Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Foun
 | A-009 | Fixed in 0.2: the initial toast phase is derived from `reduceAnimations`. |
 | A-010 | Open, 3.4. |
 | A-011 | Fixed in 1.7: `stripEmoji` also removes anything with emoji presentation, pictographs followed by U+FE0F, and regional indicators. Regression tests in `PreferencesContext.test.tsx`. |
-| A-012 | Open, 2.4. |
-| A-013 | Open, 2.4. |
+| A-012 | Fixed in 2.4: every sub-agent gets the redacted message (and redacted task titles), and sub-agent output is PII-redacted. `tests/api/test_chat.py::test_sub_agents_never_receive_raw_pii`, `::test_sub_agent_output_is_pii_redacted`. |
+| A-013 | Fixed in 2.4: malformed classifier JSON falls back to a chat reply (code fences are parsed); unsafe or unusable agent output becomes a gentle reply; LLM and safety outages are a 503 with a gentle message and no internals. |
 | A-014 | Fixed in 1.7: the chat shows "Pebble couldn't answer just now. Try again whenever you're ready." Regression tests in `PebbleChat.test.tsx`. |
 | A-015 | Open, 6.1. |
 | A-016 | Fixed in 1.7: assistant replies go through `stripEmoji`. Regression tests in `PebbleChat.test.tsx`. |
 | A-017 | Open, 3.1. |
 
-Open: 7 (A-002, A-008, A-010, A-012, A-013, A-015, A-017), each linked to the phase that fixes or removes it. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
+Open: 5 (A-002, A-008, A-010, A-015, A-017), each linked to the phase that fixes or removes it. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.

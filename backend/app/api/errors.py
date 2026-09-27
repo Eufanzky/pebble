@@ -1,0 +1,46 @@
+"""Maps use-case errors to HTTP responses. Details are safe to show; internals stay in the logs."""
+
+import logging
+
+from fastapi import FastAPI, Request
+from fastapi.responses import JSONResponse
+
+from app.application.errors import AgentReplyError, PromptAttackError, UnsafeContentError, UnsafeOutputError
+from app.application.ports.llm import LLMError, LLMRateLimitedError
+from app.application.ports.safety import SafetyCheckError
+
+logger = logging.getLogger("pebble.api")
+
+UNAVAILABLE = "Pebble couldn't answer just now. Try again in a little while."
+RESTING = "Pebble is resting for a moment. Try again in a little while."
+
+
+def _detail(status: int, detail: str, headers: dict[str, str] | None = None) -> JSONResponse:
+    return JSONResponse(status_code=status, content={"detail": detail}, headers=headers)
+
+
+async def _rejected_input(_: Request, exc: Exception) -> JSONResponse:
+    return _detail(422, str(exc))
+
+
+async def _unsafe_output(_: Request, exc: Exception) -> JSONResponse:
+    return _detail(422, str(UnsafeContentError()))
+
+
+async def _rate_limited(_: Request, exc: LLMRateLimitedError) -> JSONResponse:
+    headers = {"Retry-After": str(int(exc.retry_after))} if exc.retry_after else None
+    return _detail(503, RESTING, headers)
+
+
+async def _unavailable(_: Request, exc: Exception) -> JSONResponse:
+    logger.warning("Agent unavailable: %s: %s", type(exc).__name__, exc)
+    return _detail(503, UNAVAILABLE)
+
+
+def register_error_handlers(app: FastAPI) -> None:
+    app.add_exception_handler(PromptAttackError, _rejected_input)
+    app.add_exception_handler(UnsafeContentError, _rejected_input)
+    app.add_exception_handler(UnsafeOutputError, _unsafe_output)
+    app.add_exception_handler(LLMRateLimitedError, _rate_limited)
+    for error in (LLMError, SafetyCheckError, AgentReplyError):
+        app.add_exception_handler(error, _unavailable)

@@ -13,3 +13,7 @@ class UnsafeContentError(Exception):
 
 class UnsafeOutputError(Exception):
     """The model's reply was flagged. Callers replace it with a safe reply rather than showing an error."""
+
+
+class AgentReplyError(Exception):
+    """The model answered, but not with the JSON the agent asked for."""

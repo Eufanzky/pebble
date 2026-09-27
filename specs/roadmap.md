@@ -54,7 +54,7 @@ The characterization tests from 1.3 must stay green through every item in this p
   *Done:* adapter contract tests (respx) cover success, malformed JSON, 429, and timeout.
 - [x] **2.3 Safety port.** Add a `SafetyChecker` interface, an Azure Content Safety adapter, and a no-op adapter for when it's unconfigured. Move PII redaction behind a port.
   *Done:* contract tests cover the severity mapping; unit tests cover the reject path.
-- [ ] **2.4 Orchestrator and CalmSense as use cases.** Move them into `application/` so `handle_chat` runs the shared agent pipeline. The router becomes thin.
+- [x] **2.4 Orchestrator and CalmSense as use cases.** Move them into `application/` so `handle_chat` runs the shared agent pipeline. The router becomes thin.
   *Done:* pipeline tests cover the safety order, PII redaction before the LLM, and the routing table; the 1.3 tests are ported and still pass.
 - [ ] **2.5 SimplifyCore and PebbleVoice as use cases.** Same pattern as 2.4.
   *Done:* use-case and API tests cover both.
