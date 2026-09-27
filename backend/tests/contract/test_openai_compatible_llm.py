@@ -1,6 +1,7 @@
 """Contract tests for the OpenAI-compatible LLM adapter, against recorded-shape responses (respx)."""
 
 import json
+import re
 
 import httpx
 import pytest
@@ -167,3 +168,25 @@ async def test_http_errors_are_unavailable(github, status):
 
 async def test_the_client_can_be_closed(github):
     await github.aclose()
+
+
+@respx.mock
+@pytest.mark.parametrize(
+    ("response", "described"),
+    [
+        (
+            httpx.Response(200, text="OK", headers={"content-type": "text/plain"}),
+            "HTTP 200, text/plain, 2 bytes, not JSON",
+        ),
+        (httpx.Response(200, json={"error": "x", "id": "1"}), "HTTP 200, application/json, keys ['error', 'id']"),
+        (
+            httpx.Response(200, json={"choices": [{"finish_reason": "content_filter", "message": {}}]}),
+            "finish_reason 'content_filter'",
+        ),
+    ],
+)
+async def test_response_errors_describe_the_shape_but_never_the_content(github, response, described):
+    respx.post(GITHUB_URL).mock(return_value=response)
+
+    with pytest.raises(LLMResponseError, match=re.escape(described)):
+        await github.complete(REQUEST)
