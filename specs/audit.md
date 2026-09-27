@@ -64,7 +64,8 @@ Found by the first unit tests (1.2 onwards), not by the static checks above.
 | A-017 | cosmetic | The chat button's mouth uses `transform: 'translateX(-50)'` with no unit, which is invalid CSS, so the mouth isn't centred. Found during 1.7. | `components/chat/PebbleChat.tsx`, the floating button | 3.1 |
 | A-018 | major | GitHub Models, the default LLM provider in `tech-stack.md`, was fully retired on 2026-07-30 ([GitHub docs](https://docs.github.com/en/rest/models/inference)). Its endpoint now answers every request with a plain-text `200 OK`, so `LLM_PROVIDER=github` can't work, and the 2.8 eval baseline can't be recorded. Found during 2.8. | `LLM_PROVIDER=github` with any key: every agent returns 503 ("isn't a chat completion (HTTP 200, text/plain, 4 bytes, not JSON)") | 2.8 |
 | A-019 | major | The documents feature credits services it doesn't use. A PDF or Word upload says it "will be parsed by Azure Document Intelligence" (removed in 2.7; the backend now has `POST /api/documents/parse`, which the frontend never calls). The built-in reader, which runs only when Immersive Reader is unavailable, says "Powered by Azure AI Immersive Reader", "powered by Azure AI Speech" and "via Azure AI Translator", but it uses the browser's speech synthesis and a word-substitution stand-in for translation. Found during 3.3. | Upload a PDF on /documents; open Reader with no Immersive Reader configured | fix after 3.3 |
-| A-020 | major | Settings simulates features and credits Azure for them (principle 6, honest claims). "Connected apps" toggles wait 1.5 s and add canned tasks ("Authenticating via Azure API Management OAuth flow", "Powered by BridgeBot agent via Azure API Management"). The voice-input button waits 2.5 s and adds a random canned phrase as a task ("Listening via Azure AI Speech SDK"). Found during the A-019 fix. | /settings: turn on a connected app, or voice input and press the mic | needs a product decision: remove, or label as a preview until 5.4/5.5 |
+| A-020 | major | Settings simulates features and shows made-up results (principle 6, honest claims). "Connected apps" toggles wait 1.5 s and add canned tasks ("Authenticating via Azure API Management OAuth flow", "Powered by BridgeBot agent via Azure API Management"). The voice-input button waits 2.5 s and adds a random canned phrase as a task ("Listening via Azure AI Speech SDK"). The "Pebble has adapted" cards describe adjustments that never happened ("You completed 4 out of 4 small tasks yesterday…"), and "This week" shows fixed numbers (12 tasks, 3h 20m, 4 documents). Found during the A-019 fix and 3.4. | /settings: turn on a connected app, or voice input and press the mic | needs a product decision: remove, or label as a preview until 5.4/5.5 |
+| A-021 | minor | The activity page said "In production, this feed maps to Microsoft Foundry Control Plane tracing", which the app doesn't use (principle 6). Found during 3.4. | /activity, the note under the log | 3.4 |
 
 ## Backend behaviour
 
@@ -93,7 +94,7 @@ Found by the characterization tests (1.3 onwards), not by the static checks abov
 
 ## Summary
 
-Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011). Found during 1.3: 1 major, 1 minor (A-012, A-013). Found during 1.4: 1 major (A-014). Found during 1.5: 1 minor (A-015). Found during 1.7: 1 major, 1 cosmetic (A-016, A-017). Found during 2.8: 1 major (A-018). Found during 3.3: 2 major (A-019, A-020).
+Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011). Found during 1.3: 1 major, 1 minor (A-012, A-013). Found during 1.4: 1 major (A-014). Found during 1.5: 1 minor (A-015). Found during 1.7: 1 major, 1 cosmetic (A-016, A-017). Found during 2.8: 1 major (A-018). Found during 3.3: 2 major (A-019, A-020). Found during 3.4: 1 minor (A-021).
 
 ## Status
 
@@ -108,7 +109,7 @@ Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Foun
 | A-007 | Fixed in 1.1: dependencies are in `pyproject.toml` and locked in `uv.lock`. |
 | A-008 | Fixed in 2.7: Semantic Kernel is removed, and backend tests now fail on any warning. |
 | A-009 | Fixed in 0.2: the initial toast phase is derived from `reduceAnimations`. |
-| A-010 | Open, 3.4. |
+| A-010 | Fixed in 3.4: `usePreferences()` exposes `reduceMotion` (the setting, or the OS asking for reduced motion); every component uses it, and it drives the `reduce-animations` class. `useReduceMotion` is removed. Regression tests in `shared/preferences/PreferencesContext.test.tsx`. |
 | A-011 | Fixed in 1.7: `stripEmoji` also removes anything with emoji presentation, pictographs followed by U+FE0F, and regional indicators. Regression tests in `PreferencesContext.test.tsx`. |
 | A-012 | Fixed in 2.4: every sub-agent gets the redacted message (and redacted task titles), and sub-agent output is PII-redacted. `tests/api/test_chat.py::test_sub_agents_never_receive_raw_pii`, `::test_sub_agent_output_is_pii_redacted`. |
 | A-013 | Fixed in 2.4: malformed classifier JSON falls back to a chat reply (code fences are parsed); unsafe or unusable agent output becomes a gentle reply; LLM and safety outages are a 503 with a gentle message and no internals. |
@@ -119,5 +120,6 @@ Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Foun
 | A-018 | Fixed in 2.8: the default is now Groq's free tier (`openai/gpt-oss-120b`); the `github` provider is removed; the evals run on Groq with a recorded baseline. |
 | A-019 | Fixed after 3.3: PDF and Word uploads are read by `POST /api/documents/parse` (errors show the backend's gentle explanation, or a general message when it's down); the built-in reader credits only itself and the browser's voice, and calls its translation a rough preview. Regression tests in `DocumentsView.test.tsx`, `ImmersiveReader.test.tsx`, `useDocumentUpload.test.tsx`. |
 | A-020 | Open: needs a product decision. |
+| A-021 | Fixed in 3.4: the note now says the log stays in the browser and what each entry shows. Test in `ActivityView.test.tsx`. |
 
-Open: 4 (A-002, A-010, A-015, A-020), each linked to the phase that fixes or removes it. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
+Open: 3 (A-002, A-015, A-020), each linked to the phase that fixes or removes it. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.

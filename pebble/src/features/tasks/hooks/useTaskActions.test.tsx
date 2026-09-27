@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, renderHookWithProviders } from '@/test/render';
-import { useActivityLog } from '@/contexts/ActivityLogContext';
+import { useActivityLog } from '@/features/activity';
 import { playTaskComplete } from '@/shared/lib/audio';
 import { useTasks } from '../context/TasksContext';
 import { newTask, seed } from '../testing';

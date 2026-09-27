@@ -52,7 +52,7 @@ Add dependencies to `pyproject.toml` and run `uv lock` (or `uv add`). Warnings f
 ## Architecture
 
 ### Frontend works standalone; the backend is optional
-Almost all frontend state lives in the browser, not in the backend. The React contexts keep their data in `localStorage` through `useLocalStorage`, under keys such as `pebble-tasks` and `pebble-preferences`, and seed it from sample data (`src/data/*`, `src/features/tasks/data/`). `TasksProvider`/`useTasks` live in `src/features/tasks/context/`; the other contexts are still in `src/contexts/`. The backend has no task, preferences or activity endpoints yet; roadmap phase 4 adds them on Postgres. The frontend makes three backend calls:
+Almost all frontend state lives in the browser, not in the backend. The React contexts keep their data in `localStorage` through `useLocalStorage` (`src/shared/hooks/`), under keys such as `pebble-tasks`, `pebble-preferences` and `pebble-activity`, and seed it from each feature's `data/` sample data. The backend has no task, preferences or activity endpoints yet; roadmap phase 4 adds them on Postgres. The frontend makes three backend calls:
 - `POST /api/agents/chat` in `src/features/chat/api/sendChatMessage.ts`, used by the `useChat` hook behind `PebbleChat` (`src/features/chat/`). Requests go through `postJson` in `src/shared/lib/api.ts`, which throws `ApiError`.
 - `POST /api/documents/parse` in `src/features/documents/api/parseDocument.ts` (through `postForm`), for PDF and Word uploads; text files are read in the browser
 - `GET /api/documents/immersive-reader/token` in `src/features/documents/api/immersiveReader.ts` (through `getJson`), used by `ImmersiveReader`
@@ -62,10 +62,24 @@ Almost all frontend state lives in the browser, not in the backend. The React co
 The frontend sends no `Authorization` header, but every endpoint it calls requires `get_current_user_id`. So for local chat to work, the backend must run with `DEV_MODE=true` (`.env.example` defaults to `false`). `backend/README.md` says the frontend handles the Entra OAuth flow, but that isn't implemented. If the backend is down, chat surfaces an error and `ImmersiveReader` falls back to `BuiltInReader`. MSW answers the token endpoint with a 503 by default (`readerHandlers.unavailable`); use `readerHandlers.token()` for the Azure path. `documentHandlers` (`parsed`, `status`) fake the parse endpoint; reading a multipart body hangs under jsdom, so handlers check the `Content-Type` instead. Modals use `useFocusTrap` (`src/shared/hooks/`); a modal opened on top of another passes `active: false` to the one below.
 
 ### Provider tree and cross-context coupling
-`components/layout/AppShell.tsx` (a client component rendered from `app/layout.tsx`) nests the providers: Preferences, then Pebble, then Tasks, then ActivityLog, then Toast. It also mounts the sidebar, the page transition, and the global `PebbleChat`. The Today page (`app/today/page.tsx`) only renders `TodayView` from `features/tasks`, whose logic is in `lib/` (greeting, nudge, distress phrases, tags) and hooks (`useTaskActions`, `useAddTask`, `useBreakDown`, ...). Tests in `features/tasks` use `seed()` from `features/tasks/testing.ts` to set the task list and preferences. The documents page renders `DocumentsView` from `features/documents`; the modal and the reader are split into small components, with the text logic (reading level, syllables, parts of speech, simulated translation, uploads) in `lib/`. Some contexts depend on each other. For example, `TasksContext` calls `usePebble()` to derive Pebble's mood from task completion percentage and to flash an "excited" mood when a task is completed. `PreferencesContext` applies preferences to the DOM: it toggles the `reduce-animations` class on `<html>`, sets the `--pebble-color`/`--pebble-dark` CSS variables, and exposes `stripEmoji` for calm mode.
+### Frontend layout
+`src/app/` holds routes only: every `page.tsx` renders a `ScreenBackground` and one feature view. `app/_shell/AppShell.tsx` (a client component rendered from `app/layout.tsx`; `_shell` is a private folder, not a route) nests the providers: Preferences, then Pebble, then Tasks, then ActivityLog, then Toast. It also mounts the `Sidebar`, the page transition and the global `PebbleChat`.
+
+Features live in `src/features/<name>/` (`components/`, `hooks/`, `lib/`, `api/`, `data/`, `context/`, `types.ts`, and a public `index.ts`):
+- `tasks`: `TasksProvider`/`useTasks` and `TodayView`. Logic in `lib/` (greeting, nudge, distress phrases, tags), handlers and timers in hooks (`useTaskActions`, `useAddTask`, `useBreakDown`, ...). Tests use `seed()` from `features/tasks/testing.ts`.
+- `documents`: `DocumentsView`, the document modal and the reader, with the text logic (reading level, syllables, parts of speech, simulated translation, uploads) in `lib/`.
+- `chat`: `PebbleChat` and `useChat`.
+- `companion`: `PebbleProvider`/`usePebble` (mood and rotating messages), `PebbleCharacter` and `PebbleSpeechBubble`.
+- `activity`: `ActivityLogProvider`/`useActivityLog` and `ActivityView`.
+- `settings`: `SettingsView`. The connected apps and voice input are simulated (A-020).
+- `focus`: `FocusView`, the 25-minute timer (`useFocusTimer`) and the sample rooms (removed in 7.1).
+
+`src/shared/` holds what features share and never imports a feature: `lib/` (`api.ts`, `audio.ts`), `hooks/` (`useLocalStorage`, `useTimeOfDay`, `useFocusOnNavigation`, `useFocusTrap`, `useFadeIn`), `ui/` (`ScreenBackground`, `ToastContext`), and `preferences/`. Preferences live in `shared/` because every feature reads them and the settings screen shows a Pebble preview, so putting them in a feature would create an import cycle.
+
+Some contexts depend on each other. For example, `TasksContext` calls `usePebble()` to derive Pebble's mood from task completion percentage and to flash an "excited" mood when a task is completed. `PreferencesContext` applies preferences to the DOM: it toggles the `reduce-animations` class on `<html>`, sets the `--pebble-color`/`--pebble-dark` CSS variables, and exposes `stripEmoji` for calm mode. It also exposes `reduceMotion`, which is true when the user turned reduce animations on or the OS asks for reduced motion. Components use `reduceMotion` for motion; only the settings toggle reads `preferences.reduceAnimations`. Saved preferences are merged over the defaults, so a missing key never breaks the app.
 
 ### Pebble character
-The 7 models in `components/pebble/models/` are built only from CSS and divs (`border-radius` shapes), with no SVG or images. They share pieces through `models/SharedParts.tsx`. Model styles live in `PebbleModels.css` and mood animations in `PebbleMoods.css`. Keep new character work in that style.
+The 7 models in `features/companion/models/` are built only from CSS and divs (`border-radius` shapes), with no SVG or images. They share pieces through `models/SharedParts.tsx`. Model styles live in `components/PebbleModels.css` and mood animations in `components/PebbleMoods.css`. Keep new character work in that style.
 
 ### Backend request flow
 The backend follows the clean architecture in `specs/tech-stack.md`: `app/domain`, `app/application` (use cases, ports, prompts), `app/infrastructure` (adapters, `config.py`) and `app/api` (routers, schemas, `auth.py`, wiring). `tests/unit/test_architecture.py` enforces the dependency rule (domain pure; application → domain only; infrastructure never imports api) and that only these four packages exist.
@@ -97,7 +111,7 @@ Each agent is a use case in `application/agents/`: `DecomposeTask` (CalmSense), 
   - Late tasks are "still open", never "overdue".
 - The app is dark mode only (background `#0F0D0A`) and has no light theme.
 - Accessibility:
-  - Respect `reduceAnimations` and `calmMode` (use `stripEmoji` for user-facing text).
-  - Keep keyboard navigation and ARIA working (`useFocusOnNavigation`, skip link).
+  - Respect reduced motion (`reduceMotion` from `usePreferences`) and `calmMode` (use `stripEmoji` for user-facing text).
+  - Keep keyboard navigation and ARIA working (`useFocusOnNavigation`, `useFocusTrap`, skip link).
 - Every AI action should be explainable. The activity log records the agent name, reasoning, and safety status. Tasks have "Why?" cards (`WhyCard`).
 - The named agents shown in the UI are CalmSense, SimplifyCore, PebbleVoice, AdaptLens, WhyBot, and BridgeBot. Only the first three plus the orchestrator have agent code. The other three appear only as names in `domain/agents.py` and the frontend (roadmap phase 5 makes them real).

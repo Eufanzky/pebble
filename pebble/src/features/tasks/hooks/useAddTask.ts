@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { useActivityLog } from '@/contexts/ActivityLogContext';
+import { useActivityLog } from '@/features/activity';
 import { useTasks } from '../context/TasksContext';
 import { isDistressInput } from '../lib/distress';
 

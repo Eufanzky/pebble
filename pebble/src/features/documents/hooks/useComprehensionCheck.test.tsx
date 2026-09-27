@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, renderHookWithProviders } from '@/test/render';
-import { useActivityLog } from '@/contexts/ActivityLogContext';
+import { useActivityLog } from '@/features/activity';
 import { testDocument } from '../testing';
 import { useComprehensionCheck } from './useComprehensionCheck';
 

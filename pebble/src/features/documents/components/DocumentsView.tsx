@@ -1,10 +1,10 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import PebbleCharacter from '@/components/pebble/PebbleCharacter';
-import PebbleSpeechBubble from '@/components/pebble/PebbleSpeechBubble';
-import { useActivityLog } from '@/contexts/ActivityLogContext';
-import { usePebble } from '@/contexts/PebbleContext';
+import { PebbleCharacter } from '@/features/companion';
+import { PebbleSpeechBubble } from '@/features/companion';
+import { useActivityLog } from '@/features/activity';
+import { usePebble } from '@/features/companion';
 import { sampleDocuments } from '../data/sampleDocuments';
 import { useDocumentUpload } from '../hooks/useDocumentUpload';
 import type { DocumentItem } from '../types';

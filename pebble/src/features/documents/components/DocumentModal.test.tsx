@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, renderHookWithProviders, renderWithProviders, screen, waitFor } from '@/test/render';
-import { usePreferences } from '@/contexts/PreferencesContext';
+import { usePreferences } from '@/shared/preferences';
 import { useTasks } from '@/features/tasks';
 import { testDocument } from '../testing';
 import DocumentModal from './DocumentModal';

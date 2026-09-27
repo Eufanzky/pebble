@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { act, renderHookWithProviders } from '@/test/render';
-import { useActivityLog } from '@/contexts/ActivityLogContext';
-import { usePreferences } from '@/contexts/PreferencesContext';
+import { useActivityLog } from '@/features/activity';
+import { usePreferences } from '@/shared/preferences';
 import { testDocument } from '../testing';
 import { useReadingLevel } from './useReadingLevel';
 

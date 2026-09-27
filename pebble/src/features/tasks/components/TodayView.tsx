@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import PebbleCharacter from '@/components/pebble/PebbleCharacter';
-import PebbleSpeechBubble from '@/components/pebble/PebbleSpeechBubble';
-import { usePebble } from '@/contexts/PebbleContext';
-import { usePreferences } from '@/contexts/PreferencesContext';
-import { useTimeOfDay } from '@/hooks/useTimeOfDay';
+import { PebbleCharacter } from '@/features/companion';
+import { PebbleSpeechBubble } from '@/features/companion';
+import { usePebble } from '@/features/companion';
+import { usePreferences } from '@/shared/preferences';
+import { useTimeOfDay } from '@/shared/hooks/useTimeOfDay';
 import { useTasks } from '../context/TasksContext';
 import { useAddTask } from '../hooks/useAddTask';
 import { useTaskActions } from '../hooks/useTaskActions';
@@ -24,7 +24,7 @@ import ViewToggle, { type ViewMode } from './ViewToggle';
 export default function TodayView() {
   const { mood, currentMessage } = usePebble();
   const { tasks, completionPercentage } = useTasks();
-  const { preferences } = usePreferences();
+  const { preferences, reduceMotion } = usePreferences();
   const timeOfDay = useTimeOfDay();
   const { formattedDate, hour } = useTodayClock();
   const actions = useTaskActions();
@@ -32,7 +32,7 @@ export default function TodayView() {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
 
   const calm = preferences.calmMode;
-  const noMotion = preferences.reduceAnimations;
+  const noMotion = reduceMotion;
   const { open, done, next } = splitTasks(tasks);
 
   return (

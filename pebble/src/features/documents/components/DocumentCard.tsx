@@ -1,6 +1,6 @@
 'use client';
 
-import { usePreferences } from '@/contexts/PreferencesContext';
+import { usePreferences } from '@/shared/preferences';
 import type { DocumentItem } from '../types';
 
 interface DocumentCardProps {
@@ -31,8 +31,8 @@ function DocIcon({ type, calm }: { type: string; calm: boolean }) {
 }
 
 export default function DocumentCard({ document: doc, onClick }: DocumentCardProps) {
-  const { preferences } = usePreferences();
-  const noMotion = preferences.reduceAnimations;
+  const { preferences, reduceMotion } = usePreferences();
+  const noMotion = reduceMotion;
 
   return (
     <button

@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { act, renderHookWithProviders } from '@/test/render';
-import { useActivityLog } from '@/contexts/ActivityLogContext';
+import { useActivityLog } from '@/features/activity';
 import { useTasks } from '../context/TasksContext';
 import { newTask, seed } from '../testing';
 import { useAddTask } from './useAddTask';

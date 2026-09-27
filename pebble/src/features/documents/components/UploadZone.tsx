@@ -1,12 +1,12 @@
 'use client';
 
 import { useState } from 'react';
-import { usePreferences } from '@/contexts/PreferencesContext';
+import { usePreferences } from '@/shared/preferences';
 import { isAcceptedUpload } from '../lib/upload';
 
 export default function UploadZone({ onUpload }: { onUpload?: (file: File) => void }) {
-  const { preferences } = usePreferences();
-  const noMotion = preferences.reduceAnimations;
+  const { reduceMotion } = usePreferences();
+  const noMotion = reduceMotion;
   const [isDragging, setIsDragging] = useState(false);
 
   const handleFile = (file: File) => {

@@ -1,7 +1,7 @@
 'use client';
 
 import type { CSSProperties } from 'react';
-import { usePreferences } from '@/contexts/PreferencesContext';
+import { usePreferences } from '@/shared/preferences';
 import { useComprehensionCheck } from '../hooks/useComprehensionCheck';
 import type { ComprehensionQuestion } from '../types';
 import MiniPebble from './MiniPebble';
@@ -12,8 +12,8 @@ interface Props {
 }
 
 export default function ComprehensionCheck({ question, docTitle }: Props) {
-  const { preferences } = usePreferences();
-  const noMotion = preferences.reduceAnimations;
+  const { reduceMotion } = usePreferences();
+  const noMotion = reduceMotion;
   const { options, answered, answer, feedback } = useComprehensionCheck(question, docTitle);
 
   const optionStyle = (option: string): CSSProperties => {

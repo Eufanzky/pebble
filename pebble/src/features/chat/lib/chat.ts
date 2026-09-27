@@ -1,5 +1,8 @@
 import type { Task } from '@/features/tasks';
-import type { ActivityEntry, PebbleMood, TimeOfDay, UserPreferences } from '@/lib/types';
+import type { ActivityEntry } from '@/features/activity';
+import type { PebbleMood } from '@/features/companion';
+import type { TimeOfDay } from '@/shared/hooks/useTimeOfDay';
+import type { UserPreferences } from '@/shared/preferences';
 import type { ChatMessage, ChatRequest, ChatResponse } from '../types';
 
 /** Shown instead of the raw error: a status code means nothing to the user. */

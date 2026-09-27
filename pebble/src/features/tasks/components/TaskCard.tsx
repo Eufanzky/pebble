@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, type CSSProperties } from 'react';
-import { usePreferences } from '@/contexts/PreferencesContext';
+import { usePreferences } from '@/shared/preferences';
 import { useBreakDown } from '../hooks/useBreakDown';
 import { useRipple } from '../hooks/useRipple';
 import { PRIORITY_CONFIG, TAG_CONFIG } from '../lib/tags';
@@ -22,8 +22,8 @@ interface TaskCardProps {
 const ADAPTED_TASK_IDS = new Set(['task-1', 'task-3']);
 
 export default function TaskCard({ task, onToggle, onToggleSubtask, onBreakDown, onWhyOpen }: TaskCardProps) {
-  const { preferences, stripEmoji } = usePreferences();
-  const noMotion = preferences.reduceAnimations;
+  const { preferences, reduceMotion, stripEmoji } = usePreferences();
+  const noMotion = reduceMotion;
   const calm = preferences.calmMode;
 
   const onShown = useCallback(() => onBreakDown(task.id), [onBreakDown, task.id]);

@@ -1,6 +1,6 @@
 'use client';
 
-import { usePreferences } from '@/contexts/PreferencesContext';
+import { usePreferences } from '@/shared/preferences';
 
 interface ProgressPathProps {
   completed: number;
@@ -9,8 +9,8 @@ interface ProgressPathProps {
 }
 
 export default function ProgressPath({ completed, total, percentage }: ProgressPathProps) {
-  const { preferences } = usePreferences();
-  const noMotion = preferences.reduceAnimations;
+  const { reduceMotion } = usePreferences();
+  const noMotion = reduceMotion;
 
   // S-curve path: gentle wave ~300px wide, ~40px tall
   const pathD = 'M 10,30 C 60,5 90,50 150,25 C 210,0 240,45 290,20';

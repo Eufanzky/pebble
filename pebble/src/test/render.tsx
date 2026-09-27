@@ -1,13 +1,13 @@
 import type { ReactElement, ReactNode } from 'react';
 import { render, renderHook, type RenderOptions } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { PreferencesProvider } from '@/contexts/PreferencesContext';
-import { PebbleProvider } from '@/contexts/PebbleContext';
+import { PreferencesProvider } from '@/shared/preferences';
+import { PebbleProvider } from '@/features/companion';
 import { TasksProvider } from '@/features/tasks';
-import { ActivityLogProvider } from '@/contexts/ActivityLogContext';
-import { ToastProvider } from '@/contexts/ToastContext';
+import { ActivityLogProvider } from '@/features/activity';
+import { ToastProvider } from '@/shared/ui/ToastContext';
 
-// The same provider tree as AppShell, without the layout around it.
+// The same provider tree as app/_shell/AppShell, without the layout around it.
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <PreferencesProvider>

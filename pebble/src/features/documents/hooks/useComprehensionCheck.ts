@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useActivityLog } from '@/contexts/ActivityLogContext';
+import { useActivityLog } from '@/features/activity';
 import type { ComprehensionQuestion } from '../types';
 
 export type Answer = 'correct' | 'wrong' | null;

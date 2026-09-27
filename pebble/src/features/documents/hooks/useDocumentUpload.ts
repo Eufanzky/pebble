@@ -1,9 +1,9 @@
 'use client';
 
 import { useCallback } from 'react';
-import { usePebble } from '@/contexts/PebbleContext';
-import { useActivityLog } from '@/contexts/ActivityLogContext';
-import { useToast } from '@/contexts/ToastContext';
+import { usePebble } from '@/features/companion';
+import { useActivityLog } from '@/features/activity';
+import { useToast } from '@/shared/ui/ToastContext';
 import { parseDocument } from '../api/parseDocument';
 import { documentFromText, isTextFile, sizeInKb, uploadErrorMessage } from '../lib/upload';
 import type { DocumentItem } from '../types';

@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { usePreferences } from '@/contexts/PreferencesContext';
+import { usePreferences } from '@/shared/preferences';
 import { useFadeIn } from '@/shared/hooks/useFadeIn';
 import { useFocusTrap } from '@/shared/hooks/useFocusTrap';
 import { useDocumentActions } from '../hooks/useDocumentActions';
@@ -20,8 +20,8 @@ interface Props {
 
 /** A document, simplified to the user's reading level. Mounted while open. */
 export default function DocumentModal({ document: doc, onClose }: Props) {
-  const { preferences } = usePreferences();
-  const noMotion = preferences.reduceAnimations;
+  const { preferences, reduceMotion } = usePreferences();
+  const noMotion = reduceMotion;
   const visible = useFadeIn();
   const modalRef = useRef<HTMLDivElement>(null);
   const [view, setView] = useState<DocView>('split');

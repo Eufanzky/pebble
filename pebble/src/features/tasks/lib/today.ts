@@ -1,4 +1,4 @@
-import type { TimeOfDay } from '@/lib/types';
+import type { TimeOfDay } from '@/shared/hooks/useTimeOfDay';
 import type { Task } from '../types';
 
 export interface Greeting {

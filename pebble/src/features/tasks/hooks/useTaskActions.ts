@@ -1,8 +1,8 @@
 'use client';
 
 import { useCallback } from 'react';
-import { useActivityLog } from '@/contexts/ActivityLogContext';
-import { usePreferences } from '@/contexts/PreferencesContext';
+import { useActivityLog } from '@/features/activity';
+import { usePreferences } from '@/shared/preferences';
 import { playTaskComplete } from '@/shared/lib/audio';
 import { useTasks } from '../context/TasksContext';
 
