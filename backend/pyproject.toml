@@ -45,6 +45,13 @@ filterwarnings = ["error"]
 source = ["app"]
 branch = true
 
+# Floors (specs/testing.md): 80% overall here; 90% on domain/ + application/ is checked in CI with
+#   uv run coverage report --include="app/domain/*,app/application/*" --fail-under=90
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+skip_covered = true
+
 [tool.ruff]
 target-version = "py312"
 line-length = 120

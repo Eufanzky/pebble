@@ -23,7 +23,8 @@ After changing dependencies, run `uv lock` and commit `uv.lock`.
 
 ```bash
 uv run pytest            # all tests except the real-LLM evals
-uv run pytest --cov      # with a coverage report
+uv run pytest --cov      # with coverage; fails below 80% overall
+uv run coverage report --include="app/domain/*,app/application/*" --fail-under=90   # the layer floor
 uv run ruff check        # lint (add --fix for the safe autofixes)
 ```
 

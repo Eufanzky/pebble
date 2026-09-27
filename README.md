@@ -189,7 +189,7 @@ uv run uvicorn app.main:app --port 8000 --reload
 
 Run the backend tests with `uv run pytest` and the linter with `uv run ruff check`.
 
-CI (`.github/workflows/ci.yml`) runs the same checks on every pull request and on `main`: frontend lint, `tsc --noEmit`, tests and build; backend `ruff check` and `pytest`.
+CI (`.github/workflows/ci.yml`) runs the same checks on every pull request and on `main`: frontend lint, `tsc --noEmit`, tests and build; backend `ruff check`, and `pytest` with coverage floors (80% overall, 90% on the domain and application layers).
 
 The API runs at **http://localhost:8000**. Swagger docs at **http://localhost:8000/docs**.
 
