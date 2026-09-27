@@ -59,6 +59,7 @@ Found by the first unit tests (1.2 onwards), not by the static checks above.
 |:--|:--|:--|:--|:--|
 | A-011 | minor | In calm mode, `stripEmoji` (`contexts/PreferencesContext.tsx`) misses emoji outside its hand-listed code-point ranges: for example ⭐ (U+2B50), ⏰ (U+23F0), ⌛ (U+231B), ⬆️ (U+2B06, leaves ⬆) and flags (regional indicators). The app's own sample data is covered, but chat replies from the LLM can contain these. Found during 1.2. | `stripEmoji('⭐ Star')` with calm mode on returns `'⭐ Star'` | 1.7 |
 | A-014 | major | When the chat request fails, `PebbleChat` shows the raw error to the user: `Chat request failed (500): {"detail":"Internal Server Error"}`, or `Failed to fetch` when the backend is down. It should be a gentle message in Pebble's voice. Found during 1.4. | `components/chat/PebbleChat.test.tsx`, "shows the error in the chat when the backend returns 500" | 1.7 |
+| A-015 | minor | Two sample-data lines are close to principle 1 but not caught by the 1.5 guilt scan: task 2's "why" says it's high priority "because it's been in your list since yesterday" (counting time), and task 3's says "without losing momentum" (mild loss framing). Found during 1.5. | `pebble/src/data/sampleTasks.ts` | 6.1 |
 
 ## Backend behaviour
 
@@ -87,7 +88,7 @@ Found by the characterization tests (1.3 onwards), not by the static checks abov
 
 ## Summary
 
-Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011). Found during 1.3: 1 major, 1 minor (A-012, A-013). Found during 1.4: 1 major (A-014).
+Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011). Found during 1.3: 1 major, 1 minor (A-012, A-013). Found during 1.4: 1 major (A-014). Found during 1.5: 1 minor (A-015).
 
 ## Status
 
@@ -107,5 +108,6 @@ Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Foun
 | A-012 | Open, 2.4. |
 | A-013 | Open, 2.4. |
 | A-014 | Open, 1.7. |
+| A-015 | Open, 6.1. |
 
-Open: 7 (A-002, A-008, A-010, A-011, A-012, A-013, A-014). The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
+Open: 8 (A-002, A-008, A-010, A-011, A-012, A-013, A-014, A-015). The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.

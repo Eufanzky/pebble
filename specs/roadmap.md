@@ -37,7 +37,7 @@ Rules for every phase:
   - the chat error state (MSW 500)
   - toggling a task step
   *Done:* tests pass on the current, untouched code.
-- [ ] **1.5 Guilt scan.** Add a test that fails on banned patterns in UI copy, sample data, and prompts (see `testing.md`).
+- [x] **1.5 Guilt scan.** Add a test that fails on banned patterns in UI copy, sample data, and prompts (see `testing.md`).
   *Done:* it runs in `npm test` and passes today.
 - [ ] **1.6 CI.** Add a GitHub Actions workflow that runs lint, typecheck, and all tests for both parts on every PR.
   *Done:* the workflow is green on a PR.
