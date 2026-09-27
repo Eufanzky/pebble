@@ -1,7 +1,17 @@
+from typing import Literal
+
 from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
+    # LLM (roadmap 2.2). "github" = GitHub Models, "openai", "azure" (uses the
+    # AZURE_OPENAI_* settings below), or "fake" (scripted, offline).
+    llm_provider: Literal["github", "openai", "azure", "fake"] = "github"
+    llm_api_key: str = ""
+    llm_model: str = ""  # empty: the provider's default (openai/gpt-4o on GitHub Models)
+    llm_base_url: str = ""  # empty: the provider's public endpoint
+    llm_timeout_seconds: float = 30.0
+
     # Azure Cosmos DB
     cosmos_endpoint: str = ""
     cosmos_key: str = ""

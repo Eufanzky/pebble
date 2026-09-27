@@ -12,7 +12,7 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 // What gets scanned: everything the user can read, as source files.
 const SCANNED = [
   { dir: 'pebble/src', extensions: ['.ts', '.tsx', '.css'] }, // UI copy, styles, sample data
-  { dir: 'backend/app/agents', extensions: ['.py'] }, // prompts and fixed agent replies
+  { dir: 'backend/app', extensions: ['.py'] }, // prompts, fixed agent replies, the fake LLM's replies
 ];
 
 // Tests and test helpers quote banned words on purpose.

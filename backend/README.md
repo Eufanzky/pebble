@@ -132,6 +132,19 @@ Frontend at **http://localhost:3000**, backend at **http://localhost:8000**.
 |--------|----------|-------------|
 | GET | `/api/health` | Health check |
 
+## LLM provider
+
+The agents reach the model through the `LLMProvider` port (`app/application/ports/llm.py`). `LLM_PROVIDER` picks the adapter:
+
+| `LLM_PROVIDER` | Adapter | Needs |
+|:--|:--|:--|
+| `github` (default) | `OpenAICompatibleLLM.github_models` | `LLM_API_KEY`: a GitHub token with `models:read` |
+| `openai` | `OpenAICompatibleLLM.openai` | `LLM_API_KEY` |
+| `azure` | `OpenAICompatibleLLM.azure` | `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_KEY`, `AZURE_OPENAI_DEPLOYMENT` |
+| `fake` | `FakeLLM` (`app/infrastructure/llm/fake.py`) | nothing: deterministic offline replies |
+
+`LLM_MODEL` and `LLM_BASE_URL` override the defaults. When the selected provider has no credentials, the LLM is disabled cleanly: every call raises `LLMUnavailableError`. The adapter talks HTTP with `httpx`, and its contract tests (`tests/contract/`) cover success, malformed responses, 429 and timeouts with respx.
+
 ## Architecture: the dependency rule
 
 ```
