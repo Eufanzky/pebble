@@ -64,7 +64,7 @@ The characterization tests from 1.3 must stay green through every item in this p
   *Done:* the backend runs with only an LLM key set, the whole suite passes, and `requirements.txt` is gone.
 - [ ] **2.8 LLM eval suite.** Add a labelled set of about 30 messages (including distress) and `pytest -m eval` checks for JSON validity, intent accuracy, distress recall, and the voice rules. Schedule it weekly in CI.
   *Done:* a baseline score is recorded in `backend/tests/evals/README.md`.
-- [ ] **2.9 Backend coverage floor.** Enforce 90% on `domain/` + `application/` and 80% overall in CI.
+- [x] **2.9 Backend coverage floor.** Enforce 90% on `domain/` + `application/` and 80% overall in CI.
   *Done:* CI fails below the floor.
 
 ## Phase 3: Frontend feature structure
