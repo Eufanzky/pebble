@@ -1,8 +1,8 @@
 'use client';
 
 import { createContext, useContext, useCallback, useEffect, type ReactNode } from 'react';
-import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { usePebble } from '@/contexts/PebbleContext';
+import { useLocalStorage } from '@/shared/hooks/useLocalStorage';
+import { usePebble } from '@/features/companion';
 import { sampleTasks } from '../data/sampleTasks';
 import type { NewTask, Subtask, Task } from '../types';
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { usePreferences } from '@/contexts/PreferencesContext';
+import { usePreferences } from '@/shared/preferences';
 
 interface WhyCardProps {
   explanation: string;
@@ -35,8 +35,8 @@ function MiniPebbleFace() {
 
 export default function WhyCard({ explanation, onOpen }: WhyCardProps) {
   const [expanded, setExpanded] = useState(false);
-  const { preferences } = usePreferences();
-  const noMotion = preferences.reduceAnimations;
+  const { reduceMotion } = usePreferences();
+  const noMotion = reduceMotion;
 
   const toggle = () => {
     if (!expanded && onOpen) onOpen();

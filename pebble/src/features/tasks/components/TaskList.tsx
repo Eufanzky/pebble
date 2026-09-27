@@ -1,4 +1,4 @@
-import PebbleCharacter from '@/components/pebble/PebbleCharacter';
+import { PebbleCharacter } from '@/features/companion';
 import type { Task } from '../types';
 import TaskCard from './TaskCard';
 

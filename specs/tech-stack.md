@@ -76,10 +76,11 @@ pebble/src/
   app/             routes only. Pages are thin and compose feature components.
   features/<name>/ components/, hooks/, api/, lib/, types.ts, index.ts (the public API)
                    features: tasks, documents, chat, focus, activity, settings, companion (the Pebble character)
-  shared/          ui/ (buttons, modals, cards), hooks/, lib/ (api client, utils)
+  shared/          ui/ (buttons, modals, cards), hooks/, lib/ (api client, utils), preferences/ (read by every feature)
 ```
 
-- A feature imports from `shared/` and from other features only through their `index.ts`.
+- A feature imports from `shared/` and from other features only through their `index.ts`. ESLint enforces this, and `shared/` never imports a feature.
+- The app shell (providers, sidebar, global chat) lives in `app/_shell/`, since it composes features.
 - Soft limit of about 200 lines per component file. Past that, split it.
 - Logic goes in hooks and `lib/`, not in JSX. Components render.
 - The Pebble character stays pure CSS and divs, with no SVG or images.

@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Nunito, Baloo_2, JetBrains_Mono } from 'next/font/google';
-import AppShell from '@/components/layout/AppShell';
+import AppShell from './_shell/AppShell';
 import './globals.css';
 
 const nunito = Nunito({

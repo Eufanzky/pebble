@@ -2,8 +2,8 @@
 
 import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useActivityLog } from '@/contexts/ActivityLogContext';
-import { useToast } from '@/contexts/ToastContext';
+import { useActivityLog } from '@/features/activity';
+import { useToast } from '@/shared/ui/ToastContext';
 import { useTasks } from '@/features/tasks';
 import type { DocumentItem } from '../types';
 

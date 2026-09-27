@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { act, renderHookWithProviders, renderWithProviders, screen, within } from '@/test/render';
-import { usePreferences } from '@/contexts/PreferencesContext';
+import { usePreferences } from '@/shared/preferences';
 import { useTasks } from '@/features/tasks';
 import TodayPage from './page';
 

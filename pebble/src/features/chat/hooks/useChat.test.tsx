@@ -1,6 +1,6 @@
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
-import { usePebble } from '@/contexts/PebbleContext';
+import { usePebble } from '@/features/companion';
 import { chatHandlers, chatReply } from '@/test/msw/handlers';
 import { server } from '@/test/msw/server';
 import { act, renderHookWithProviders, waitFor } from '@/test/render';

@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import { usePreferences } from '@/contexts/PreferencesContext';
+import { usePreferences } from '@/shared/preferences';
 import { useFadeIn } from '@/shared/hooks/useFadeIn';
 import { useFocusTrap } from '@/shared/hooks/useFocusTrap';
 import { useReadAloud } from '../hooks/useReadAloud';
@@ -19,8 +19,8 @@ const fontButton = {
 
 /** The reader Pebble ships with, for when Azure Immersive Reader isn't set up. */
 export default function BuiltInReader({ text, onClose }: { text: string; onClose: () => void }) {
-  const { preferences } = usePreferences();
-  const noMotion = preferences.reduceAnimations;
+  const { preferences, reduceMotion } = usePreferences();
+  const noMotion = reduceMotion;
   const calm = preferences.calmMode;
   const visible = useFadeIn();
   const ref = useRef<HTMLDivElement>(null);

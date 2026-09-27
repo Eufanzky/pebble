@@ -3,8 +3,8 @@ import { describe, expect, it } from 'vitest';
 import { chatHandlers, chatReply } from '@/test/msw/handlers';
 import { server } from '@/test/msw/server';
 import { act, renderHookWithProviders, renderWithProviders, screen } from '@/test/render';
-import { usePreferences } from '@/contexts/PreferencesContext';
-import type { ActivityEntry } from '@/lib/types';
+import { usePreferences } from '@/shared/preferences';
+import type { ActivityEntry } from '@/features/activity';
 import PebbleChat from './PebbleChat';
 
 const GENTLE_ERROR = "Pebble couldn't answer just now. Try again whenever you're ready.";

@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { act, renderHookWithProviders, screen } from '@/test/render';
 import { documentHandlers } from '@/test/msw/handlers';
 import { server } from '@/test/msw/server';
-import { useActivityLog } from '@/contexts/ActivityLogContext';
+import { useActivityLog } from '@/features/activity';
 import type { DocumentItem } from '../types';
 import { useDocumentUpload } from './useDocumentUpload';
 

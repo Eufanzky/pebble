@@ -1,0 +1,61 @@
+'use client';
+
+import type { ReactNode } from 'react';
+import { usePreferences } from '@/shared/preferences';
+import { usePreferenceActions } from '../hooks/usePreferenceActions';
+import ToggleSwitch from './ToggleSwitch';
+import VoiceInputDemo from './VoiceInputDemo';
+
+function ToggleRow({ title, children, toggle }: { title: string; children: ReactNode; toggle: ReactNode }) {
+  return (
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div>
+        <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>{title}</div>
+        {children}
+      </div>
+      {toggle}
+    </div>
+  );
+}
+
+const divider = <div style={{ borderTop: '1px solid var(--border-soft)' }} />;
+const hint = { fontSize: 12, color: 'var(--text-muted)' } as const;
+
+/** Reduce animations, calm mode and voice input. */
+export default function DisplayToggles() {
+  const { preferences } = usePreferences();
+  const { toggleReduceAnimations, toggleCalmMode, toggleVoiceInput } = usePreferenceActions();
+
+  return (
+    <div className="glass-card" style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+      <ToggleRow
+        title="Reduce animations"
+        toggle={<ToggleSwitch on={preferences.reduceAnimations} onChange={toggleReduceAnimations} label="Reduce animations" />}
+      >
+        <div style={hint}>Disables all motion, transitions, and animated effects</div>
+        <div style={{ fontSize: 10, color: 'var(--text-muted)', marginTop: 4 }}>Supports WCAG 2.2 criterion 2.3.3</div>
+      </ToggleRow>
+
+      {divider}
+
+      <ToggleRow
+        title="Calm mode"
+        toggle={<ToggleSwitch on={preferences.calmMode} onChange={toggleCalmMode} label="Calm mode" />}
+      >
+        <div style={hint}>Removes emoji and decorative symbols from all text</div>
+      </ToggleRow>
+
+      {divider}
+
+      <div>
+        <ToggleRow
+          title="Voice input"
+          toggle={<ToggleSwitch on={preferences.voiceInput} onChange={toggleVoiceInput} label="Voice input" />}
+        >
+          <div style={hint}>Enable microphone for voice commands</div>
+        </ToggleRow>
+        {preferences.voiceInput && <VoiceInputDemo />}
+      </div>
+    </div>
+  );
+}

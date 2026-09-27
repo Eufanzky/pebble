@@ -1,4 +1,4 @@
-import PebbleCharacter from '@/components/pebble/PebbleCharacter';
+import { PebbleCharacter } from '@/features/companion';
 
 interface DistressPromptProps {
   onStartFresh: () => void;

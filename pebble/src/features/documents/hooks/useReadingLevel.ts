@@ -1,8 +1,8 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { useActivityLog } from '@/contexts/ActivityLogContext';
-import { usePreferences } from '@/contexts/PreferencesContext';
+import { useActivityLog } from '@/features/activity';
+import { usePreferences } from '@/shared/preferences';
 import { getTextForLevel } from '../lib/readingLevel';
 import type { DocumentItem } from '../types';
 

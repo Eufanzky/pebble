@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, renderHookWithProviders, renderWithProviders, screen, waitFor, within } from '@/test/render';
-import { usePreferences } from '@/contexts/PreferencesContext';
+import { usePreferences } from '@/shared/preferences';
 import { readerHandlers } from '@/test/msw/handlers';
 import { server } from '@/test/msw/server';
 import ImmersiveReader from './ImmersiveReader';

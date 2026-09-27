@@ -1,4 +1,4 @@
-import ScreenBackground from '@/components/layout/ScreenBackground';
+import ScreenBackground from '@/shared/ui/ScreenBackground';
 import { TodayView } from '@/features/tasks';
 
 export default function TodayPage() {

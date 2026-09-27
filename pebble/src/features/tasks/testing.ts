@@ -1,6 +1,6 @@
 import { act, renderHookWithProviders } from '@/test/render';
-import { usePreferences } from '@/contexts/PreferencesContext';
-import type { UserPreferences } from '@/lib/types';
+import { usePreferences } from '@/shared/preferences';
+import type { UserPreferences } from '@/shared/preferences';
 import { useTasks } from './context/TasksContext';
 import type { NewTask } from './types';
 
