@@ -15,15 +15,10 @@ export class ApiError extends Error {
   }
 }
 
-/** POSTs `body` as JSON and returns the parsed JSON reply. Throws `ApiError`. */
-export async function postJson<Response>(path: string, body: unknown): Promise<Response> {
+async function request<Response>(path: string, init?: RequestInit): Promise<Response> {
   let res: globalThis.Response;
   try {
-    res = await fetch(path, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(body),
-    });
+    res = await fetch(path, init);
   } catch (error) {
     throw new ApiError(null, error instanceof Error ? error.message : String(error));
   }
@@ -34,4 +29,18 @@ export async function postJson<Response>(path: string, body: unknown): Promise<R
   }
 
   return res.json() as Promise<Response>;
+}
+
+/** GETs `path` and returns the parsed JSON reply. Throws `ApiError`. */
+export function getJson<Response>(path: string): Promise<Response> {
+  return request<Response>(path);
+}
+
+/** POSTs `body` as JSON and returns the parsed JSON reply. Throws `ApiError`. */
+export function postJson<Response>(path: string, body: unknown): Promise<Response> {
+  return request<Response>(path, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  });
 }
