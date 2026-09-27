@@ -27,7 +27,7 @@ export default function ChatLauncher({ isOpen, noMotion, onToggle }: ChatLaunche
         <div style={{ position: 'absolute', width: 2, height: 2, background: 'white', borderRadius: '50%', top: 7, left: 5.5, opacity: 0.8 }} />
         <div style={{ position: 'absolute', width: 2, height: 2, background: 'white', borderRadius: '50%', top: 7, right: 5.5, opacity: 0.8 }} />
         {!isOpen && (
-          <div style={{ position: 'absolute', bottom: 2, left: '50%', transform: 'translateX(-50)', width: 8, height: 4, borderRadius: '0 0 4px 4px', background: '#2A2A2E' }} />
+          <div data-part="mouth" style={{ position: 'absolute', bottom: 2, left: '50%', transform: 'translateX(-50%)', width: 8, height: 4, borderRadius: '0 0 4px 4px', background: '#2A2A2E' }} />
         )}
       </div>
     </button>
