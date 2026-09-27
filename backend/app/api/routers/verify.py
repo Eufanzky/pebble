@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 
 from fastapi import APIRouter, HTTPException
 
-from app.config import settings
+from app.infrastructure.config import settings
 
 logger = logging.getLogger("focusbuddy.verify")
 

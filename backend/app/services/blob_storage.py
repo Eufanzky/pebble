@@ -2,7 +2,7 @@ import uuid
 
 from azure.storage.blob.aio import BlobServiceClient, ContainerClient
 
-from app.config import settings
+from app.infrastructure.config import settings
 
 _container_client: ContainerClient | None = None
 

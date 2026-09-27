@@ -132,42 +132,40 @@ Frontend at **http://localhost:3000**, backend at **http://localhost:8000**.
 |--------|----------|-------------|
 | GET | `/api/health` | Health check |
 
+## Architecture: the dependency rule
+
+```
+api ──▶ application ──▶ domain
+             ▲
+infrastructure
+```
+
+- `domain` imports nothing from the project and no framework: only the standard library.
+- `application` imports only `domain`. Use cases depend on ports (interfaces), never on SDKs.
+- `infrastructure` implements the application ports. It never imports `api`.
+- `api` may import any layer: it parses requests, calls one use case, maps the result, and wires adapters into use cases.
+- `main.py` is the composition root.
+
+`tests/unit/test_architecture.py` enforces the rule by parsing every module's imports, so a violation fails `uv run pytest`.
+
 ## Project Structure
+
+The backend is moving to a clean architecture during roadmap phase 2 (`specs/roadmap.md`). The four layers exist; code in `agents/` and `services/` moves into them item by item.
 
 ```
 backend/
 ├── app/
-│   ├── main.py                 # FastAPI app, middleware, router registration
-│   ├── config.py               # Pydantic settings from .env
-│   ├── agents/                 # AI agent logic
-│   │   ├── prompts.py          # System prompts with Pebble voice rules
-│   │   ├── orchestrator.py     # Intent classification + routing
-│   │   ├── task_decomposition.py
-│   │   ├── document_simplification.py
-│   │   └── motivation.py
-│   ├── models/                 # Pydantic request/response schemas
-│   │   ├── schemas.py          # Tasks, preferences, activity
-│   │   ├── agent_schemas.py    # Agent request/response
-│   │   ├── document_schemas.py # Document pipeline
-│   │   └── focus_schemas.py    # Focus room
-│   ├── routers/                # FastAPI route handlers
-│   │   ├── tasks.py
-│   │   ├── preferences.py
-│   │   ├── activity.py
-│   │   ├── agents.py
-│   │   ├── documents.py
-│   │   ├── focus.py
-│   │   └── audit.py
-│   └── services/               # Azure service clients
-│       ├── auth.py             # Entra ID JWT validation
-│       ├── db.py               # Cosmos DB client
-│       ├── openai_client.py    # Azure OpenAI
-│       ├── content_safety.py   # Content Safety filter
-│       ├── blob_storage.py     # Blob Storage uploads
-│       ├── doc_intelligence.py # Document Intelligence parsing
-│       ├── search.py           # AI Search indexing + RAG
-│       ├── webpubsub.py        # Web PubSub real-time
-│       └── monitoring.py       # App Insights + request logging
+│   ├── main.py                 # composition root: app, middleware, router registration
+│   ├── domain/                 # entities, value objects, rules (pure Python)
+│   ├── application/            # use cases, ports, prompts
+│   ├── infrastructure/         # adapters that implement the ports
+│   │   └── config.py           # settings from .env (pydantic-settings)
+│   ├── api/                    # HTTP: routers, schemas, auth, wiring
+│   │   ├── auth.py             # Entra ID JWT validation (DEV_MODE bypass)
+│   │   ├── routers/            # tasks, preferences, activity, agents, documents, focus, audit, verify
+│   │   └── schemas/            # request/response models (agents, documents, focus, records)
+│   ├── agents/                 # legacy: orchestrator and sub-agents (moves to application/ in 2.4–2.5)
+│   └── services/               # legacy: Azure clients (move to infrastructure/ or go in 2.2–2.7)
 ├── tests/                      # pytest suite (conftest.py: app, client and AI-service fixtures; fakes.py)
 ├── pyproject.toml              # dependencies, pytest and ruff config
 ├── uv.lock                     # locked dependency versions

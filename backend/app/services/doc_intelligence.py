@@ -2,7 +2,7 @@ from azure.ai.documentintelligence.aio import DocumentIntelligenceClient
 from azure.ai.documentintelligence.models import AnalyzeDocumentRequest
 from azure.core.credentials import AzureKeyCredential
 
-from app.config import settings
+from app.infrastructure.config import settings
 
 _client: DocumentIntelligenceClient | None = None
 

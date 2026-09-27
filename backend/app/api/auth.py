@@ -4,7 +4,7 @@ from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
 from jose.backends import RSAKey
 
-from app.config import settings
+from app.infrastructure.config import settings
 
 security = HTTPBearer(auto_error=False)
 

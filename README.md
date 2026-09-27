@@ -239,12 +239,13 @@ Focusbuddy/
 │   └── public/                      # Static assets (backgrounds, icons)
 ├── ⚙️ backend/                      # Backend API (FastAPI)
 │   ├── app/
-│   │   ├── main.py                  # App creation, middleware, router registration
-│   │   ├── config.py                # Settings from .env
-│   │   ├── agents/                  # AI agent implementations (orchestrator + specialized agents)
-│   │   ├── models/                  # Pydantic request/response schemas
-│   │   ├── routers/                 # API route handlers (/api/*)
-│   │   └── services/                # Azure & Foundry service clients
+│   │   ├── main.py                  # Composition root: app, middleware, router registration
+│   │   ├── domain/                  # Entities and rules (pure Python)
+│   │   ├── application/             # Use cases, ports, prompts
+│   │   ├── infrastructure/          # Adapters for the ports, settings (config.py)
+│   │   ├── api/                     # Routers, schemas, auth, wiring
+│   │   ├── agents/                  # Legacy agent code (moves to application/ in phase 2)
+│   │   └── services/                # Legacy Azure clients (move or go in phase 2)
 │   ├── tests/                       # pytest suite
 │   ├── pyproject.toml               # Dependencies (uv), pytest and ruff config
 │   ├── uv.lock

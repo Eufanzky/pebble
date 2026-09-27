@@ -48,7 +48,7 @@ Rules for every phase:
 
 The characterization tests from 1.3 must stay green through every item in this phase.
 
-- [ ] **2.1 Layer skeleton.** Create `domain/`, `application/`, `infrastructure/`, and `api/`, and move the config. Document the dependency rule in the backend README.
+- [x] **2.1 Layer skeleton.** Create `domain/`, `application/`, `infrastructure/`, and `api/`, and move the config. Document the dependency rule in the backend README.
   *Done:* the app starts and the 1.3 tests pass.
 - [ ] **2.2 LLM port.** Add an `LLMProvider` interface, an OpenAI-compatible adapter (GitHub Models by default, Azure OpenAI by config), and a scripted `fake` provider selectable with `LLM_PROVIDER=fake`.
   *Done:* adapter contract tests (respx) cover success, malformed JSON, 429, and timeout.

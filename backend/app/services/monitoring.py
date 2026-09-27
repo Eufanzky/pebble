@@ -5,7 +5,7 @@ from collections.abc import Callable
 from fastapi import Request, Response
 from starlette.middleware.base import BaseHTTPMiddleware
 
-from app.config import settings
+from app.infrastructure.config import settings
 
 logger = logging.getLogger("focusbuddy")
 

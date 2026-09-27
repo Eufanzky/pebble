@@ -1,6 +1,6 @@
 from openai import AsyncAzureOpenAI
 
-from app.config import settings
+from app.infrastructure.config import settings
 
 _client: AsyncAzureOpenAI | None = None
 

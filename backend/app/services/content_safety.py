@@ -5,7 +5,7 @@ from azure.ai.contentsafety.aio import ContentSafetyClient
 from azure.ai.contentsafety.models import AnalyzeTextOptions, TextCategory
 from azure.core.credentials import AzureKeyCredential
 
-from app.config import settings
+from app.infrastructure.config import settings
 
 logger = logging.getLogger("focusbuddy.safety")
 

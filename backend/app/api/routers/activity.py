@@ -3,8 +3,8 @@ from datetime import UTC, datetime
 
 from fastapi import APIRouter, Depends, Query, status
 
-from app.models.schemas import ActivityCreate, ActivityResponse
-from app.services.auth import get_current_user_id
+from app.api.auth import get_current_user_id
+from app.api.schemas.records import ActivityCreate, ActivityResponse
 from app.services.db import get_container
 
 router = APIRouter()

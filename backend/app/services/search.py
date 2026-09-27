@@ -10,7 +10,7 @@ from azure.search.documents.indexes.models import (
     SimpleField,
 )
 
-from app.config import settings
+from app.infrastructure.config import settings
 
 _search_client: SearchClient | None = None
 _index_initialized: bool = False

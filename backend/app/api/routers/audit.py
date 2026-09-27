@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Query
 
-from app.services.auth import get_current_user_id
+from app.api.auth import get_current_user_id
 from app.services.db import get_container
 
 router = APIRouter()
