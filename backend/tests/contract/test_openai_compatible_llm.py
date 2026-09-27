@@ -16,7 +16,7 @@ from app.application.ports.llm import (
 )
 from app.infrastructure.llm.openai_compatible import OpenAICompatibleLLM
 
-GITHUB_URL = "https://models.github.ai/inference/chat/completions"
+GROQ_URL = "https://api.groq.com/openai/v1/chat/completions"
 REQUEST = LLMRequest(
     agent="orchestrator", system_prompt="You are Pebble.", user_message="Hi", temperature=0.6, max_tokens=512
 )
@@ -34,20 +34,20 @@ def completion(content: str | None) -> dict:
 
 
 @pytest.fixture
-def github() -> OpenAICompatibleLLM:
-    return OpenAICompatibleLLM.github_models(api_key="gh-token")
+def groq() -> OpenAICompatibleLLM:
+    return OpenAICompatibleLLM.groq(api_key="gsk-test")
 
 
 @respx.mock
-async def test_success_returns_the_message_text(github):
-    route = respx.post(GITHUB_URL).respond(json=completion('{"intent": "chat"}'))
+async def test_success_returns_the_message_text(groq):
+    route = respx.post(GROQ_URL).respond(json=completion('{"intent": "chat"}'))
 
-    assert await github.complete(REQUEST) == '{"intent": "chat"}'
+    assert await groq.complete(REQUEST) == '{"intent": "chat"}'
 
     sent = route.calls.last.request
-    assert sent.headers["authorization"] == "Bearer gh-token"
+    assert sent.headers["authorization"] == "Bearer gsk-test"
     assert json.loads(sent.content) == {
-        "model": "openai/gpt-4o",
+        "model": "openai/gpt-oss-120b",
         "messages": [
             {"role": "system", "content": "You are Pebble."},
             {"role": "user", "content": "Hi"},
@@ -55,14 +55,15 @@ async def test_success_returns_the_message_text(github):
         "temperature": 0.6,
         "max_tokens": 512,
         "response_format": {"type": "json_object"},
+        "reasoning_effort": "low",
     }
 
 
 @respx.mock
-async def test_json_mode_off_sends_no_response_format(github):
-    route = respx.post(GITHUB_URL).respond(json=completion("plain"))
+async def test_json_mode_off_sends_no_response_format(groq):
+    route = respx.post(GROQ_URL).respond(json=completion("plain"))
 
-    await github.complete(LLMRequest(agent="x", system_prompt="s", user_message="u", json_mode=False))
+    await groq.complete(LLMRequest(agent="x", system_prompt="s", user_message="u", json_mode=False))
 
     assert "response_format" not in json.loads(route.calls.last.request.content)
 
@@ -106,68 +107,68 @@ async def test_openai_uses_its_endpoint_and_a_custom_model():
     ],
     ids=["not-json", "no-choices-key", "empty-choices", "null-content"],
 )
-async def test_malformed_response_is_a_response_error(github, response):
-    respx.post(GITHUB_URL).mock(return_value=response)
+async def test_malformed_response_is_a_response_error(groq, response):
+    respx.post(GROQ_URL).mock(return_value=response)
 
     with pytest.raises(LLMResponseError):
-        await github.complete(REQUEST)
+        await groq.complete(REQUEST)
 
 
 @respx.mock
-async def test_429_is_rate_limited_with_retry_after(github):
-    respx.post(GITHUB_URL).respond(429, headers={"retry-after": "42"}, json={"error": {"code": "RateLimitReached"}})
+async def test_429_is_rate_limited_with_retry_after(groq):
+    respx.post(GROQ_URL).respond(429, headers={"retry-after": "42"}, json={"error": {"code": "RateLimitReached"}})
 
     with pytest.raises(LLMRateLimitedError) as caught:
-        await github.complete(REQUEST)
+        await groq.complete(REQUEST)
 
     assert caught.value.retry_after == 42.0
 
 
 @respx.mock
-async def test_429_without_retry_after(github):
-    respx.post(GITHUB_URL).respond(429)
+async def test_429_without_retry_after(groq):
+    respx.post(GROQ_URL).respond(429)
 
     with pytest.raises(LLMRateLimitedError) as caught:
-        await github.complete(REQUEST)
+        await groq.complete(REQUEST)
 
     assert caught.value.retry_after is None
 
 
 @respx.mock
-async def test_timeout_is_a_timeout_error(github):
-    respx.post(GITHUB_URL).mock(side_effect=httpx.ReadTimeout("slow"))
+async def test_timeout_is_a_timeout_error(groq):
+    respx.post(GROQ_URL).mock(side_effect=httpx.ReadTimeout("slow"))
 
     with pytest.raises(LLMTimeoutError):
-        await github.complete(REQUEST)
+        await groq.complete(REQUEST)
 
 
 @respx.mock
-async def test_timeout_counts_as_unavailable(github):
-    respx.post(GITHUB_URL).mock(side_effect=httpx.ConnectTimeout("slow"))
+async def test_timeout_counts_as_unavailable(groq):
+    respx.post(GROQ_URL).mock(side_effect=httpx.ConnectTimeout("slow"))
 
     with pytest.raises(LLMUnavailableError):
-        await github.complete(REQUEST)
+        await groq.complete(REQUEST)
 
 
 @respx.mock
-async def test_connection_error_is_unavailable(github):
-    respx.post(GITHUB_URL).mock(side_effect=httpx.ConnectError("refused"))
+async def test_connection_error_is_unavailable(groq):
+    respx.post(GROQ_URL).mock(side_effect=httpx.ConnectError("refused"))
 
     with pytest.raises(LLMUnavailableError):
-        await github.complete(REQUEST)
+        await groq.complete(REQUEST)
 
 
 @respx.mock
 @pytest.mark.parametrize("status", [401, 403, 500, 503])
-async def test_http_errors_are_unavailable(github, status):
-    respx.post(GITHUB_URL).respond(status)
+async def test_http_errors_are_unavailable(groq, status):
+    respx.post(GROQ_URL).respond(status)
 
-    with pytest.raises(LLMUnavailableError, match=f"HTTP {status}"):
-        await github.complete(REQUEST)
+    with pytest.raises(LLMUnavailableError, match=f"HTTP {status} \\(None\\)"):
+        await groq.complete(REQUEST)
 
 
-async def test_the_client_can_be_closed(github):
-    await github.aclose()
+async def test_the_client_can_be_closed(groq):
+    await groq.aclose()
 
 
 @respx.mock
@@ -185,8 +186,60 @@ async def test_the_client_can_be_closed(github):
         ),
     ],
 )
-async def test_response_errors_describe_the_shape_but_never_the_content(github, response, described):
-    respx.post(GITHUB_URL).mock(return_value=response)
+async def test_response_errors_describe_the_shape_but_never_the_content(groq, response, described):
+    respx.post(GROQ_URL).mock(return_value=response)
 
     with pytest.raises(LLMResponseError, match=re.escape(described)):
-        await github.complete(REQUEST)
+        await groq.complete(REQUEST)
+
+
+@respx.mock
+async def test_openai_sends_no_reasoning_effort_unless_set():
+    route = respx.post("https://api.openai.com/v1/chat/completions").respond(json=completion("ok"))
+
+    await OpenAICompatibleLLM.openai(api_key="sk").complete(REQUEST)
+    assert "reasoning_effort" not in json.loads(route.calls.last.request.content)
+
+    await OpenAICompatibleLLM.openai(api_key="sk", reasoning_effort="medium").complete(REQUEST)
+    assert json.loads(route.calls.last.request.content)["reasoning_effort"] == "medium"
+
+
+@respx.mock
+async def test_any_compatible_host_through_base_url():
+    route = respx.post("https://llm.example/v1/chat/completions").respond(json=completion("ok"))
+
+    await OpenAICompatibleLLM.openai(api_key="k", base_url="https://llm.example/v1/").complete(REQUEST)
+
+    assert route.called
+
+
+@respx.mock
+async def test_invalid_json_from_the_model_is_a_response_error_not_an_outage(groq):
+    """Groq answers 400 json_validate_failed when JSON mode output isn't valid JSON."""
+    respx.post(GROQ_URL).respond(
+        400,
+        json={
+            "error": {
+                "message": "Failed to generate JSON. failed_generation: <the model's text>",
+                "type": "invalid_request_error",
+                "code": "json_validate_failed",
+            }
+        },
+    )
+
+    with pytest.raises(LLMResponseError, match="wasn't valid JSON") as caught:
+        await groq.complete(REQUEST)
+
+    assert "failed_generation" not in str(caught.value)
+
+
+@respx.mock
+async def test_other_errors_name_the_code_but_never_the_message(groq):
+    respx.post(GROQ_URL).respond(
+        400, json={"error": {"message": "echoes the user's text", "type": "invalid_request_error"}}
+    )
+
+    with pytest.raises(LLMUnavailableError, match=r"HTTP 400 \(invalid_request_error\)") as caught:
+        await groq.complete(REQUEST)
+
+    assert "echoes" not in str(caught.value)

@@ -22,7 +22,8 @@ Backend for **Pebble**, a calm assistant for neurodivergent users.
 - **Safety:** every input goes through Prompt Shields, Content Safety and PII redaction before any model
   sees it; every reply is checked again. Content Safety is optional; redaction always runs.
 - **Documents:** PDF, Word and text files are parsed in memory and never stored.
-- **LLM:** any OpenAI-compatible provider (GitHub Models by default), or a scripted fake with `LLM_PROVIDER=fake`.
+- **LLM:** Groq's free tier by default, any OpenAI-compatible provider by config, or a scripted fake
+  with `LLM_PROVIDER=fake`.
 
 Voice rules for every reply: never shame, rush or compare; be specific; short, plain sentences.
 """

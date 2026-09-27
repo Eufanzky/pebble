@@ -25,10 +25,10 @@ jobs:
           cache-dependency-glob: backend/uv.lock
       - run: uv sync --locked
       - name: Run evals
-        # The provider comes from repository settings. GitHub Models was retired on 2026-07-30 (A-018).
+        # The provider comes from repository settings (default: Groq's free tier).
         # Without the LLM_API_KEY secret the evals skip, so the job stays green until a provider is chosen.
         env:
-          LLM_PROVIDER: ${{ vars.LLM_PROVIDER || 'openai' }}
+          LLM_PROVIDER: ${{ vars.LLM_PROVIDER || 'groq' }}
           LLM_BASE_URL: ${{ vars.LLM_BASE_URL }}
           LLM_MODEL: ${{ vars.LLM_MODEL }}
           LLM_API_KEY: ${{ secrets.LLM_API_KEY }}

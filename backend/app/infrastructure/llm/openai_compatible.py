@@ -1,7 +1,7 @@
 """An ``LLMProvider`` for any OpenAI-compatible chat-completions API.
 
 It speaks plain HTTP through ``httpx`` rather than the ``openai`` SDK: one small
-request covers GitHub Models, OpenAI and Azure OpenAI, and respx can intercept it
+request covers Groq, OpenAI, Azure OpenAI and other compatible hosts, and respx can intercept it
 in contract tests (the SDK's vendored HTTP client can't be intercepted).
 """
 
@@ -19,7 +19,7 @@ from app.application.ports.llm import (
 
 logger = logging.getLogger("pebble.llm")
 
-GITHUB_MODELS_URL = "https://models.github.ai/inference"
+GROQ_URL = "https://api.groq.com/openai/v1"
 OPENAI_URL = "https://api.openai.com/v1"
 
 
@@ -31,30 +31,40 @@ class OpenAICompatibleLLM:
         headers: dict[str, str],
         model: str | None,
         params: dict[str, str] | None = None,
+        reasoning_effort: str = "",
         timeout: float = 30.0,
     ) -> None:
         self._url = url
         self._headers = headers
         self._model = model
         self._params = params or {}
+        self._reasoning_effort = reasoning_effort
         self._timeout = timeout
         self._client = httpx.AsyncClient()
 
     @classmethod
-    def github_models(cls, *, api_key: str, model: str = "", base_url: str = "", timeout: float = 30.0):
+    def groq(
+        cls, *, api_key: str, model: str = "", base_url: str = "", reasoning_effort: str = "low", timeout: float = 30.0
+    ):
+        """Groq's free tier. gpt-oss models reason before answering; low effort keeps replies fast and small."""
         return cls(
-            url=f"{(base_url or GITHUB_MODELS_URL).rstrip('/')}/chat/completions",
+            url=f"{(base_url or GROQ_URL).rstrip('/')}/chat/completions",
             headers={"Authorization": f"Bearer {api_key}"},
-            model=model or "openai/gpt-4o",
+            model=model or "openai/gpt-oss-120b",
+            reasoning_effort=reasoning_effort,
             timeout=timeout,
         )
 
     @classmethod
-    def openai(cls, *, api_key: str, model: str = "", base_url: str = "", timeout: float = 30.0):
+    def openai(
+        cls, *, api_key: str, model: str = "", base_url: str = "", reasoning_effort: str = "", timeout: float = 30.0
+    ):
+        """OpenAI, or any OpenAI-compatible host through ``base_url``."""
         return cls(
             url=f"{(base_url or OPENAI_URL).rstrip('/')}/chat/completions",
             headers={"Authorization": f"Bearer {api_key}"},
             model=model or "gpt-4o",
+            reasoning_effort=reasoning_effort,
             timeout=timeout,
         )
 
@@ -81,6 +91,8 @@ class OpenAICompatibleLLM:
             payload["model"] = self._model
         if request.json_mode:
             payload["response_format"] = {"type": "json_object"}
+        if self._reasoning_effort:
+            payload["reasoning_effort"] = self._reasoning_effort
 
         try:
             response = await self._client.post(
@@ -93,9 +105,13 @@ class OpenAICompatibleLLM:
 
         if response.status_code == 429:
             raise LLMRateLimitedError(retry_after=_retry_after(response))
+        if response.status_code == 400 and _error_code(response) == "json_validate_failed":
+            # JSON mode: the model's reply wasn't valid JSON (Groq, OpenAI). The reply is unusable, the host is fine.
+            raise LLMResponseError(f"{request.agent}: the LLM's reply wasn't valid JSON")
         if response.status_code >= 400:
-            logger.warning("LLM call for %s failed with HTTP %s", request.agent, response.status_code)
-            raise LLMUnavailableError(f"{request.agent}: the LLM returned HTTP {response.status_code}")
+            code = _error_code(response)
+            logger.warning("LLM call for %s failed with HTTP %s (%s)", request.agent, response.status_code, code)
+            raise LLMUnavailableError(f"{request.agent}: the LLM returned HTTP {response.status_code} ({code})")
 
         try:
             content = response.json()["choices"][0]["message"]["content"]
@@ -133,3 +149,15 @@ def _describe(response: httpx.Response) -> str:
     else:
         parts.append(f"JSON {type(body).__name__}")
     return ", ".join(parts)
+
+
+def _error_code(response: httpx.Response) -> str | None:
+    """The error ``code`` (or ``type``) from an OpenAI-style error body. Never the message, which may echo input."""
+    try:
+        error = response.json().get("error")
+    except (ValueError, AttributeError):
+        return None
+    if not isinstance(error, dict):
+        return None
+    code = error.get("code") or error.get("type")
+    return str(code) if code else None

@@ -38,7 +38,7 @@ pytestmark = pytest.mark.eval
 
 TARGETS = {"json_validity": 1.0, "intent_accuracy": 0.8, "distress_recall": 1.0, "voice_rules": 0.9}
 REPORT = Path(__file__).parent / "results" / "latest.json"
-# GitHub Models' free tier allows about 10 requests a minute for gpt-4o.
+# Keeps a run inside free-tier per-minute limits (Groq: 30 requests and 8K tokens a minute).
 REQUEST_INTERVAL = float(os.environ.get("EVAL_REQUEST_INTERVAL", "6.5"))
 MAX_RATE_LIMIT_RETRIES = 3
 
