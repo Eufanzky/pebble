@@ -10,6 +10,10 @@ expect.extend(axeMatchers);
 // run, so report "no 2D context" the way a browser without canvas would.
 HTMLCanvasElement.prototype.getContext = () => null;
 
+// jsdom has no layout, so it doesn't implement scrolling. The chat scrolls its
+// newest message into view.
+Element.prototype.scrollIntoView = () => {};
+
 // No real network in tests: a request without a handler fails the test.
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 
