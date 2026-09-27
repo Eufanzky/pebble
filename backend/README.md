@@ -102,6 +102,7 @@ Frontend at **http://localhost:3000**, backend at **http://localhost:8000**.
 ### Documents
 | Method | Endpoint | Description |
 |--------|----------|-------------|
+| POST | `/api/documents/parse` | Read a PDF, Word (.docx) or text file's text in memory (never stored) |
 | POST | `/api/documents/upload` | Upload and parse a PDF/Word/text file |
 | GET | `/api/documents` | List all documents |
 | GET | `/api/documents/{id}` | Get a document |
@@ -156,6 +157,18 @@ Content at severity 2 or more in any category (Hate, SelfHarm, Sexual, Violence)
 
 - `SafetyChecker` port: `AzureContentSafety` (REST, `infrastructure/safety/`) when `CONTENT_SAFETY_ENDPOINT` and `CONTENT_SAFETY_KEY` are set, otherwise `NoOpSafetyChecker`. Text analysis fails closed. Prompt Shields and Groundedness fail open with a warning.
 - `PIIRedactor` port: `RegexPIIRedactor` (in-process: emails, phones, SSNs, cards). It always runs.
+
+## Documents
+
+`POST /api/documents/parse` reads an upload's text with the `DocumentParser` port. The adapter is `LocalDocumentParser` (`infrastructure/parsing/`), which uses `pypdf` and `python-docx`. The file is parsed in memory and never stored. Limits and messages:
+
+| Case | Status |
+|:--|:--|
+| Over 10 MB | 413 |
+| Not PDF, .docx, .txt or .md | 415 |
+| Damaged, password-protected, or no text (a scan) | 422 |
+
+Fixtures live in `tests/fixtures/documents/`. Regenerate them with `uv run python tests/fixtures/documents/make_fixtures.py`.
 
 ## Architecture: the dependency rule
 

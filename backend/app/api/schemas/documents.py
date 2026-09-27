@@ -46,3 +46,10 @@ class ExtractTasksResponse(BaseModel):
     tasks: list[dict]
 
     model_config = {"populate_by_name": True, "by_alias": True}
+
+
+class ParsedDocumentResponse(BaseModel):
+    title: str
+    type: str
+    text: str
+    pages: int
