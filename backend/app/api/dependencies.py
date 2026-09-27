@@ -8,6 +8,8 @@ from dataclasses import dataclass, field
 
 from app.application.agents.calmsense import DecomposeTask
 from app.application.agents.orchestrator import HandleChat
+from app.application.agents.pebblevoice import Encourage
+from app.application.agents.simplifycore import SimplifyDocument
 from app.application.ports.llm import LLMProvider
 from app.application.ports.safety import PIIRedactor, SafetyChecker
 from app.application.safety import SafetyGate
@@ -36,13 +38,16 @@ class Container:
         return DecomposeTask(self.llm, self.gate)
 
     @property
-    def handle_chat(self) -> HandleChat:
-        # SimplifyCore and PebbleVoice still run the legacy agent code until 2.5.
-        from app.agents.legacy import LegacyMotivator, LegacySimplifier
+    def simplify_document(self) -> SimplifyDocument:
+        return SimplifyDocument(self.llm, self.gate)
 
-        return HandleChat(
-            self.llm, self.gate, self.decompose_task, LegacySimplifier(self.gate), LegacyMotivator(self.gate)
-        )
+    @property
+    def encourage(self) -> Encourage:
+        return Encourage(self.llm, self.gate)
+
+    @property
+    def handle_chat(self) -> HandleChat:
+        return HandleChat(self.llm, self.gate, self.decompose_task, self.simplify_document, self.encourage)
 
     async def aclose(self) -> None:
         for adapter in (self.llm, self.safety_checker):
@@ -72,3 +77,11 @@ def get_handle_chat() -> HandleChat:
 
 def get_decompose_task() -> DecomposeTask:
     return get_container().decompose_task
+
+
+def get_simplify_document() -> SimplifyDocument:
+    return get_container().simplify_document
+
+
+def get_encourage() -> Encourage:
+    return get_container().encourage

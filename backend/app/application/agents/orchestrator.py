@@ -6,7 +6,7 @@ ever see the redacted message.
 """
 
 import logging
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from typing import Protocol
 
 from app.application.agents.calmsense import DecomposeTask
@@ -16,7 +16,8 @@ from app.application.ports.llm import LLMProvider, LLMRequest
 from app.application.prompts import ORCHESTRATOR_PROMPT
 from app.application.safety import SafetyGate
 from app.domain.agents import AgentName, Intent, Mood
-from app.domain.chat import ChatContext, ChatReply
+from app.domain.chat import ChatContext, ChatReply, Encouragement
+from app.domain.documents import Simplification
 
 logger = logging.getLogger("pebble.orchestrator")
 
@@ -39,14 +40,14 @@ AGENT_FAILED = {
 
 
 class SimplifyAgent(Protocol):
-    async def run(self, text: str, reading_level: int) -> object:
+    async def run(self, text: str, reading_level: int) -> Simplification:
         """Simplify already-screened text. Raises ``UnsafeOutputError`` or ``AgentReplyError``."""
         ...
 
 
 class MotivateAgent(Protocol):
-    async def run(self, context: ChatContext) -> tuple[str, Mood]:
-        """Encouragement for already-redacted progress: (message, mood)."""
+    async def run(self, context: ChatContext) -> Encouragement:
+        """Encouragement from the user's progress. Raises ``UnsafeOutputError`` or ``AgentReplyError``."""
         ...
 
 
@@ -129,12 +130,11 @@ class HandleChat:
         return ChatReply(Intent.SIMPLIFY, c.response, Mood.NORMAL, AgentName.SIMPLIFY_CORE, simplified)
 
     async def _motivate(self, _c: Classification, _message: str, context: ChatContext) -> ChatReply:
-        redacted = replace(context, recent_task_titles=tuple(map(self.gate.redact, context.recent_task_titles)))
         try:
-            message, mood = await self.pebblevoice.run(redacted)
+            encouragement = await self.pebblevoice.run(context)
         except (UnsafeOutputError, AgentReplyError) as e:
             return self._failed(Intent.MOTIVATE, AgentName.PEBBLE_VOICE, e)
-        return ChatReply(Intent.MOTIVATE, message, mood, AgentName.PEBBLE_VOICE)
+        return ChatReply(Intent.MOTIVATE, encouragement.message, encouragement.mood, AgentName.PEBBLE_VOICE)
 
     @staticmethod
     def _failed(intent: Intent, agent: AgentName, error: Exception) -> ChatReply:

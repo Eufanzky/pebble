@@ -2,6 +2,22 @@
 
 from collections.abc import Callable
 from dataclasses import dataclass
+from enum import StrEnum
+
+
+class TaskTag(StrEnum):
+    STUDY = "study"
+    COMMUNICATION = "communication"
+    PROJECT = "project"
+    WELLBEING = "wellbeing"
+
+    @classmethod
+    def parse(cls, value: object) -> "TaskTag":
+        """An unknown tag is a project: the UI can only show these four."""
+        try:
+            return cls(value)
+        except ValueError:
+            return cls.PROJECT
 
 
 @dataclass(frozen=True)

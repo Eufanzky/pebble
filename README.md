@@ -244,7 +244,6 @@ Focusbuddy/
 │   │   ├── application/             # Use cases, ports, prompts
 │   │   ├── infrastructure/          # Adapters for the ports, settings (config.py)
 │   │   ├── api/                     # Routers, schemas, auth, wiring
-│   │   ├── agents/                  # Legacy agent code (moves to application/ in phase 2)
 │   │   └── services/                # Legacy Azure clients (move or go in phase 2)
 │   ├── tests/                       # pytest suite
 │   ├── pyproject.toml               # Dependencies (uv), pytest and ruff config

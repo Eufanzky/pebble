@@ -175,7 +175,7 @@ infrastructure
 
 ## Project Structure
 
-The backend is moving to a clean architecture during roadmap phase 2 (`specs/roadmap.md`). The four layers exist; code in `agents/` and `services/` moves into them item by item.
+The backend follows a clean architecture (`specs/tech-stack.md`). The agents are use cases in `application/agents/` (`orchestrator.py`, `calmsense.py`, `simplifycore.py`, `pebblevoice.py`). `services/` is legacy and is removed in roadmap 2.7.
 
 ```
 backend/
@@ -189,8 +189,7 @@ backend/
 │   │   ├── auth.py             # Entra ID JWT validation (DEV_MODE bypass)
 │   │   ├── routers/            # tasks, preferences, activity, agents, documents, focus, audit, verify
 │   │   └── schemas/            # request/response models (agents, documents, focus, records)
-│   ├── agents/                 # legacy: orchestrator and sub-agents (moves to application/ in 2.4–2.5)
-│   └── services/               # legacy: Azure clients (move to infrastructure/ or go in 2.2–2.7)
+│   └── services/               # legacy: Azure clients (removed in 2.7)
 ├── tests/                      # pytest suite (conftest.py: app, client and AI-service fixtures; fakes.py)
 ├── pyproject.toml              # dependencies, pytest and ruff config
 ├── uv.lock                     # locked dependency versions

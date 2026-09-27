@@ -1,9 +1,8 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends
 
-from app.agents.document_simplification import simplify_document
-from app.agents.motivation import generate_motivation
 from app.api.auth import get_current_user_id
-from app.api.dependencies import get_decompose_task, get_handle_chat
+from app.api.dependencies import get_decompose_task, get_encourage, get_handle_chat, get_simplify_document
+from app.api.presenters import breakdown_data, chat_response, simplification_data
 from app.api.schemas.agents import (
     ChatRequest,
     ChatResponse,
@@ -16,8 +15,9 @@ from app.api.schemas.agents import (
 )
 from app.application.agents.calmsense import DecomposeTask
 from app.application.agents.orchestrator import HandleChat
-from app.domain.chat import ChatContext, ChatReply
-from app.domain.tasks import TaskBreakdown
+from app.application.agents.pebblevoice import Encourage
+from app.application.agents.simplifycore import SimplifyDocument
+from app.domain.chat import ChatContext
 
 router = APIRouter()
 
@@ -59,6 +59,7 @@ async def decompose(
 async def simplify(
     body: SimplifyRequest,
     user_id: str = Depends(get_current_user_id),
+    simplify_document: SimplifyDocument = Depends(get_simplify_document),
 ):
     """
     **Agent: SimplifyCore** — Simplifies complex text to a target reading level (1-10).
@@ -73,10 +74,7 @@ async def simplify(
     Includes a `whyExplanation` describing what was changed and why.
     Output is verified against the original text using Groundedness Detection.
     """
-    try:
-        return await simplify_document(text=body.text, reading_level=body.reading_level)
-    except ValueError as e:
-        raise HTTPException(status_code=422, detail=str(e))
+    return simplification_data(await simplify_document(body.text, body.reading_level))
 
 
 @router.post(
@@ -88,6 +86,7 @@ async def simplify(
 async def motivate(
     body: MotivateRequest,
     user_id: str = Depends(get_current_user_id),
+    encourage: Encourage = Depends(get_encourage),
 ):
     """
     **Agent: PebbleVoice** — Generates specific, personalized encouragement.
@@ -99,16 +98,16 @@ async def motivate(
     Returns a `mood` that the frontend uses to update Pebble's expression:
     `sleepy`, `normal`, `happy`, or `excited`.
     """
-    try:
-        return await generate_motivation(
+    encouragement = await encourage(
+        ChatContext(
             tasks_completed=body.tasks_completed,
             tasks_total=body.tasks_total,
-            recent_task_titles=body.recent_task_titles,
+            recent_task_titles=tuple(body.recent_task_titles),
             time_of_day=body.time_of_day,
             personality=body.personality,
         )
-    except ValueError as e:
-        raise HTTPException(status_code=422, detail=str(e))
+    )
+    return {"message": encouragement.message, "mood": str(encouragement.mood)}
 
 
 @router.post(
@@ -152,21 +151,3 @@ async def chat(
         personality=body.personality,
     )
     return chat_response(await handle_chat(body.message, context))
-
-
-def breakdown_data(breakdown: TaskBreakdown) -> dict:
-    return {
-        "subtasks": [{"title": s.title, "timeEstimate": s.time_estimate} for s in breakdown.steps],
-        "whyExplanation": breakdown.why,
-    }
-
-
-def chat_response(reply: ChatReply) -> dict:
-    data = breakdown_data(reply.data) if isinstance(reply.data, TaskBreakdown) else reply.data
-    return {
-        "intent": str(reply.intent),
-        "response": reply.response,
-        "mood": str(reply.mood),
-        "agentName": str(reply.agent),
-        "data": data,
-    }
