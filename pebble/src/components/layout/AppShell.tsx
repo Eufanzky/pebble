@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import Sidebar from './Sidebar';
 import { PreferencesProvider } from '@/contexts/PreferencesContext';
 import { PebbleProvider } from '@/contexts/PebbleContext';
-import { TasksProvider } from '@/contexts/TasksContext';
+import { TasksProvider } from '@/features/tasks';
 import { ActivityLogProvider } from '@/contexts/ActivityLogContext';
 import { ToastProvider } from '@/contexts/ToastContext';
 import { useFocusOnNavigation } from '@/hooks/useFocusOnNavigation';

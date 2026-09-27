@@ -1,22 +1,3 @@
-export interface Subtask {
-  id: string;
-  title: string;
-  timeEstimate: string;
-  completed: boolean;
-}
-
-export interface Task {
-  id: string;
-  title: string;
-  timeEstimate: string;
-  tag: 'study' | 'communication' | 'project' | 'wellbeing';
-  priority: 'high' | 'medium' | 'low';
-  completed: boolean;
-  subtasks?: Subtask[];
-  showSubtasks?: boolean;
-  whyExplanation?: string;
-}
-
 export interface DocumentItem {
   id: string;
   title: string;

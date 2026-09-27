@@ -2,16 +2,16 @@
 
 import { createContext, useContext, useCallback, useEffect, type ReactNode } from 'react';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { usePebble } from './PebbleContext';
-import { sampleTasks } from '@/data/sampleTasks';
-import type { Task, Subtask } from '@/lib/types';
+import { usePebble } from '@/contexts/PebbleContext';
+import { sampleTasks } from '../data/sampleTasks';
+import type { NewTask, Subtask, Task } from '../types';
 
 interface TasksContextValue {
   tasks: Task[];
   completionPercentage: number;
   toggleTask: (id: string) => void;
   toggleSubtask: (taskId: string, subtaskId: string) => void;
-  addTask: (task: Omit<Task, 'id'>) => void;
+  addTask: (task: NewTask) => void;
   addTaskFromDocument: (title: string, docName: string, type: 'academic' | 'meeting') => void;
   breakDownTask: (taskId: string, subtasks: Omit<Subtask, 'id'>[]) => void;
   clearAll: () => void;
@@ -62,7 +62,7 @@ export function TasksProvider({ children }: { children: ReactNode }) {
   );
 
   const addTask = useCallback(
-    (task: Omit<Task, 'id'>) => {
+    (task: NewTask) => {
       const newTask: Task = { ...task, id: crypto.randomUUID() };
       setTasks((prev) => [...prev, newTask]);
     },

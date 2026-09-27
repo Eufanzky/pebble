@@ -223,12 +223,14 @@ npm run dev
 Focusbuddy/
 ├── 🖥️ pebble/                      # Frontend (Next.js)
 │   ├── src/
-│   │   ├── app/                     # App Router pages (/today, /documents, /activity, /focus, /settings)
-│   │   ├── components/              # UI components (pebble models, tasks, documents, focus, chat, settings)
-│   │   ├── contexts/                # React context providers (preferences, pebble, tasks, activity, toast)
+│   │   ├── app/                     # App Router pages (/today, /documents, /activity, /focus, /settings); thin
+│   │   ├── features/                # One folder per feature (chat, tasks), each with a public index.ts
+│   │   ├── shared/                  # Code shared by features (API client, audio)
+│   │   ├── components/              # Older UI components, moving into features/ during phase 3
+│   │   ├── contexts/                # React context providers (preferences, pebble, activity, toast)
 │   │   ├── hooks/                   # Custom hooks (localStorage, timeOfDay, reduceMotion, focusOnNav)
-│   │   ├── data/                    # Sample data (tasks, documents, activity, pebble messages)
-│   │   ├── lib/                     # Types, constants, API client, utilities
+│   │   ├── data/                    # Sample data (documents, activity, pebble messages)
+│   │   ├── lib/                     # Types and constants
 │   │   └── test/                    # Vitest setup, MSW server, render helpers
 │   └── public/                      # Static assets (backgrounds, icons)
 ├── ⚙️ backend/                      # Backend API (FastAPI)

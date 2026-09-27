@@ -1,7 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, renderHookWithProviders } from '@/test/render';
-import type { Subtask, Task } from '@/lib/types';
-import { usePebble } from './PebbleContext';
+import type { Subtask, Task } from '../types';
+import { usePebble } from '@/contexts/PebbleContext';
 import { useTasks } from './TasksContext';
 
 type NewTask = Omit<Task, 'id'>;

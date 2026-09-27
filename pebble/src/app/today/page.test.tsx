@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { act, renderHookWithProviders, renderWithProviders, screen, within } from '@/test/render';
 import { usePreferences } from '@/contexts/PreferencesContext';
-import { useTasks } from '@/contexts/TasksContext';
+import { useTasks } from '@/features/tasks';
 import TodayPage from './page';
 
 // useLocalStorage caches values at module level, so each test starts from a

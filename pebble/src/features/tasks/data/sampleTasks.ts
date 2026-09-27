@@ -1,4 +1,4 @@
-import type { Task } from '@/lib/types';
+import type { Task } from '../types';
 
 export const sampleTasks: Task[] = [
   {
@@ -56,16 +56,3 @@ export const sampleTasks: Task[] = [
       "I added this because you've been working for a while. Movement helps your brain reset. This isn't a task you 'have' to do — it's a suggestion. Skip it if you want, no guilt.",
   },
 ];
-
-export const TAG_CONFIG = {
-  study:         { color: 'var(--accent-lavender)', label: 'Study',     emoji: '\uD83D\uDCDA' },
-  communication: { color: 'var(--accent-amber)',    label: 'Comms',     emoji: '\uD83D\uDCAC' },
-  project:       { color: 'var(--accent-coral)',     label: 'Project',   emoji: '\uD83D\uDD28' },
-  wellbeing:     { color: 'var(--accent-sage)',      label: 'Wellbeing', emoji: '\uD83C\uDF3F' },
-} as const;
-
-export const PRIORITY_CONFIG = {
-  high:   { color: '#E8856A', label: 'High' },
-  medium: { color: '#D4A843', label: 'Medium' },
-  low:    { color: '#8FAF8A', label: 'Low' },
-} as const;

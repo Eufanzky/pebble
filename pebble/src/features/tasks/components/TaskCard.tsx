@@ -1,10 +1,13 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useCallback, type CSSProperties } from 'react';
 import { usePreferences } from '@/contexts/PreferencesContext';
-import { TAG_CONFIG, PRIORITY_CONFIG } from '@/data/sampleTasks';
+import { useBreakDown } from '../hooks/useBreakDown';
+import { useRipple } from '../hooks/useRipple';
+import { PRIORITY_CONFIG, TAG_CONFIG } from '../lib/tags';
+import type { Task } from '../types';
+import SubtaskList from './SubtaskList';
 import WhyCard from './WhyCard';
-import type { Task } from '@/lib/types';
 import './TaskCard.css';
 
 interface TaskCardProps {
@@ -20,48 +23,30 @@ const ADAPTED_TASK_IDS = new Set(['task-1', 'task-3']);
 
 export default function TaskCard({ task, onToggle, onToggleSubtask, onBreakDown, onWhyOpen }: TaskCardProps) {
   const { preferences, stripEmoji } = usePreferences();
-  const [breaking, setBreaking] = useState(false);
-  const [showSubtasks, setShowSubtasks] = useState(task.showSubtasks ?? false);
-  const [ripple, setRipple] = useState(false);
-
-  const tag = TAG_CONFIG[task.tag];
-  const priority = PRIORITY_CONFIG[task.priority];
   const noMotion = preferences.reduceAnimations;
   const calm = preferences.calmMode;
 
-  const hasSubtasks = task.subtasks && task.subtasks.length > 0;
-  const canBreakDown = hasSubtasks && !showSubtasks && !breaking;
-  const showWhy = task.whyExplanation && (showSubtasks || !hasSubtasks);
-  const isAdapted = ADAPTED_TASK_IDS.has(task.id);
+  const onShown = useCallback(() => onBreakDown(task.id), [onBreakDown, task.id]);
+  const { showSteps, breaking, breakDown } = useBreakDown(task.showSubtasks ?? false, noMotion, onShown);
+  const { ripple, trigger: triggerRipple } = useRipple(noMotion);
 
-  const handleBreakDown = useCallback(() => {
-    if (noMotion) {
-      setShowSubtasks(true);
-      onBreakDown(task.id);
-      return;
-    }
-    setBreaking(true);
-    setTimeout(() => {
-      setBreaking(false);
-      setShowSubtasks(true);
-      onBreakDown(task.id);
-    }, 1500);
-  }, [noMotion, onBreakDown, task.id]);
+  const tag = TAG_CONFIG[task.tag];
+  const priority = PRIORITY_CONFIG[task.priority];
+  const subtasks = task.subtasks ?? [];
+  const hasSubtasks = subtasks.length > 0;
+  const canBreakDown = hasSubtasks && !showSteps && !breaking;
+  const showWhy = task.whyExplanation && (showSteps || !hasSubtasks);
+  const tagLabel = calm ? stripEmoji(tag.label) : `${tag.emoji} ${tag.label}`;
 
   const handleCheckboxClick = () => {
-    if (!noMotion) {
-      setRipple(true);
-      setTimeout(() => setRipple(false), 400);
-    }
+    triggerRipple();
     onToggle(task.id);
   };
-
-  const tagLabel = calm ? stripEmoji(tag.label) : `${tag.emoji} ${tag.label}`;
 
   return (
     <div
       className={`task-card ${task.completed ? 'completed' : ''}`}
-      style={{ '--tag-color': tag.color, '--priority-color': priority.color } as React.CSSProperties}
+      style={{ '--tag-color': tag.color, '--priority-color': priority.color } as CSSProperties}
     >
       <div style={{ display: 'flex', alignItems: 'flex-start', gap: 14 }}>
         {/* Checkbox with ripple */}
@@ -72,14 +57,13 @@ export default function TaskCard({ task, onToggle, onToggleSubtask, onBreakDown,
             aria-label={task.completed ? 'Mark as incomplete' : 'Mark as complete'}
             style={noMotion && task.completed ? { animation: 'none' } : undefined}
           >
-            {task.completed && '\u2713'}
+            {task.completed && '✓'}
           </button>
           {ripple && <span className="checkbox-ripple" />}
         </div>
 
         {/* Center content */}
         <div style={{ flex: 1, minWidth: 0 }}>
-          {/* Title row */}
           <div style={{ marginBottom: 6 }}>
             <span
               className="task-title"
@@ -109,7 +93,7 @@ export default function TaskCard({ task, onToggle, onToggleSubtask, onBreakDown,
             <span style={{ fontFamily: 'var(--font-jetbrains)', fontSize: 11, color: 'var(--text-secondary)' }}>
               {task.timeEstimate}
             </span>
-            {isAdapted && (
+            {ADAPTED_TASK_IDS.has(task.id) && (
               <span
                 className="adapted-badge"
                 title="Pebble adjusted the chunk size based on your recent activity"
@@ -119,46 +103,22 @@ export default function TaskCard({ task, onToggle, onToggleSubtask, onBreakDown,
             )}
           </div>
 
-          {/* Shimmer loading */}
           {breaking && (
-            <div style={{ marginTop: 12, paddingLeft: 36 }}>
+            <div style={{ marginTop: 12, paddingLeft: 36 }} role="status" aria-label="Breaking it down">
               <div className="shimmer-bar" />
               <div className="shimmer-bar" />
               <div className="shimmer-bar" />
             </div>
           )}
 
-          {/* Subtasks */}
-          {showSubtasks && hasSubtasks && !breaking && (
-            <div className="subtask-list">
-              {task.subtasks!.map((st, i) => (
-                <div
-                  key={st.id}
-                  className={`subtask-item ${noMotion ? '' : 'animate-in'}`}
-                  style={noMotion ? undefined : { animationDelay: `${i * 150}ms` }}
-                >
-                  <button
-                    className={`subtask-checkbox ${st.completed ? 'checked' : ''} ${st.completed && !noMotion ? 'animate' : ''}`}
-                    onClick={() => onToggleSubtask(task.id, st.id)}
-                    aria-label={st.completed ? 'Uncheck subtask' : 'Check subtask'}
-                  >
-                    {st.completed && '\u2713'}
-                  </button>
-                  <span
-                    className={`subtask-title ${st.completed ? 'done' : ''}`}
-                    style={{ fontFamily: 'var(--font-nunito)', fontSize: 13, color: 'var(--text-secondary)', flex: 1 }}
-                  >
-                    {st.title}
-                  </span>
-                  <span style={{ fontFamily: 'var(--font-jetbrains)', fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>
-                    {st.timeEstimate}
-                  </span>
-                </div>
-              ))}
-            </div>
+          {showSteps && hasSubtasks && !breaking && (
+            <SubtaskList
+              subtasks={subtasks}
+              noMotion={noMotion}
+              onToggle={(subtaskId) => onToggleSubtask(task.id, subtaskId)}
+            />
           )}
 
-          {/* Why card */}
           {showWhy && !task.completed && (
             <WhyCard
               explanation={task.whyExplanation!}
@@ -172,7 +132,7 @@ export default function TaskCard({ task, onToggle, onToggleSubtask, onBreakDown,
           {canBreakDown && !task.completed && (
             <button
               className="break-btn"
-              onClick={handleBreakDown}
+              onClick={breakDown}
               aria-label={`Break down "${task.title}" into subtasks`}
             >
               <span className="sparkle" aria-hidden="true">&#10022;</span>
