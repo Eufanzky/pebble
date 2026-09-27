@@ -31,13 +31,23 @@ def build_llm_provider(settings: Settings) -> LLMProvider:
                 api_version=settings.azure_openai_api_version,
                 timeout=timeout,
             )
-        case "openai" | "github" as provider:
+        case "groq":
             if not settings.llm_api_key:
-                return UnconfiguredLLM(f"LLM_PROVIDER={provider} needs LLM_API_KEY")
-            build = OpenAICompatibleLLM.openai if provider == "openai" else OpenAICompatibleLLM.github_models
-            return build(
+                return UnconfiguredLLM("LLM_PROVIDER=groq needs LLM_API_KEY (free at console.groq.com)")
+            return OpenAICompatibleLLM.groq(
                 api_key=settings.llm_api_key,
                 model=settings.llm_model,
                 base_url=settings.llm_base_url,
+                reasoning_effort=settings.llm_reasoning_effort or "low",
+                timeout=timeout,
+            )
+        case "openai":
+            if not settings.llm_api_key:
+                return UnconfiguredLLM("LLM_PROVIDER=openai needs LLM_API_KEY")
+            return OpenAICompatibleLLM.openai(
+                api_key=settings.llm_api_key,
+                model=settings.llm_model,
+                base_url=settings.llm_base_url,
+                reasoning_effort=settings.llm_reasoning_effort,
                 timeout=timeout,
             )

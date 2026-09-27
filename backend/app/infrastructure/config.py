@@ -6,12 +6,13 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
-    # LLM. "github" = GitHub Models, "openai", "azure" (uses the AZURE_OPENAI_*
-    # settings below), or "fake" (scripted, offline).
-    llm_provider: Literal["github", "openai", "azure", "fake"] = "github"
+    # LLM. "groq" (free tier, the default), "openai" (or any OpenAI-compatible host via
+    # LLM_BASE_URL), "azure" (uses the AZURE_OPENAI_* settings below), or "fake" (scripted, offline).
+    llm_provider: Literal["groq", "openai", "azure", "fake"] = "groq"
     llm_api_key: str = ""
-    llm_model: str = ""  # empty: the provider's default (openai/gpt-4o on GitHub Models)
+    llm_model: str = ""  # empty: the provider's default (openai/gpt-oss-120b on Groq, gpt-4o on OpenAI)
     llm_base_url: str = ""  # empty: the provider's public endpoint
+    llm_reasoning_effort: str = ""  # empty: low on Groq, not sent elsewhere; low | medium | high for reasoning models
     llm_timeout_seconds: float = 30.0
 
     # Azure OpenAI, when LLM_PROVIDER=azure

@@ -1,9 +1,9 @@
 # LLM evals
 
-Real-LLM checks for the chat pipeline (roadmap 2.8). They call the configured provider, so they never run on PRs. The `LLM evals` workflow (`.github/workflows/evals.yml`) runs them every Monday and on demand. It uses the provider set in the repository settings: the `LLM_API_KEY` secret, plus the `LLM_PROVIDER`, `LLM_BASE_URL` and `LLM_MODEL` variables. Without the secret, the evals skip.
+Real-LLM checks for the chat pipeline (roadmap 2.8). They call the configured provider, so they never run on PRs. The `LLM evals` workflow (`.github/workflows/evals.yml`) runs them every Monday and on demand. It uses the provider set in the repository settings: the `LLM_API_KEY` secret (a free Groq key), plus the optional `LLM_PROVIDER`, `LLM_BASE_URL` and `LLM_MODEL` variables. Without the secret, the evals skip.
 
 ```bash
-uv run pytest -m eval -s                     # with LLM_API_KEY set (GitHub Models by default)
+uv run pytest -m eval -s                     # with LLM_API_KEY set (Groq by default)
 LLM_PROVIDER=fake uv run pytest -m eval -s   # checks the harness itself, offline
 ```
 
@@ -26,5 +26,7 @@ Requests are spaced out (`EVAL_REQUEST_INTERVAL`, default 6.5 s) to stay under f
 
 | Date | Provider / model | JSON | Intent | Distress | Voice | Notes |
 |:--|:--|:--|:--|:--|:--|:--|
+| 2026-09-27 | **Groq, openai/gpt-oss-120b** (reasoning effort low) | **1.00** | **0.97** | **1.00** | **0.93** | Baseline. 46 calls, about 5 minutes. Misses: `chat-thanks` was classified as motivate; two replies averaged 21–22 words a sentence (`decompose-apartment`, `chat-thanks`). |
+| 2026-09-27 | Groq, openai/gpt-oss-120b (no reasoning effort set) | 0.97 | 0.93 | 1.00 | 0.90 | First run. One classifier reply failed Groq's JSON validation (HTTP 400), which used to become a 503; it now falls back to a gentle chat reply. |
 | 2026-09-27 | GitHub Models (openai/gpt-4o) | — | — | — | — | No baseline: GitHub Models was retired on 2026-07-30, and the endpoint answers every request with a plain-text `200 OK` (A-018). Waiting on the choice of a new default provider. |
 | 2026-09-27 | fake (offline keyword classifier) | 1.00 | 0.70 | 0.50 | 0.93 | Harness check only. The fake misses indirect distress ("drowning", "crying"), and the evals catch it. |

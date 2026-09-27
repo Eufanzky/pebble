@@ -3,7 +3,7 @@
 from dataclasses import replace
 
 from app.application.errors import AgentReplyError
-from app.application.llm_json import parse_json_object
+from app.application.llm_json import ask_json
 from app.application.ports.llm import LLMProvider, LLMRequest
 from app.application.prompts import MOTIVATION_PROMPT
 from app.application.safety import SafetyGate
@@ -25,7 +25,8 @@ class Encourage:
         completed = ""
         if context.recent_task_titles:
             completed = "\nRecently completed: " + ", ".join(context.recent_task_titles)
-        reply = await self.llm.complete(
+        data = await ask_json(
+            self.llm,
             LLMRequest(
                 agent="motivate",
                 system_prompt=MOTIVATION_PROMPT,
@@ -38,9 +39,8 @@ class Encourage:
                 ),
                 temperature=0.8,
                 max_tokens=256,
-            )
+            ),
         )
-        data = parse_json_object(reply)
         message = data.get("message")
         if not isinstance(message, str) or not message.strip():
             raise AgentReplyError("message must be non-empty text")

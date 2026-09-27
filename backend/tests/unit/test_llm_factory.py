@@ -17,7 +17,7 @@ def test_fake():
     assert isinstance(build_llm_provider(settings(llm_provider="fake")), FakeLLM)
 
 
-@pytest.mark.parametrize("provider", ["github", "openai"])
+@pytest.mark.parametrize("provider", ["groq", "openai"])
 def test_key_based_providers(provider):
     llm = build_llm_provider(settings(llm_provider=provider, llm_api_key="key"))
 
@@ -32,14 +32,19 @@ def test_azure():
     assert isinstance(llm, OpenAICompatibleLLM)
 
 
-def test_github_is_the_default():
-    assert settings().llm_provider == "github"
+def test_groq_is_the_default():
+    assert settings().llm_provider == "groq"
+
+
+def test_github_models_is_retired():
+    with pytest.raises(ValueError):
+        settings(llm_provider="github")
 
 
 @pytest.mark.parametrize(
     ("values", "reason"),
     [
-        ({"llm_provider": "github"}, "LLM_API_KEY"),
+        ({"llm_provider": "groq"}, "console.groq.com"),
         ({"llm_provider": "openai"}, "LLM_API_KEY"),
         ({"llm_provider": "azure"}, "AZURE_OPENAI_ENDPOINT"),
     ],

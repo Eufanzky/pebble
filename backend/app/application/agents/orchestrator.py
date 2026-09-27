@@ -11,7 +11,7 @@ from typing import Protocol
 
 from app.application.agents.calmsense import DecomposeTask
 from app.application.errors import AgentReplyError, UnsafeOutputError
-from app.application.llm_json import parse_json_object
+from app.application.llm_json import ask_json
 from app.application.ports.llm import LLMProvider, LLMRequest
 from app.application.prompts import ORCHESTRATOR_PROMPT
 from app.application.safety import SafetyGate
@@ -85,17 +85,17 @@ class HandleChat:
         return await route(classification, safe_message, context)
 
     async def _classify(self, safe_message: str) -> Classification:
-        text = await self.llm.complete(
-            LLMRequest(
-                agent="orchestrator",
-                system_prompt=ORCHESTRATOR_PROMPT,
-                user_message=safe_message,
-                temperature=0.6,
-                max_tokens=512,
-            )
-        )
         try:
-            reply = parse_json_object(text)
+            reply = await ask_json(
+                self.llm,
+                LLMRequest(
+                    agent="orchestrator",
+                    system_prompt=ORCHESTRATOR_PROMPT,
+                    user_message=safe_message,
+                    temperature=0.6,
+                    max_tokens=512,
+                ),
+            )
         except AgentReplyError as e:
             logger.warning("Classifier reply isn't JSON, answering as chat: %s", e)
             return Classification(Intent.CHAT, UNCLEAR_REPLY, Mood.NORMAL)

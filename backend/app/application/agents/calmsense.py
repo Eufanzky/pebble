@@ -1,7 +1,7 @@
 """CalmSense: breaks a task into small, time-boxed steps."""
 
 from app.application.errors import AgentReplyError
-from app.application.llm_json import parse_json_object
+from app.application.llm_json import ask_json
 from app.application.ports.llm import LLMProvider, LLMRequest
 from app.application.prompts import TASK_DECOMPOSITION_PROMPT
 from app.application.safety import SafetyGate
@@ -20,7 +20,8 @@ class DecomposeTask:
 
     async def run(self, task_title: str, chunk_size: str, time_of_day: str) -> TaskBreakdown:
         """Break down an already-screened task. Output is safety-checked and PII-redacted."""
-        text = await self.llm.complete(
+        reply = await ask_json(
+            self.llm,
             LLMRequest(
                 agent="decompose",
                 system_prompt=TASK_DECOMPOSITION_PROMPT,
@@ -32,9 +33,9 @@ class DecomposeTask:
                 ),
                 temperature=0.7,
                 max_tokens=1024,
-            )
+            ),
         )
-        breakdown = _parse(parse_json_object(text))
+        breakdown = _parse(reply)
         await self.gate.ensure_output_safe(*breakdown.texts())
         return breakdown.map_text(self.gate.redact)
 

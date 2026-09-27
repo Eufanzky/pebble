@@ -1,6 +1,6 @@
 # Pebble backend
 
-FastAPI backend for Pebble. It runs the AI agents (the orchestrator, CalmSense, SimplifyCore and PebbleVoice) behind a safety pipeline, and reads uploaded documents in memory. The only thing it needs is an LLM: any OpenAI-compatible API, or `LLM_PROVIDER=fake` to run with no model at all.
+FastAPI backend for Pebble. It runs the AI agents (the orchestrator, CalmSense, SimplifyCore and PebbleVoice) behind a safety pipeline, and reads uploaded documents in memory. The only thing it needs is an LLM: Groq's free tier by default, any OpenAI-compatible API by config, or `LLM_PROVIDER=fake` to run with no model at all.
 
 Tasks, preferences and the activity log live in the browser for now. Roadmap phase 4 adds Postgres.
 
@@ -64,12 +64,12 @@ The agents reach the model through the `LLMProvider` port (`app/application/port
 
 | `LLM_PROVIDER` | Adapter | Needs |
 |:--|:--|:--|
-| `github` (default) | `OpenAICompatibleLLM.github_models` | Retired: GitHub Models shut down on 2026-07-30 (A-018). A new default is pending. |
+| `groq` (default) | `OpenAICompatibleLLM.groq` | `LLM_API_KEY`: a free key from [console.groq.com/keys](https://console.groq.com/keys). Model `openai/gpt-oss-120b`, reasoning effort `low`. |
 | `openai` | `OpenAICompatibleLLM.openai` | `LLM_API_KEY`; with `LLM_BASE_URL`, any OpenAI-compatible provider |
 | `azure` | `OpenAICompatibleLLM.azure` | `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_KEY`, `AZURE_OPENAI_DEPLOYMENT` |
 | `fake` | `FakeLLM` (`app/infrastructure/llm/fake.py`) | nothing: deterministic offline replies |
 
-`LLM_MODEL` and `LLM_BASE_URL` override the defaults. When the selected provider has no credentials, the LLM is disabled cleanly: every call raises `LLMUnavailableError`. The adapter talks HTTP with `httpx`, and its contract tests (`tests/contract/`) cover success, malformed responses, 429 and timeouts with respx.
+`LLM_MODEL`, `LLM_BASE_URL` and `LLM_REASONING_EFFORT` (for reasoning models) override the defaults. Why Groq: a permanent free tier with no card, no prompts kept by default (enable Zero Data Retention in Groq's Data Controls if your plan offers it), and JSON mode on every model. Its free limits for `gpt-oss-120b` are 30 requests and 8K tokens a minute, and 1,000 requests and 200K tokens a day, enough for demos and a small group. If the model's JSON-mode reply is invalid, Groq answers 400 `json_validate_failed`; the agents treat that like any unusable reply and answer gently. When the selected provider has no credentials, the LLM is disabled cleanly: every call raises `LLMUnavailableError`. The adapter talks HTTP with `httpx`, and its contract tests (`tests/contract/`) cover success, malformed responses, `json_validate_failed`, 429 and timeouts with respx.
 
 ## Safety
 

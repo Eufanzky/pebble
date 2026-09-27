@@ -12,7 +12,7 @@ from app.api.auth import get_current_user_id
 from app.api.dependencies import Container
 from app.api.errors import RESTING, UNAVAILABLE
 from app.application.agents.orchestrator import AGENT_FAILED, SAFE_REPLY, UNCLEAR_REPLY
-from app.application.ports.llm import LLMRateLimitedError, LLMUnavailableError
+from app.application.ports.llm import LLMRateLimitedError, LLMResponseError, LLMUnavailableError
 from app.application.ports.safety import SafetyCheckError
 from app.domain.agents import Intent
 from app.domain.safety import HarmCategory
@@ -426,6 +426,27 @@ async def test_malformed_classifier_json_falls_back_to_chat(client, llm: FakeLLM
         "agentName": "PebbleVoice",
         "data": None,
     }
+
+
+async def test_invalid_json_rejected_by_the_host_falls_back_to_chat(client, llm: FakeLLM):
+    """Groq's JSON mode answers 400 json_validate_failed instead of returning bad JSON."""
+    llm.script("orchestrator", LLMResponseError("orchestrator: the LLM's reply wasn't valid JSON"))
+
+    resp = await post_chat(client)
+
+    assert resp.status_code == 200
+    assert resp.json()["response"] == UNCLEAR_REPLY
+
+
+@pytest.mark.parametrize("intent", ["decompose", "simplify", "motivate"])
+async def test_invalid_sub_agent_json_rejected_by_the_host_is_a_gentle_reply(client, llm: FakeLLM, intent):
+    llm.script("orchestrator", classification(intent))
+    llm.script(intent, LLMResponseError(f"{intent}: the LLM's reply wasn't valid JSON"))
+
+    resp = await post_chat(client)
+
+    assert resp.status_code == 200
+    assert resp.json()["response"] == AGENT_FAILED[Intent(intent)]
 
 
 async def test_code_fenced_classifier_json_is_understood(client, llm: FakeLLM):

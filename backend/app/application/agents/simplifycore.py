@@ -1,7 +1,7 @@
 """SimplifyCore: rewrites text at the user's reading level and pulls out its action items."""
 
 from app.application.errors import AgentReplyError
-from app.application.llm_json import parse_json_object
+from app.application.llm_json import ask_json
 from app.application.ports.llm import LLMProvider, LLMRequest
 from app.application.prompts import DOCUMENT_SIMPLIFICATION_PROMPT
 from app.application.safety import SafetyGate
@@ -21,16 +21,17 @@ class SimplifyDocument:
 
     async def run(self, text: str, reading_level: int) -> Simplification:
         """Simplify already-screened text. Output is safety-checked, grounded against the text, and redacted."""
-        reply = await self.llm.complete(
+        reply = await ask_json(
+            self.llm,
             LLMRequest(
                 agent="simplify",
                 system_prompt=DOCUMENT_SIMPLIFICATION_PROMPT,
                 user_message=f"Target reading level: {reading_level}/10\n\nDocument text:\n{text}",
                 temperature=0.5,
                 max_tokens=2048,
-            )
+            ),
         )
-        simplification = _parse(parse_json_object(reply))
+        simplification = _parse(reply)
         await self.gate.ensure_output_safe(*simplification.texts())
         groundedness = await self.gate.checker.check_groundedness(simplification.simplified, [text])
         return Simplification(

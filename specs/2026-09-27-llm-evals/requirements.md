@@ -29,3 +29,16 @@ Out of scope:
    - voice ≥ 0.9 (one long sentence shouldn't fail a run)
 3. **Rate limits.** Requests are paced (6.5 s by default) and 429s are waited out. One run is about 45 calls, inside the free tier.
 4. **The baseline comes from CI.** Local runs can't reach GitHub Models from the development sandbox. The workflow is dispatched on `main` after this merges, and its scores are recorded in a follow-up PR that ticks 2.8. The fake provider's scores are recorded now as a harness check.
+5. **Groq replaces GitHub Models (A-018).** GitHub Models was retired on 2026-07-30. The maintainer asked for a free provider, and Groq's free tier won on the criteria:
+   - permanent rate caps, not credits, and no card
+   - no prompts kept by default
+   - JSON mode on every model
+   - no code change beyond a preset
+
+   Gemini's free tier trains on prompts and forbids EEA/UK end users; Mistral's requires opting into training; OpenRouter's free models allow 50 requests a day; Cerebras now needs a card.
+
+   Two fixes came out of the first runs:
+   - Groq answers 400 `json_validate_failed` for an invalid JSON-mode reply. That is now an unusable reply (a gentle message), not an outage.
+   - A throwaway container in the eval fixture leaked a connection.
+
+   `openai/gpt-oss-120b` runs with reasoning effort `low`.
