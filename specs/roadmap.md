@@ -31,7 +31,7 @@ Rules for every phase:
   - PII redaction
   - the `{intent, response, mood, agentName, data}` response shape
   *Done:* tests pass on the current, untouched code.
-- [ ] **1.4 Frontend characterization tests.** Pin today's behaviour:
+- [x] **1.4 Frontend characterization tests.** Pin today's behaviour:
   - `TasksContext` mood derivation and the excited flash
   - `PreferencesContext` DOM effects
   - the chat error state (MSW 500)

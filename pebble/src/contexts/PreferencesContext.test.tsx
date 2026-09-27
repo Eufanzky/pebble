@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { act, renderHookWithProviders } from '@/test/render';
+import type { UserPreferences } from '@/lib/types';
 import { usePreferences } from './PreferencesContext';
 
 function renderPreferences({ calmMode }: { calmMode: boolean }) {
@@ -46,5 +47,51 @@ describe('stripEmoji', () => {
     act(() => result.current.setPreferences((prev) => ({ ...prev, calmMode: false })));
 
     expect(result.current.stripEmoji('💬 Comms')).toBe('💬 Comms');
+  });
+});
+
+describe('DOM effects', () => {
+  const html = document.documentElement;
+
+  // useLocalStorage caches preferences at module level, so each test sets the
+  // values it depends on.
+  function renderWith(prefs: Partial<UserPreferences>) {
+    const { result } = renderHookWithProviders(() => usePreferences());
+    act(() => result.current.setPreferences((prev) => ({ ...prev, ...prefs })));
+    return result;
+  }
+
+  it('adds the reduce-animations class to <html> when reduce animations is on', () => {
+    renderWith({ reduceAnimations: true });
+
+    expect(html).toHaveClass('reduce-animations');
+  });
+
+  it('removes the reduce-animations class when it is turned off', () => {
+    const result = renderWith({ reduceAnimations: true });
+
+    act(() => result.current.setPreferences((prev) => ({ ...prev, reduceAnimations: false })));
+
+    expect(html).not.toHaveClass('reduce-animations');
+  });
+
+  it.each([
+    { pebbleColor: 'lavender', hex: '#C4B5D4', dark: '#A89ABC' },
+    { pebbleColor: 'sage', hex: '#8FAF8A', dark: '#7A9E76' },
+    { pebbleColor: 'coral', hex: '#E8856A', dark: '#D07050' },
+    { pebbleColor: 'amber', hex: '#D4A843', dark: '#B89030' },
+    { pebbleColor: 'sky', hex: '#87CEEB', dark: '#6098B5' },
+  ] as const)('sets the Pebble colour variables for $pebbleColor', ({ pebbleColor, hex, dark }) => {
+    renderWith({ pebbleColor });
+
+    expect(html.style.getPropertyValue('--pebble-color')).toBe(hex);
+    expect(html.style.getPropertyValue('--pebble-dark')).toBe(dark);
+  });
+
+  it('saves preferences to localStorage', () => {
+    renderWith({ calmMode: true, pebbleColor: 'sage' });
+
+    const saved: UserPreferences = JSON.parse(window.localStorage.getItem('pebble-preferences')!);
+    expect(saved).toMatchObject({ calmMode: true, pebbleColor: 'sage' });
   });
 });
