@@ -116,8 +116,12 @@ async def run_case(container: Container, llm: PacedLLM, case: Case) -> CaseResul
     return result
 
 
-async def run_all(settings: Settings) -> tuple[list[CaseResult], dict]:
+async def run_all(settings: Settings) -> tuple[list[CaseResult], dict] | None:
+    """Every case, in order. None when no LLM is configured."""
     container = Container.from_settings(settings)
+    if isinstance(container.llm, UnconfiguredLLM):
+        await container.aclose()
+        return None
     interval = 0.0 if settings.llm_provider == "fake" else REQUEST_INTERVAL
     llm = PacedLLM(container.llm, interval)
     container.llm = llm
@@ -142,9 +146,10 @@ def scores(results: list[CaseResult]) -> dict[str, float]:
 @pytest.fixture(scope="module")
 def evaluation() -> dict:
     settings = Settings()
-    if isinstance(Container.from_settings(settings).llm, UnconfiguredLLM):
+    outcome = asyncio.run(run_all(settings))
+    if outcome is None:
         pytest.skip("No LLM configured: set LLM_API_KEY (or LLM_PROVIDER=fake to check the harness)")
-    results, run = asyncio.run(run_all(settings))
+    results, run = outcome
     report = {
         **run,
         "scores": scores(results),

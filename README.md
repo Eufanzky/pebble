@@ -113,11 +113,11 @@ The project has two main components:
 | Layer | Stack | Directory |
 |:------|:------|:----------|
 | **🖥️ Frontend** | Next.js 16, React 19, TypeScript, Tailwind CSS 4 | `pebble/` |
-| **⚙️ Backend** | FastAPI, Python 3.12+, clean architecture, any OpenAI-compatible LLM | `backend/` |
+| **⚙️ Backend** | FastAPI, Python 3.12+, clean architecture, Groq free tier (any OpenAI-compatible LLM) | `backend/` |
 
 ### 🤖 Multi-Agent System
 
-Each agent is a use case behind small interfaces (ports), so the LLM and the safety service can be swapped. Any OpenAI-compatible API works (OpenAI, Azure OpenAI, or another provider through `LLM_BASE_URL`), and `LLM_PROVIDER=fake` runs everything offline. GitHub Models, the planned free default, was retired on 2026-07-30; a new default is still to be chosen.
+Each agent is a use case behind small interfaces (ports), so the LLM and the safety service can be swapped. The default LLM is `openai/gpt-oss-120b` on **Groq's free tier** (no credit card, no prompts kept by default). Any OpenAI-compatible API works by config, and `LLM_PROVIDER=fake` runs everything offline.
 
 | Agent | Role | Status |
 |:------|:-----|:-------|
@@ -137,7 +137,7 @@ Every message goes through Prompt Shields, Content Safety (severity ≥ 2 is rej
 
 | Service | Purpose | Needed? |
 |:--------|:--------|:--------|
-| **An OpenAI-compatible LLM** (OpenAI, Azure OpenAI, ...) | The LLM behind every agent | Yes, or `LLM_PROVIDER=fake` |
+| **Groq** (free tier; or any OpenAI-compatible API) | The LLM behind every agent | Yes (a free key), or `LLM_PROVIDER=fake` |
 | **Azure AI Content Safety** (free F0 tier) | Content Safety and Prompt Shields | Optional; PII redaction always runs |
 | **Azure Immersive Reader** | Microsoft's reader for documents | Optional; the built-in reader is the fallback |
 | **Microsoft Entra ID** | Sign-in (replaced by Auth.js in roadmap 4.3) | Optional with `DEV_MODE=true` |
@@ -180,7 +180,7 @@ The frontend runs at **http://localhost:3000**. No environment variables or exte
 cd backend
 uv sync
 
-# 2. Configure: LLM_PROVIDER=openai + LLM_API_KEY (+ LLM_BASE_URL for other providers), or LLM_PROVIDER=fake
+# 2. Configure: set LLM_API_KEY to a free Groq key (console.groq.com/keys), or LLM_PROVIDER=fake
 cp .env.example .env
 
 # 3. Start the server

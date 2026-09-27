@@ -12,7 +12,7 @@ Target stack for the update. The budget is $0: free tiers everywhere, and every 
 | Backend | FastAPI, Python 3.12+, Pydantic v2 | Already in place. |
 | Python tooling | `uv` + `pyproject.toml`, ruff | One lockfile that works the same locally, in CI, and in Docker (replaces conda + `requirements.txt`). |
 | Database | PostgreSQL, SQLAlchemy 2 (async) + Alembic | Tasks → steps → activity is relational data. Portable to any host. |
-| LLM | `LLMProvider` port; default adapter: OpenAI-compatible client pointed at **GitHub Models** (GPT-4o, free, rate-limited) | Same client covers OpenAI and Azure OpenAI by config. An Anthropic adapter can be added later. **GitHub Models was retired on 2026-07-30; a new default is pending (A-018 in `audit.md`).** |
+| LLM | `LLMProvider` port; default adapter: OpenAI-compatible client pointed at **Groq's free tier** (`openai/gpt-oss-120b`, no card, rate-limited) | Free for good (rate caps, not credits), keeps no prompts by default (optional zero data retention), JSON mode on every model. Same client covers OpenAI, Azure OpenAI and other compatible hosts by config. GitHub Models, the original choice, was retired on 2026-07-30 (A-018). |
 | Safety | `SafetyChecker` port; default adapter: Azure AI Content Safety (F0 free tier) incl. Prompt Shields | Keeps today's safety behaviour for free. PII redaction stays in-process. |
 | Document parsing | `DocumentParser` port; local adapter using `pypdf` and `python-docx` | Free and private: files are parsed in memory and never stored. |
 | Immersive Reader | Optional Azure adapter; the built-in reader is the default | Works with no Azure setup at all. |
