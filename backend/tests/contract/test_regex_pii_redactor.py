@@ -1,8 +1,10 @@
-"""Characterization tests for the regex PII detector (roadmap 1.3)."""
+"""The regex PII redactor (pinned in 1.3, moved behind the ``PIIRedactor`` port in 2.3)."""
 
 import pytest
 
-from app.services.pii_detector import detect_pii, redact_pii
+from app.infrastructure.pii.regex_redactor import RegexPIIRedactor
+
+redact = RegexPIIRedactor().redact
 
 
 @pytest.mark.parametrize(
@@ -17,27 +19,23 @@ from app.services.pii_detector import detect_pii, redact_pii
     ],
 )
 def test_detects_and_redacts_each_category(text, category, redacted):
-    result = detect_pii(text)
+    result = redact(text)
 
-    assert result.has_pii
+    assert result.found_pii
     assert category in result.categories
-    assert result.redacted_text == redacted
+    assert result.text == redacted
 
 
 def test_text_without_pii_is_unchanged():
-    result = detect_pii("Finish the essay by 5pm, chapter 12")
+    result = redact("Finish the essay by 5pm, chapter 12")
 
-    assert not result.has_pii
+    assert not result.found_pii
     assert result.categories == []
-    assert result.redacted_text == "Finish the essay by 5pm, chapter 12"
+    assert result.text == "Finish the essay by 5pm, chapter 12"
 
 
 def test_redacts_every_match_and_lists_each_category_once():
-    result = detect_pii("a@b.io, c@d.io and 555-123-4567")
+    result = redact("a@b.io, c@d.io and 555-123-4567")
 
     assert result.categories == ["email", "phone"]
-    assert result.redacted_text == "[REDACTED], [REDACTED] and [REDACTED]"
-
-
-def test_redact_pii_returns_only_the_text():
-    assert redact_pii("Mail me: sam@example.com") == "Mail me: [REDACTED]"
+    assert result.text == "[REDACTED], [REDACTED] and [REDACTED]"

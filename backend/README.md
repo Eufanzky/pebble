@@ -145,6 +145,18 @@ The agents reach the model through the `LLMProvider` port (`app/application/port
 
 `LLM_MODEL` and `LLM_BASE_URL` override the defaults. When the selected provider has no credentials, the LLM is disabled cleanly: every call raises `LLMUnavailableError`. The adapter talks HTTP with `httpx`, and its contract tests (`tests/contract/`) cover success, malformed responses, 429 and timeouts with respx.
 
+## Safety
+
+Every agent's input and output goes through `SafetyGate` (`app/application/safety.py`):
+
+- Input: Prompt Shields, then Content Safety, then PII redaction.
+- Output: Content Safety, then PII redaction.
+
+Content at severity 2 or more in any category (Hate, SelfHarm, Sexual, Violence) is rejected (`app/domain/safety.py`).
+
+- `SafetyChecker` port: `AzureContentSafety` (REST, `infrastructure/safety/`) when `CONTENT_SAFETY_ENDPOINT` and `CONTENT_SAFETY_KEY` are set, otherwise `NoOpSafetyChecker`. Text analysis fails closed. Prompt Shields and Groundedness fail open with a warning.
+- `PIIRedactor` port: `RegexPIIRedactor` (in-process: emails, phones, SSNs, cards). It always runs.
+
 ## Architecture: the dependency rule
 
 ```

@@ -52,7 +52,7 @@ The characterization tests from 1.3 must stay green through every item in this p
   *Done:* the app starts and the 1.3 tests pass.
 - [x] **2.2 LLM port.** Add an `LLMProvider` interface, an OpenAI-compatible adapter (GitHub Models by default, Azure OpenAI by config), and a scripted `fake` provider selectable with `LLM_PROVIDER=fake`.
   *Done:* adapter contract tests (respx) cover success, malformed JSON, 429, and timeout.
-- [ ] **2.3 Safety port.** Add a `SafetyChecker` interface, an Azure Content Safety adapter, and a no-op adapter for when it's unconfigured. Move PII redaction behind a port.
+- [x] **2.3 Safety port.** Add a `SafetyChecker` interface, an Azure Content Safety adapter, and a no-op adapter for when it's unconfigured. Move PII redaction behind a port.
   *Done:* contract tests cover the severity mapping; unit tests cover the reject path.
 - [ ] **2.4 Orchestrator and CalmSense as use cases.** Move them into `application/` so `handle_chat` runs the shared agent pipeline. The router becomes thin.
   *Done:* pipeline tests cover the safety order, PII redaction before the LLM, and the routing table; the 1.3 tests are ported and still pass.
