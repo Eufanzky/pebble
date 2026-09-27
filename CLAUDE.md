@@ -79,7 +79,7 @@ All Cosmos containers are partitioned by `/userId`.
 
 ### Agent pipeline (`backend/app/agents/`)
 `orchestrator.handle_chat` is the chat entry point:
-1. Input safety: Prompt Shields (`ensure_no_prompt_attack`), then Content Safety (`ensure_safe`, which rejects content at severity ≥ 2), then PII redaction (`services/pii_detector.py`).
+1. Input safety: Prompt Shields (`ensure_no_prompt_attack`), then Content Safety (`ensure_safe`, which rejects content at severity ≥ 2), then PII redaction (`infrastructure/pii/regex_redactor.py`, reached through the `services/pii_detector.py` shim until 2.4).
 2. Intent classification: `ORCHESTRATOR_PROMPT` runs through the Semantic Kernel singleton (`services/kernel.py`). If that fails, it falls back to a direct `openai_client.chat_completion`. The model must return JSON, which is parsed with `json.loads`.
 3. Routing on the classifier's `intent` field. `distress` gets an immediate empathetic reply without calling a sub-agent. `decompose` goes to `task_decomposition` (CalmSense), `simplify` to `document_simplification` (SimplifyCore), and `motivate` to `motivation` (PebbleVoice). Anything else is treated as `chat` and returns the classifier's own `response`/`mood`. Adding an intent means updating `ORCHESTRATOR_PROMPT` and the routing in `handle_chat`.
 4. The output also goes through Content Safety and PII redaction.
