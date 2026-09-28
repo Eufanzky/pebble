@@ -1,9 +1,7 @@
+import type { ApiSchema } from '@/shared/api';
 import { getJson } from '@/shared/lib/api';
 
-interface ReaderToken {
-  token: string;
-  subdomain: string;
-}
+type ReaderToken = ApiSchema<'ReaderTokenResponse'>;
 
 /**
  * Opens Azure Immersive Reader. Resolves false when it can't: the backend has

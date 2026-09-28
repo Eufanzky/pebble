@@ -9,6 +9,13 @@ const ALLOWED_TYPES = [
 ];
 export const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 
+const DOCUMENT_TYPES: readonly DocumentItem['type'][] = ['academic', 'technical', 'meeting'];
+
+/** The backend's guess at a document's type; technical when it's one the UI doesn't know. */
+export function toDocumentType(type: string): DocumentItem['type'] {
+  return DOCUMENT_TYPES.includes(type as DocumentItem['type']) ? (type as DocumentItem['type']) : 'technical';
+}
+
 /** PDF, Word and text files up to 10 MB. */
 export function isAcceptedUpload(file: Pick<File, 'name' | 'type' | 'size'>): boolean {
   const knownType = ALLOWED_TYPES.includes(file.type) || /\.(pdf|doc|docx|txt)$/i.test(file.name);

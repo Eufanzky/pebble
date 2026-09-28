@@ -1,5 +1,9 @@
 import { http, HttpResponse, type RequestHandler } from 'msw';
-import type { ChatResponse } from '@/features/chat';
+import type { ApiSchema } from '@/shared/api';
+
+// Handler bodies are typed from the generated API types, so a backend schema
+// change breaks these fakes at compile time instead of drifting silently.
+type ChatResponse = ApiSchema<'ChatResponse'>;
 
 // A chat reply as the backend sends it. Tests override the fields they check.
 export function chatReply(overrides: Partial<ChatResponse> = {}): ChatResponse {
@@ -15,7 +19,7 @@ export function chatReply(overrides: Partial<ChatResponse> = {}): ChatResponse {
 
 export const chatHandlers = {
   reply: (overrides: Partial<ChatResponse> = {}) =>
-    http.post('/api/agents/chat', () => HttpResponse.json(chatReply(overrides))),
+    http.post('/api/agents/chat', () => HttpResponse.json<ChatResponse>(chatReply(overrides))),
   status: (status: number, detail = 'Internal Server Error') =>
     http.post('/api/agents/chat', () => HttpResponse.json({ detail }, { status })),
   networkError: () => http.post('/api/agents/chat', () => HttpResponse.error()),
@@ -24,7 +28,9 @@ export const chatHandlers = {
 const READER_TOKEN = '/api/documents/immersive-reader/token';
 
 export const readerHandlers = {
-  token: () => http.get(READER_TOKEN, () => HttpResponse.json({ token: 'test-token', subdomain: 'test' })),
+  token: () =>
+    http.get(READER_TOKEN, () =>
+      HttpResponse.json<ApiSchema<'ReaderTokenResponse'>>({ token: 'test-token', subdomain: 'test' })),
   // What a backend without Immersive Reader configured answers.
   unavailable: () =>
     http.get(READER_TOKEN, () => HttpResponse.json({ detail: 'Immersive Reader is not configured' }, { status: 503 })),
@@ -36,7 +42,7 @@ export const documentHandlers = {
   parsed: (text = 'Parsed text.', type = 'technical') =>
     http.post('/api/documents/parse', ({ request }) =>
       request.headers.get('Content-Type')?.startsWith('multipart/form-data')
-        ? HttpResponse.json({ title: 'document', type, text, pages: 1 })
+        ? HttpResponse.json<ApiSchema<'ParsedDocumentResponse'>>({ title: 'document', type, text, pages: 1 })
         : HttpResponse.json({ detail: 'Expected a file upload' }, { status: 422 })),
   status: (status: number) =>
     http.post('/api/documents/parse', () => HttpResponse.json({ detail: 'Could not read it' }, { status })),

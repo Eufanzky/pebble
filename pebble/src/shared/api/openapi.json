@@ -1,0 +1,743 @@
+{
+  "components": {
+    "schemas": {
+      "Body_parse_api_documents_parse_post": {
+        "properties": {
+          "file": {
+            "contentMediaType": "application/octet-stream",
+            "description": "PDF, Word (.docx) or plain-text file. Max 10 MB.",
+            "title": "File",
+            "type": "string"
+          }
+        },
+        "required": [
+          "file"
+        ],
+        "title": "Body_parse_api_documents_parse_post",
+        "type": "object"
+      },
+      "ChatRequest": {
+        "properties": {
+          "chunkSize": {
+            "default": "medium",
+            "title": "Chunksize",
+            "type": "string"
+          },
+          "message": {
+            "minLength": 1,
+            "title": "Message",
+            "type": "string"
+          },
+          "personality": {
+            "default": "gentle",
+            "title": "Personality",
+            "type": "string"
+          },
+          "readingLevel": {
+            "default": 5,
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Readinglevel",
+            "type": "integer"
+          },
+          "recentTaskTitles": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Recenttasktitles",
+            "type": "array"
+          },
+          "tasksCompleted": {
+            "default": 0,
+            "title": "Taskscompleted",
+            "type": "integer"
+          },
+          "tasksTotal": {
+            "default": 0,
+            "title": "Taskstotal",
+            "type": "integer"
+          },
+          "timeOfDay": {
+            "default": "day",
+            "title": "Timeofday",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ],
+        "title": "ChatRequest",
+        "type": "object"
+      },
+      "ChatResponse": {
+        "properties": {
+          "agentName": {
+            "title": "Agentname",
+            "type": "string"
+          },
+          "data": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Data"
+          },
+          "intent": {
+            "title": "Intent",
+            "type": "string"
+          },
+          "mood": {
+            "title": "Mood",
+            "type": "string"
+          },
+          "response": {
+            "title": "Response",
+            "type": "string"
+          }
+        },
+        "required": [
+          "intent",
+          "response",
+          "mood",
+          "agentName"
+        ],
+        "title": "ChatResponse",
+        "type": "object"
+      },
+      "DecomposeRequest": {
+        "properties": {
+          "chunkSize": {
+            "default": "medium",
+            "title": "Chunksize",
+            "type": "string"
+          },
+          "taskTitle": {
+            "minLength": 1,
+            "title": "Tasktitle",
+            "type": "string"
+          },
+          "timeOfDay": {
+            "default": "day",
+            "title": "Timeofday",
+            "type": "string"
+          }
+        },
+        "required": [
+          "taskTitle"
+        ],
+        "title": "DecomposeRequest",
+        "type": "object"
+      },
+      "DecomposeResponse": {
+        "properties": {
+          "subtasks": {
+            "items": {
+              "$ref": "#/components/schemas/SubtaskResult"
+            },
+            "title": "Subtasks",
+            "type": "array"
+          },
+          "whyExplanation": {
+            "title": "Whyexplanation",
+            "type": "string"
+          }
+        },
+        "required": [
+          "subtasks",
+          "whyExplanation"
+        ],
+        "title": "DecomposeResponse",
+        "type": "object"
+      },
+      "ExtractedTask": {
+        "properties": {
+          "tag": {
+            "title": "Tag",
+            "type": "string"
+          },
+          "timeEstimate": {
+            "title": "Timeestimate",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "timeEstimate",
+          "tag"
+        ],
+        "title": "ExtractedTask",
+        "type": "object"
+      },
+      "GroundednessResult": {
+        "properties": {
+          "grounded": {
+            "title": "Grounded",
+            "type": "boolean"
+          },
+          "ungroundedPercentage": {
+            "title": "Ungroundedpercentage",
+            "type": "number"
+          }
+        },
+        "required": [
+          "grounded",
+          "ungroundedPercentage"
+        ],
+        "title": "GroundednessResult",
+        "type": "object"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "title": "Detail",
+            "type": "array"
+          }
+        },
+        "title": "HTTPValidationError",
+        "type": "object"
+      },
+      "MotivateRequest": {
+        "properties": {
+          "personality": {
+            "default": "gentle",
+            "title": "Personality",
+            "type": "string"
+          },
+          "recentTaskTitles": {
+            "default": [],
+            "items": {
+              "type": "string"
+            },
+            "title": "Recenttasktitles",
+            "type": "array"
+          },
+          "tasksCompleted": {
+            "default": 0,
+            "title": "Taskscompleted",
+            "type": "integer"
+          },
+          "tasksTotal": {
+            "default": 0,
+            "title": "Taskstotal",
+            "type": "integer"
+          },
+          "timeOfDay": {
+            "default": "day",
+            "title": "Timeofday",
+            "type": "string"
+          }
+        },
+        "title": "MotivateRequest",
+        "type": "object"
+      },
+      "MotivateResponse": {
+        "properties": {
+          "message": {
+            "title": "Message",
+            "type": "string"
+          },
+          "mood": {
+            "title": "Mood",
+            "type": "string"
+          }
+        },
+        "required": [
+          "message",
+          "mood"
+        ],
+        "title": "MotivateResponse",
+        "type": "object"
+      },
+      "ParsedDocumentResponse": {
+        "properties": {
+          "pages": {
+            "title": "Pages",
+            "type": "integer"
+          },
+          "text": {
+            "title": "Text",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "type": {
+            "title": "Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "type",
+          "text",
+          "pages"
+        ],
+        "title": "ParsedDocumentResponse",
+        "type": "object"
+      },
+      "ReaderTokenResponse": {
+        "properties": {
+          "subdomain": {
+            "title": "Subdomain",
+            "type": "string"
+          },
+          "token": {
+            "title": "Token",
+            "type": "string"
+          }
+        },
+        "required": [
+          "token",
+          "subdomain"
+        ],
+        "title": "ReaderTokenResponse",
+        "type": "object"
+      },
+      "SimplifyRequest": {
+        "properties": {
+          "readingLevel": {
+            "default": 5,
+            "maximum": 10.0,
+            "minimum": 1.0,
+            "title": "Readinglevel",
+            "type": "integer"
+          },
+          "text": {
+            "minLength": 1,
+            "title": "Text",
+            "type": "string"
+          }
+        },
+        "required": [
+          "text"
+        ],
+        "title": "SimplifyRequest",
+        "type": "object"
+      },
+      "SimplifyResponse": {
+        "properties": {
+          "extractedTasks": {
+            "items": {
+              "$ref": "#/components/schemas/ExtractedTask"
+            },
+            "title": "Extractedtasks",
+            "type": "array"
+          },
+          "groundedness": {
+            "$ref": "#/components/schemas/GroundednessResult"
+          },
+          "simplified": {
+            "title": "Simplified",
+            "type": "string"
+          },
+          "tags": {
+            "items": {
+              "type": "string"
+            },
+            "title": "Tags",
+            "type": "array"
+          },
+          "whyExplanation": {
+            "title": "Whyexplanation",
+            "type": "string"
+          }
+        },
+        "required": [
+          "simplified",
+          "extractedTasks",
+          "tags",
+          "whyExplanation",
+          "groundedness"
+        ],
+        "title": "SimplifyResponse",
+        "type": "object"
+      },
+      "SubtaskResult": {
+        "properties": {
+          "timeEstimate": {
+            "title": "Timeestimate",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title",
+          "timeEstimate"
+        ],
+        "title": "SubtaskResult",
+        "type": "object"
+      },
+      "ValidationError": {
+        "properties": {
+          "ctx": {
+            "title": "Context",
+            "type": "object"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "title": "Location",
+            "type": "array"
+          },
+          "msg": {
+            "title": "Message",
+            "type": "string"
+          },
+          "type": {
+            "title": "Error Type",
+            "type": "string"
+          }
+        },
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError",
+        "type": "object"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "scheme": "bearer",
+        "type": "http"
+      }
+    }
+  },
+  "info": {
+    "description": "\nBackend for **Pebble**, a calm assistant for neurodivergent users.\n\n- **Agents:** the orchestrator routes each chat message to CalmSense (task breakdown), SimplifyCore\n  (simpler text at your reading level) or PebbleVoice (specific encouragement).\n- **Safety:** every input goes through Prompt Shields, Content Safety and PII redaction before any model\n  sees it; every reply is checked again. Content Safety is optional; redaction always runs.\n- **Documents:** PDF, Word and text files are parsed in memory and never stored.\n- **LLM:** Groq's free tier by default, any OpenAI-compatible provider by config, or a scripted fake\n  with `LLM_PROVIDER=fake`.\n\nVoice rules for every reply: never shame, rush or compare; be specific; short, plain sentences.\n",
+    "license": {
+      "name": "MIT"
+    },
+    "summary": "A calm assistant for neurodivergent users",
+    "title": "Pebble API",
+    "version": "0.2.0"
+  },
+  "openapi": "3.1.0",
+  "paths": {
+    "/api/agents/chat": {
+      "post": {
+        "description": "**Pebble Orchestrator** \u2014 The main entry point for talking to Pebble.\n\nClassifies the user's intent and routes to the appropriate sub-agent:\n- `decompose` \u2192 CalmSense (task breakdown)\n- `simplify` \u2192 SimplifyCore (text simplification)\n- `motivate` \u2192 PebbleVoice (encouragement)\n- `chat` \u2192 Direct response from Pebble\n- `distress` \u2192 Immediate empathetic response with support\n\nAll input is screened by Prompt Shields (anti-jailbreak) and Content Safety, then PII-redacted:\nthe classifier and every sub-agent see only the redacted message. A flagged reply is replaced\nwith a safe one.\n\nIf the user expresses distress (*\"I'm overwhelmed\"*, *\"I can't do this\"*),\nPebble responds with empathy and offers to simplify their day.\n\nThe `data` field contains structured output from the sub-agent (e.g., subtasks\nfor decompose, simplified text for simplify), or `null` for chat/distress.",
+        "operationId": "chat_api_agents_chat_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChatRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ChatResponse"
+                }
+              }
+            },
+            "description": "Pebble's response with detected intent, agent used, and optional structured data"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Chat with Pebble",
+        "tags": [
+          "AI Agents"
+        ]
+      }
+    },
+    "/api/agents/decompose": {
+      "post": {
+        "description": "**Agent: CalmSense** \u2014 Takes a task title and breaks it into smaller, achievable subtasks.\n\nRespects the user's preferred chunk size:\n- `small`: 5-10 minute steps\n- `medium`: 15-20 minute steps\n- `large`: 30+ minute steps\n\nThe agent starts with the easiest step to reduce task initiation friction,\nand includes a `whyExplanation` describing why it chose this breakdown.\n\nInput and output go through the safety gate (Content Safety and PII redaction).",
+        "operationId": "decompose_api_agents_decompose_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/DecomposeRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DecomposeResponse"
+                }
+              }
+            },
+            "description": "Time-boxed subtasks with an explanation of why they were split this way"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Break down a task",
+        "tags": [
+          "AI Agents"
+        ]
+      }
+    },
+    "/api/agents/motivate": {
+      "post": {
+        "description": "**Agent: PebbleVoice** \u2014 Generates specific, personalized encouragement.\n\nNever generic platitudes. The agent references the user's actual progress:\n- *\"You finished reading that chapter even though you said it felt hard\"*\n- *\"Starting is the hardest part, and you did that\"*\n\nReturns a `mood` that the frontend uses to update Pebble's expression:\n`sleepy`, `normal`, `happy`, or `excited`.",
+        "operationId": "motivate_api_agents_motivate_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/MotivateRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MotivateResponse"
+                }
+              }
+            },
+            "description": "A personalized motivational message and suggested Pebble mood"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get encouragement",
+        "tags": [
+          "AI Agents"
+        ]
+      }
+    },
+    "/api/agents/simplify": {
+      "post": {
+        "description": "**Agent: SimplifyCore** \u2014 Simplifies complex text to a target reading level (1-10).\n\nReading level scale:\n- **1-3**: Very short sentences, common words only\n- **4-6**: Clear language, some compound sentences\n- **7-9**: Closer to original, simplified structure\n- **10**: Minimal changes, just improved clarity\n\nAlso extracts action items (`extractedTasks`) and topic tags from the text.\nIncludes a `whyExplanation` describing what was changed and why.\nOutput is verified against the original text using Groundedness Detection.",
+        "operationId": "simplify_api_agents_simplify_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SimplifyRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SimplifyResponse"
+                }
+              }
+            },
+            "description": "Simplified text, extracted tags, action items, and explanation"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Simplify text",
+        "tags": [
+          "AI Agents"
+        ]
+      }
+    },
+    "/api/documents/immersive-reader/token": {
+      "get": {
+        "description": "A short-lived token for Microsoft's Immersive Reader, used by the frontend's `launchAsync`.\n\nOptional: without `IMMERSIVE_READER_*` settings this is a 503, and the frontend uses its built-in reader.",
+        "operationId": "immersive_reader_token_api_documents_immersive_reader_token_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReaderTokenResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Get an Immersive Reader token",
+        "tags": [
+          "Documents"
+        ]
+      }
+    },
+    "/api/documents/parse": {
+      "post": {
+        "description": "Read the text of an uploaded document with a local parser (pypdf, python-docx).\n\nThe file is parsed in memory and **never stored**: nothing is written to disk or sent to\nanother service. Pass the returned `text` to `POST /api/agents/simplify` to simplify it.",
+        "operationId": "parse_api_documents_parse_post",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_parse_api_documents_parse_post"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ParsedDocumentResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Read a document's text",
+        "tags": [
+          "Documents"
+        ]
+      }
+    },
+    "/api/health": {
+      "get": {
+        "description": "Check if the server is running.",
+        "operationId": "health_check_api_health_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "summary": "Health Check",
+        "tags": [
+          "Health"
+        ]
+      }
+    }
+  },
+  "tags": [
+    {
+      "description": "Chat with Pebble, or call CalmSense, SimplifyCore and PebbleVoice directly.",
+      "name": "AI Agents"
+    },
+    {
+      "description": "Read a document's text in memory, and the optional Immersive Reader token.",
+      "name": "Documents"
+    },
+    {
+      "description": "Server health check.",
+      "name": "Health"
+    }
+  ]
+}

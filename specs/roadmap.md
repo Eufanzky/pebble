@@ -79,7 +79,7 @@ The characterization tests from 1.4 must stay green through every item in this p
   *Done:* no file exceeds ~200 lines, and tests cover the reading-level slider, the comprehension check, and the built-in reader fallback.
 - [x] **3.4 Settings, activity, and companion.** Split the settings page and move the activity log and the Pebble character into their features.
   *Done:* every page is thin, and the settings toggles (calm mode, reduce animations) have tests.
-- [ ] **3.5 Typed API contract.** Generate TS types from FastAPI's OpenAPI with `openapi-typescript`, replace the hand-written `ChatResponse`, type the MSW handlers from them, and add a CI check for drift.
+- [x] **3.5 Typed API contract.** Generate TS types from FastAPI's OpenAPI with `openapi-typescript`, replace the hand-written `ChatResponse`, type the MSW handlers from them, and add a CI check for drift.
   *Done:* changing a backend schema breaks the frontend typecheck.
 - [ ] **3.6 Accessibility tests.** Add axe checks for each feature's main components, plus keyboard tests for the skip link, focus on navigation, and modal focus trap.
   *Done:* there are no axe violations, and the keyboard tests pass.

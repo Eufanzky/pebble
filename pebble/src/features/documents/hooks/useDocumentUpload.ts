@@ -5,7 +5,7 @@ import { usePebble } from '@/features/companion';
 import { useActivityLog } from '@/features/activity';
 import { useToast } from '@/shared/ui/ToastContext';
 import { parseDocument } from '../api/parseDocument';
-import { documentFromText, isTextFile, sizeInKb, uploadErrorMessage } from '../lib/upload';
+import { documentFromText, isTextFile, sizeInKb, toDocumentType, uploadErrorMessage } from '../lib/upload';
 import type { DocumentItem } from '../types';
 
 function readText(file: File): Promise<string> {
@@ -21,7 +21,7 @@ function readText(file: File): Promise<string> {
 async function readDocument(file: File): Promise<DocumentItem> {
   if (isTextFile(file)) return documentFromText(file.name, await readText(file));
   const parsed = await parseDocument(file);
-  return documentFromText(file.name, parsed.text, parsed.type);
+  return documentFromText(file.name, parsed.text, toDocumentType(parsed.type));
 }
 
 /**

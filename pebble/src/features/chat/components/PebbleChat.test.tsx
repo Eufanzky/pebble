@@ -51,12 +51,12 @@ describe('PebbleChat', () => {
 
     expect(body).toEqual({
       message: 'Hello',
-      tasks_completed: expect.any(Number),
-      tasks_total: expect.any(Number),
-      recent_task_titles: expect.any(Array),
-      chunk_size: expect.any(String),
-      reading_level: expect.any(Number),
-      time_of_day: expect.stringMatching(/^(morning|day|evening)$/),
+      tasksCompleted: expect.any(Number),
+      tasksTotal: expect.any(Number),
+      recentTaskTitles: expect.any(Array),
+      chunkSize: expect.any(String),
+      readingLevel: expect.any(Number),
+      timeOfDay: expect.stringMatching(/^(morning|day|evening)$/),
       personality: expect.any(String),
     });
   });

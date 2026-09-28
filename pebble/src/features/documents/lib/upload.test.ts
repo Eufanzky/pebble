@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { ApiError } from '@/shared/lib/api';
-import { MAX_UPLOAD_BYTES, documentFromText, isAcceptedUpload, isTextFile, uploadErrorMessage } from './upload';
+import { MAX_UPLOAD_BYTES, documentFromText, isAcceptedUpload, isTextFile, toDocumentType, uploadErrorMessage } from './upload';
 
 const file = (name: string, type: string, size = 1024) => ({ name, type, size });
 
@@ -58,5 +58,13 @@ describe('uploadErrorMessage', () => {
     ['any other error', new Error('boom')],
   ])('uses a general message for %s', (_, error) => {
     expect(uploadErrorMessage(error, 'a.pdf')).toBe(general);
+  });
+});
+
+describe('toDocumentType', () => {
+  it('keeps the types the UI knows and falls back to technical', () => {
+    expect(toDocumentType('meeting')).toBe('meeting');
+    expect(toDocumentType('academic')).toBe('academic');
+    expect(toDocumentType('poem')).toBe('technical');
   });
 });
