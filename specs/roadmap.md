@@ -83,7 +83,7 @@ The characterization tests from 1.4 must stay green through every item in this p
   *Done:* changing a backend schema breaks the frontend typecheck.
 - [x] **3.6 Accessibility tests.** Add axe checks for each feature's main components, plus keyboard tests for the skip link, focus on navigation, and modal focus trap.
   *Done:* there are no axe violations, and the keyboard tests pass.
-- [ ] **3.7 E2E demo flow.** Set up Playwright against the local stack with `LLM_PROVIDER=fake`, covering the demo flow from `testing.md` plus an axe scan per page. Add it to PR CI.
+- [x] **3.7 E2E demo flow.** Set up Playwright against the local stack with `LLM_PROVIDER=fake`, covering the demo flow from `testing.md` plus an axe scan per page. Add it to PR CI.
   *Done:* the spec passes locally and in CI.
 - [ ] **3.8 Frontend coverage floor.** Enforce 80% on `features/*/lib` + `hooks` in CI.
   *Done:* CI fails below the floor.

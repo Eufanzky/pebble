@@ -11,7 +11,8 @@
     "test:watch": "vitest",
     "api:schema": "cd ../backend && uv run --locked python scripts/export_openapi.py > ../pebble/src/shared/api/openapi.json",
     "api:types": "openapi-typescript src/shared/api/openapi.json -o src/shared/api/schema.d.ts",
-    "api:generate": "npm run api:schema && npm run api:types"
+    "api:generate": "npm run api:schema && npm run api:types",
+    "test:e2e": "playwright test"
   },
   "dependencies": {
     "@microsoft/immersive-reader-sdk": "^1.4.0",
@@ -20,6 +21,8 @@
     "react-dom": "19.2.4"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "@playwright/test": "^1.63.0",
     "@tailwindcss/postcss": "^4",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/jest-dom": "^7.0.1",
