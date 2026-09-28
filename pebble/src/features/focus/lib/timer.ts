@@ -16,12 +16,3 @@ export function ringOffset(secondsLeft: number, total = FOCUS_SECONDS): number {
   const progress = (total - secondsLeft) / total;
   return RING_CIRCUMFERENCE - RING_CIRCUMFERENCE * progress;
 }
-
-/** Where each person sits on the room's circle, "You" last. */
-export function seatPosition(index: number, count: number, center = 160, radius = 130, avatar = 36) {
-  const angle = (2 * Math.PI * index) / count - Math.PI / 2;
-  return {
-    x: center + radius * Math.cos(angle) - avatar / 2,
-    y: center + radius * Math.sin(angle) - avatar / 2,
-  };
-}

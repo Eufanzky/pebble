@@ -72,10 +72,9 @@ Pebble helps neurodivergent users (ADHD, autism, dyslexia) manage tasks, simplif
 </td>
 <td width="50%">
 
-### 🎯 Focus Rooms
-- Virtual co-working spaces with ambient presence (no cameras, no microphones)
-- Built-in **Pomodoro timer** with circular progress visualization
-- Multiple rooms with live participant counts
+### 🎯 Focus
+- A 25-minute **Pomodoro timer** with a circular progress ring, and Pebble beside you
+- Pause and resume any time; stopping early is fine
 - Audio chime on session completion
 
 </td>
