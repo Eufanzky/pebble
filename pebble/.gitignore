@@ -50,3 +50,7 @@ skills-lock.json
 .cursorrules
 .github/copilot-instructions.md
 .vscode/
+
+# Playwright
+/test-results/
+/playwright-report/
