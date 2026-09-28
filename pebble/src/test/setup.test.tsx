@@ -39,4 +39,12 @@ describe('test setup', () => {
 
     expect(await axe(container)).toHaveNoViolations();
   });
+
+  it('reports real violations', async () => {
+    const { container } = renderWithProviders(<button type="button" />);
+
+    const results = await axe(container);
+
+    expect(results.violations.map((v) => v.id)).toContain('button-name');
+  });
 });
