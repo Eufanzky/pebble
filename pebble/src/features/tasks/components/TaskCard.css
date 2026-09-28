@@ -322,19 +322,6 @@
 }
 
 /* ========== Adapted badge ========== */
-.adapted-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 1px 7px;
-  border-radius: 5px;
-  font-size: 10px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  background: rgba(196, 181, 212, 0.15);
-  color: var(--accent-lavender);
-  cursor: help;
-}
-
 /* ========== Why toggle ========== */
 .reduce-animations .why-card-wrapper {
   transition: none !important;

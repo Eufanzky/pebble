@@ -1,7 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { renderWithProviders, screen } from '@/test/render';
 import { setPreferences } from '../testing';
+import { usePreferences } from '@/shared/preferences';
 import SettingsView from './SettingsView';
+
+// Calm mode applies across the app; this stands in for any text using it.
+function StripProbe() {
+  const { stripEmoji } = usePreferences();
+  return <p data-testid="probe">{stripEmoji('Study 📚')}</p>;
+}
 
 beforeEach(() => setPreferences({}));
 afterEach(() => document.documentElement.classList.remove('reduce-animations'));
@@ -27,23 +34,15 @@ describe('settings toggles', () => {
     expect(latestLog()).toMatchObject({ action: 'Reduce animations disabled' });
   });
 
-  it('turns calm mode on, which removes emoji from text', async () => {
-    const { user } = renderWithProviders(<SettingsView />);
-    expect(screen.getByText('💬')).toBeInTheDocument(); // Microsoft Teams
+  it('turns calm mode on, which removes emoji from text across the app', async () => {
+    const { user } = renderWithProviders(<><SettingsView /><StripProbe /></>);
+    expect(screen.getByTestId('probe')).toHaveTextContent('Study 📚');
 
     await user.click(screen.getByRole('switch', { name: 'Calm mode' }));
 
     expect(screen.getByRole('switch', { name: 'Calm mode' })).toHaveAttribute('aria-checked', 'true');
-    expect(screen.queryByText('💬')).not.toBeInTheDocument();
+    expect(screen.getByTestId('probe')).toHaveTextContent(/^Study$/);
     expect(latestLog()).toMatchObject({ agent: 'AdaptLens', action: 'Calm mode enabled' });
   });
 
-  it('shows the mic once voice input is on', async () => {
-    const { user } = renderWithProviders(<SettingsView />);
-    expect(screen.queryByRole('button', { name: 'Start voice input' })).not.toBeInTheDocument();
-
-    await user.click(screen.getByRole('switch', { name: 'Voice input' }));
-
-    expect(screen.getByRole('button', { name: 'Start voice input' })).toBeInTheDocument();
-  });
 });

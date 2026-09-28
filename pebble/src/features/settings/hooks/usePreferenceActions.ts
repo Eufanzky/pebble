@@ -40,6 +40,5 @@ export function usePreferenceActions() {
     },
     toggleReduceAnimations: () => toggle('reduceAnimations', 'Reduce animations'),
     toggleCalmMode: () => toggle('calmMode', 'Calm mode'),
-    toggleVoiceInput: () => setPreferences((prev) => ({ ...prev, voiceInput: !prev.voiceInput })),
   };
 }

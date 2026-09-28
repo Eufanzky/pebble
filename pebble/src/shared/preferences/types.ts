@@ -11,5 +11,4 @@ export interface UserPreferences {
   pebbleColor: PebbleColor;
   pebblePersonality: PebblePersonality;
   pebbleModel: PebbleModel;
-  voiceInput: boolean;
 }

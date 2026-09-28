@@ -8,7 +8,6 @@ export function setPreferences(overrides: Partial<UserPreferences>) {
     ...prev,
     reduceAnimations: false,
     calmMode: false,
-    voiceInput: false,
     ...overrides,
   })));
   unmount();

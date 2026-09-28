@@ -18,9 +18,6 @@ interface TaskCardProps {
   onWhyOpen?: (id: string) => void;
 }
 
-// Tasks with subtasks are "adapted" by AdaptLens
-const ADAPTED_TASK_IDS = new Set(['task-1', 'task-3']);
-
 export default function TaskCard({ task, onToggle, onToggleSubtask, onBreakDown, onWhyOpen }: TaskCardProps) {
   const { preferences, reduceMotion, stripEmoji } = usePreferences();
   const noMotion = reduceMotion;
@@ -93,14 +90,6 @@ export default function TaskCard({ task, onToggle, onToggleSubtask, onBreakDown,
             <span style={{ fontFamily: 'var(--font-jetbrains)', fontSize: 11, color: 'var(--text-secondary)' }}>
               {task.timeEstimate}
             </span>
-            {ADAPTED_TASK_IDS.has(task.id) && (
-              <span
-                className="adapted-badge"
-                title="Pebble adjusted the chunk size based on your recent activity"
-              >
-                Adapted for you
-              </span>
-            )}
           </div>
 
           {breaking && (
