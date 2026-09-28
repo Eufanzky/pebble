@@ -65,7 +65,9 @@ test('the demo flow', async ({ page }) => {
 for (const path of ['/today', '/documents', '/activity', '/focus', '/settings']) {
   test(`${path} has no axe violations`, async ({ page }) => {
     await page.goto(path);
-    await expect(page.locator('h1')).toBeVisible();
+    // By role, not `h1`: while Next.js streams a page, a hidden copy of it
+    // sits in <body> until it's swapped in
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
 
     const results = await new AxeBuilder({ page }).analyze();
 
