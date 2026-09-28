@@ -11,6 +11,9 @@ async function freshStart(page: Page) {
     window.localStorage.clear();
     // Animations off, so the flow doesn't wait on them
     window.localStorage.setItem('pebble-preferences', JSON.stringify({ reduceAnimations: true }));
+    // An empty log: the starter entries have fixed times of day, which sort
+    // above the flow's own entries when the test runs early in the day
+    window.localStorage.setItem('pebble-activity', '[]');
   });
   await page.reload();
 }

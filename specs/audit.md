@@ -66,6 +66,7 @@ Found by the first unit tests (1.2 onwards), not by the static checks above.
 | A-019 | major | The documents feature credits services it doesn't use. A PDF or Word upload says it "will be parsed by Azure Document Intelligence" (removed in 2.7; the backend now has `POST /api/documents/parse`, which the frontend never calls). The built-in reader, which runs only when Immersive Reader is unavailable, says "Powered by Azure AI Immersive Reader", "powered by Azure AI Speech" and "via Azure AI Translator", but it uses the browser's speech synthesis and a word-substitution stand-in for translation. Found during 3.3. | Upload a PDF on /documents; open Reader with no Immersive Reader configured | fix after 3.3 |
 | A-020 | major | Settings simulates features and shows made-up results (principle 6, honest claims). "Connected apps" toggles wait 1.5 s and add canned tasks ("Authenticating via Azure API Management OAuth flow", "Powered by BridgeBot agent via Azure API Management"). The voice-input button waits 2.5 s and adds a random canned phrase as a task ("Listening via Azure AI Speech SDK"). The "Pebble has adapted" cards describe adjustments that never happened ("You completed 4 out of 4 small tasks yesterday…"), and "This week" shows fixed numbers (12 tasks, 3h 20m, 4 documents). Found during the A-019 fix and 3.4. | /settings: turn on a connected app, or voice input and press the mic | needs a product decision: remove, or label as a preview until 5.4/5.5 |
 | A-021 | minor | The activity page said "In production, this feed maps to Microsoft Foundry Control Plane tracing", which the app doesn't use (principle 6). Found during 3.4. | /activity, the note under the log | 3.4 |
+| A-022 | minor | A new user's activity log starts with 16 made-up entries ("Session started. Good morning detected." at 9:01, and so on), stamped at fixed times today. They describe things that never happened (principle 6), and before 9 AM they show times still to come and sort above real entries. Found during 3.7, where they pushed the flow's own entries off the first page in CI (00:29 UTC). | Open /activity before 9 AM with a fresh browser | same decision as A-020 |
 
 ## Backend behaviour
 
@@ -94,7 +95,7 @@ Found by the characterization tests (1.3 onwards), not by the static checks abov
 
 ## Summary
 
-Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011). Found during 1.3: 1 major, 1 minor (A-012, A-013). Found during 1.4: 1 major (A-014). Found during 1.5: 1 minor (A-015). Found during 1.7: 1 major, 1 cosmetic (A-016, A-017). Found during 2.8: 1 major (A-018). Found during 3.3: 2 major (A-019, A-020). Found during 3.4: 1 minor (A-021).
+Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011). Found during 1.3: 1 major, 1 minor (A-012, A-013). Found during 1.4: 1 major (A-014). Found during 1.5: 1 minor (A-015). Found during 1.7: 1 major, 1 cosmetic (A-016, A-017). Found during 2.8: 1 major (A-018). Found during 3.3: 2 major (A-019, A-020). Found during 3.4: 1 minor (A-021). Found during 3.7: 1 minor (A-022).
 
 ## Status
 
@@ -120,6 +121,7 @@ Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Foun
 | A-018 | Fixed in 2.8: the default is now Groq's free tier (`openai/gpt-oss-120b`); the `github` provider is removed; the evals run on Groq with a recorded baseline. |
 | A-019 | Fixed after 3.3: PDF and Word uploads are read by `POST /api/documents/parse` (errors show the backend's gentle explanation, or a general message when it's down); the built-in reader credits only itself and the browser's voice, and calls its translation a rough preview. Regression tests in `DocumentsView.test.tsx`, `ImmersiveReader.test.tsx`, `useDocumentUpload.test.tsx`. |
 | A-020 | Open: needs a product decision. |
+| A-022 | Open: decide with A-020. The E2E flow starts from an empty log. |
 | A-021 | Fixed in 3.4: the note now says the log stays in the browser and what each entry shows. Test in `ActivityView.test.tsx`. |
 
-Open: 3 (A-002, A-015, A-020), each linked to the phase that fixes or removes it. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
+Open: 4 (A-002, A-015, A-020, A-022), each linked to the phase that fixes or removes it. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
