@@ -23,12 +23,12 @@ export function buildChatRequest(
   const completed = tasks.filter((t) => t.completed);
   return {
     message,
-    tasks_completed: completed.length,
-    tasks_total: tasks.length,
-    recent_task_titles: completed.slice(-3).map((t) => t.title),
-    chunk_size: preferences.chunkSize,
-    reading_level: preferences.readingLevel,
-    time_of_day: timeOfDay,
+    tasksCompleted: completed.length,
+    tasksTotal: tasks.length,
+    recentTaskTitles: completed.slice(-3).map((t) => t.title),
+    chunkSize: preferences.chunkSize,
+    readingLevel: preferences.readingLevel,
+    timeOfDay,
     personality: preferences.pebblePersonality,
   };
 }

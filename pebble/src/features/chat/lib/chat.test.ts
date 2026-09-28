@@ -37,21 +37,21 @@ describe('buildChatRequest', () => {
 
     expect(buildChatRequest('Hello', tasks, preferences, 'evening')).toEqual({
       message: 'Hello',
-      tasks_completed: 4,
-      tasks_total: 5,
-      recent_task_titles: ['c', 'd', 'e'],
-      chunk_size: 'small',
-      reading_level: 3,
-      time_of_day: 'evening',
+      tasksCompleted: 4,
+      tasksTotal: 5,
+      recentTaskTitles: ['c', 'd', 'e'],
+      chunkSize: 'small',
+      readingLevel: 3,
+      timeOfDay: 'evening',
       personality: 'calm',
     });
   });
 
   it('works with no tasks', () => {
     expect(buildChatRequest('Hi', [], preferences, 'day')).toMatchObject({
-      tasks_completed: 0,
-      tasks_total: 0,
-      recent_task_titles: [],
+      tasksCompleted: 0,
+      tasksTotal: 0,
+      recentTaskTitles: [],
     });
   });
 });

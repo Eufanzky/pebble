@@ -1,12 +1,7 @@
+import type { ApiSchema } from '@/shared/api';
 import { postForm } from '@/shared/lib/api';
-import type { DocumentType } from '../types';
 
-export interface ParsedDocument {
-  title: string;
-  type: DocumentType;
-  text: string;
-  pages: number;
-}
+export type ParsedDocument = ApiSchema<'ParsedDocumentResponse'>;
 
 /**
  * Reads a PDF or Word file's text on the backend (`POST /api/documents/parse`).
