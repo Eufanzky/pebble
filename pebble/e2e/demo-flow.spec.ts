@@ -11,9 +11,6 @@ async function freshStart(page: Page) {
     window.localStorage.clear();
     // Animations off, so the flow doesn't wait on them
     window.localStorage.setItem('pebble-preferences', JSON.stringify({ reduceAnimations: true }));
-    // An empty log: the starter entries have fixed times of day, which sort
-    // above the flow's own entries when the test runs early in the day
-    window.localStorage.setItem('pebble-activity', '[]');
   });
   await page.reload();
 }
@@ -52,6 +49,8 @@ test('the demo flow', async ({ page }) => {
 
   await test.step('see the agent and its "why" in the activity log', async () => {
     await page.getByRole('link', { name: /Activity/ }).click();
+    // A new user's log holds only what really happened in this flow (A-022)
+    await expect(page.getByText('Showing 4 of 4 entries')).toBeVisible();
     const entry = page.locator('.activity-entry', { hasText: 'Reading level adjusted to 2' });
     await expect(entry.getByText('AdaptLens', { exact: true })).toBeVisible();
     await entry.getByRole('button', { name: 'Show reasoning' }).click();

@@ -20,7 +20,6 @@ const preferences: UserPreferences = {
   pebbleColor: 'sage',
   pebblePersonality: 'calm',
   pebbleModel: 'classic',
-  voiceInput: false,
 };
 
 function task(title: string, completed: boolean): Task {

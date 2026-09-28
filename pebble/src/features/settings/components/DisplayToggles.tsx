@@ -4,7 +4,6 @@ import type { ReactNode } from 'react';
 import { usePreferences } from '@/shared/preferences';
 import { usePreferenceActions } from '../hooks/usePreferenceActions';
 import ToggleSwitch from './ToggleSwitch';
-import VoiceInputDemo from './VoiceInputDemo';
 
 function ToggleRow({ title, children, toggle }: { title: string; children: ReactNode; toggle: ReactNode }) {
   return (
@@ -21,10 +20,10 @@ function ToggleRow({ title, children, toggle }: { title: string; children: React
 const divider = <div style={{ borderTop: '1px solid var(--border-soft)' }} />;
 const hint = { fontSize: 12, color: 'var(--text-muted)' } as const;
 
-/** Reduce animations, calm mode and voice input. */
+/** Reduce animations and calm mode. */
 export default function DisplayToggles() {
   const { preferences } = usePreferences();
-  const { toggleReduceAnimations, toggleCalmMode, toggleVoiceInput } = usePreferenceActions();
+  const { toggleReduceAnimations, toggleCalmMode } = usePreferenceActions();
 
   return (
     <div className="glass-card" style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: 18 }}>
@@ -45,17 +44,6 @@ export default function DisplayToggles() {
         <div style={hint}>Removes emoji and decorative symbols from all text</div>
       </ToggleRow>
 
-      {divider}
-
-      <div>
-        <ToggleRow
-          title="Voice input"
-          toggle={<ToggleSwitch on={preferences.voiceInput} onChange={toggleVoiceInput} label="Voice input" />}
-        >
-          <div style={hint}>Enable microphone for voice commands</div>
-        </ToggleRow>
-        {preferences.voiceInput && <VoiceInputDemo />}
-      </div>
     </div>
   );
 }

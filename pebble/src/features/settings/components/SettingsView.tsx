@@ -4,16 +4,13 @@ import { PebbleCharacter, PebbleSpeechBubble, usePebble } from '@/features/compa
 import { usePreferences } from '@/shared/preferences';
 import { useResetPreferences } from '../hooks/useResetPreferences';
 import { settingsGreeting } from '../lib/greeting';
-import AdaptationCards from './AdaptationCards';
 import ChunkSizeSetting from './ChunkSizeSetting';
-import ConnectedApps from './ConnectedApps';
 import DisplayToggles from './DisplayToggles';
 import PebblePickers from './PebblePickers';
 import ReadingLevelSetting from './ReadingLevelSetting';
 import SectionHeader from './SectionHeader';
-import WeekSummary from './WeekSummary';
 
-/** The settings screen: Pebble, accessibility, integrations, and a reset. */
+/** The settings screen: Pebble, accessibility, and a reset. */
 export default function SettingsView() {
   const { preferences } = usePreferences();
   const { mood } = usePebble();
@@ -40,20 +37,6 @@ export default function SettingsView() {
         <ReadingLevelSetting />
         <ChunkSizeSetting />
         <DisplayToggles />
-      </div>
-
-      <SectionHeader title="Pebble has adapted" subtitle="Based on your activity, Pebble adjusted these settings" />
-      <AdaptationCards />
-
-      <SectionHeader title="Connected apps" subtitle="Pebble can pull tasks and documents from your tools" />
-      <ConnectedApps />
-
-      <SectionHeader title="This week" />
-      <WeekSummary />
-
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8, marginBottom: 32 }}>
-        <PebbleSpeechBubble message="You're doing amazing. Seriously." />
-        <PebbleCharacter mood={mood} size="small" />
       </div>
 
       <div style={{ textAlign: 'center' }}>

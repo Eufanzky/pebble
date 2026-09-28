@@ -2,7 +2,6 @@
 
 import { createContext, useContext, useCallback, type ReactNode } from 'react';
 import { useLocalStorage } from '@/shared/hooks/useLocalStorage';
-import { starterEntries } from '../data/activityEntries';
 import type { ActivityEntry } from '../types';
 
 interface ActivityLogContextValue {
@@ -18,10 +17,8 @@ interface ActivityLogContextValue {
 const ActivityLogContext = createContext<ActivityLogContextValue | null>(null);
 
 export function ActivityLogProvider({ children }: { children: ReactNode }) {
-  const [entries, setEntries] = useLocalStorage<ActivityEntry[]>(
-    'pebble-activity',
-    starterEntries
-  );
+  // Starts empty: the log only shows what the agents really did
+  const [entries, setEntries] = useLocalStorage<ActivityEntry[]>('pebble-activity', []);
 
   const addEntry = useCallback(
     (

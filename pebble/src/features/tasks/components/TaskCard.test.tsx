@@ -107,10 +107,4 @@ describe('TaskCard', () => {
 
     expect(screen.getByText('Skim the headings')).toBeInTheDocument();
   });
-
-  it('marks the tasks AdaptLens adjusted', () => {
-    renderCard(task({ id: 'task-1' }));
-
-    expect(screen.getByText('Adapted for you')).toBeInTheDocument();
-  });
 });

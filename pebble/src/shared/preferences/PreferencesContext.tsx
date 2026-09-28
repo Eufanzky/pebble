@@ -13,7 +13,6 @@ const defaultPreferences: UserPreferences = {
   pebbleColor: 'lavender',
   pebblePersonality: 'gentle',
   pebbleModel: 'chonky-plus',
-  voiceInput: false,
 };
 
 // Emoji shown as pictures: anything with emoji presentation by default, a

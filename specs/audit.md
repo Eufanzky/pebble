@@ -115,13 +115,13 @@ Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Foun
 | A-012 | Fixed in 2.4: every sub-agent gets the redacted message (and redacted task titles), and sub-agent output is PII-redacted. `tests/api/test_chat.py::test_sub_agents_never_receive_raw_pii`, `::test_sub_agent_output_is_pii_redacted`. |
 | A-013 | Fixed in 2.4: malformed classifier JSON falls back to a chat reply (code fences are parsed); unsafe or unusable agent output becomes a gentle reply; LLM and safety outages are a 503 with a gentle message and no internals. |
 | A-014 | Fixed in 1.7: the chat shows "Pebble couldn't answer just now. Try again whenever you're ready." Regression tests in `PebbleChat.test.tsx`. |
-| A-015 | Open, 6.1. |
+| A-015 | Fixed after phase 3, with A-020: the sample tasks' "why" texts no longer claim things about the user ("your preference is 15-minute chunks", "in your list since yesterday", "you've been working for a while") or use loss framing ("without losing momentum"). They explain the split itself. |
 | A-016 | Fixed in 1.7: assistant replies go through `stripEmoji`. Regression tests in `PebbleChat.test.tsx`. |
 | A-017 | Fixed after 3.1: the mouth uses `translateX(-50%)`. Regression test in `features/chat/components/ChatLauncher.test.tsx`. |
 | A-018 | Fixed in 2.8: the default is now Groq's free tier (`openai/gpt-oss-120b`); the `github` provider is removed; the evals run on Groq with a recorded baseline. |
 | A-019 | Fixed after 3.3: PDF and Word uploads are read by `POST /api/documents/parse` (errors show the backend's gentle explanation, or a general message when it's down); the built-in reader credits only itself and the browser's voice, and calls its translation a rough preview. Regression tests in `DocumentsView.test.tsx`, `ImmersiveReader.test.tsx`, `useDocumentUpload.test.tsx`. |
-| A-020 | Open: needs a product decision. |
-| A-022 | Open: decide with A-020. The E2E flow starts from an empty log. |
+| A-020 | Fixed after phase 3: removed. The connected apps, the voice-input demo, the "Pebble has adapted" cards, the "This week" numbers and the generic "You're doing amazing" bubble are gone, and so is the `voiceInput` preference. The "Adapted for you" badge on two sample tasks (an AdaptLens claim) is gone too. 5.3 (AdaptLens), 5.4/5.5 (calendar) and 6.2 (progress counts) bring the real versions. |
+| A-022 | Fixed after phase 3: the activity log starts empty and holds only what agents really did. The E2E flow checks a new user's log has exactly its own 4 entries. |
 | A-021 | Fixed in 3.4: the note now says the log stays in the browser and what each entry shows. Test in `ActivityView.test.tsx`. |
 
-Open: 4 (A-002, A-015, A-020, A-022), each linked to the phase that fixes or removes it. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
+Open: 1 (A-002), each linked to the phase that fixes or removes it. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.

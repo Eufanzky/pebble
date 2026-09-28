@@ -31,12 +31,4 @@ describe('usePreferenceActions', () => {
     expect(result.current.preferences.calmMode).toBe(true);
     expect(result.current.log.entries[0]).toMatchObject({ reasoning: 'User toggled calm mode to true.' });
   });
-
-  it('toggles voice input', () => {
-    const result = renderActions();
-
-    act(() => result.current.toggleVoiceInput());
-
-    expect(result.current.preferences.voiceInput).toBe(true);
-  });
 });
