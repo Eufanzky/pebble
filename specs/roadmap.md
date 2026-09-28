@@ -85,7 +85,7 @@ The characterization tests from 1.4 must stay green through every item in this p
   *Done:* there are no axe violations, and the keyboard tests pass.
 - [x] **3.7 E2E demo flow.** Set up Playwright against the local stack with `LLM_PROVIDER=fake`, covering the demo flow from `testing.md` plus an axe scan per page. Add it to PR CI.
   *Done:* the spec passes locally and in CI.
-- [ ] **3.8 Frontend coverage floor.** Enforce 80% on `features/*/lib` + `hooks` in CI.
+- [x] **3.8 Frontend coverage floor.** Enforce 80% on `features/*/lib` + `hooks` in CI.
   *Done:* CI fails below the floor.
 
 ## Phase 4: Persistence and auth
