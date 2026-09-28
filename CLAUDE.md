@@ -75,7 +75,7 @@ Features live in `src/features/<name>/` (`components/`, `hooks/`, `lib/`, `api/`
 - `companion`: `PebbleProvider`/`usePebble` (mood and rotating messages), `PebbleCharacter` and `PebbleSpeechBubble`.
 - `activity`: `ActivityLogProvider`/`useActivityLog` and `ActivityView`.
 - `settings`: `SettingsView`: Pebble's look and personality, reading level, chunk size, reduce animations, calm mode, and a reset.
-- `focus`: `FocusView`, the 25-minute timer (`useFocusTimer`) and the sample rooms (removed in 7.1).
+- `focus`: `FocusView` and the 25-minute timer (`useFocusTimer`). There are no rooms or other people (7.1); 7.2 ties a session to a task step.
 
 `src/shared/` holds what features share and never imports a feature: `lib/` (`api.ts`, `audio.ts`), `hooks/` (`useLocalStorage`, `useTimeOfDay`, `useFocusOnNavigation`, `useFocusTrap`, `useFadeIn`), `ui/` (`ScreenBackground`, `ToastContext`), and `preferences/`. Preferences live in `shared/` because every feature reads them and the settings screen shows a Pebble preview, so putting them in a feature would create an import cycle.
 

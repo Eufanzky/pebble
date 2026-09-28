@@ -9,10 +9,10 @@ interface TimerControlsProps {
 
 export default function TimerControls({ state, onStart, onPause, onResume }: TimerControlsProps) {
   if (state === 'running') {
-    return <button onClick={onPause} className="study-btn study-btn-secondary">Pause</button>;
+    return <button onClick={onPause} className="focus-btn focus-btn-secondary">Pause</button>;
   }
   if (state === 'paused') {
-    return <button onClick={onResume} className="study-btn study-btn-primary">Resume</button>;
+    return <button onClick={onResume} className="focus-btn focus-btn-primary">Resume</button>;
   }
-  return <button onClick={onStart} className="study-btn study-btn-primary">Start Focus Session</button>;
+  return <button onClick={onStart} className="focus-btn focus-btn-primary">Start Focus Session</button>;
 }

@@ -1,0 +1,37 @@
+/* ========== Focus timer buttons ========== */
+.focus-btn {
+  padding: 12px 28px;
+  min-height: 44px;
+  border-radius: 12px;
+  font-family: var(--font-nunito);
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+  letter-spacing: 0.3px;
+}
+
+.focus-btn-primary {
+  background: linear-gradient(135deg, var(--accent-lavender), var(--pebble-dark));
+  color: var(--bg-deep);
+}
+
+.focus-btn-primary:hover {
+  box-shadow: 0 4px 20px color-mix(in srgb, var(--accent-lavender) 30%, transparent);
+}
+
+.focus-btn-secondary {
+  background: rgba(255, 248, 235, 0.08);
+  border: 1px solid var(--border-soft);
+  color: var(--text-secondary);
+}
+
+.focus-btn-secondary:hover {
+  border-color: var(--accent-lavender);
+  color: var(--accent-lavender);
+}
+
+.reduce-animations .focus-btn {
+  transition: none;
+}
