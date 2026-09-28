@@ -171,6 +171,7 @@ The frontend runs at **http://localhost:3000**. No environment variables or exte
 | `npm run build` | Production build (catches TypeScript errors) |
 | `npm run lint` | ESLint check |
 | `npm test` | Vitest unit and component tests, plus the guilt scan (`npm run test:watch` to watch) |
+| `npm run test:coverage` | The tests with the 80% coverage floor on feature `lib/` and `hooks/` |
 | `npm run test:e2e` | Playwright demo flow and an axe scan per page, against the backend with the fake LLM (first run: `npx playwright install chromium`) |
 | `npm run api:generate` | Regenerate the API types from the backend's OpenAPI schema (needs `uv`) |
 | `npm start` | Serve production build |
