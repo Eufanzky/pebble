@@ -5,8 +5,7 @@ import { expect, test, type Page } from '@playwright/test';
 // a step, simplify a document, and see the agent and its "why" in the activity log.
 
 /** Each test signs in as a new dev user, so it starts from an empty account. */
-async function devLogin(page: Page, path = '/today') {
-  const name = `e2e-${Date.now()}`;
+async function devLogin(page: Page, path = '/today', name = `e2e-${Date.now()}`) {
   await page.goto(path);
   // Signed out: every page sends you to sign in, and back afterwards
   await expect(page).toHaveURL(/\/signin\?callbackUrl=/);
@@ -17,14 +16,18 @@ async function devLogin(page: Page, path = '/today') {
 }
 
 async function freshStart(page: Page) {
-  await devLogin(page);
+  const name = await devLogin(page);
   // Animations off, so the flow doesn't wait on them (saved in the account, like any setting)
   expect((await page.request.patch('/api/preferences', { data: { reduceAnimations: true } })).ok()).toBe(true);
   await page.reload();
+  return name;
 }
 
+/** The dev user the current test signed in as. */
+let userName = '';
+
 test.beforeEach(async ({ page }) => {
-  await freshStart(page);
+  userName = await freshStart(page);
 });
 
 test('the demo flow', async ({ page }) => {
@@ -111,6 +114,30 @@ test('what this browser kept before sign-in moves into the account, once', async
   await expect.poll(() => page.evaluate(() => window.localStorage.getItem('pebble-tasks'))).toBeNull();
   await page.reload();
   await expect(page.locator('.task-card', { hasText: 'Water the plants' })).toHaveCount(1);
+});
+
+test('downloading your data, then deleting the account for good', async ({ page }) => {
+  await page.getByRole('button', { name: 'Add example tasks' }).click();
+  await expect.poll(async () => (await (await page.request.get('/api/tasks')).json()).length).toBeGreaterThan(0);
+  await page.getByRole('link', { name: /Settings/ }).click();
+
+  const download = page.waitForEvent('download');
+  await page.getByRole('button', { name: 'Download my data' }).click();
+  const file = await download;
+  expect(file.suggestedFilename()).toMatch(/^pebble-data-\d{4}-\d{2}-\d{2}\.json$/);
+  const exported = JSON.parse(await (await import('node:fs/promises')).readFile(await file.path(), 'utf8'));
+  expect(exported.userId).toBe(`dev:${userName}`);
+  expect(exported.data.tasks.map((t: { title: string }) => t.title)).toContain('Read Chapter 4 of the design textbook');
+  expect(exported.data.task_steps.length).toBeGreaterThan(0);
+
+  page.once('dialog', (dialog) => void dialog.accept());
+  await page.getByRole('button', { name: 'Delete my account' }).click();
+  await expect(page).toHaveURL(/\/signin/);
+
+  // Signing in again under the same name starts from nothing
+  await devLogin(page, '/today', userName);
+  await expect(page.getByRole('button', { name: 'Add example tasks' })).toBeVisible();
+  expect(await (await page.request.get('/api/tasks')).json()).toEqual([]);
 });
 
 test('signing out goes back to the sign-in page', async ({ page }) => {

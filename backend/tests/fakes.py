@@ -100,3 +100,26 @@ class InMemoryActivityRepository:
 
     async def recent(self, user_id: str, limit: int) -> list[ActivityEntry]:
         return list(reversed(self.entries.get(user_id, [])))[:limit]
+
+
+@dataclass
+class InMemoryAccountData:
+    """An ``AccountDataStore`` over the in-memory stores. ``tests/integration/test_account_data.py`` checks
+    the Postgres one against the real tables."""
+
+    tasks: InMemoryTaskRepository
+    preferences: InMemoryPreferencesRepository
+    activity: InMemoryActivityRepository
+
+    async def export(self, user_id: str) -> dict[str, list[dict[str, object]]]:
+        saved = self.preferences.saved.get(user_id)
+        return {
+            "tasks": [{"id": t.id, "title": t.title} for t in self.tasks.rows.get(user_id, [])],
+            "preferences": [saved] if saved is not None else [],
+            "activity_entries": [{"id": e.id, "action": e.action} for e in self.activity.entries.get(user_id, [])],
+        }
+
+    async def delete(self, user_id: str) -> None:
+        self.tasks.rows.pop(user_id, None)
+        self.preferences.saved.pop(user_id, None)
+        self.activity.entries.pop(user_id, None)

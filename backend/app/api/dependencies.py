@@ -8,6 +8,7 @@ from dataclasses import dataclass, field
 
 from sqlalchemy.ext.asyncio import AsyncEngine
 
+from app.application.account import DeleteAccount, ExportAccountData
 from app.application.activity import ActivityLog
 from app.application.agents.calmsense import DecomposeTask
 from app.application.agents.orchestrator import HandleChat
@@ -15,6 +16,7 @@ from app.application.agents.pebblevoice import Encourage
 from app.application.agents.simplifycore import SimplifyDocument
 from app.application.documents import ParseDocument
 from app.application.importing import ImportLocalData
+from app.application.ports.account import AccountDataStore
 from app.application.ports.activity import ActivityRepository
 from app.application.ports.documents import DocumentParser
 from app.application.ports.llm import LLMProvider
@@ -26,6 +28,7 @@ from app.application.preferences import UserPreferences
 from app.application.safety import SafetyGate
 from app.application.tasks import Tasks
 from app.infrastructure.config import Settings, settings
+from app.infrastructure.db.account import SqlAccountDataStore, UnconfiguredAccountDataStore
 from app.infrastructure.db.activity import SqlActivityRepository, UnconfiguredActivityRepository
 from app.infrastructure.db.engine import build_engine, build_sessions
 from app.infrastructure.db.preferences import SqlPreferencesRepository, UnconfiguredPreferencesRepository
@@ -47,6 +50,7 @@ class Container:
     task_repository: TaskRepository = field(default_factory=UnconfiguredTaskRepository)
     preferences_repository: PreferencesRepository = field(default_factory=UnconfiguredPreferencesRepository)
     activity_repository: ActivityRepository = field(default_factory=UnconfiguredActivityRepository)
+    account_data: AccountDataStore = field(default_factory=UnconfiguredAccountDataStore)
     engine: AsyncEngine | None = None
 
     @classmethod
@@ -62,6 +66,7 @@ class Container:
             container.task_repository = SqlTaskRepository(sessions)
             container.preferences_repository = SqlPreferencesRepository(sessions)
             container.activity_repository = SqlActivityRepository(sessions)
+            container.account_data = SqlAccountDataStore(sessions)
         return container
 
     @property
@@ -99,6 +104,14 @@ class Container:
     @property
     def import_local_data(self) -> ImportLocalData:
         return ImportLocalData(self.tasks, self.preferences, self.activity)
+
+    @property
+    def export_account_data(self) -> ExportAccountData:
+        return ExportAccountData(self.account_data)
+
+    @property
+    def delete_account(self) -> DeleteAccount:
+        return DeleteAccount(self.account_data)
 
     @property
     def handle_chat(self) -> HandleChat:
@@ -168,3 +181,11 @@ def get_activity() -> ActivityLog:
 
 def get_import_local_data() -> ImportLocalData:
     return get_container().import_local_data
+
+
+def get_export_account_data() -> ExportAccountData:
+    return get_container().export_account_data
+
+
+def get_delete_account() -> DeleteAccount:
+    return get_container().delete_account

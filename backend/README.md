@@ -78,6 +78,8 @@ Real-LLM evals live in `tests/evals/` (`uv run pytest -m eval`). They're exclude
 | GET | `/api/activity?limit=50` | Your activity log, newest first (limit 1-200) |
 | POST | `/api/activity` | Log something you did that Pebble reacted to (201). The agents log their own results |
 | POST | `/api/import` | Move what a browser kept before sign-in into the account: tasks go after yours (with their steps), preferences apply only if you never saved any, log entries keep their times (none later than now) |
+| GET | `/api/account/export` | Download everything stored about you: every row of every table you own, as a JSON file |
+| DELETE | `/api/account` | Delete your account: every row you own, in every table, in one transaction (204) |
 | GET | `/api/health` | Health check |
 
 Everything except `/api/health` needs a signed-in user (see Authentication).
@@ -88,6 +90,10 @@ Errors:
 - A provider rate limit: 503 "Pebble is resting", with `Retry-After`.
 - A task or step that isn't yours or doesn't exist: 404 (another user's task looks exactly like a missing one).
 - No database, or a database outage: 503.
+
+## Your data: export and deletion
+
+`ExportAccountData` and `DeleteAccount` (`app/application/account.py`) go through the `AccountDataStore` port. `SqlAccountDataStore` (`infrastructure/db/account.py`) reads the table list from the SQLAlchemy metadata: a table belongs to a user through a `user_id` column, or through a foreign key to a table that has one (`task_steps` → `tasks`). A table with neither is refused. `tests/integration/test_account_data.py` is parametrized over every table, so a new table that export or deletion would miss fails the build.
 
 ## Activity log
 
@@ -162,6 +168,7 @@ backend/
 │   │   ├── preferences.py      # UserPreferences
 │   │   ├── activity.py         # ActivityLog, and the pipeline's note()/watch() helpers
 │   │   ├── importing.py        # ImportLocalData
+│   │   ├── account.py          # ExportAccountData, DeleteAccount
 │   │   └── prompts.py          # system prompts and the Pebble voice rules
 │   ├── infrastructure/
 │   │   ├── config.py           # settings from .env (pydantic-settings)
@@ -169,7 +176,7 @@ backend/
 │   │   ├── safety/             # Azure Content Safety (REST), no-op adapter, factory
 │   │   ├── pii/                # regex PII redactor
 │   │   ├── parsing/            # pypdf + python-docx parser
-│   │   ├── db/                 # SQLAlchemy models, engine, Sql{Task,Preferences,Activity}Repository
+│   │   ├── db/                 # SQLAlchemy models, engine, Sql{Task,Preferences,Activity}Repository, SqlAccountDataStore
 │   │   └── immersive_reader.py # optional Azure Immersive Reader token
 │   └── api/
 │       ├── dependencies.py     # wiring: adapters into use cases (set_container() for tests)
@@ -177,7 +184,7 @@ backend/
 │       ├── presenters.py       # results to camelCase JSON
 │       ├── middleware.py       # request logging
 │       ├── auth.py             # get_current_user: verifies the Next.js server's short-lived token
-│       ├── routers/            # agents, documents, tasks, preferences, activity, importing
+│       ├── routers/            # agents, documents, tasks, preferences, activity, importing, account
 │       └── schemas/            # request/response models
 ├── migrations/                 # Alembic (env.py, versions/); config in alembic.ini
 ├── tests/                      # domain/, unit/, contract/, api/, integration/, fixtures/

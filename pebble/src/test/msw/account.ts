@@ -21,6 +21,7 @@ const DEFAULTS: PreferencesOut = {
 let preferences: PreferencesOut = { ...DEFAULTS };
 let entries: ActivityEntryOut[] = []; // newest first
 let imports: ImportRequest[] = [];
+let deleted = false;
 let nextId = 1;
 
 export const accountStore = {
@@ -35,10 +36,13 @@ export const accountStore = {
   },
   /** Every import the app sent. */
   imports: () => structuredClone(imports),
+  /** Whether the app asked to delete the account. */
+  deleted: () => deleted,
   reset() {
     preferences = { ...DEFAULTS };
     entries = [];
     imports = [];
+    deleted = false;
     nextId = 1;
   },
 };
@@ -64,6 +68,19 @@ export const accountHandlers = {
       entries = [entry, ...entries];
       return HttpResponse.json<ActivityEntryOut>(entry, { status: 201 });
     }),
+    http.get('/api/account/export', () =>
+      HttpResponse.json({
+        exportedAt: new Date().toISOString(),
+        userId: 'dev:test',
+        data: { preferences: [preferences], activity_entries: entries },
+      }),
+    ),
+    http.delete('/api/account', () => {
+      deleted = true;
+      preferences = { ...DEFAULTS };
+      entries = [];
+      return new HttpResponse(null, { status: 204 });
+    }),
     http.post('/api/import', async ({ request }) => {
       const body = (await request.json()) as ImportRequest;
       imports.push(body);
@@ -74,10 +91,11 @@ export const accountHandlers = {
       });
     }),
   ],
-  /** Every preferences, activity or import request answers `status`. */
+  /** Every preferences, activity, import or account request answers `status`. */
   status: (status: number) => [
     http.all('/api/preferences', () => HttpResponse.json({ detail: 'down' }, { status })),
     http.all('/api/activity', () => HttpResponse.json({ detail: 'down' }, { status })),
     http.all('/api/import', () => HttpResponse.json({ detail: 'down' }, { status })),
+    http.all('/api/account*', () => HttpResponse.json({ detail: 'down' }, { status })),
   ],
 };
