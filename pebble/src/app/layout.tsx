@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import { Nunito, Baloo_2, JetBrains_Mono } from 'next/font/google';
-import AppShell from './_shell/AppShell';
 import './globals.css';
 
 const nunito = Nunito({
@@ -41,7 +40,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${nunito.variable} ${baloo.variable} ${jetbrains.variable} dark`}>
       <body className={nunito.className} style={{ background: '#0F0D0A' }}>
-        <AppShell>{children}</AppShell>
+        {children}
       </body>
     </html>
   );

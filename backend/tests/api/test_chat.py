@@ -8,7 +8,7 @@ Tests whose expectations changed in 2.4 say why (A-012, A-013 in ``specs/audit.m
 import pytest
 from httpx import AsyncClient
 
-from app.api.auth import get_current_user_id
+from app.api.auth import get_current_user
 from app.api.dependencies import Container
 from app.api.errors import RESTING, UNAVAILABLE
 from app.application.agents.orchestrator import AGENT_FAILED, SAFE_REPLY, UNCLEAR_REPLY
@@ -48,7 +48,7 @@ def classification(intent: str, response: str = "Classifier reply.", mood: str =
 @pytest.fixture(autouse=True)
 def signed_in(app):
     """Every test here runs as a signed-in user."""
-    app.dependency_overrides[get_current_user_id] = lambda: "user-1"
+    app.dependency_overrides[get_current_user] = lambda: "user-1"
 
 
 async def post_chat(client: AsyncClient, message: str = "Help me with my essay", **fields):

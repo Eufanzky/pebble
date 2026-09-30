@@ -139,7 +139,7 @@ Every message goes through Prompt Shields, Content Safety (severity ≥ 2 is rej
 | **Groq** (free tier; or any OpenAI-compatible API) | The LLM behind every agent | Yes (a free key), or `LLM_PROVIDER=fake` |
 | **Azure AI Content Safety** (free F0 tier) | Content Safety and Prompt Shields | Optional; PII redaction always runs |
 | **Azure Immersive Reader** | Microsoft's reader for documents | Optional; the built-in reader is the fallback |
-| **Microsoft Entra ID** | Sign-in (replaced by Auth.js in roadmap 4.3) | Optional with `DEV_MODE=true` |
+| **GitHub / Google OAuth apps** | Sign-in (Auth.js) | Optional; the dev login works locally without them |
 
 ---
 
@@ -153,17 +153,17 @@ Every message goes through Prompt Shields, Content Safety (severity ≥ 2 is rej
 | **Python** | 3.12+ |
 | **uv** | [Install guide](https://docs.astral.sh/uv/getting-started/installation/) |
 | **Docker** | Optional: runs Postgres with `docker compose` (saved tasks) |
-| **Azure account** | With services provisioned (see backend setup) |
 
 ### 🖥️ Frontend
 
 ```bash
 cd pebble
 npm install
+cp .env.example .env.local   # set AUTH_SECRET and AUTH_TOKEN_SECRET (openssl rand -base64 32)
 npm run dev
 ```
 
-The frontend runs at **http://localhost:3000**. No environment variables or external services needed — all features work standalone with sample data.
+The frontend runs at **http://localhost:3000** and asks you to sign in. Locally, `AUTH_DEV_LOGIN=true` gives a dev login under any name; GitHub and Google appear once their OAuth apps are set in `.env.local`. `AUTH_TOKEN_SECRET` must match the backend's: the Next.js server signs a short-lived token with it for every `/api` call.
 
 | Command | Description |
 |:--------|:------------|

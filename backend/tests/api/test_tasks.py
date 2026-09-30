@@ -2,9 +2,8 @@
 
 import pytest
 
-from app.api.auth import get_current_user_id
+from app.api.auth import get_current_user
 from app.application.ports.persistence import PersistenceError
-from app.infrastructure.config import settings
 from app.infrastructure.db.tasks import UnconfiguredTaskRepository
 
 URL = "/api/tasks"
@@ -17,7 +16,7 @@ def signed_in(app):
     class SignedIn:
         user = "user-a"
 
-    app.dependency_overrides[get_current_user_id] = lambda: SignedIn.user
+    app.dependency_overrides[get_current_user] = lambda: SignedIn.user
     return SignedIn
 
 
@@ -164,9 +163,7 @@ async def test_an_unknown_subtask_is_a_404(client, signed_in):
 @pytest.mark.parametrize(
     ("method", "url"), [("GET", URL), ("POST", URL), ("PATCH", f"{URL}/x"), ("DELETE", URL)]
 )
-async def test_tasks_need_a_signed_in_user(client, monkeypatch, method, url):
-    monkeypatch.setattr(settings, "dev_mode", False)
-
+async def test_tasks_need_a_signed_in_user(client, method, url):
     resp = await client.request(method, url, json={"title": "x"})
 
     assert resp.status_code == 401

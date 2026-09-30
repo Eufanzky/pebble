@@ -5,7 +5,7 @@ Parametrized over every agent and both ways to reach it (chat, and the direct en
 
 import pytest
 
-from app.api.auth import get_current_user_id
+from app.api.auth import get_current_user
 from app.application.ports.persistence import PersistenceError
 from app.infrastructure.db.activity import UnconfiguredActivityRepository
 from tests.api.test_chat import SUB_AGENT_REPLIES, classification
@@ -86,7 +86,7 @@ SCREENED = [c for c in CALLS if c[0] != "motivate"]
 
 @pytest.fixture(autouse=True)
 def signed_in(app):
-    app.dependency_overrides[get_current_user_id] = lambda: USER
+    app.dependency_overrides[get_current_user] = lambda: USER
 
 
 def script(llm, replies: dict) -> None:

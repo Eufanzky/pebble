@@ -1,95 +1,53 @@
-import httpx
+"""Who is calling: the short-lived access token the Next.js server signs for each proxied request.
+
+Auth.js's session cookie is meant only for Next.js. For every ``/api/*`` call, the Next.js server signs
+a JWT (HS256, a few minutes long) with ``AUTH_TOKEN_SECRET``, a secret it shares with this backend:
+``sub`` is the user id (``github:123``, ``google:456``, or ``dev:name`` from the dev login), ``iss`` is
+``pebble-web`` and ``aud`` is ``pebble-api``. The token is never shown to the browser.
+"""
+
+import logging
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
-from jose.backends import RSAKey
 
 from app.infrastructure.config import settings
 
+logger = logging.getLogger("pebble.auth")
+
+ISSUER = "pebble-web"
+AUDIENCE = "pebble-api"
+ALGORITHM = "HS256"
+
 security = HTTPBearer(auto_error=False)
 
-_jwks_cache: dict | None = None
+
+def _unauthorized(detail: str) -> HTTPException:
+    return HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED, detail=detail, headers={"WWW-Authenticate": "Bearer"}
+    )
 
 
-async def _get_jwks() -> dict:
-    """Fetch and cache Microsoft's public signing keys."""
-    global _jwks_cache
-    if _jwks_cache is None:
-        jwks_url = (
-            f"https://login.microsoftonline.com/{settings.azure_ad_tenant_id}"
-            "/discovery/v2.0/keys"
-        )
-        async with httpx.AsyncClient() as client:
-            resp = await client.get(jwks_url)
-            resp.raise_for_status()
-            _jwks_cache = resp.json()
-    return _jwks_cache
-
-
-async def get_current_user_id(
-    credentials: HTTPAuthorizationCredentials | None = Depends(security),
-) -> str:
-    """Validate the Entra ID JWT and return the user's object ID."""
-    if settings.dev_mode:
-        return "dev-user-00000000"
-
+async def get_current_user(credentials: HTTPAuthorizationCredentials | None = Depends(security)) -> str:
+    """The signed-in user's id. 401 for a missing, invalid or expired token; 503 if sign-in isn't set up."""
+    if not settings.auth_token_secret:
+        logger.warning("AUTH_TOKEN_SECRET is not set: nobody can sign in")
+        raise HTTPException(status_code=status.HTTP_503_SERVICE_UNAVAILABLE, detail="Sign-in isn't set up yet.")
     if credentials is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Missing authorization header",
-        )
-
-    token = credentials.credentials
-
+        raise _unauthorized("Please sign in first.")
     try:
-        # Decode header to find the key ID
-        unverified_header = jwt.get_unverified_header(token)
-        kid = unverified_header.get("kid")
-
-        # Find the matching public key from Microsoft's JWKS
-        jwks = await _get_jwks()
-        jwk_data = None
-        for key in jwks.get("keys", []):
-            if key["kid"] == kid:
-                jwk_data = key
-                break
-
-        if jwk_data is None:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Unable to find signing key",
-            )
-
-        # Convert JWK dict to an RSA key object for python-jose
-        rsa_key = RSAKey(jwk_data, algorithm="RS256")
-
-        # Validate the token
-        payload = jwt.decode(
-            token,
-            rsa_key.to_pem().decode("utf-8"),
-            algorithms=["RS256"],
-            audience=settings.azure_ad_client_id,
-            issuer=f"https://login.microsoftonline.com/{settings.azure_ad_tenant_id}/v2.0",
+        claims = jwt.decode(
+            credentials.credentials,
+            settings.auth_token_secret,
+            algorithms=[ALGORITHM],
+            audience=AUDIENCE,
+            issuer=ISSUER,
+            options={"require_exp": True, "require_sub": True, "require_iat": True},
         )
-
-        user_id: str | None = payload.get("oid") or payload.get("sub")
-        if not user_id:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token missing user identifier",
-            )
-
-        return user_id
-
-    except HTTPException:
-        raise
     except JWTError:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid or expired token",
-        )
-    except Exception:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token validation failed",
-        )
+        raise _unauthorized("Your sign-in has expired. Please sign in again.") from None
+    user_id = claims.get("sub")
+    if not isinstance(user_id, str) or not user_id.strip():
+        raise _unauthorized("Your sign-in has expired. Please sign in again.")
+    return user_id

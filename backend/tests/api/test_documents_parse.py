@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from app.api.auth import get_current_user_id
+from app.api.auth import get_current_user
 from app.application.documents import MAX_DOCUMENT_BYTES
 
 FIXTURES = Path(__file__).parents[1] / "fixtures" / "documents"
@@ -13,7 +13,7 @@ URL = "/api/documents/parse"
 
 @pytest.fixture(autouse=True)
 def signed_in(app):
-    app.dependency_overrides[get_current_user_id] = lambda: "user-1"
+    app.dependency_overrides[get_current_user] = lambda: "user-1"
 
 
 def upload(name: str, content: bytes | None = None, content_type: str = "application/octet-stream"):
