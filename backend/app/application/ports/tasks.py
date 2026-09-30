@@ -25,7 +25,3 @@ class TaskRepository(Protocol):
         ...
 
     async def delete_all(self, user_id: str) -> None: ...
-
-
-class PersistenceError(Exception):
-    """The store can't be reached or isn't configured."""

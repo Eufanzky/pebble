@@ -2,22 +2,34 @@
 
 from dataclasses import replace
 
+from app.application.activity import ActivityLog, note, watch
 from app.application.errors import AgentReplyError
 from app.application.llm_json import ask_json
 from app.application.ports.llm import LLMProvider, LLMRequest
 from app.application.prompts import MOTIVATION_PROMPT
 from app.application.safety import SafetyGate
-from app.domain.agents import Mood
+from app.domain.agents import AgentName, Mood
 from app.domain.chat import ChatContext, Encouragement
 
 
 class Encourage:
-    def __init__(self, llm: LLMProvider, gate: SafetyGate) -> None:
+    def __init__(self, llm: LLMProvider, gate: SafetyGate, activity: ActivityLog | None = None) -> None:
         self.llm = llm
         self.gate = gate
+        self.activity = activity
 
-    async def __call__(self, context: ChatContext) -> Encouragement:
-        return await self.run(context)
+    async def __call__(self, context: ChatContext, user_id: str = "") -> Encouragement:
+        """With a ``user_id``, the result (or a held-back reply) goes in the user's activity log."""
+        async with watch(self.activity, user_id, AgentName.PEBBLE_VOICE):
+            encouragement = await self.run(context)
+        await note(
+            self.activity,
+            user_id,
+            AgentName.PEBBLE_VOICE,
+            "Shared some encouragement",
+            f"Based on {context.tasks_completed} of {context.tasks_total} tasks done today.",
+        )
+        return encouragement
 
     async def run(self, context: ChatContext) -> Encouragement:
         """Task titles are PII-redacted before the LLM sees them; the message is checked and redacted."""

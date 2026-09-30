@@ -2,7 +2,7 @@
 
 FastAPI backend for Pebble. It runs the AI agents (the orchestrator, CalmSense, SimplifyCore and PebbleVoice) behind a safety pipeline, and reads uploaded documents in memory. The only thing it needs is an LLM: Groq's free tier by default, any OpenAI-compatible API by config, or `LLM_PROVIDER=fake` to run with no model at all.
 
-Tasks are saved in Postgres (SQLAlchemy 2 async, Alembic). The frontend still keeps them, and preferences and the activity log, in the browser until the rest of roadmap phase 4 lands.
+Tasks, preferences and the activity log are saved per user in Postgres (SQLAlchemy 2 async, Alembic). Every agent result, and every message the safety checks hold back, is written to the activity log server-side. The frontend still keeps all three in the browser until roadmap 4.4 and 4.5.
 
 ## Setup
 
@@ -23,7 +23,7 @@ After changing dependencies, run `uv lock` and commit `uv.lock`.
 
 ### Database
 
-`DATABASE_URL` (`postgresql+asyncpg://...`) turns on saved tasks. Without it the app starts as before and the task endpoints answer 503 "Pebble couldn't reach your saved tasks just now"; so does a database outage. The tables are SQLAlchemy models in `app/infrastructure/db/models.py`. After changing one, generate a migration and check it by hand:
+`DATABASE_URL` (`postgresql+asyncpg://...`) turns on saving. Without it the app starts as before and the task, preferences and activity endpoints answer 503 "Pebble couldn't reach your saved tasks just now"; so does a database outage. Chat and the agents keep working either way: a log entry that can't be written is logged as a warning and skipped. The tables are SQLAlchemy models in `app/infrastructure/db/models.py`. After changing one, generate a migration and check it by hand:
 
 ```bash
 uv run alembic revision --autogenerate -m "what changed"
@@ -49,8 +49,8 @@ Tests run the app in-process with `httpx.ASGITransport`, so they need no network
 - `tests/domain/`: domain rules
 - `tests/unit/application/`: use cases, with fakes
 - `tests/contract/`: adapters, against recorded response shapes with respx
-- `tests/api/`: HTTP behaviour (the task store is `InMemoryTaskRepository` from `tests/fakes.py`, fixture `task_repository`)
-- `tests/integration/`: real Postgres: the migrations, and the `TaskRepository` contract, run against both the Postgres repository and the in-memory fake. Without `TEST_DATABASE_URL` they skip; CI sets `REQUIRE_TEST_DATABASE=true`, so there they fail instead.
+- `tests/api/`: HTTP behaviour (the stores are the in-memory fakes from `tests/fakes.py`: fixtures `task_repository`, `preferences_repository`, `activity_repository`)
+- `tests/integration/`: real Postgres: the migrations, and the task, preferences and activity store contracts, each run against both the Postgres repository and its in-memory fake. Without `TEST_DATABASE_URL` they skip; CI sets `REQUIRE_TEST_DATABASE=true`, so there they fail instead.
 
 Warnings fail the run.
 
@@ -73,6 +73,10 @@ Real-LLM evals live in `tests/evals/` (`uv run pytest -m eval`). They're exclude
 | DELETE | `/api/tasks` | Clear your list (204) |
 | PUT | `/api/tasks/{id}/subtasks` | Replace a task's steps (e.g. from CalmSense); new steps start open |
 | PATCH | `/api/tasks/{id}/subtasks/{subtaskId}` | Tick a step on or off. The last open step finishes the task; unticking never reopens it |
+| GET | `/api/preferences` | Your preferences over the defaults (a new account gets the defaults) |
+| PATCH | `/api/preferences` | Change only the fields sent; returns all of them |
+| GET | `/api/activity?limit=50` | Your activity log, newest first (limit 1-200) |
+| POST | `/api/activity` | Log something you did that Pebble reacted to (201). The agents log their own results |
 | GET | `/api/health` | Health check |
 
 Everything except `/api/health` needs a signed-in user (see Authentication).
@@ -83,6 +87,10 @@ Errors:
 - A provider rate limit: 503 "Pebble is resting", with `Retry-After`.
 - A task or step that isn't yours or doesn't exist: 404 (another user's task looks exactly like a missing one).
 - No database, or a database outage: 503.
+
+## Activity log
+
+Each agent use case takes an optional `ActivityLog` (`app/application/activity.py`). When called with a `user_id` (the routers always pass one), it writes one entry per result: the agent, what it did, its reasoning, and the safety status. `watch()` logs a message held back by Prompt Shields or Content Safety, or a flagged reply, as a `flagged` entry without the text, and lets the error through. Entries only ever hold redacted text, shortened to 50 characters. `tests/api/test_activity_pipeline.py` checks this for every agent, through chat and through the direct endpoints.
 
 ## LLM provider
 
@@ -143,13 +151,15 @@ infrastructure
 backend/
 ├── app/
 │   ├── main.py                 # composition root: app, middleware, routers
-│   ├── domain/                 # agents/intents/moods, chat, tasks and steps, documents, safety rules (pure Python)
+│   ├── domain/                 # agents/intents/moods, chat, tasks and steps, preferences, activity, documents, safety (pure Python)
 │   ├── application/
 │   │   ├── agents/             # use cases: orchestrator (HandleChat), calmsense, simplifycore, pebblevoice
-│   │   ├── ports/              # LLMProvider, SafetyChecker, PIIRedactor, DocumentParser, ReaderTokenProvider, TaskRepository
+│   │   ├── ports/              # LLMProvider, SafetyChecker, PIIRedactor, DocumentParser, ReaderTokenProvider, TaskRepository, PreferencesRepository, ActivityRepository
 │   │   ├── safety.py           # SafetyGate: the input/output pipeline
 │   │   ├── documents.py        # ParseDocument
 │   │   ├── tasks.py            # Tasks: the task list use cases
+│   │   ├── preferences.py      # UserPreferences
+│   │   ├── activity.py         # ActivityLog, and the pipeline's note()/watch() helpers
 │   │   └── prompts.py          # system prompts and the Pebble voice rules
 │   ├── infrastructure/
 │   │   ├── config.py           # settings from .env (pydantic-settings)
@@ -157,7 +167,7 @@ backend/
 │   │   ├── safety/             # Azure Content Safety (REST), no-op adapter, factory
 │   │   ├── pii/                # regex PII redactor
 │   │   ├── parsing/            # pypdf + python-docx parser
-│   │   ├── db/                 # SQLAlchemy models, engine, SqlTaskRepository
+│   │   ├── db/                 # SQLAlchemy models, engine, Sql{Task,Preferences,Activity}Repository
 │   │   └── immersive_reader.py # optional Azure Immersive Reader token
 │   └── api/
 │       ├── dependencies.py     # wiring: adapters into use cases (set_container() for tests)
@@ -165,7 +175,7 @@ backend/
 │       ├── presenters.py       # results to camelCase JSON
 │       ├── middleware.py       # request logging
 │       ├── auth.py             # Entra ID JWT validation (DEV_MODE bypass)
-│       ├── routers/            # agents, documents, tasks
+│       ├── routers/            # agents, documents, tasks, preferences, activity
 │       └── schemas/            # request/response models
 ├── migrations/                 # Alembic (env.py, versions/); config in alembic.ini
 ├── tests/                      # domain/, unit/, contract/, api/, integration/, fixtures/

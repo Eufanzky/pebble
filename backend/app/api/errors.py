@@ -9,8 +9,8 @@ from app.application.documents import DocumentTooLargeError
 from app.application.errors import AgentReplyError, PromptAttackError, UnsafeContentError, UnsafeOutputError
 from app.application.ports.documents import DocumentError, UnsupportedDocumentError
 from app.application.ports.llm import LLMError, LLMRateLimitedError
+from app.application.ports.persistence import PersistenceError
 from app.application.ports.safety import SafetyCheckError
-from app.application.ports.tasks import PersistenceError
 from app.application.tasks import TaskNotFoundError
 
 logger = logging.getLogger("pebble.api")

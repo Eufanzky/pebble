@@ -8,20 +8,26 @@ from dataclasses import dataclass, field
 
 from sqlalchemy.ext.asyncio import AsyncEngine
 
+from app.application.activity import ActivityLog
 from app.application.agents.calmsense import DecomposeTask
 from app.application.agents.orchestrator import HandleChat
 from app.application.agents.pebblevoice import Encourage
 from app.application.agents.simplifycore import SimplifyDocument
 from app.application.documents import ParseDocument
+from app.application.ports.activity import ActivityRepository
 from app.application.ports.documents import DocumentParser
 from app.application.ports.llm import LLMProvider
+from app.application.ports.preferences import PreferencesRepository
 from app.application.ports.reader import ReaderTokenProvider
 from app.application.ports.safety import PIIRedactor, SafetyChecker
 from app.application.ports.tasks import TaskRepository
+from app.application.preferences import UserPreferences
 from app.application.safety import SafetyGate
 from app.application.tasks import Tasks
 from app.infrastructure.config import Settings, settings
+from app.infrastructure.db.activity import SqlActivityRepository, UnconfiguredActivityRepository
 from app.infrastructure.db.engine import build_engine, build_sessions
+from app.infrastructure.db.preferences import SqlPreferencesRepository, UnconfiguredPreferencesRepository
 from app.infrastructure.db.tasks import SqlTaskRepository, UnconfiguredTaskRepository
 from app.infrastructure.immersive_reader import UnconfiguredReader, build_reader
 from app.infrastructure.llm.factory import build_llm_provider
@@ -38,6 +44,8 @@ class Container:
     document_parser: DocumentParser = field(default_factory=LocalDocumentParser)
     reader: ReaderTokenProvider = field(default_factory=UnconfiguredReader)
     task_repository: TaskRepository = field(default_factory=UnconfiguredTaskRepository)
+    preferences_repository: PreferencesRepository = field(default_factory=UnconfiguredPreferencesRepository)
+    activity_repository: ActivityRepository = field(default_factory=UnconfiguredActivityRepository)
     engine: AsyncEngine | None = None
 
     @classmethod
@@ -49,7 +57,10 @@ class Container:
         )
         if config.database_url:
             container.engine = build_engine(config.database_url)
-            container.task_repository = SqlTaskRepository(build_sessions(container.engine))
+            sessions = build_sessions(container.engine)
+            container.task_repository = SqlTaskRepository(sessions)
+            container.preferences_repository = SqlPreferencesRepository(sessions)
+            container.activity_repository = SqlActivityRepository(sessions)
         return container
 
     @property
@@ -57,16 +68,20 @@ class Container:
         return SafetyGate(self.safety_checker, self.pii_redactor)
 
     @property
+    def activity(self) -> ActivityLog:
+        return ActivityLog(self.activity_repository)
+
+    @property
     def decompose_task(self) -> DecomposeTask:
-        return DecomposeTask(self.llm, self.gate)
+        return DecomposeTask(self.llm, self.gate, self.activity)
 
     @property
     def simplify_document(self) -> SimplifyDocument:
-        return SimplifyDocument(self.llm, self.gate)
+        return SimplifyDocument(self.llm, self.gate, self.activity)
 
     @property
     def encourage(self) -> Encourage:
-        return Encourage(self.llm, self.gate)
+        return Encourage(self.llm, self.gate, self.activity)
 
     @property
     def parse_document(self) -> ParseDocument:
@@ -77,8 +92,14 @@ class Container:
         return Tasks(self.task_repository)
 
     @property
+    def preferences(self) -> UserPreferences:
+        return UserPreferences(self.preferences_repository)
+
+    @property
     def handle_chat(self) -> HandleChat:
-        return HandleChat(self.llm, self.gate, self.decompose_task, self.simplify_document, self.encourage)
+        return HandleChat(
+            self.llm, self.gate, self.decompose_task, self.simplify_document, self.encourage, self.activity
+        )
 
     async def aclose(self) -> None:
         for adapter in (self.llm, self.safety_checker):
@@ -130,3 +151,11 @@ def get_reader() -> ReaderTokenProvider:
 
 def get_tasks() -> Tasks:
     return get_container().tasks
+
+
+def get_preferences() -> UserPreferences:
+    return get_container().preferences
+
+
+def get_activity() -> ActivityLog:
+    return get_container().activity

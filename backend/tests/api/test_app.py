@@ -7,6 +7,8 @@ from app.api.auth import get_current_user_id
 from app.api.dependencies import Container
 from app.application.ports.reader import ReaderToken
 from app.infrastructure.config import Settings
+from app.infrastructure.db.activity import SqlActivityRepository, UnconfiguredActivityRepository
+from app.infrastructure.db.preferences import SqlPreferencesRepository
 from app.infrastructure.db.tasks import SqlTaskRepository, UnconfiguredTaskRepository
 from app.infrastructure.llm.openai_compatible import OpenAICompatibleLLM
 from app.infrastructure.safety.noop import NoOpSafetyChecker
@@ -23,9 +25,10 @@ async def test_starts_and_stops_with_only_an_llm_key(app, client):
     assert isinstance(container.llm, OpenAICompatibleLLM)
     assert isinstance(container.safety_checker, NoOpSafetyChecker)
     assert isinstance(container.task_repository, UnconfiguredTaskRepository)
+    assert isinstance(container.activity_repository, UnconfiguredActivityRepository)
 
 
-async def test_a_database_url_saves_tasks_in_postgres(app):
+async def test_a_database_url_saves_everything_in_postgres(app):
     """The engine is built lazily (no connection until a query) and disposed on shutdown."""
     url = "postgresql+asyncpg://pebble:pebble@localhost:5432/pebble"
     container = Container.from_settings(Settings(_env_file=None, llm_api_key="key", database_url=url))
@@ -35,6 +38,8 @@ async def test_a_database_url_saves_tasks_in_postgres(app):
         pass
 
     assert isinstance(container.task_repository, SqlTaskRepository)
+    assert isinstance(container.preferences_repository, SqlPreferencesRepository)
+    assert isinstance(container.activity_repository, SqlActivityRepository)
     assert container.engine is not None
 
 
@@ -50,6 +55,8 @@ async def test_only_working_routes_are_exposed(client):
         "/api/documents/parse",
         "/api/documents/immersive-reader/token",
         "/api/tasks",
+        "/api/preferences",
+        "/api/activity",
         "/api/tasks/{task_id}",
         "/api/tasks/{task_id}/subtasks",
         "/api/tasks/{task_id}/subtasks/{subtask_id}",

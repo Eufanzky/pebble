@@ -1,23 +1,39 @@
 """SimplifyCore: rewrites text at the user's reading level and pulls out its action items."""
 
+from app.application.activity import ActivityLog, note, quote, watch
 from app.application.errors import AgentReplyError
 from app.application.llm_json import ask_json
 from app.application.ports.llm import LLMProvider, LLMRequest
 from app.application.prompts import DOCUMENT_SIMPLIFICATION_PROMPT
 from app.application.safety import SafetyGate
+from app.domain.agents import AgentName
 from app.domain.documents import ExtractedTask, Simplification
 from app.domain.tasks import TaskTag
 
 
 class SimplifyDocument:
-    def __init__(self, llm: LLMProvider, gate: SafetyGate) -> None:
+    def __init__(self, llm: LLMProvider, gate: SafetyGate, activity: ActivityLog | None = None) -> None:
         self.llm = llm
         self.gate = gate
+        self.activity = activity
 
-    async def __call__(self, text: str, reading_level: int = 5) -> Simplification:
-        """Screen the input, then simplify it. For callers that haven't screened it."""
-        safe_text = await self.gate.screen_input(text)
-        return await self.run(safe_text, reading_level)
+    async def __call__(self, text: str, reading_level: int = 5, user_id: str = "") -> Simplification:
+        """Screen the input, then simplify it. For callers that haven't screened it.
+
+        With a ``user_id``, the result (or what was held back) goes in the user's activity log.
+        """
+        async with watch(self.activity, user_id, AgentName.SIMPLIFY_CORE):
+            safe_text = await self.gate.screen_input(text)
+            simplified = await self.run(safe_text, reading_level)
+        found = len(simplified.extracted_tasks)
+        await note(
+            self.activity,
+            user_id,
+            AgentName.SIMPLIFY_CORE,
+            f"Simplified {quote(safe_text)} to reading level {reading_level}",
+            simplified.why or f"Found {found} action item{'' if found == 1 else 's'}.",
+        )
+        return simplified
 
     async def run(self, text: str, reading_level: int) -> Simplification:
         """Simplify already-screened text. Output is safety-checked, grounded against the text, and redacted."""

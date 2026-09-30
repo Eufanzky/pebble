@@ -3,7 +3,8 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import BigInteger, DateTime, ForeignKey, Identity, MetaData, String, Text, Uuid, func
+from sqlalchemy import BigInteger, DateTime, ForeignKey, Identity, Index, MetaData, String, Text, Uuid, func
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
 # Named constraints, so migrations can drop and rename them by name.
@@ -55,3 +56,28 @@ class StepRow(Base):
     title: Mapped[str] = mapped_column(Text)
     time_estimate: Mapped[str] = mapped_column(String(50))
     completed: Mapped[bool]
+
+
+class PreferencesRow(Timestamps, Base):
+    """Only what the user saved, as JSON: a preference added later needs no migration, and a missing one
+    falls back to its default (``Preferences.from_saved``)."""
+
+    __tablename__ = "preferences"
+
+    user_id: Mapped[str] = mapped_column(String(255), primary_key=True)
+    values: Mapped[dict] = mapped_column(JSONB)
+
+
+class ActivityRow(Base):
+    __tablename__ = "activity_entries"
+    __table_args__ = (Index("ix_activity_entries_user_id_seq", "user_id", "seq"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True)
+    user_id: Mapped[str] = mapped_column(String(255))
+    # Insertion order, newest last: ties in created_at can't reorder the log.
+    seq: Mapped[int] = mapped_column(BigInteger, Identity(), unique=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+    agent: Mapped[str] = mapped_column(String(20))
+    action: Mapped[str] = mapped_column(Text)
+    reasoning: Mapped[str] = mapped_column(Text)
+    safety_status: Mapped[str] = mapped_column(String(10))

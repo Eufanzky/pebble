@@ -92,7 +92,7 @@ The characterization tests from 1.4 must stay green through every item in this p
 
 - [x] **4.1 Postgres and tasks.** Add `docker compose` Postgres (plus a CI service container), SQLAlchemy models, Alembic, a `TaskRepository`, and the task endpoints.
   *Done:* repository integration tests pass against real Postgres, and the migration from empty is tested.
-- [ ] **4.2 Preferences and activity.** Add repositories and endpoints. The agent pipeline now writes activity entries server-side.
+- [x] **4.2 Preferences and activity.** Add repositories and endpoints. The agent pipeline now writes activity entries server-side.
   *Done:* a parametrized test proves every agent writes an activity row with its reasoning and safety status.
 - [ ] **4.3 Auth.js.** Add GitHub and Google sign-in, have Next.js sign short-lived backend tokens, and add `get_current_user` in FastAPI. Remove Entra and `DEV_MODE`, and add a dev login for local use and E2E.
   *Done:* API tests cover missing, invalid, and expired tokens (401) and **user isolation** for every resource; E2E signs in with the dev login.

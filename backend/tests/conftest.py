@@ -5,7 +5,7 @@ transport doesn't run the lifespan, so no Azure service (Cosmos, telemetry) is
 initialised and no test touches the network.
 
 Every test runs with a container of fakes (``FakeLLM``, ``ScriptedSafety``, the real
-regex PII redactor, an in-memory task store), so no test can reach a provider configured in a developer's
+regex PII redactor, in-memory stores), so no test can reach a provider configured in a developer's
 ``.env``.
 """
 
@@ -17,13 +17,24 @@ from httpx import ASGITransport, AsyncClient
 
 from app.api.dependencies import Container, set_container
 from app.infrastructure.llm.fake import FakeLLM
-from tests.fakes import InMemoryTaskRepository, ScriptedSafety
+from tests.fakes import (
+    InMemoryActivityRepository,
+    InMemoryPreferencesRepository,
+    InMemoryTaskRepository,
+    ScriptedSafety,
+)
 
 
 @pytest.fixture(autouse=True)
 def container() -> Iterator[Container]:
-    """The adapters every test runs with: fakes for the LLM, Content Safety and the task store."""
-    fakes = Container(llm=FakeLLM(), safety_checker=ScriptedSafety(), task_repository=InMemoryTaskRepository())
+    """The adapters every test runs with: fakes for the LLM, Content Safety and the stores."""
+    fakes = Container(
+        llm=FakeLLM(),
+        safety_checker=ScriptedSafety(),
+        task_repository=InMemoryTaskRepository(),
+        preferences_repository=InMemoryPreferencesRepository(),
+        activity_repository=InMemoryActivityRepository(),
+    )
     set_container(fakes)
     yield fakes
     set_container(None)
@@ -45,6 +56,17 @@ def safety(container: Container) -> ScriptedSafety:
 def task_repository(container: Container) -> InMemoryTaskRepository:
     """The task store, in memory. ``tests/integration`` runs the Postgres one."""
     return container.task_repository
+
+
+@pytest.fixture
+def preferences_repository(container: Container) -> InMemoryPreferencesRepository:
+    return container.preferences_repository
+
+
+@pytest.fixture
+def activity_repository(container: Container) -> InMemoryActivityRepository:
+    """What the agents logged: ``activity_repository.entries[user_id]``, oldest first."""
+    return container.activity_repository
 
 
 @pytest.fixture

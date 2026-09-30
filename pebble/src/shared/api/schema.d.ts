@@ -4,6 +4,30 @@
  */
 
 export interface paths {
+    "/api/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Your activity log
+         * @description What each agent did for you and why, newest first. The agents write their own entries.
+         */
+        get: operations["list_activity_api_activity_get"];
+        put?: never;
+        /**
+         * Log an action
+         * @description Log something you did that Pebble reacted to, such as finishing a task. Pebble sets the time.
+         */
+        post: operations["add_activity_api_activity_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/agents/chat": {
         parameters: {
             query?: never;
@@ -193,6 +217,30 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Your preferences
+         * @description Your saved preferences over the defaults. A new account gets the defaults.
+         */
+        get: operations["get_preferences__api_preferences_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Change some preferences
+         * @description Change only the fields you send, for example `{"calmMode": true}`. Returns all of them.
+         */
+        patch: operations["update_preferences_api_preferences_patch"];
+        trace?: never;
+    };
     "/api/tasks": {
         parameters: {
             query?: never;
@@ -286,6 +334,43 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /**
+         * ActivityEntryIn
+         * @description Something the user did that Pebble reacted to (the agents log their own results).
+         */
+        ActivityEntryIn: {
+            /** Action */
+            action: string;
+            agent: components["schemas"]["AgentName"];
+            /**
+             * Reasoning
+             * @default
+             */
+            reasoning: string;
+            /** @default passed */
+            safetyStatus: components["schemas"]["SafetyStatus"];
+        };
+        /** ActivityEntryOut */
+        ActivityEntryOut: {
+            /** Action */
+            action: string;
+            agent: components["schemas"]["AgentName"];
+            /** Id */
+            id: string;
+            /** Reasoning */
+            reasoning: string;
+            safetyStatus: components["schemas"]["SafetyStatus"];
+            /**
+             * Timestamp
+             * Format: date-time
+             */
+            timestamp: string;
+        };
+        /**
+         * AgentName
+         * @enum {string}
+         */
+        AgentName: "CalmSense" | "SimplifyCore" | "PebbleVoice" | "AdaptLens" | "WhyBot" | "BridgeBot";
         /** Body_parse_api_documents_parse_post */
         Body_parse_api_documents_parse_post: {
             /**
@@ -349,6 +434,11 @@ export interface components {
             /** Response */
             response: string;
         };
+        /**
+         * ChunkSize
+         * @enum {string}
+         */
+        ChunkSize: "small" | "medium" | "large";
         /** DecomposeRequest */
         DecomposeRequest: {
             /**
@@ -438,6 +528,50 @@ export interface components {
             /** Type */
             type: string;
         };
+        /**
+         * PebbleColor
+         * @enum {string}
+         */
+        PebbleColor: "lavender" | "sage" | "coral" | "amber" | "sky";
+        /**
+         * PebbleModel
+         * @enum {string}
+         */
+        PebbleModel: "classic" | "chonky" | "mochi" | "minimal" | "chonky-plus" | "mochi-plus" | "minimal-plus";
+        /**
+         * PebblePersonality
+         * @enum {string}
+         */
+        PebblePersonality: "gentle" | "playful" | "calm";
+        /** PreferencesOut */
+        PreferencesOut: {
+            /** Calmmode */
+            calmMode: boolean;
+            chunkSize: components["schemas"]["ChunkSize"];
+            pebbleColor: components["schemas"]["PebbleColor"];
+            pebbleModel: components["schemas"]["PebbleModel"];
+            pebblePersonality: components["schemas"]["PebblePersonality"];
+            /** Readinglevel */
+            readingLevel: number;
+            /** Reduceanimations */
+            reduceAnimations: boolean;
+        };
+        /**
+         * PreferencesUpdate
+         * @description Only the fields sent are changed.
+         */
+        PreferencesUpdate: {
+            /** Calmmode */
+            calmMode?: boolean | null;
+            chunkSize?: components["schemas"]["ChunkSize"] | null;
+            pebbleColor?: components["schemas"]["PebbleColor"] | null;
+            pebbleModel?: components["schemas"]["PebbleModel"] | null;
+            pebblePersonality?: components["schemas"]["PebblePersonality"] | null;
+            /** Readinglevel */
+            readingLevel?: number | null;
+            /** Reduceanimations */
+            reduceAnimations?: boolean | null;
+        };
         /** ReaderTokenResponse */
         ReaderTokenResponse: {
             /** Subdomain */
@@ -445,6 +579,11 @@ export interface components {
             /** Token */
             token: string;
         };
+        /**
+         * SafetyStatus
+         * @enum {string}
+         */
+        SafetyStatus: "passed" | "flagged";
         /** SimplifyRequest */
         SimplifyRequest: {
             /**
@@ -596,6 +735,70 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    list_activity_api_activity_get: {
+        parameters: {
+            query?: {
+                limit?: number;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityEntryOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_activity_api_activity_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ActivityEntryIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ActivityEntryOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     chat_api_agents_chat_post: {
         parameters: {
             query?: never;
@@ -797,6 +1000,59 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    get_preferences__api_preferences_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreferencesOut"];
+                };
+            };
+        };
+    };
+    update_preferences_api_preferences_patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PreferencesUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreferencesOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };
