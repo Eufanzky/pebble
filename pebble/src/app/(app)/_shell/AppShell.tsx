@@ -3,6 +3,7 @@
 import { type ReactNode, useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Sidebar from './Sidebar';
+import { useImportLocalData } from './useImportLocalData';
 import { PreferencesProvider } from '@/shared/preferences';
 import { QueryProvider } from '@/shared/lib/query';
 import { PebbleProvider } from '@/features/companion';
@@ -44,6 +45,7 @@ function PageTransition({ children }: { children: ReactNode }) {
 
 function AppShellInner({ children }: { children: ReactNode }) {
   useFocusOnNavigation();
+  useImportLocalData();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (

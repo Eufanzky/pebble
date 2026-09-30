@@ -2,10 +2,16 @@ import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 import { chatHandlers, chatReply } from '@/test/msw/handlers';
 import { server } from '@/test/msw/server';
-import { act, renderHookWithProviders, renderWithProviders, screen } from '@/test/render';
-import { usePreferences } from '@/shared/preferences';
-import type { ActivityEntry } from '@/features/activity';
+import { renderWithProviders, screen } from '@/test/render';
+import { setTestPreferences } from '@/test/preferences';
+import { useActivityLog } from '@/features/activity';
+import { accountStore } from '@/test/msw/account';
 import PebbleChat from './PebbleChat';
+
+function LogProbe() {
+  const { entries } = useActivityLog();
+  return entries[0] ? <p data-testid="latest-log">{entries[0].action}</p> : null;
+}
 
 const GENTLE_ERROR = "Pebble couldn't answer just now. Try again whenever you're ready.";
 
@@ -61,19 +67,40 @@ describe('PebbleChat', () => {
     });
   });
 
-  it('logs the reply in the activity log', async () => {
-    server.use(chatHandlers.reply({ agentName: 'CalmSense', intent: 'decompose', mood: 'normal' }));
+  it('leaves logging the turn to the backend, and reloads the log to show it', async () => {
+    // The backend writes the entry while it answers
+    server.use(
+      http.post('/api/agents/chat', () => {
+        accountStore.setActivity([
+          {
+            timestamp: new Date().toISOString(),
+            agent: 'CalmSense',
+            action: 'Chat: decompose — "Break down my essay"',
+            reasoning: 'Routed to CalmSense. Mood: normal.',
+            safetyStatus: 'passed',
+          },
+        ]);
+        return HttpResponse.json(chatReply({ agentName: 'CalmSense', intent: 'decompose', mood: 'normal' }));
+      }),
+    );
+    const posted: unknown[] = [];
+    const watch = ({ request }: { request: Request }) => {
+      if (request.method === 'POST' && new URL(request.url).pathname === '/api/activity') posted.push(request);
+    };
+    server.events.on('request:start', watch);
 
-    await openAndSend('Break down my essay');
-    await screen.findByText('I am here with you.');
+    const view = renderWithProviders(
+      <>
+        <PebbleChat />
+        <LogProbe />
+      </>,
+    );
+    await view.user.click(screen.getByRole('button', { name: 'Chat with Pebble' }));
+    await view.user.type(screen.getByRole('textbox', { name: 'Message to Pebble' }), 'Break down my essay{Enter}');
 
-    const [latest]: ActivityEntry[] = JSON.parse(window.localStorage.getItem('pebble-activity')!);
-    expect(latest).toMatchObject({
-      agent: 'CalmSense',
-      action: 'Chat: decompose — "Break down my essay"',
-      reasoning: 'Routed to CalmSense. Mood: normal.',
-      safetyStatus: 'passed',
-    });
+    expect(await screen.findByTestId('latest-log')).toHaveTextContent('Chat: decompose — "Break down my essay"');
+    expect(posted).toEqual([]);
+    server.events.removeListener('request:start', watch);
   });
 
   it('shows that Pebble is thinking while it waits, and blocks sending again', async () => {
@@ -112,8 +139,7 @@ describe('PebbleChat', () => {
   // A-016: calm mode didn't apply to chat replies.
   it('strips emoji from replies in calm mode', async () => {
     server.use(chatHandlers.reply({ response: 'You did 3 things today ✨🎉' }));
-    const { result } = renderHookWithProviders(() => usePreferences());
-    act(() => result.current.setPreferences((prev) => ({ ...prev, calmMode: true })));
+    setTestPreferences({ calmMode: true });
 
     await openAndSend('Hello');
 
@@ -122,8 +148,7 @@ describe('PebbleChat', () => {
 
   it('keeps emoji in replies when calm mode is off', async () => {
     server.use(chatHandlers.reply({ response: 'You did 3 things today ✨' }));
-    const { result } = renderHookWithProviders(() => usePreferences());
-    act(() => result.current.setPreferences((prev) => ({ ...prev, calmMode: false })));
+    setTestPreferences({ calmMode: false });
 
     await openAndSend('Hello');
 

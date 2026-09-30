@@ -6,7 +6,6 @@ import {
   CHAT_ERROR_TEXT,
   buildChatRequest,
   errorMessage,
-  replyActivity,
   replyMessage,
   replyMood,
   userMessage,
@@ -77,21 +76,5 @@ describe('replyMood', () => {
 
   it.each(['', 'furious'])('ignores %j', (mood) => {
     expect(replyMood(reply({ mood }))).toBeNull();
-  });
-});
-
-describe('replyActivity', () => {
-  it('names the agent and shortens the message', () => {
-    const long = 'x'.repeat(80);
-
-    expect(replyActivity(long, reply({ agentName: 'CalmSense', intent: 'decompose', mood: 'normal' }))).toEqual({
-      agent: 'CalmSense',
-      action: `Chat: decompose — "${'x'.repeat(50)}"`,
-      reasoning: 'Routed to CalmSense. Mood: normal.',
-    });
-  });
-
-  it('falls back to PebbleVoice for an unknown agent name', () => {
-    expect(replyActivity('Hi', reply({ agentName: '' })).agent).toBe('PebbleVoice');
   });
 });

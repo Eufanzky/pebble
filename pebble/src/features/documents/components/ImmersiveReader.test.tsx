@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { act, renderHookWithProviders, renderWithProviders, screen, waitFor, within } from '@/test/render';
-import { usePreferences } from '@/shared/preferences';
+import { renderWithProviders, screen, waitFor, within } from '@/test/render';
+import { setTestPreferences } from '@/test/preferences';
 import { readerHandlers } from '@/test/msw/handlers';
 import { server } from '@/test/msw/server';
 import ImmersiveReader from './ImmersiveReader';
@@ -10,9 +10,7 @@ vi.mock('@microsoft/immersive-reader-sdk', () => ({ launchAsync: (...args: unkno
 
 beforeEach(() => {
   launchAsync.mockReset();
-  const { result, unmount } = renderHookWithProviders(() => usePreferences());
-  act(() => result.current.setPreferences((prev) => ({ ...prev, calmMode: false, reduceAnimations: true })));
-  unmount();
+  setTestPreferences({ calmMode: false, reduceAnimations: true });
 });
 
 async function openBuiltIn(text = 'The design is good') {
@@ -107,9 +105,7 @@ describe('ImmersiveReader', () => {
     });
 
     it('hides flags in calm mode', async () => {
-      const { result, unmount } = renderHookWithProviders(() => usePreferences());
-      act(() => result.current.setPreferences((prev) => ({ ...prev, calmMode: true })));
-      unmount();
+      setTestPreferences({ calmMode: true });
       const { user } = await openBuiltIn();
 
       await user.click(screen.getByRole('button', { name: 'Translate' }));

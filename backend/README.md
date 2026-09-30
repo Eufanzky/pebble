@@ -2,7 +2,7 @@
 
 FastAPI backend for Pebble. It runs the AI agents (the orchestrator, CalmSense, SimplifyCore and PebbleVoice) behind a safety pipeline, and reads uploaded documents in memory. The only thing it needs is an LLM: Groq's free tier by default, any OpenAI-compatible API by config, or `LLM_PROVIDER=fake` to run with no model at all.
 
-Tasks, preferences and the activity log are saved per user in Postgres (SQLAlchemy 2 async, Alembic). Every agent result, and every message the safety checks hold back, is written to the activity log server-side. The frontend reads and saves tasks through the API; preferences and the activity log follow in roadmap 4.5.
+Tasks, preferences and the activity log are saved per user in Postgres (SQLAlchemy 2 async, Alembic). Every agent result, and every message the safety checks hold back, is written to the activity log server-side. The frontend reads and saves all three through the API, and `POST /api/import` moves what a browser kept before sign-in into the account once.
 
 ## Setup
 
@@ -77,6 +77,7 @@ Real-LLM evals live in `tests/evals/` (`uv run pytest -m eval`). They're exclude
 | PATCH | `/api/preferences` | Change only the fields sent; returns all of them |
 | GET | `/api/activity?limit=50` | Your activity log, newest first (limit 1-200) |
 | POST | `/api/activity` | Log something you did that Pebble reacted to (201). The agents log their own results |
+| POST | `/api/import` | Move what a browser kept before sign-in into the account: tasks go after yours (with their steps), preferences apply only if you never saved any, log entries keep their times (none later than now) |
 | GET | `/api/health` | Health check |
 
 Everything except `/api/health` needs a signed-in user (see Authentication).
@@ -160,6 +161,7 @@ backend/
 │   │   ├── tasks.py            # Tasks: the task list use cases
 │   │   ├── preferences.py      # UserPreferences
 │   │   ├── activity.py         # ActivityLog, and the pipeline's note()/watch() helpers
+│   │   ├── importing.py        # ImportLocalData
 │   │   └── prompts.py          # system prompts and the Pebble voice rules
 │   ├── infrastructure/
 │   │   ├── config.py           # settings from .env (pydantic-settings)
@@ -175,7 +177,7 @@ backend/
 │       ├── presenters.py       # results to camelCase JSON
 │       ├── middleware.py       # request logging
 │       ├── auth.py             # get_current_user: verifies the Next.js server's short-lived token
-│       ├── routers/            # agents, documents, tasks, preferences, activity
+│       ├── routers/            # agents, documents, tasks, preferences, activity, importing
 │       └── schemas/            # request/response models
 ├── migrations/                 # Alembic (env.py, versions/); config in alembic.ini
 ├── tests/                      # domain/, unit/, contract/, api/, integration/, fixtures/

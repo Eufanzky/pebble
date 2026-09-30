@@ -9,6 +9,7 @@ TIME_ESTIMATE = Field(alias="timeEstimate", default="", max_length=50)
 class SubtaskIn(BaseModel):
     title: str = TITLE
     time_estimate: str = TIME_ESTIMATE
+    completed: bool = False
 
     model_config = {"populate_by_name": True}
 

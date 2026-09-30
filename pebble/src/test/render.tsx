@@ -1,11 +1,12 @@
 import type { ReactElement, ReactNode } from 'react';
-import { render, renderHook, type RenderOptions } from '@testing-library/react';
+import { render, renderHook, waitFor, type RenderOptions } from '@testing-library/react';
+import { expect } from 'vitest';
 import userEvent from '@testing-library/user-event';
 import { PreferencesProvider } from '@/shared/preferences';
 import { QueryProvider } from '@/shared/lib/query';
 import { PebbleProvider } from '@/features/companion';
-import { TasksProvider } from '@/features/tasks';
-import { ActivityLogProvider } from '@/features/activity';
+import { TasksProvider, useTasks } from '@/features/tasks';
+import { ActivityLogProvider, useActivityLog } from '@/features/activity';
 import { ToastProvider } from '@/shared/ui/ToastContext';
 
 // The same provider tree as app/(app)/_shell/AppShell, without the layout around it.
@@ -37,6 +38,26 @@ export function renderWithProviders(ui: ReactElement, options?: Omit<RenderOptio
 
 export function renderHookWithProviders<Result>(hook: () => Result) {
   return renderHook(hook, { wrapper: AppProviders });
+}
+
+/**
+ * `renderHookWithProviders`, once the task list and the activity log have
+ * arrived from the (fake) server, so changes made next show at once.
+ */
+export async function renderLoadedHook<Result>(hook: () => Result) {
+  const rendered = renderHookWithProviders(() => ({
+    value: hook(),
+    loading: useTasks().isLoading || useActivityLog().isLoading,
+  }));
+  await waitFor(() => expect(rendered.result.current.loading).toBe(false));
+  return {
+    ...rendered,
+    result: {
+      get current() {
+        return rendered.result.current.value;
+      },
+    },
+  };
 }
 
 export * from '@testing-library/react';

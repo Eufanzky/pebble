@@ -24,7 +24,7 @@ function toTask(body: TaskCreate): TaskOut {
       id: id('step'),
       title: s.title,
       timeEstimate: s.timeEstimate ?? '',
-      completed: false,
+      completed: s.completed ?? false,
     })),
   };
 }

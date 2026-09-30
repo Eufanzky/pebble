@@ -1,14 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { act, renderHookWithProviders, renderWithProviders, screen, waitFor } from '@/test/render';
-import { usePreferences } from '@/shared/preferences';
+import { renderWithProviders, screen, waitFor } from '@/test/render';
+import { setTestPreferences } from '@/test/preferences';
 import DocumentsView from './DocumentsView';
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }) }));
 
 beforeEach(() => {
-  const { result, unmount } = renderHookWithProviders(() => usePreferences());
-  act(() => result.current.setPreferences((prev) => ({ ...prev, reduceAnimations: true })));
-  unmount();
+  setTestPreferences({ reduceAnimations: true });
 });
 
 const focusables = (dialog: HTMLElement) =>

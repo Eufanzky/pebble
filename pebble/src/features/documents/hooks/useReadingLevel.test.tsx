@@ -1,14 +1,12 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { act, renderHookWithProviders } from '@/test/render';
+import { act, renderHookWithProviders, renderLoadedHook } from '@/test/render';
+import { setTestPreferences } from '@/test/preferences';
 import { useActivityLog } from '@/features/activity';
-import { usePreferences } from '@/shared/preferences';
 import { testDocument } from '../testing';
 import { useReadingLevel } from './useReadingLevel';
 
 beforeEach(() => {
-  const { result, unmount } = renderHookWithProviders(() => usePreferences());
-  act(() => result.current.setPreferences((prev) => ({ ...prev, readingLevel: 5 })));
-  unmount();
+  setTestPreferences({ readingLevel: 5 });
 });
 
 describe('useReadingLevel', () => {
@@ -18,8 +16,8 @@ describe('useReadingLevel', () => {
     expect(result.current).toMatchObject({ level: 5, defaultLevel: 5, text: 'Fairly simple text.', version: 0 });
   });
 
-  it('changes the text and logs the change as AdaptLens', () => {
-    const { result } = renderHookWithProviders(() => ({ ...useReadingLevel(testDocument()), log: useActivityLog() }));
+  it('changes the text and logs the change as AdaptLens', async () => {
+    const { result } = await renderLoadedHook(() => ({ ...useReadingLevel(testDocument()), log: useActivityLog() }));
 
     act(() => result.current.setLevel(2));
 

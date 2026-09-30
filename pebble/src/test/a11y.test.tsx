@@ -10,17 +10,16 @@ import { FocusView } from '@/features/focus';
 import { SettingsView } from '@/features/settings';
 import { TodayView } from '@/features/tasks';
 import { newTask, seed } from '@/features/tasks/testing';
-import { act, renderHookWithProviders, renderWithProviders, screen } from './render';
-import { usePreferences } from '@/shared/preferences';
+import { renderWithProviders, screen } from './render';
+import { setTestPreferences } from './preferences';
+import { accountStore } from './msw/account';
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }), usePathname: () => '/today' }));
 vi.mock('next-auth/react', () => ({ signIn: vi.fn(), signOut: vi.fn() }));
 
 // Animations off, so every view renders its final state at once.
 beforeEach(() => {
-  const { result, unmount } = renderHookWithProviders(() => usePreferences());
-  act(() => result.current.setPreferences((prev) => ({ ...prev, reduceAnimations: true, calmMode: false })));
-  unmount();
+  setTestPreferences({ reduceAnimations: true, calmMode: false });
 });
 
 async function expectNoViolations(ui: ReactElement) {
@@ -92,8 +91,17 @@ describe('axe: interactive states', () => {
   });
 
   it('the activity log with reasoning shown', async () => {
+    accountStore.setActivity([
+      {
+        timestamp: new Date().toISOString(),
+        agent: 'CalmSense',
+        action: 'Broke "Essay" into 3 steps',
+        reasoning: 'Small steps first.',
+        safetyStatus: 'passed',
+      },
+    ]);
     const { container, user } = renderWithProviders(<ActivityView />);
-    await user.click(screen.getAllByRole('button', { name: 'Show reasoning' })[0]);
+    await user.click((await screen.findAllByRole('button', { name: 'Show reasoning' }))[0]);
 
     expect(await axe(container)).toHaveNoViolations();
   });

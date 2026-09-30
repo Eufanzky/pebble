@@ -1,5 +1,4 @@
 import type { Task } from '@/features/tasks';
-import type { ActivityEntry } from '@/features/activity';
 import type { PebbleMood } from '@/features/companion';
 import type { TimeOfDay } from '@/shared/hooks/useTimeOfDay';
 import type { UserPreferences } from '@/shared/preferences';
@@ -9,9 +8,6 @@ import type { ChatMessage, ChatRequest, ChatResponse } from '../types';
 export const CHAT_ERROR_TEXT = "Pebble couldn't answer just now. Try again whenever you're ready.";
 
 const MOODS: readonly PebbleMood[] = ['sleepy', 'normal', 'happy', 'excited'];
-const AGENTS: readonly ActivityEntry['agent'][] = [
-  'CalmSense', 'AdaptLens', 'SimplifyCore', 'PebbleVoice', 'WhyBot', 'BridgeBot',
-];
 
 /** The request body: the message plus the context Pebble tailors its reply to. */
 export function buildChatRequest(
@@ -55,16 +51,4 @@ export function errorMessage(now = Date.now()): ChatMessage {
 /** The reply's mood, if it's one Pebble can show. */
 export function replyMood(reply: ChatResponse): PebbleMood | null {
   return MOODS.includes(reply.mood as PebbleMood) ? (reply.mood as PebbleMood) : null;
-}
-
-/** The activity-log entry for a reply: which agent answered, and why. */
-export function replyActivity(message: string, reply: ChatResponse) {
-  const agent = AGENTS.includes(reply.agentName as ActivityEntry['agent'])
-    ? (reply.agentName as ActivityEntry['agent'])
-    : 'PebbleVoice';
-  return {
-    agent,
-    action: `Chat: ${reply.intent} — "${message.slice(0, 50)}"`,
-    reasoning: `Routed to ${reply.agentName}. Mood: ${reply.mood}.`,
-  };
 }

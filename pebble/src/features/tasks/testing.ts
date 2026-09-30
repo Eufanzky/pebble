@@ -1,6 +1,5 @@
-import { act, renderHookWithProviders } from '@/test/render';
+import { setTestPreferences } from '@/test/preferences';
 import { taskStore } from '@/test/msw/tasks';
-import { usePreferences } from '@/shared/preferences';
 import type { UserPreferences } from '@/shared/preferences';
 import type { NewTask } from './types';
 
@@ -27,9 +26,5 @@ export function seed(tasks: NewTask[], preferences: Partial<UserPreferences> = {
       subtasks: (t.subtasks ?? []).map((s, j) => ({ ...s, id: `seeded-${i + 1}-${j + 1}` })),
     })),
   );
-  const { result, unmount } = renderHookWithProviders(() => usePreferences());
-  act(() => {
-    result.current.setPreferences((prev) => ({ ...prev, reduceAnimations: true, calmMode: false, ...preferences }));
-  });
-  unmount();
+  setTestPreferences({ reduceAnimations: true, calmMode: false, ...preferences });
 }

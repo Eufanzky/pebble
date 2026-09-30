@@ -16,6 +16,10 @@ class UserPreferences:
     async def get(self, user_id: str) -> Preferences:
         return Preferences.from_saved(await self.repository.get(user_id) or {})
 
+    async def saved(self, user_id: str) -> bool:
+        """Whether the user ever saved a preference."""
+        return await self.repository.get(user_id) is not None
+
     async def update(self, user_id: str, changes: dict[str, Any]) -> Preferences:
         unknown = set(changes) - EDITABLE_FIELDS
         if unknown:

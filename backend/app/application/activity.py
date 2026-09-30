@@ -4,7 +4,7 @@ import logging
 import uuid
 from collections.abc import AsyncIterator, Callable
 from contextlib import asynccontextmanager
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import UTC, datetime
 
 from app.application.errors import PromptAttackError, UnsafeContentError, UnsafeOutputError
@@ -42,6 +42,10 @@ class ActivityLog:
         entry = ActivityEntry(self.make_id(), self.clock(), agent, action, reasoning, safety_status)
         await self.repository.add(user_id, entry)
         return entry
+
+    async def add_existing(self, user_id: str, entry: ActivityEntry) -> None:
+        """Store an entry that already happened (an import), with a new id and its own time."""
+        await self.repository.add(user_id, replace(entry, id=self.make_id()))
 
     async def note(
         self,

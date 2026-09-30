@@ -4,24 +4,22 @@ import { expect, test, type Page } from '@playwright/test';
 // The demo flow (specs/testing.md): dev login, break a task into steps, finish
 // a step, simplify a document, and see the agent and its "why" in the activity log.
 
+/** Each test signs in as a new dev user, so it starts from an empty account. */
 async function devLogin(page: Page, path = '/today') {
+  const name = `e2e-${Date.now()}`;
   await page.goto(path);
   // Signed out: every page sends you to sign in, and back afterwards
   await expect(page).toHaveURL(/\/signin\?callbackUrl=/);
-  await page.getByRole('textbox', { name: 'Name' }).fill('e2e');
-  await page.getByRole('button', { name: 'Sign in as e2e' }).click();
+  await page.getByRole('textbox', { name: 'Name' }).fill(name);
+  await page.getByRole('button', { name: `Sign in as ${name}` }).click();
   await expect(page).toHaveURL(path);
+  return name;
 }
 
 async function freshStart(page: Page) {
   await devLogin(page);
-  // The e2e user's tasks live in Postgres and outlast a run: start from an empty list
-  expect((await page.request.delete('/api/tasks')).status()).toBe(204);
-  await page.evaluate(() => {
-    window.localStorage.clear();
-    // Animations off, so the flow doesn't wait on them
-    window.localStorage.setItem('pebble-preferences', JSON.stringify({ reduceAnimations: true }));
-  });
+  // Animations off, so the flow doesn't wait on them (saved in the account, like any setting)
+  expect((await page.request.patch('/api/preferences', { data: { reduceAnimations: true } })).ok()).toBe(true);
   await page.reload();
 }
 
@@ -102,9 +100,22 @@ test('signed out, the API refuses and pages ask you to sign in', async ({ browse
   expect(results.violations.map((v) => v.id)).toEqual([]);
 });
 
+test('what this browser kept before sign-in moves into the account, once', async ({ page }) => {
+  await page.evaluate(() => {
+    const task = { id: 'old-1', title: 'Water the plants', timeEstimate: '~5 min', tag: 'wellbeing', priority: 'low', completed: false };
+    window.localStorage.setItem('pebble-tasks', JSON.stringify([task]));
+  });
+  await page.reload();
+
+  await expect(page.getByText('Water the plants').first()).toBeVisible();
+  await expect.poll(() => page.evaluate(() => window.localStorage.getItem('pebble-tasks'))).toBeNull();
+  await page.reload();
+  await expect(page.locator('.task-card', { hasText: 'Water the plants' })).toHaveCount(1);
+});
+
 test('signing out goes back to the sign-in page', async ({ page }) => {
   await page.goto('/settings');
-  await expect(page.getByText('Signed in as e2e with the dev login.')).toBeVisible();
+  await expect(page.getByText(/^Signed in as e2e-\d+ with the dev login\.$/)).toBeVisible();
   await page.getByRole('button', { name: 'Sign out' }).click();
   await expect(page).toHaveURL(/\/signin/);
   await page.goto('/today');

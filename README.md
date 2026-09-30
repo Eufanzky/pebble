@@ -270,8 +270,9 @@ See [**backend/README.md**](backend/README.md) for full API endpoint documentati
 | `PUT /api/tasks/{id}/subtasks`, `PATCH /api/tasks/{id}/subtasks/{subtaskId}` | Set a task's steps, tick one off |
 | `GET/PATCH /api/preferences` | Your saved preferences |
 | `GET/POST /api/activity` | Your activity log; the agents write their own entries |
+| `POST /api/import` | Move what a browser kept before sign-in into your account, once |
 
-The frontend loads and saves tasks through the API (TanStack Query, optimistic updates). Preferences and the activity log move over in roadmap 4.5.
+The frontend loads and saves tasks, preferences and the activity log through the API (TanStack Query, optimistic updates). Anything a browser kept before accounts existed is moved into the account once, on sign-in.
 
 ---
 

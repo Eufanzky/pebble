@@ -1,5 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, renderWithProviders, screen, within } from '@/test/render';
+import { expectLogged } from '@/test/activity';
 import { documentHandlers } from '@/test/msw/handlers';
 import { server } from '@/test/msw/server';
 import DocumentsView from './DocumentsView';
@@ -13,8 +14,7 @@ describe('DocumentsView', () => {
     await user.click(screen.getByRole('button', { name: /Design Thinking Syllabus/ }));
 
     expect(screen.getByRole('dialog', { name: 'Design Thinking Syllabus' })).toBeInTheDocument();
-    const [latest] = JSON.parse(window.localStorage.getItem('pebble-activity')!);
-    expect(latest).toMatchObject({ agent: 'CalmSense', action: 'User opened "Design Thinking Syllabus"' });
+    await expectLogged({ agent: 'CalmSense', action: 'User opened "Design Thinking Syllabus"' });
 
     await user.click(screen.getByRole('button', { name: 'Close document' }));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();

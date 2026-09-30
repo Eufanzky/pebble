@@ -104,8 +104,22 @@ export function TasksProvider({ children }: { children: ReactNode }) {
     [setTasks],
   );
 
+  /** Before the first load arrives, a change shown now would be replaced by it: save, then reload. */
+  const beforeFirstLoad = useCallback(
+    (save: () => Promise<unknown>) => {
+      if (client.getQueryData(TASKS_KEY) !== undefined) return false;
+      enqueue(async () => {
+        await save();
+        await client.invalidateQueries({ queryKey: TASKS_KEY });
+      });
+      return true;
+    },
+    [client, enqueue],
+  );
+
   const addTask = useCallback(
     (task: NewTask) => {
+      if (beforeFirstLoad(() => createTask(task))) return;
       const local: Task = {
         ...task,
         id: tempId(),
@@ -114,7 +128,7 @@ export function TasksProvider({ children }: { children: ReactNode }) {
       setTasks((prev) => [...prev, local]);
       enqueue(async () => adoptIds(local.id, local, await createTask(task)));
     },
-    [setTasks, enqueue, adoptIds],
+    [setTasks, enqueue, adoptIds, beforeFirstLoad],
   );
 
   const toggleTask = useCallback(
@@ -181,9 +195,10 @@ export function TasksProvider({ children }: { children: ReactNode }) {
   );
 
   const clearAll = useCallback(() => {
+    if (beforeFirstLoad(clearTasks)) return;
     setTasks(() => []);
     enqueue(clearTasks);
-  }, [setTasks, enqueue]);
+  }, [setTasks, enqueue, beforeFirstLoad]);
 
   const value: TasksContextValue = {
     tasks,

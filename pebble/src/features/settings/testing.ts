@@ -1,14 +1,7 @@
-import { act, renderHookWithProviders } from '@/test/render';
-import { usePreferences, type UserPreferences } from '@/shared/preferences';
+import { setTestPreferences } from '@/test/preferences';
+import type { UserPreferences } from '@/shared/preferences';
 
-/** Sets the preferences a test depends on (they're cached at module level). */
+/** Sets the preferences a settings test depends on, with animations and calm mode off unless given. */
 export function setPreferences(overrides: Partial<UserPreferences>) {
-  const { result, unmount } = renderHookWithProviders(() => usePreferences());
-  act(() => result.current.setPreferences((prev) => ({
-    ...prev,
-    reduceAnimations: false,
-    calmMode: false,
-    ...overrides,
-  })));
-  unmount();
+  setTestPreferences({ reduceAnimations: false, calmMode: false, ...overrides });
 }
