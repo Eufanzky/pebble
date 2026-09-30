@@ -1060,6 +1060,51 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/account": {
+      "delete": {
+        "description": "Deletes everything Pebble stores about you, in every table, for good. Signing in again starts afresh.",
+        "operationId": "delete_account_api_account_delete",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Delete your account",
+        "tags": [
+          "Account"
+        ]
+      }
+    },
+    "/api/account/export": {
+      "get": {
+        "description": "Everything Pebble stores about you, as one JSON file: every row of every table that belongs to you\n(tasks, their steps, preferences, the activity log). Uploaded documents are never stored, so they\naren't in it.",
+        "operationId": "export_account_data_api_account_export_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {}
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Download all your data",
+        "tags": [
+          "Account"
+        ]
+      }
+    },
     "/api/activity": {
       "get": {
         "description": "What each agent did for you and why, newest first. The agents write their own entries.",
@@ -1901,6 +1946,10 @@
     {
       "description": "Move what a browser kept before sign-in into your account, once.",
       "name": "Import"
+    },
+    {
+      "description": "Download everything Pebble stores about you, or delete it all.",
+      "name": "Account"
     },
     {
       "description": "Server health check.",

@@ -19,6 +19,7 @@ from app.api.dependencies import Container, set_container
 from app.infrastructure.config import settings
 from app.infrastructure.llm.fake import FakeLLM
 from tests.fakes import (
+    InMemoryAccountData,
     InMemoryActivityRepository,
     InMemoryPreferencesRepository,
     InMemoryTaskRepository,
@@ -38,12 +39,18 @@ def auth_secret(monkeypatch) -> str:
 @pytest.fixture(autouse=True)
 def container() -> Iterator[Container]:
     """The adapters every test runs with: fakes for the LLM, Content Safety and the stores."""
+    tasks, preferences, activity = (
+        InMemoryTaskRepository(),
+        InMemoryPreferencesRepository(),
+        InMemoryActivityRepository(),
+    )
     fakes = Container(
         llm=FakeLLM(),
         safety_checker=ScriptedSafety(),
-        task_repository=InMemoryTaskRepository(),
-        preferences_repository=InMemoryPreferencesRepository(),
-        activity_repository=InMemoryActivityRepository(),
+        task_repository=tasks,
+        preferences_repository=preferences,
+        activity_repository=activity,
+        account_data=InMemoryAccountData(tasks, preferences, activity),
     )
     set_container(fakes)
     yield fakes

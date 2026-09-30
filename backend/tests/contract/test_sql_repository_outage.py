@@ -3,6 +3,7 @@
 import pytest
 
 from app.application.ports.persistence import PersistenceError
+from app.infrastructure.db.account import SqlAccountDataStore
 from app.infrastructure.db.activity import SqlActivityRepository
 from app.infrastructure.db.engine import build_engine, build_sessions
 from app.infrastructure.db.preferences import SqlPreferencesRepository
@@ -18,8 +19,9 @@ UNREACHABLE = "postgresql+asyncpg://pebble:pebble@127.0.0.1:1/pebble"
         (SqlTaskRepository, lambda r: r.list("a")),
         (SqlPreferencesRepository, lambda r: r.get("a")),
         (SqlActivityRepository, lambda r: r.recent("a", 10)),
+        (SqlAccountDataStore, lambda r: r.delete("a")),
     ],
-    ids=["tasks", "preferences", "activity"],
+    ids=["tasks", "preferences", "activity", "account"],
 )
 async def test_an_unreachable_database_is_a_persistence_error(repository, call):
     engine = build_engine(UNREACHABLE)

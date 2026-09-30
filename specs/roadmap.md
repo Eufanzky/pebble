@@ -100,7 +100,7 @@ The characterization tests from 1.4 must stay green through every item in this p
   *Done:* component tests (MSW) cover loading, optimistic toggle, and rollback on error; E2E passes.
 - [x] **4.5 Preferences and activity from the API.** Move both over, and import any existing localStorage data into the account once.
   *Done:* the one-time import is tested (runs once, idempotent); localStorage holds only UI conveniences.
-- [ ] **4.6 Data export and deletion.** Add an export-all-data (JSON) endpoint and a delete-account endpoint, with UI in settings.
+- [x] **4.6 Data export and deletion.** Add an export-all-data (JSON) endpoint and a delete-account endpoint, with UI in settings.
   *Done:* tests, parametrized from the ORM metadata, prove that export covers every user table and deletion leaves zero rows.
 
 ## Phase 5: Make the named agents real
