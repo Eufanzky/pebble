@@ -5,6 +5,7 @@ because ``LLM_PROVIDER=fake`` uses it outside tests too.
 from dataclasses import dataclass, field
 
 from app.domain.safety import Groundedness, HarmCategory, SafetyVerdict
+from app.domain.tasks import Task
 
 
 @dataclass
@@ -43,3 +44,35 @@ class ScriptedSafety:
 
     async def check_groundedness(self, output: str, sources) -> Groundedness:
         return Groundedness(grounded=self.grounded, ungrounded_percentage=0.0 if self.grounded else 0.5)
+
+
+@dataclass
+class InMemoryTaskRepository:
+    """A ``TaskRepository`` in a dict. ``tests/integration/test_task_repository.py`` holds it to the same
+    contract as the Postgres one."""
+
+    rows: dict[str, list[Task]] = field(default_factory=dict)
+
+    async def list(self, user_id: str) -> list[Task]:
+        return list(self.rows.get(user_id, []))
+
+    async def get(self, user_id: str, task_id: str) -> Task | None:
+        return next((t for t in self.rows.get(user_id, []) if t.id == task_id), None)
+
+    async def add(self, user_id: str, task: Task) -> None:
+        self.rows.setdefault(user_id, []).append(task)
+
+    async def save(self, user_id: str, task: Task) -> None:
+        tasks = self.rows.get(user_id, [])
+        index = next((i for i, t in enumerate(tasks) if t.id == task.id), None)
+        if index is None:
+            raise KeyError(task.id)
+        tasks[index] = task
+
+    async def delete(self, user_id: str, task_id: str) -> bool:
+        before = len(self.rows.get(user_id, []))
+        self.rows[user_id] = [t for t in self.rows.get(user_id, []) if t.id != task_id]
+        return len(self.rows[user_id]) < before
+
+    async def delete_all(self, user_id: str) -> None:
+        self.rows.pop(user_id, None)

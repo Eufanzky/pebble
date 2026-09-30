@@ -2,7 +2,7 @@
 
 from app.domain.chat import ChatReply
 from app.domain.documents import Simplification
-from app.domain.tasks import TaskBreakdown
+from app.domain.tasks import Task, TaskBreakdown
 
 
 def breakdown_data(breakdown: TaskBreakdown) -> dict:
@@ -41,4 +41,20 @@ def chat_response(reply: ChatReply) -> dict:
         "mood": str(reply.mood),
         "agentName": str(reply.agent),
         "data": data,
+    }
+
+
+def task_data(task: Task) -> dict:
+    return {
+        "id": task.id,
+        "title": task.title,
+        "timeEstimate": task.time_estimate,
+        "tag": str(task.tag),
+        "priority": str(task.priority),
+        "completed": task.completed,
+        "whyExplanation": task.why,
+        "subtasks": [
+            {"id": s.id, "title": s.title, "timeEstimate": s.time_estimate, "completed": s.completed}
+            for s in task.steps
+        ],
     }

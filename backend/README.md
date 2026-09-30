@@ -2,7 +2,7 @@
 
 FastAPI backend for Pebble. It runs the AI agents (the orchestrator, CalmSense, SimplifyCore and PebbleVoice) behind a safety pipeline, and reads uploaded documents in memory. The only thing it needs is an LLM: Groq's free tier by default, any OpenAI-compatible API by config, or `LLM_PROVIDER=fake` to run with no model at all.
 
-Tasks, preferences and the activity log live in the browser for now. Roadmap phase 4 adds Postgres.
+Tasks are saved in Postgres (SQLAlchemy 2 async, Alembic). The frontend still keeps them, and preferences and the activity log, in the browser until the rest of roadmap phase 4 lands.
 
 ## Setup
 
@@ -12,12 +12,25 @@ Requires Python 3.12+ and [uv](https://docs.astral.sh/uv/getting-started/install
 cd backend
 uv sync                        # .venv with app + dev dependencies, from uv.lock
 cp .env.example .env           # set LLM_API_KEY, or LLM_PROVIDER=fake
+docker compose up -d db        # from the repo root: Postgres 17 (optional)
+uv run alembic upgrade head    # create or update the tables
 uv run uvicorn app.main:app --port 8000 --reload
 ```
 
 The API is at **http://localhost:8000**, with Swagger UI at **/docs**. The frontend (`cd pebble && npm run dev`) calls it through its `/api` rewrite. For the frontend's chat to work locally, set `DEV_MODE=true`: the frontend doesn't sign in yet (roadmap 4.3).
 
 After changing dependencies, run `uv lock` and commit `uv.lock`.
+
+### Database
+
+`DATABASE_URL` (`postgresql+asyncpg://...`) turns on saved tasks. Without it the app starts as before and the task endpoints answer 503 "Pebble couldn't reach your saved tasks just now"; so does a database outage. The tables are SQLAlchemy models in `app/infrastructure/db/models.py`. After changing one, generate a migration and check it by hand:
+
+```bash
+uv run alembic revision --autogenerate -m "what changed"
+uv run alembic upgrade head
+```
+
+`tests/integration/test_migrations.py` fails if a model changed without a migration (`alembic check`).
 
 ### Tests and lint
 
@@ -26,6 +39,9 @@ uv run pytest            # all tests except the real-LLM evals
 uv run pytest --cov      # with coverage; fails below 80% overall
 uv run coverage report --include="app/domain/*,app/application/*" --fail-under=90   # the layer floor
 uv run ruff check        # lint (add --fix for the safe autofixes)
+
+# integration tests: a database they may wipe (docker compose creates pebble_test)
+TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test uv run pytest
 ```
 
 Tests run the app in-process with `httpx.ASGITransport`, so they need no network and no external service. Every test runs with fakes behind the ports: `tests/conftest.py` installs a container with the scripted `FakeLLM` (`llm` fixture) and `ScriptedSafety` from `tests/fakes.py` (`safety` fixture). The test layers:
@@ -33,7 +49,8 @@ Tests run the app in-process with `httpx.ASGITransport`, so they need no network
 - `tests/domain/`: domain rules
 - `tests/unit/application/`: use cases, with fakes
 - `tests/contract/`: adapters, against recorded response shapes with respx
-- `tests/api/`: HTTP behaviour
+- `tests/api/`: HTTP behaviour (the task store is `InMemoryTaskRepository` from `tests/fakes.py`, fixture `task_repository`)
+- `tests/integration/`: real Postgres: the migrations, and the `TaskRepository` contract, run against both the Postgres repository and the in-memory fake. Without `TEST_DATABASE_URL` they skip; CI sets `REQUIRE_TEST_DATABASE=true`, so there they fail instead.
 
 Warnings fail the run.
 
@@ -49,6 +66,13 @@ Real-LLM evals live in `tests/evals/` (`uv run pytest -m eval`). They're exclude
 | POST | `/api/agents/motivate` | PebbleVoice: specific encouragement from the user's progress |
 | POST | `/api/documents/parse` | Read a PDF, Word (.docx) or text file's text in memory (never stored) |
 | GET | `/api/documents/immersive-reader/token` | Optional Azure Immersive Reader token (503 when not configured) |
+| GET | `/api/tasks` | Your tasks, in the order you added them, each with its `subtasks` |
+| POST | `/api/tasks` | Add a task (201). Pebble picks the ids |
+| PATCH | `/api/tasks/{id}` | Change only the fields sent, e.g. `{"completed": true}` |
+| DELETE | `/api/tasks/{id}` | Remove one task (204) |
+| DELETE | `/api/tasks` | Clear your list (204) |
+| PUT | `/api/tasks/{id}/subtasks` | Replace a task's steps (e.g. from CalmSense); new steps start open |
+| PATCH | `/api/tasks/{id}/subtasks/{subtaskId}` | Tick a step on or off. The last open step finishes the task; unticking never reopens it |
 | GET | `/api/health` | Health check |
 
 Everything except `/api/health` needs a signed-in user (see Authentication).
@@ -57,6 +81,8 @@ Errors:
 - Unsafe input: 422 with a user-safe message.
 - An LLM or safety outage: 503 "Pebble couldn't answer just now."
 - A provider rate limit: 503 "Pebble is resting", with `Retry-After`.
+- A task or step that isn't yours or doesn't exist: 404 (another user's task looks exactly like a missing one).
+- No database, or a database outage: 503.
 
 ## LLM provider
 
@@ -117,12 +143,13 @@ infrastructure
 backend/
 ├── app/
 │   ├── main.py                 # composition root: app, middleware, routers
-│   ├── domain/                 # agents/intents/moods, chat, tasks, documents, safety rules (pure Python)
+│   ├── domain/                 # agents/intents/moods, chat, tasks and steps, documents, safety rules (pure Python)
 │   ├── application/
 │   │   ├── agents/             # use cases: orchestrator (HandleChat), calmsense, simplifycore, pebblevoice
-│   │   ├── ports/              # LLMProvider, SafetyChecker, PIIRedactor, DocumentParser, ReaderTokenProvider
+│   │   ├── ports/              # LLMProvider, SafetyChecker, PIIRedactor, DocumentParser, ReaderTokenProvider, TaskRepository
 │   │   ├── safety.py           # SafetyGate: the input/output pipeline
 │   │   ├── documents.py        # ParseDocument
+│   │   ├── tasks.py            # Tasks: the task list use cases
 │   │   └── prompts.py          # system prompts and the Pebble voice rules
 │   ├── infrastructure/
 │   │   ├── config.py           # settings from .env (pydantic-settings)
@@ -130,6 +157,7 @@ backend/
 │   │   ├── safety/             # Azure Content Safety (REST), no-op adapter, factory
 │   │   ├── pii/                # regex PII redactor
 │   │   ├── parsing/            # pypdf + python-docx parser
+│   │   ├── db/                 # SQLAlchemy models, engine, SqlTaskRepository
 │   │   └── immersive_reader.py # optional Azure Immersive Reader token
 │   └── api/
 │       ├── dependencies.py     # wiring: adapters into use cases (set_container() for tests)
@@ -137,9 +165,10 @@ backend/
 │       ├── presenters.py       # results to camelCase JSON
 │       ├── middleware.py       # request logging
 │       ├── auth.py             # Entra ID JWT validation (DEV_MODE bypass)
-│       ├── routers/            # agents, documents
+│       ├── routers/            # agents, documents, tasks
 │       └── schemas/            # request/response models
-├── tests/                      # domain/, unit/, contract/, api/, fixtures/
+├── migrations/                 # Alembic (env.py, versions/); config in alembic.ini
+├── tests/                      # domain/, unit/, contract/, api/, integration/, fixtures/
 ├── pyproject.toml              # dependencies, pytest and ruff config
 ├── uv.lock
 └── .env.example
