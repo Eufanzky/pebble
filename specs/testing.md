@@ -102,7 +102,7 @@ These enforce `mission.md` automatically:
 
 ### LLM evals (opt-in)
 
-`uv run pytest -m eval` calls the real provider (GitHub Models) with a small labelled set of about 30 messages, including distress cases. It checks:
+`uv run pytest -m eval` calls the real provider (Groq's free tier by default) with a small labelled set of about 30 messages, including distress cases. It checks:
 - The JSON output is valid.
 - The intent accuracy meets a target.
 - Distress is always caught.
@@ -138,7 +138,7 @@ These come into effect as the roadmap adds them.
 uv run pytest                          # everything except evals
 uv run pytest tests/unit               # one layer
 uv run pytest -k routing               # by name
-uv run pytest -m eval                  # real-LLM evals (needs a GitHub Models token)
+uv run pytest -m eval                  # real-LLM evals (needs `LLM_API_KEY`, a free Groq key)
 
 # frontend (from pebble/)
 npm test                               # Vitest, all
