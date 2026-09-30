@@ -14,6 +14,7 @@ from app.application.agents.orchestrator import HandleChat
 from app.application.agents.pebblevoice import Encourage
 from app.application.agents.simplifycore import SimplifyDocument
 from app.application.documents import ParseDocument
+from app.application.importing import ImportLocalData
 from app.application.ports.activity import ActivityRepository
 from app.application.ports.documents import DocumentParser
 from app.application.ports.llm import LLMProvider
@@ -96,6 +97,10 @@ class Container:
         return UserPreferences(self.preferences_repository)
 
     @property
+    def import_local_data(self) -> ImportLocalData:
+        return ImportLocalData(self.tasks, self.preferences, self.activity)
+
+    @property
     def handle_chat(self) -> HandleChat:
         return HandleChat(
             self.llm, self.gate, self.decompose_task, self.simplify_document, self.encourage, self.activity
@@ -159,3 +164,7 @@ def get_preferences() -> UserPreferences:
 
 def get_activity() -> ActivityLog:
     return get_container().activity
+
+
+def get_import_local_data() -> ImportLocalData:
+    return get_container().import_local_data

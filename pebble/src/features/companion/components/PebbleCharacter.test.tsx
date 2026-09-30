@@ -1,13 +1,11 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { act, renderHookWithProviders, renderWithProviders } from '@/test/render';
-import { usePreferences } from '@/shared/preferences';
+import { renderWithProviders } from '@/test/render';
+import { setTestPreferences } from '@/test/preferences';
 import PebbleCharacter from './PebbleCharacter';
 import PebbleSpeechBubble from './PebbleSpeechBubble';
 
 beforeEach(() => {
-  const { result, unmount } = renderHookWithProviders(() => usePreferences());
-  act(() => result.current.setPreferences((prev) => ({ ...prev, pebbleModel: 'mochi', reduceAnimations: false })));
-  unmount();
+  setTestPreferences({ pebbleModel: 'mochi', reduceAnimations: false });
 });
 
 describe('PebbleCharacter', () => {
@@ -29,9 +27,7 @@ describe('PebbleCharacter', () => {
   );
 
   it('holds still with reduce animations on', () => {
-    const { result, unmount } = renderHookWithProviders(() => usePreferences());
-    act(() => result.current.setPreferences((prev) => ({ ...prev, reduceAnimations: true })));
-    unmount();
+    setTestPreferences({ reduceAnimations: true });
 
     const { container } = renderWithProviders(<PebbleCharacter />);
 

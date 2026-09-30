@@ -1,11 +1,17 @@
 'use client';
 
-import { createContext, useContext, useEffect, useCallback, useMemo, useSyncExternalStore, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useCallback, useMemo, useRef, useSyncExternalStore, type ReactNode } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocalStorage } from '@/shared/hooks/useLocalStorage';
 import { PEBBLE_COLORS } from '@/shared/preferences';
 import type { UserPreferences } from '@/shared/preferences';
+import { getPreferences, patchPreferences } from './api';
 
-const defaultPreferences: UserPreferences = {
+export const PREFERENCES_KEY = ['preferences'] as const;
+/** This device's copy of the account's preferences, so they apply before the server answers. */
+export const PREFERENCES_CACHE = 'pebble-preferences-cache';
+
+export const defaultPreferences: UserPreferences = {
   readingLevel: 5,
   chunkSize: 'medium',
   reduceAnimations: false,
@@ -45,13 +51,63 @@ interface PreferencesContextValue {
 
 const PreferencesContext = createContext<PreferencesContextValue | null>(null);
 
-export function PreferencesProvider({ children }: { children: ReactNode }) {
-  const [stored, setPreferences, isHydrated] = useLocalStorage<UserPreferences>(
-    'pebble-preferences',
-    defaultPreferences
-  );
+interface PreferencesProviderProps {
+  children: ReactNode;
+  /** Only this device's copy, never the account's (the sign-in page, before anyone is signed in). */
+  offline?: boolean;
+}
+
+/**
+ * The account's preferences (`/api/preferences`), with a copy on this device
+ * so colour and motion apply on the first paint. A change applies at once and
+ * is saved in the background; what the server sends on load never undoes a
+ * change made on this device since.
+ */
+export function PreferencesProvider({ children, offline = false }: PreferencesProviderProps) {
+  const [stored, setStored, isHydrated] = useLocalStorage<UserPreferences>(PREFERENCES_CACHE, defaultPreferences);
   // Saved preferences may predate a setting, or be damaged: fill the gaps
   const preferences = useMemo(() => ({ ...defaultPreferences, ...stored }), [stored]);
+
+  const client = useQueryClient();
+  const server = useQuery({ queryKey: PREFERENCES_KEY, queryFn: getPreferences, staleTime: Infinity, enabled: !offline });
+  const changedHere = useRef(new Set<keyof UserPreferences>());
+  const queue = useRef<Promise<unknown>>(Promise.resolve());
+
+  useEffect(() => {
+    if (!server.data) return;
+    const fromServer = server.data;
+    setStored((prev) => {
+      const next = { ...defaultPreferences, ...prev, ...fromServer };
+      for (const key of changedHere.current) (next as Record<string, unknown>)[key] = prev[key];
+      return next;
+    });
+  }, [server.data, setStored]);
+
+  const setPreferences = useCallback(
+    (value: UserPreferences | ((prev: UserPreferences) => UserPreferences)) => {
+      const current = { ...defaultPreferences, ...stored };
+      const next = { ...defaultPreferences, ...(value instanceof Function ? value(current) : value) };
+      const changes = Object.fromEntries(
+        (Object.keys(next) as (keyof UserPreferences)[])
+          .filter((key) => next[key] !== current[key])
+          .map((key) => [key, next[key]]),
+      ) as Partial<UserPreferences>;
+      setStored(next);
+      if (offline || Object.keys(changes).length === 0) return;
+      for (const key of Object.keys(changes)) changedHere.current.add(key as keyof UserPreferences);
+      queue.current = queue.current
+        .then(() => patchPreferences(changes))
+        .catch(() => {
+          // Not saved: the account's copy of these settings wins again
+          const known = client.getQueryData<UserPreferences>(PREFERENCES_KEY);
+          const keys = Object.keys(changes) as (keyof UserPreferences)[];
+          for (const key of keys) changedHere.current.delete(key);
+          if (known) setStored((prev) => ({ ...prev, ...Object.fromEntries(keys.map((key) => [key, known[key]])) }));
+          void client.invalidateQueries({ queryKey: PREFERENCES_KEY });
+        });
+    },
+    [stored, setStored, offline, client],
+  );
 
   const osReducedMotion = useSyncExternalStore(subscribeToReducedMotion, osPrefersReducedMotion, () => false);
   const reduceMotion = preferences.reduceAnimations || osReducedMotion;

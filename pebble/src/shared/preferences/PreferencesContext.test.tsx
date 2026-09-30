@@ -1,5 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { act, renderHookWithProviders } from '@/test/render';
+import { act, renderHookWithProviders, waitFor } from '@/test/render';
+import { accountStore } from '@/test/msw/account';
+import { devicePreferences } from '@/test/preferences';
 import type { UserPreferences } from '@/shared/preferences';
 import { usePreferences } from './PreferencesContext';
 
@@ -109,11 +111,11 @@ describe('DOM effects', () => {
     expect(html.style.getPropertyValue('--pebble-dark')).toBe(dark);
   });
 
-  it('saves preferences to localStorage', () => {
+  it('keeps a copy on this device and saves the change to the account', async () => {
     renderWith({ calmMode: true, pebbleColor: 'sage' });
 
-    const saved: UserPreferences = JSON.parse(window.localStorage.getItem('pebble-preferences')!);
-    expect(saved).toMatchObject({ calmMode: true, pebbleColor: 'sage' });
+    expect(devicePreferences()).toMatchObject({ calmMode: true, pebbleColor: 'sage' });
+    await waitFor(() => expect(accountStore.preferences()).toMatchObject({ calmMode: true, pebbleColor: 'sage' }));
   });
 });
 

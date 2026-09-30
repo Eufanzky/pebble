@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { renderWithProviders, screen } from '@/test/render';
+import { expectLogged } from '@/test/activity';
 import { setPreferences } from '../testing';
 import { usePreferences } from '@/shared/preferences';
 import SettingsView from './SettingsView';
@@ -13,7 +14,6 @@ function StripProbe() {
 beforeEach(() => setPreferences({}));
 afterEach(() => document.documentElement.classList.remove('reduce-animations'));
 
-const latestLog = () => JSON.parse(window.localStorage.getItem('pebble-activity')!)[0];
 
 describe('settings toggles', () => {
   it('turns reduce animations on and off, across the whole app', async () => {
@@ -25,13 +25,13 @@ describe('settings toggles', () => {
 
     expect(toggle).toHaveAttribute('aria-checked', 'true');
     expect(document.documentElement).toHaveClass('reduce-animations');
-    expect(latestLog()).toMatchObject({ agent: 'AdaptLens', action: 'Reduce animations enabled' });
+    await expectLogged({ agent: 'AdaptLens', action: 'Reduce animations enabled' });
 
     await user.click(toggle);
 
     expect(toggle).toHaveAttribute('aria-checked', 'false');
     expect(document.documentElement).not.toHaveClass('reduce-animations');
-    expect(latestLog()).toMatchObject({ action: 'Reduce animations disabled' });
+    await expectLogged({ action: 'Reduce animations disabled' });
   });
 
   it('turns calm mode on, which removes emoji from text across the app', async () => {
@@ -42,7 +42,7 @@ describe('settings toggles', () => {
 
     expect(screen.getByRole('switch', { name: 'Calm mode' })).toHaveAttribute('aria-checked', 'true');
     expect(screen.getByTestId('probe')).toHaveTextContent(/^Study$/);
-    expect(latestLog()).toMatchObject({ agent: 'AdaptLens', action: 'Calm mode enabled' });
+    await expectLogged({ agent: 'AdaptLens', action: 'Calm mode enabled' });
   });
 
 });

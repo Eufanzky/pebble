@@ -1,18 +1,17 @@
 'use client';
 
 import { useCallback } from 'react';
+import { defaultPreferences, usePreferences } from '@/shared/preferences';
 import { useToast } from '@/shared/ui/ToastContext';
 
-const RESET_KEYS = ['pebble-preferences', 'pebble-activity'];
-
-/** Resets preferences (and the activity log) after asking; tasks are kept. */
-export function useResetPreferences(reload: () => void = () => window.location.reload()) {
+/** Puts the preferences back to their defaults, after asking. Tasks and the activity log are kept. */
+export function useResetPreferences() {
   const { showToast } = useToast();
+  const { setPreferences } = usePreferences();
 
   return useCallback(() => {
     if (!window.confirm('This will reset all settings to default. Your tasks and documents will be kept. Continue?')) return;
-    RESET_KEYS.forEach((k) => localStorage.removeItem(k));
+    setPreferences(defaultPreferences);
     showToast('Preferences reset to defaults');
-    reload();
-  }, [showToast, reload]);
+  }, [showToast, setPreferences]);
 }

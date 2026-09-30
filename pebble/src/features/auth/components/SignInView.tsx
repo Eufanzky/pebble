@@ -4,6 +4,7 @@ import { useState, type FormEvent } from 'react';
 import { signIn } from 'next-auth/react';
 import { PebbleCharacter } from '@/features/companion';
 import { PreferencesProvider } from '@/shared/preferences';
+import { QueryProvider } from '@/shared/lib/query';
 import type { ProviderId } from '../lib/providers';
 import './SignInView.css';
 
@@ -22,9 +23,12 @@ interface SignInViewProps {
 /** The sign-in page: the ways this deployment offers, and Pebble waking up as you pick one. */
 export function SignInView(props: SignInViewProps) {
   return (
-    <PreferencesProvider>
-      <SignInPanel {...props} />
-    </PreferencesProvider>
+    <QueryProvider>
+      {/* Nobody is signed in yet: this device's copy of the preferences only */}
+      <PreferencesProvider offline>
+        <SignInPanel {...props} />
+      </PreferencesProvider>
+    </QueryProvider>
   );
 }
 

@@ -1,13 +1,14 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, renderWithProviders, screen } from '@/test/render';
+import { expectLogged } from '@/test/activity';
+import { devicePreferences } from '@/test/preferences';
 import { setPreferences } from '../testing';
 import SettingsView from './SettingsView';
 
 beforeEach(() => setPreferences({ readingLevel: 5, chunkSize: 'medium', pebbleColor: 'lavender', pebbleModel: 'classic', pebblePersonality: 'gentle' }));
 afterEach(() => vi.useRealTimers());
 
-const stored = () => JSON.parse(window.localStorage.getItem('pebble-preferences')!);
-const latestLog = () => JSON.parse(window.localStorage.getItem('pebble-activity')!)[0];
+const stored = devicePreferences;
 
 describe('SettingsView', () => {
   it('greets in the chosen personality and switches it', async () => {
@@ -18,7 +19,7 @@ describe('SettingsView', () => {
 
     expect(screen.getByText('Your settings.')).toBeInTheDocument();
     expect(stored().pebblePersonality).toBe('calm');
-    expect(latestLog()).toMatchObject({ action: 'Personality mode changed to calm' });
+    await expectLogged({ action: 'Personality mode changed to calm' });
   });
 
   it('picks a model and a color', async () => {
@@ -41,7 +42,7 @@ describe('SettingsView', () => {
 
     expect(stored()).toMatchObject({ readingLevel: 3, chunkSize: 'small' });
     expect(screen.getByRole('slider', { name: 'Default reading level' })).toHaveAttribute('aria-valuetext', 'Reading level 3 of 10');
-    expect(latestLog()).toMatchObject({ action: 'Chunk size changed to small' });
+    await expectLogged({ action: 'Chunk size changed to small' });
   });
 
   it('resets preferences only after asking', async () => {
@@ -51,6 +52,6 @@ describe('SettingsView', () => {
     await user.click(screen.getByRole('button', { name: 'Reset all preferences' }));
 
     expect(confirm).toHaveBeenCalledOnce();
-    expect(window.localStorage.getItem('pebble-preferences')).not.toBeNull();
+    expect(stored().pebbleModel).toBe('classic');
   });
 });

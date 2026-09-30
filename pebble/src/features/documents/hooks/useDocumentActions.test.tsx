@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { act, renderHookWithProviders } from '@/test/render';
+import { act, renderLoadedHook } from '@/test/render';
 import { useActivityLog } from '@/features/activity';
 import { useTasks } from '@/features/tasks';
 import { testDocument } from '../testing';
@@ -8,8 +8,8 @@ import { useDocumentActions } from './useDocumentActions';
 const push = vi.fn();
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push }) }));
 
-function renderActions(doc = testDocument(), onDone = vi.fn()) {
-  const { result } = renderHookWithProviders(() => ({
+async function renderActions(doc = testDocument(), onDone = vi.fn()) {
+  const { result } = await renderLoadedHook(() => ({
     ...useDocumentActions(doc, onDone),
     tasks: useTasks(),
     log: useActivityLog(),
@@ -22,8 +22,8 @@ beforeEach(() => {
 });
 
 describe('useDocumentActions', () => {
-  it('adds each extracted task to Today, then closes and goes there', () => {
-    const { result, onDone } = renderActions();
+  it('adds each extracted task to Today, then closes and goes there', async () => {
+    const { result, onDone } = await renderActions();
 
     act(() => result.current.turnIntoTasks());
 
@@ -34,8 +34,8 @@ describe('useDocumentActions', () => {
     expect(push).toHaveBeenCalledWith('/today');
   });
 
-  it('makes a study plan with one day per task', () => {
-    const { result } = renderActions();
+  it('makes a study plan with one day per task', async () => {
+    const { result } = await renderActions();
 
     act(() => result.current.makeStudyPlan());
 
@@ -43,18 +43,18 @@ describe('useDocumentActions', () => {
     expect(result.current.log.entries[0]).toMatchObject({ action: expect.stringContaining('study plan') });
   });
 
-  it('tags tasks from a meeting as communication, others as study', () => {
-    const meeting = renderActions(testDocument({ type: 'meeting' }));
+  it('tags tasks from a meeting as communication, others as study', async () => {
+    const meeting = await renderActions(testDocument({ type: 'meeting' }));
     act(() => meeting.result.current.turnIntoTasks());
     expect(meeting.result.current.tasks.tasks[0].tag).toBe('communication');
 
-    const reading = renderActions(testDocument({ type: 'academic' }));
+    const reading = await renderActions(testDocument({ type: 'academic' }));
     act(() => reading.result.current.turnIntoTasks());
-    expect(reading.result.current.tasks.tasks[0].tag).toBe('study');
+    expect(reading.result.current.tasks.tasks.at(-1)!.tag).toBe('study');
   });
 
-  it('logs opening the reader', () => {
-    const { result } = renderActions();
+  it('logs opening the reader', async () => {
+    const { result } = await renderActions();
 
     act(() => result.current.logReaderOpened());
 

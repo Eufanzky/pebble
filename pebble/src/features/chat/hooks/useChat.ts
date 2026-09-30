@@ -10,7 +10,6 @@ import { sendChatMessage } from '../api/sendChatMessage';
 import {
   buildChatRequest,
   errorMessage,
-  replyActivity,
   replyMessage,
   replyMood,
   userMessage,
@@ -21,13 +20,14 @@ const MOOD_FLASH_MS = 3000;
 
 /**
  * The conversation with Pebble: sends a message with the user's context,
- * shows the reply, flashes Pebble's mood and logs which agent answered.
+ * shows the reply and flashes Pebble's mood. The backend logs which agent
+ * answered; the activity log reloads to show it.
  */
 export function useChat() {
   const { preferences } = usePreferences();
   const { flashMood } = usePebble();
   const { tasks } = useTasks();
-  const { addEntry } = useActivityLog();
+  const { refresh: refreshLog } = useActivityLog();
   const timeOfDay = useTimeOfDay();
 
   const [messages, setMessages] = useState<ChatMessage[]>([]);
@@ -47,17 +47,16 @@ export function useChat() {
 
         const mood = replyMood(reply);
         if (mood) flashMood(mood, MOOD_FLASH_MS);
-
-        const { agent, action, reasoning } = replyActivity(text, reply);
-        addEntry(agent, action, reasoning);
       } catch {
         setMessages((prev) => [...prev, errorMessage()]);
       } finally {
         setIsLoading(false);
+        // The backend logs every turn itself (and a message it held back): show it
+        refreshLog();
       }
       return true;
     },
-    [isLoading, tasks, preferences, timeOfDay, flashMood, addEntry],
+    [isLoading, tasks, preferences, timeOfDay, flashMood, refreshLog],
   );
 
   return { messages, isLoading, send };

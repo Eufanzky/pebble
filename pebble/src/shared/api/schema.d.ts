@@ -217,6 +217,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/import": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Import what this browser kept
+         * @description Moves tasks, preferences and activity entries that the browser kept before sign-in into your account.
+         *     The frontend sends them once and then forgets its copy.
+         *
+         *     - Tasks are added after yours, with their steps.
+         *     - Preferences apply only if you never saved any.
+         *     - Log entries keep their times (none later than now).
+         */
+        post: operations["import_local_data_api_import_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/preferences": {
         parameters: {
             query?: never;
@@ -482,6 +507,44 @@ export interface components {
             /** Detail */
             detail?: components["schemas"]["ValidationError"][];
         };
+        /**
+         * ImportRequest
+         * @description What the browser kept before sign-in (roadmap 4.5).
+         */
+        ImportRequest: {
+            /** Activity */
+            activity?: components["schemas"]["ImportedActivityEntry"][];
+            preferences?: components["schemas"]["PreferencesUpdate"] | null;
+            /** Tasks */
+            tasks?: components["schemas"]["TaskCreate"][];
+        };
+        /** ImportResponse */
+        ImportResponse: {
+            /** Activity */
+            activity: number;
+            /** Preferences */
+            preferences: boolean;
+            /** Tasks */
+            tasks: number;
+        };
+        /** ImportedActivityEntry */
+        ImportedActivityEntry: {
+            /** Action */
+            action: string;
+            agent: components["schemas"]["AgentName"];
+            /**
+             * Reasoning
+             * @default
+             */
+            reasoning: string;
+            /** @default passed */
+            safetyStatus: components["schemas"]["SafetyStatus"];
+            /**
+             * Timestamp
+             * Format: date-time
+             */
+            timestamp: string;
+        };
         /** MotivateRequest */
         MotivateRequest: {
             /**
@@ -608,6 +671,11 @@ export interface components {
         };
         /** SubtaskIn */
         SubtaskIn: {
+            /**
+             * Completed
+             * @default false
+             */
+            completed: boolean;
             /**
              * Timeestimate
              * @default
@@ -1000,6 +1068,39 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    import_local_data_api_import_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ImportRequest"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ImportResponse"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

@@ -1,33 +1,35 @@
 import { describe, expect, it, vi } from 'vitest';
-import { renderHookWithProviders } from '@/test/render';
+import { act, renderHookWithProviders, waitFor } from '@/test/render';
+import { accountStore } from '@/test/msw/account';
+import { setTestPreferences } from '@/test/preferences';
+import { usePreferences } from '@/shared/preferences';
 import { useResetPreferences } from './useResetPreferences';
 
+function renderReset() {
+  return renderHookWithProviders(() => ({ reset: useResetPreferences(), ...usePreferences() })).result;
+}
+
 describe('useResetPreferences', () => {
-  it('clears preferences and the log, keeps tasks, and reloads', () => {
+  it('puts the preferences back to their defaults, on this device and in the account', async () => {
     vi.spyOn(window, 'confirm').mockReturnValue(true);
-    window.localStorage.setItem('pebble-preferences', '{}');
-    window.localStorage.setItem('pebble-activity', '[]');
-    window.localStorage.setItem('pebble-tasks', '[]');
-    const reload = vi.fn();
+    setTestPreferences({ calmMode: true, readingLevel: 2, pebbleColor: 'sky' });
+    const result = renderReset();
 
-    const { result } = renderHookWithProviders(() => useResetPreferences(reload));
-    result.current();
+    act(() => result.current.reset());
 
-    expect(window.localStorage.getItem('pebble-preferences')).toBeNull();
-    expect(window.localStorage.getItem('pebble-activity')).toBeNull();
-    expect(window.localStorage.getItem('pebble-tasks')).toBe('[]');
-    expect(reload).toHaveBeenCalledOnce();
+    expect(result.current.preferences).toMatchObject({ calmMode: false, readingLevel: 5, pebbleColor: 'lavender' });
+    await waitFor(() =>
+      expect(accountStore.preferences()).toMatchObject({ calmMode: false, readingLevel: 5, pebbleColor: 'lavender' }),
+    );
   });
 
   it('does nothing when the user says no', () => {
     vi.spyOn(window, 'confirm').mockReturnValue(false);
-    window.localStorage.setItem('pebble-preferences', '{}');
-    const reload = vi.fn();
+    setTestPreferences({ calmMode: true });
+    const result = renderReset();
 
-    const { result } = renderHookWithProviders(() => useResetPreferences(reload));
-    result.current();
+    act(() => result.current.reset());
 
-    expect(window.localStorage.getItem('pebble-preferences')).toBe('{}');
-    expect(reload).not.toHaveBeenCalled();
+    expect(result.current.preferences.calmMode).toBe(true);
   });
 });

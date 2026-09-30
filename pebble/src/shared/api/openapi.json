@@ -297,6 +297,97 @@
         "title": "HTTPValidationError",
         "type": "object"
       },
+      "ImportRequest": {
+        "description": "What the browser kept before sign-in (roadmap 4.5).",
+        "properties": {
+          "activity": {
+            "items": {
+              "$ref": "#/components/schemas/ImportedActivityEntry"
+            },
+            "maxItems": 1000,
+            "title": "Activity",
+            "type": "array"
+          },
+          "preferences": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PreferencesUpdate"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tasks": {
+            "items": {
+              "$ref": "#/components/schemas/TaskCreate"
+            },
+            "maxItems": 500,
+            "title": "Tasks",
+            "type": "array"
+          }
+        },
+        "title": "ImportRequest",
+        "type": "object"
+      },
+      "ImportResponse": {
+        "properties": {
+          "activity": {
+            "title": "Activity",
+            "type": "integer"
+          },
+          "preferences": {
+            "title": "Preferences",
+            "type": "boolean"
+          },
+          "tasks": {
+            "title": "Tasks",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "tasks",
+          "preferences",
+          "activity"
+        ],
+        "title": "ImportResponse",
+        "type": "object"
+      },
+      "ImportedActivityEntry": {
+        "properties": {
+          "action": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Action",
+            "type": "string"
+          },
+          "agent": {
+            "$ref": "#/components/schemas/AgentName"
+          },
+          "reasoning": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Reasoning",
+            "type": "string"
+          },
+          "safetyStatus": {
+            "$ref": "#/components/schemas/SafetyStatus",
+            "default": "passed"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "title": "Timestamp",
+            "type": "string"
+          }
+        },
+        "required": [
+          "agent",
+          "action",
+          "timestamp"
+        ],
+        "title": "ImportedActivityEntry",
+        "type": "object"
+      },
       "MotivateRequest": {
         "properties": {
           "personality": {
@@ -619,6 +710,11 @@
       },
       "SubtaskIn": {
         "properties": {
+          "completed": {
+            "default": false,
+            "title": "Completed",
+            "type": "boolean"
+          },
           "timeEstimate": {
             "default": "",
             "maxLength": 50,
@@ -1346,6 +1442,53 @@
         ]
       }
     },
+    "/api/import": {
+      "post": {
+        "description": "Moves tasks, preferences and activity entries that the browser kept before sign-in into your account.\nThe frontend sends them once and then forgets its copy.\n\n- Tasks are added after yours, with their steps.\n- Preferences apply only if you never saved any.\n- Log entries keep their times (none later than now).",
+        "operationId": "import_local_data_api_import_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ImportRequest"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ImportResponse"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Import what this browser kept",
+        "tags": [
+          "Import"
+        ]
+      }
+    },
     "/api/preferences": {
       "get": {
         "description": "Your saved preferences over the defaults. A new account gets the defaults.",
@@ -1754,6 +1897,10 @@
     {
       "description": "What each agent did for you, and why. The agents log their own results.",
       "name": "Activity"
+    },
+    {
+      "description": "Move what a browser kept before sign-in into your account, once.",
+      "name": "Import"
     },
     {
       "description": "Server health check.",

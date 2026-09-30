@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { act, fireEvent, renderHookWithProviders, renderWithProviders, screen, waitFor } from '@/test/render';
-import { usePreferences } from '@/shared/preferences';
+import { fireEvent, renderWithProviders, screen, waitFor } from '@/test/render';
+import { expectLogged } from '@/test/activity';
+import { setTestPreferences } from '@/test/preferences';
 import { taskStore } from '@/test/msw/tasks';
 import { testDocument } from '../testing';
 import DocumentModal from './DocumentModal';
@@ -10,11 +11,7 @@ vi.mock('next/navigation', () => ({ useRouter: () => ({ push }) }));
 
 beforeEach(() => {
   push.mockClear();
-  const { result, unmount } = renderHookWithProviders(() => usePreferences());
-  act(() => {
-    result.current.setPreferences((prev) => ({ ...prev, readingLevel: 5, reduceAnimations: true, calmMode: false }));
-  });
-  unmount();
+  setTestPreferences({ readingLevel: 5, reduceAnimations: true, calmMode: false });
 });
 
 function renderModal(onClose = vi.fn()) {
@@ -50,13 +47,12 @@ describe('DocumentModal', () => {
       expect(slider()).toHaveAttribute('aria-valuetext', `Reading level ${level} of 10`);
     });
 
-    it('logs the change for AdaptLens', () => {
+    it('logs the change for AdaptLens', async () => {
       renderModal();
 
       fireEvent.change(slider(), { target: { value: '3' } });
 
-      const [latest] = JSON.parse(window.localStorage.getItem('pebble-activity')!);
-      expect(latest).toMatchObject({ agent: 'AdaptLens', action: 'Reading level adjusted to 3 for "Clean Architecture"' });
+      await expectLogged({ agent: 'AdaptLens', action: 'Reading level adjusted to 3 for "Clean Architecture"' });
     });
   });
 

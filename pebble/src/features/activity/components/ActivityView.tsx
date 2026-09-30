@@ -38,7 +38,7 @@ export default function ActivityView() {
       )}
 
       <div style={{ marginTop: 32, fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.6, maxWidth: 600 }}>
-        This log stays in your browser. Each entry names the agent, what it did, why, and whether the safety check passed.
+        This log is saved with your account. Each entry names the agent, what it did, why, and whether the safety check passed.
       </div>
     </>
   );

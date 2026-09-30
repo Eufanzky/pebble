@@ -22,7 +22,7 @@ export function toCreate(task: NewTask): TaskCreate {
     priority: task.priority,
     completed: task.completed,
     whyExplanation: task.whyExplanation ?? '',
-    subtasks: (task.subtasks ?? []).map((s) => ({ title: s.title, timeEstimate: s.timeEstimate })),
+    subtasks: (task.subtasks ?? []).map((s) => ({ title: s.title, timeEstimate: s.timeEstimate, completed: s.completed })),
   };
 }
 

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { renderWithProviders, screen, within } from '@/test/render';
+import { expectLogged } from '@/test/activity';
 import { newTask, seed } from '@/features/tasks/testing';
 import TodayPage from './page';
 
@@ -65,8 +66,7 @@ describe('Today: toggling a task step', () => {
   it('logs breaking a task down in the activity log', async () => {
     await renderAndShowSteps();
 
-    const [latest] = JSON.parse(window.localStorage.getItem('pebble-activity')!);
-    expect(latest).toMatchObject({
+    await expectLogged({
       agent: 'SimplifyCore',
       action: expect.stringContaining('Broke down "Read Chapter 4" into 2 steps'),
     });

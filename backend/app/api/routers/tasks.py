@@ -9,6 +9,20 @@ from app.domain.tasks import Step, Task, TaskStep
 
 router = APIRouter()
 
+
+def task_from(body: TaskCreate) -> Task:
+    """A new task from the request; the use case picks the ids."""
+    return Task(
+        id="",
+        title=body.title,
+        time_estimate=body.time_estimate,
+        tag=body.tag,
+        priority=body.priority,
+        completed=body.completed,
+        why=body.why_explanation,
+        steps=tuple(TaskStep("", s.title, s.time_estimate, s.completed) for s in body.subtasks),
+    )
+
 # API field names to domain field names, for partial updates.
 FIELDS = {
     "title": "title",
@@ -31,17 +45,7 @@ async def add_task(
     body: TaskCreate, user_id: str = Depends(get_current_user), tasks: Tasks = Depends(get_tasks)
 ):
     """Add a task to the end of your list. Pebble picks the ids of the task and its steps."""
-    task = Task(
-        id="",
-        title=body.title,
-        time_estimate=body.time_estimate,
-        tag=body.tag,
-        priority=body.priority,
-        completed=body.completed,
-        why=body.why_explanation,
-        steps=tuple(TaskStep("", s.title, s.time_estimate) for s in body.subtasks),
-    )
-    return task_data(await tasks.add(user_id, task))
+    return task_data(await tasks.add(user_id, task_from(body)))
 
 
 @router.patch("/{task_id}", response_model=TaskOut, summary="Change a task")

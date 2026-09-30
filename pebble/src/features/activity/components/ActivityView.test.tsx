@@ -1,30 +1,28 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { act, renderHook, renderHookWithProviders, renderWithProviders, screen, within } from '@/test/render';
-import { useLocalStorage } from '@/shared/hooks/useLocalStorage';
-import { useActivityLog } from '../context/ActivityLogContext';
+import { renderWithProviders, screen, within } from '@/test/render';
+import { accountStore } from '@/test/msw/account';
 import ActivityView from './ActivityView';
 
-// The log is cached at module level; each test writes the entries it needs.
+// Puts `count` entries in the account's log, newest last ("Action 0" is the oldest).
 function seedLog(count: number) {
-  const storage = renderHook(() => useLocalStorage<unknown[]>('pebble-activity', []));
-  act(() => storage.result.current[1]([]));
-  storage.unmount();
-  const { result, unmount } = renderHookWithProviders(() => useActivityLog());
-  act(() => {
-    for (let i = 0; i < count; i++) {
-      result.current.addEntry(i % 2 ? 'WhyBot' : 'CalmSense', `Action ${i}`, `Because ${i}`, i === 0 ? 'flagged' : 'passed');
-    }
-  });
-  unmount();
+  accountStore.setActivity(
+    Array.from({ length: count }, (_, i) => ({
+      timestamp: new Date(2026, 8, 29, 9, i).toISOString(),
+      agent: i % 2 ? ('WhyBot' as const) : ('CalmSense' as const),
+      action: `Action ${i}`,
+      reasoning: `Because ${i}`,
+      safetyStatus: i === 0 ? ('flagged' as const) : ('passed' as const),
+    })).reverse(),
+  );
 }
 
 beforeEach(() => seedLog(10));
 
 describe('ActivityView', () => {
-  it('shows the counts and the newest entries first', () => {
+  it('shows the counts and the newest entries first', async () => {
     renderWithProviders(<ActivityView />);
 
-    expect(screen.getByText('Showing 8 of 10 entries')).toBeInTheDocument();
+    expect(await screen.findByText('Showing 8 of 10 entries')).toBeInTheDocument();
     expect(screen.getAllByText(/^Action \d$/)[0]).toHaveTextContent('Action 9');
     expect(screen.getByText('Decisions made').parentElement).toHaveTextContent('10');
   });
@@ -32,7 +30,7 @@ describe('ActivityView', () => {
   it('filters by agent and shows more on request', async () => {
     const { user } = renderWithProviders(<ActivityView />);
 
-    await user.click(screen.getByRole('button', { name: 'Show 2 more' }));
+    await user.click(await screen.findByRole('button', { name: 'Show 2 more' }));
     expect(screen.getByText('Showing 10 of 10 entries')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Filter by WhyBot' }));
@@ -45,7 +43,7 @@ describe('ActivityView', () => {
 
   it("shows an entry's reasoning and safety status", async () => {
     const { user } = renderWithProviders(<ActivityView />);
-    const card = screen.getByText('Action 9').closest('.activity-entry') as HTMLElement;
+    const card = (await screen.findByText('Action 9')).closest('.activity-entry') as HTMLElement;
 
     await user.click(within(card).getByRole('button', { name: 'Show reasoning' }));
 
@@ -53,17 +51,17 @@ describe('ActivityView', () => {
     expect(within(card).getByText('Content Safety: passed')).toBeInTheDocument();
   });
 
-  it('shows a quiet empty state', () => {
+  it('shows a quiet empty state', async () => {
     seedLog(0);
     renderWithProviders(<ActivityView />);
 
-    expect(screen.getByText(/Nothing here yet/)).toBeInTheDocument();
+    expect(await screen.findByText(/Nothing here yet/)).toBeInTheDocument();
   });
 
   it('says where the log lives, not a service it does not use', () => {
     renderWithProviders(<ActivityView />);
 
-    expect(screen.getByText(/This log stays in your browser/)).toBeInTheDocument();
+    expect(screen.getByText(/This log is saved with your account/)).toBeInTheDocument();
     expect(screen.queryByText(/Foundry/)).not.toBeInTheDocument();
   });
 });

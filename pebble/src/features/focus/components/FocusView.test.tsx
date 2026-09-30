@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, renderWithProviders, screen } from '@/test/render';
+import { expectLogged } from '@/test/activity';
 import { playChime } from '@/shared/lib/audio';
 import { FOCUS_SECONDS } from '../lib/timer';
 import FocusView from './FocusView';
@@ -23,7 +24,7 @@ describe('FocusView', () => {
     expect(screen.getByRole('button', { name: 'Resume' })).toBeInTheDocument();
   });
 
-  it('chimes and logs a finished session', () => {
+  it('chimes and logs a finished session', async () => {
     vi.useFakeTimers();
     renderWithProviders(<FocusView />);
 
@@ -33,7 +34,8 @@ describe('FocusView', () => {
     expect(playChime).toHaveBeenCalledOnce();
     expect(screen.getByText('You focused for 25 minutes. Nice work.')).toBeInTheDocument();
     expect(timer()).toHaveTextContent('25:00');
-    expect(JSON.parse(window.localStorage.getItem('pebble-activity')!)[0]).toMatchObject({ action: expect.stringContaining('Focus session completed') });
+    vi.useRealTimers(); // the log is saved over the (fake) network
+    await expectLogged({ action: expect.stringContaining('Focus session completed') });
   });
 
   // Roadmap 7.1: no made-up people or participant counts (principle 6).
