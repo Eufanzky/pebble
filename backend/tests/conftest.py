@@ -16,6 +16,7 @@ from fastapi import FastAPI
 from httpx import ASGITransport, AsyncClient
 
 from app.api.dependencies import Container, set_container
+from app.infrastructure.config import settings
 from app.infrastructure.llm.fake import FakeLLM
 from tests.fakes import (
     InMemoryActivityRepository,
@@ -23,6 +24,15 @@ from tests.fakes import (
     InMemoryTaskRepository,
     ScriptedSafety,
 )
+
+TEST_TOKEN_SECRET = "test-token-secret-at-least-32-bytes-long"
+
+
+@pytest.fixture(autouse=True)
+def auth_secret(monkeypatch) -> str:
+    """Sign-in is set up in every test: a request without a valid token gets a 401, not a 503."""
+    monkeypatch.setattr(settings, "auth_token_secret", TEST_TOKEN_SECRET)
+    return TEST_TOKEN_SECRET
 
 
 @pytest.fixture(autouse=True)

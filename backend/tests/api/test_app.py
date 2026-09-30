@@ -3,7 +3,7 @@
 from asgi_lifespan import LifespanManager
 
 from app.api import dependencies
-from app.api.auth import get_current_user_id
+from app.api.auth import get_current_user
 from app.api.dependencies import Container
 from app.application.ports.reader import ReaderToken
 from app.infrastructure.config import Settings
@@ -76,7 +76,7 @@ class StubReader:
 
 
 async def test_immersive_reader_token(app, client, container):
-    app.dependency_overrides[get_current_user_id] = lambda: "user-1"
+    app.dependency_overrides[get_current_user] = lambda: "user-1"
     container.reader = StubReader()
 
     resp = await client.get("/api/documents/immersive-reader/token")
@@ -85,7 +85,7 @@ async def test_immersive_reader_token(app, client, container):
 
 
 async def test_immersive_reader_unconfigured_is_a_503(app, client):
-    app.dependency_overrides[get_current_user_id] = lambda: "user-1"
+    app.dependency_overrides[get_current_user] = lambda: "user-1"
 
     resp = await client.get("/api/documents/immersive-reader/token")
 

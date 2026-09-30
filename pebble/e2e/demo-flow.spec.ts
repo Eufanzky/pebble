@@ -1,12 +1,20 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 
-// The demo flow (specs/testing.md): break a task into steps, finish a step,
-// simplify a document, and see the agent and its "why" in the activity log.
-// Dev login joins it in 4.3, when sign-in exists.
+// The demo flow (specs/testing.md): dev login, break a task into steps, finish
+// a step, simplify a document, and see the agent and its "why" in the activity log.
+
+async function devLogin(page: Page, path = '/today') {
+  await page.goto(path);
+  // Signed out: every page sends you to sign in, and back afterwards
+  await expect(page).toHaveURL(/\/signin\?callbackUrl=/);
+  await page.getByRole('textbox', { name: 'Name' }).fill('e2e');
+  await page.getByRole('button', { name: 'Sign in as e2e' }).click();
+  await expect(page).toHaveURL(path);
+}
 
 async function freshStart(page: Page) {
-  await page.goto('/today');
+  await devLogin(page);
   await page.evaluate(() => {
     window.localStorage.clear();
     // Animations off, so the flow doesn't wait on them
@@ -59,6 +67,28 @@ test('the demo flow', async ({ page }) => {
     const chat = page.locator('.activity-entry', { hasText: 'Chat: decompose' });
     await expect(chat.getByText('CalmSense', { exact: true })).toBeVisible();
   });
+});
+
+test('signed out, the API refuses and pages ask you to sign in', async ({ browser }) => {
+  const page = await (await browser.newContext()).newPage();
+
+  const api = await page.request.get('/api/preferences');
+  expect(api.status()).toBe(401);
+
+  await page.goto('/documents');
+  await expect(page).toHaveURL('/signin?callbackUrl=%2Fdocuments');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText("Pebble is here when you're ready.");
+  const results = await new AxeBuilder({ page }).analyze();
+  expect(results.violations.map((v) => v.id)).toEqual([]);
+});
+
+test('signing out goes back to the sign-in page', async ({ page }) => {
+  await page.goto('/settings');
+  await expect(page.getByText('Signed in as e2e with the dev login.')).toBeVisible();
+  await page.getByRole('button', { name: 'Sign out' }).click();
+  await expect(page).toHaveURL(/\/signin/);
+  await page.goto('/today');
+  await expect(page).toHaveURL(/\/signin\?callbackUrl=/);
 });
 
 for (const path of ['/today', '/documents', '/activity', '/focus', '/settings']) {

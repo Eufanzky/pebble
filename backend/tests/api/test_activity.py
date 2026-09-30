@@ -4,8 +4,7 @@ from datetime import datetime
 
 import pytest
 
-from app.api.auth import get_current_user_id
-from app.infrastructure.config import settings
+from app.api.auth import get_current_user
 from app.infrastructure.db.activity import UnconfiguredActivityRepository
 
 URL = "/api/activity"
@@ -17,7 +16,7 @@ def signed_in(app):
     class SignedIn:
         user = "user-a"
 
-    app.dependency_overrides[get_current_user_id] = lambda: SignedIn.user
+    app.dependency_overrides[get_current_user] = lambda: SignedIn.user
     return SignedIn
 
 
@@ -64,9 +63,7 @@ async def test_users_never_see_each_others_log(client, signed_in):
     assert (await client.get(URL)).json() == []
 
 
-async def test_activity_needs_a_signed_in_user(client, monkeypatch):
-    monkeypatch.setattr(settings, "dev_mode", False)
-
+async def test_activity_needs_a_signed_in_user(client):
     assert (await client.get(URL)).status_code == 401
     assert (await client.post(URL, json=ENTRY)).status_code == 401
 

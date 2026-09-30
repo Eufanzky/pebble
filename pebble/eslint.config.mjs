@@ -5,9 +5,10 @@ import nextTs from "eslint-config-next/typescript";
 // Import boundaries (specs/tech-stack.md): a feature is used only through its
 // index.ts, a feature never reaches into another one with a relative path,
 // and shared/ never depends on a feature.
+// A feature may also have a server-only entry point, '@/features/<name>/server'.
 const featureDeepImport = {
-  group: ["@/features/*/*"],
-  message: "Import a feature through its public index: '@/features/<name>'.",
+  group: ["@/features/*/*", "!@/features/*/server"],
+  message: "Import a feature through its public index: '@/features/<name>' (or '@/features/<name>/server').",
 };
 
 const eslintConfig = defineConfig([

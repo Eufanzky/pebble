@@ -2,7 +2,7 @@
 
 import pytest
 
-from app.api.auth import get_current_user_id
+from app.api.auth import get_current_user
 from app.api.errors import UNAVAILABLE
 from app.application.ports.llm import LLMTimeoutError
 
@@ -12,7 +12,7 @@ REPLY = {"subtasks": [{"title": "Open the file", "timeEstimate": "~5 min"}], "wh
 
 @pytest.fixture(autouse=True)
 def signed_in(app):
-    app.dependency_overrides[get_current_user_id] = lambda: "user-1"
+    app.dependency_overrides[get_current_user] = lambda: "user-1"
 
 
 async def test_returns_the_steps(client, llm):

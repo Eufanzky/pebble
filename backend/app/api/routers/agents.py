@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from app.api.auth import get_current_user_id
+from app.api.auth import get_current_user
 from app.api.dependencies import get_decompose_task, get_encourage, get_handle_chat, get_simplify_document
 from app.api.presenters import breakdown_data, chat_response, simplification_data
 from app.api.schemas.agents import (
@@ -30,7 +30,7 @@ router = APIRouter()
 )
 async def decompose(
     body: DecomposeRequest,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_current_user),
     decompose_task: DecomposeTask = Depends(get_decompose_task),
 ):
     """
@@ -58,7 +58,7 @@ async def decompose(
 )
 async def simplify(
     body: SimplifyRequest,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_current_user),
     simplify_document: SimplifyDocument = Depends(get_simplify_document),
 ):
     """
@@ -85,7 +85,7 @@ async def simplify(
 )
 async def motivate(
     body: MotivateRequest,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_current_user),
     encourage: Encourage = Depends(get_encourage),
 ):
     """
@@ -119,7 +119,7 @@ async def motivate(
 )
 async def chat(
     body: ChatRequest,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_current_user),
     handle_chat: HandleChat = Depends(get_handle_chat),
 ):
     """

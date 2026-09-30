@@ -2,6 +2,7 @@ import type { ReactElement } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { axe } from 'vitest-axe';
 import { ActivityView } from '@/features/activity';
+import { AccountSection, SignInView } from '@/features/auth';
 import { PebbleCharacter } from '@/features/companion';
 import { PebbleChat } from '@/features/chat';
 import { DocumentsView } from '@/features/documents';
@@ -12,6 +13,7 @@ import { act, renderHookWithProviders, renderWithProviders, screen } from './ren
 import { usePreferences } from '@/shared/preferences';
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }), usePathname: () => '/today' }));
+vi.mock('next-auth/react', () => ({ signIn: vi.fn(), signOut: vi.fn() }));
 
 // Animations off, so every view renders its final state at once.
 beforeEach(() => {
@@ -35,6 +37,8 @@ describe('axe: feature views', () => {
     ['Settings', <SettingsView key="settings" />],
     ['Focus', <FocusView key="focus" />],
     ['Pebble', <PebbleCharacter key="pebble" />],
+    ['Sign in', <SignInView key="signin" providers={['github', 'google', 'dev']} callbackUrl="/today" />],
+    ['Account', <AccountSection key="account" name="Sam" userId="github:42" />],
   ])('%s has no violations', async (_, ui) => {
     await expectNoViolations(ui);
   });

@@ -35,12 +35,9 @@ class Settings(BaseSettings):
     immersive_reader_client_secret: str = ""
     immersive_reader_subdomain: str = ""
 
-    # Microsoft Entra ID sign-in (replaced by Auth.js in roadmap 4.3)
-    azure_ad_client_id: str = ""
-    azure_ad_tenant_id: str = ""
-
-    # Dev mode (bypasses JWT auth for local demos; removed in 4.3)
-    dev_mode: bool = False
+    # Sign-in: the secret the Next.js server signs each request's access token with (the frontend's
+    # AUTH_TOKEN_SECRET, the same value). Empty: every signed-in endpoint answers 503.
+    auth_token_secret: str = ""
 
     # CORS
     frontend_url: str = "http://localhost:3000"

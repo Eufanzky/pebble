@@ -17,7 +17,7 @@ uv run alembic upgrade head    # create or update the tables
 uv run uvicorn app.main:app --port 8000 --reload
 ```
 
-The API is at **http://localhost:8000**, with Swagger UI at **/docs**. The frontend (`cd pebble && npm run dev`) calls it through its `/api` rewrite. For the frontend's chat to work locally, set `DEV_MODE=true`: the frontend doesn't sign in yet (roadmap 4.3).
+The API is at **http://localhost:8000**, with Swagger UI at **/docs**. The frontend (`cd pebble && npm run dev`) calls it through its `/api` proxy route, signed as the user; set `AUTH_TOKEN_SECRET` to the same value in both `.env` files.
 
 After changing dependencies, run `uv lock` and commit `uv.lock`.
 
@@ -174,7 +174,7 @@ backend/
 │       ├── errors.py           # use-case errors to HTTP
 │       ├── presenters.py       # results to camelCase JSON
 │       ├── middleware.py       # request logging
-│       ├── auth.py             # Entra ID JWT validation (DEV_MODE bypass)
+│       ├── auth.py             # get_current_user: verifies the Next.js server's short-lived token
 │       ├── routers/            # agents, documents, tasks, preferences, activity
 │       └── schemas/            # request/response models
 ├── migrations/                 # Alembic (env.py, versions/); config in alembic.ini
@@ -186,4 +186,13 @@ backend/
 
 ## Authentication
 
-Every endpoint except `/api/health` requires a Microsoft Entra ID bearer token (`api/auth.py`). With `DEV_MODE=true`, validation is skipped and the user is `dev-user-00000000`. Roadmap 4.3 replaces both with Auth.js sign-in and short-lived backend tokens.
+Users sign in with Auth.js in the Next.js app (GitHub, Google, or a dev login for local use and E2E). The browser never talks to this backend directly: the Next.js server proxies every `/api/*` call and adds a bearer token it signs for that request (HS256 with `AUTH_TOKEN_SECRET`, 5 minutes; `sub` is the user id such as `github:123`, `iss` is `pebble-web`, `aud` is `pebble-api`).
+
+`get_current_user` (`api/auth.py`) verifies it on every endpoint except `/api/health`:
+
+| Case | Status |
+|:--|:--|
+| No token, a bad signature, expired, wrong issuer or audience, no `sub`/`exp`/`iat` | 401 |
+| `AUTH_TOKEN_SECRET` not set | 503 "Sign-in isn't set up yet." |
+
+There is no bypass; `DEV_MODE` and Entra ID are gone.

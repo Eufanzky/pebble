@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, File, HTTPException, UploadFile
 
-from app.api.auth import get_current_user_id
+from app.api.auth import get_current_user
 from app.api.dependencies import get_parse_document, get_reader
 from app.api.schemas.documents import ParsedDocumentResponse, ReaderTokenResponse
 from app.application.documents import MAX_DOCUMENT_BYTES, ParseDocument
@@ -12,7 +12,7 @@ router = APIRouter()
 @router.post("/parse", response_model=ParsedDocumentResponse, summary="Read a document's text")
 async def parse(
     file: UploadFile = File(..., description="PDF, Word (.docx) or plain-text file. Max 10 MB."),
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_current_user),
     parse_document: ParseDocument = Depends(get_parse_document),
 ):
     """
@@ -28,7 +28,7 @@ async def parse(
 
 @router.get("/immersive-reader/token", response_model=ReaderTokenResponse, summary="Get an Immersive Reader token")
 async def immersive_reader_token(
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_current_user),
     reader: ReaderTokenProvider = Depends(get_reader),
 ):
     """

@@ -2,8 +2,7 @@
 
 import pytest
 
-from app.api.auth import get_current_user_id
-from app.infrastructure.config import settings
+from app.api.auth import get_current_user
 from app.infrastructure.db.preferences import UnconfiguredPreferencesRepository
 
 URL = "/api/preferences"
@@ -23,7 +22,7 @@ def signed_in(app):
     class SignedIn:
         user = "user-a"
 
-    app.dependency_overrides[get_current_user_id] = lambda: SignedIn.user
+    app.dependency_overrides[get_current_user] = lambda: SignedIn.user
     return SignedIn
 
 
@@ -58,9 +57,7 @@ async def test_users_have_their_own_preferences(client, signed_in):
     assert (await client.get(URL)).json() == DEFAULTS
 
 
-async def test_preferences_need_a_signed_in_user(client, monkeypatch):
-    monkeypatch.setattr(settings, "dev_mode", False)
-
+async def test_preferences_need_a_signed_in_user(client):
     assert (await client.get(URL)).status_code == 401
     assert (await client.patch(URL, json={})).status_code == 401
 

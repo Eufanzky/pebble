@@ -7,7 +7,7 @@ import { TasksProvider } from '@/features/tasks';
 import { ActivityLogProvider } from '@/features/activity';
 import { ToastProvider } from '@/shared/ui/ToastContext';
 
-// The same provider tree as app/_shell/AppShell, without the layout around it.
+// The same provider tree as app/(app)/_shell/AppShell, without the layout around it.
 export function AppProviders({ children }: { children: ReactNode }) {
   return (
     <PreferencesProvider>

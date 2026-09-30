@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, Response, status
 
-from app.api.auth import get_current_user_id
+from app.api.auth import get_current_user
 from app.api.dependencies import get_tasks
 from app.api.presenters import task_data
 from app.api.schemas.tasks import SubtasksReplace, SubtaskUpdate, TaskCreate, TaskOut, TaskUpdate
@@ -21,14 +21,14 @@ FIELDS = {
 
 
 @router.get("", response_model=list[TaskOut], summary="List your tasks")
-async def list_tasks(user_id: str = Depends(get_current_user_id), tasks: Tasks = Depends(get_tasks)):
+async def list_tasks(user_id: str = Depends(get_current_user), tasks: Tasks = Depends(get_tasks)):
     """Your tasks in the order you added them, each with its steps (`subtasks`)."""
     return [task_data(task) for task in await tasks.list(user_id)]
 
 
 @router.post("", response_model=TaskOut, status_code=status.HTTP_201_CREATED, summary="Add a task")
 async def add_task(
-    body: TaskCreate, user_id: str = Depends(get_current_user_id), tasks: Tasks = Depends(get_tasks)
+    body: TaskCreate, user_id: str = Depends(get_current_user), tasks: Tasks = Depends(get_tasks)
 ):
     """Add a task to the end of your list. Pebble picks the ids of the task and its steps."""
     task = Task(
@@ -48,7 +48,7 @@ async def add_task(
 async def update_task(
     task_id: str,
     body: TaskUpdate,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_current_user),
     tasks: Tasks = Depends(get_tasks),
 ):
     """Change only the fields you send, for example `{"completed": true}`."""
@@ -57,13 +57,13 @@ async def update_task(
 
 
 @router.delete("/{task_id}", status_code=status.HTTP_204_NO_CONTENT, summary="Remove a task")
-async def delete_task(task_id: str, user_id: str = Depends(get_current_user_id), tasks: Tasks = Depends(get_tasks)):
+async def delete_task(task_id: str, user_id: str = Depends(get_current_user), tasks: Tasks = Depends(get_tasks)):
     await tasks.delete(user_id, task_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
 @router.delete("", status_code=status.HTTP_204_NO_CONTENT, summary="Clear your list")
-async def clear_tasks(user_id: str = Depends(get_current_user_id), tasks: Tasks = Depends(get_tasks)):
+async def clear_tasks(user_id: str = Depends(get_current_user), tasks: Tasks = Depends(get_tasks)):
     """Remove every task on your list."""
     await tasks.clear(user_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
@@ -73,7 +73,7 @@ async def clear_tasks(user_id: str = Depends(get_current_user_id), tasks: Tasks 
 async def replace_subtasks(
     task_id: str,
     body: SubtasksReplace,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_current_user),
     tasks: Tasks = Depends(get_tasks),
 ):
     """Set a task's steps, for example from a CalmSense breakdown. The new steps start open."""
@@ -86,7 +86,7 @@ async def update_subtask(
     task_id: str,
     subtask_id: str,
     body: SubtaskUpdate,
-    user_id: str = Depends(get_current_user_id),
+    user_id: str = Depends(get_current_user),
     tasks: Tasks = Depends(get_tasks),
 ):
     """Finishing the last open step also finishes the task. Unticking a step never reopens it."""
