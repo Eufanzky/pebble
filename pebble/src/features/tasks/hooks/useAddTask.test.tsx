@@ -1,19 +1,22 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { act, renderHookWithProviders } from '@/test/render';
+import { act, renderHookWithProviders, waitFor } from '@/test/render';
 import { useActivityLog } from '@/features/activity';
 import { useTasks } from '../context/TasksContext';
 import { newTask, seed } from '../testing';
 import { useAddTask } from './useAddTask';
 
-function renderAddTask() {
-  return renderHookWithProviders(() => ({
+async function renderAddTask() {
+  const rendered = renderHookWithProviders(() => ({
     ...useAddTask(),
     tasks: useTasks().tasks,
+    loading: useTasks().isLoading,
     entries: useActivityLog().entries,
   }));
+  await waitFor(() => expect(rendered.result.current.loading).toBe(false));
+  return rendered;
 }
 
-function type(result: ReturnType<typeof renderAddTask>['result'], text: string) {
+function type(result: Awaited<ReturnType<typeof renderAddTask>>['result'], text: string) {
   act(() => result.current.setInput(text));
   act(() => result.current.submit());
 }
@@ -21,8 +24,8 @@ function type(result: ReturnType<typeof renderAddTask>['result'], text: string) 
 beforeEach(() => seed([newTask('Existing')]));
 
 describe('useAddTask', () => {
-  it('adds a task and clears the field', () => {
-    const { result } = renderAddTask();
+  it('adds a task and clears the field', async () => {
+    const { result } = await renderAddTask();
 
     type(result, '  Email Sam  ');
 
@@ -32,16 +35,16 @@ describe('useAddTask', () => {
     expect(result.current.entries[0]).toMatchObject({ agent: 'CalmSense', action: "New task added: 'Email Sam'" });
   });
 
-  it('ignores a blank entry', () => {
-    const { result } = renderAddTask();
+  it('ignores a blank entry', async () => {
+    const { result } = await renderAddTask();
 
     type(result, '   ');
 
     expect(result.current.tasks).toHaveLength(1);
   });
 
-  it('offers support instead of adding a task on distress', () => {
-    const { result } = renderAddTask();
+  it('offers support instead of adding a task on distress', async () => {
+    const { result } = await renderAddTask();
 
     type(result, "I can't do this");
 
@@ -51,8 +54,8 @@ describe('useAddTask', () => {
     expect(result.current.entries[0]).toMatchObject({ agent: 'CalmSense', action: expect.stringContaining('Distress') });
   });
 
-  it('starts fresh with one breathing task', () => {
-    const { result } = renderAddTask();
+  it('starts fresh with one breathing task', async () => {
+    const { result } = await renderAddTask();
     type(result, "I'm overwhelmed");
 
     act(() => result.current.startFresh());
@@ -62,8 +65,8 @@ describe('useAddTask', () => {
     expect(result.current.tasks[0]).toMatchObject({ title: 'Take 5 minutes to breathe', tag: 'wellbeing' });
   });
 
-  it('keeps the tasks when the user is okay to go on', () => {
-    const { result } = renderAddTask();
+  it('keeps the tasks when the user is okay to go on', async () => {
+    const { result } = await renderAddTask();
     type(result, 'too much');
 
     act(() => result.current.keepGoing());

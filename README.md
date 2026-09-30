@@ -271,7 +271,7 @@ See [**backend/README.md**](backend/README.md) for full API endpoint documentati
 | `GET/PATCH /api/preferences` | Your saved preferences |
 | `GET/POST /api/activity` | Your activity log; the agents write their own entries |
 
-The frontend still keeps tasks, preferences and the activity log in the browser; roadmap 4.4 and 4.5 move them to the API.
+The frontend loads and saves tasks through the API (TanStack Query, optimistic updates). Preferences and the activity log move over in roadmap 4.5.
 
 ---
 

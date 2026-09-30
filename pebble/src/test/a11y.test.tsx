@@ -9,6 +9,7 @@ import { DocumentsView } from '@/features/documents';
 import { FocusView } from '@/features/focus';
 import { SettingsView } from '@/features/settings';
 import { TodayView } from '@/features/tasks';
+import { newTask, seed } from '@/features/tasks/testing';
 import { act, renderHookWithProviders, renderWithProviders, screen } from './render';
 import { usePreferences } from '@/shared/preferences';
 
@@ -56,8 +57,14 @@ describe('axe: interactive states', () => {
   });
 
   it('a task broken down, with its explanation open', async () => {
+    seed([
+      newTask('Read Chapter 4', {
+        whyExplanation: 'One step per section.',
+        subtasks: [{ id: 's', title: 'Skim the headings', timeEstimate: '~5 min', completed: false }],
+      }),
+    ]);
     const { container, user } = renderWithProviders(<TodayView />);
-    await user.click(screen.getAllByRole('button', { name: /Break down/ })[0]);
+    await user.click((await screen.findAllByRole('button', { name: /Break down/ }))[0]);
     await user.click(screen.getAllByRole('button', { name: /Why did Pebble do this\?/ })[0]);
 
     expect(await axe(container)).toHaveNoViolations();

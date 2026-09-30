@@ -15,6 +15,8 @@ async function devLogin(page: Page, path = '/today') {
 
 async function freshStart(page: Page) {
   await devLogin(page);
+  // The e2e user's tasks live in Postgres and outlast a run: start from an empty list
+  expect((await page.request.delete('/api/tasks')).status()).toBe(204);
   await page.evaluate(() => {
     window.localStorage.clear();
     // Animations off, so the flow doesn't wait on them
@@ -38,11 +40,28 @@ test('the demo flow', async ({ page }) => {
     await page.getByRole('button', { name: 'Close chat', exact: true }).click();
   });
 
+  await test.step('a new list is empty and offers example tasks', async () => {
+    await page.getByRole('button', { name: 'Add example tasks' }).click();
+    await expect(page.getByRole('button', { name: /Break down "Read Chapter 4/ })).toBeVisible();
+  });
+
   await test.step('break a task on Today into steps, and finish one', async () => {
     await page.getByRole('button', { name: /Break down "Read Chapter 4/ }).click();
     const step = page.locator('.subtask-item', { hasText: 'Skim the chapter headings first' });
     await step.getByRole('button', { name: 'Check subtask' }).click();
     await expect(step.getByRole('button', { name: 'Uncheck subtask' })).toBeVisible();
+
+    // Saved in the backend: a reload shows the same list, with the step still done
+    await expect
+      .poll(async () => (await (await page.request.get('/api/tasks')).json())[0].subtasks[0].completed)
+      .toBe(true);
+    await page.reload();
+    await page.getByRole('button', { name: /Break down "Read Chapter 4/ }).click();
+    await expect(
+      page.locator('.subtask-item', { hasText: 'Skim the chapter headings first' }).getByRole('button', {
+        name: 'Uncheck subtask',
+      }),
+    ).toBeVisible();
   });
 
   await test.step('simplify a document', async () => {
@@ -57,8 +76,9 @@ test('the demo flow', async ({ page }) => {
 
   await test.step('see the agent and its "why" in the activity log', async () => {
     await page.getByRole('link', { name: /Activity/ }).click();
-    // A new user's log holds only what really happened in this flow (A-022)
-    await expect(page.getByText('Showing 4 of 4 entries')).toBeVisible();
+    // A new user's log holds only what really happened in this flow (A-022),
+    // including the second break-down after the reload
+    await expect(page.getByText('Showing 5 of 5 entries')).toBeVisible();
     const entry = page.locator('.activity-entry', { hasText: 'Reading level adjusted to 2' });
     await expect(entry.getByText('AdaptLens', { exact: true })).toBeVisible();
     await entry.getByRole('button', { name: 'Show reasoning' }).click();

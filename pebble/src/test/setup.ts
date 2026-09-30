@@ -1,8 +1,10 @@
 import '@testing-library/jest-dom/vitest';
 import { cleanup } from '@testing-library/react';
+import { notifyManager } from '@tanstack/react-query';
 import { afterAll, afterEach, beforeAll, expect } from 'vitest';
 import * as axeMatchers from 'vitest-axe/matchers';
 import { server } from './msw/server';
+import { taskStore } from './msw/tasks';
 
 expect.extend(axeMatchers);
 
@@ -20,11 +22,17 @@ if (dom) {
   Element.prototype.scrollIntoView = () => {};
 }
 
+// TanStack Query tells components about a cache change on the next tick
+// (setTimeout 0). In tests it tells them at once, inside `act`, so an
+// optimistic change is visible right after the call that made it.
+notifyManager.setScheduler((callback) => callback());
+
 // No real network in tests: a request without a handler fails the test.
 beforeAll(() => server.listen({ onUnhandledRequest: 'error' }));
 
 afterEach(() => {
   server.resetHandlers();
+  taskStore.reset();
   if (!dom) return;
   cleanup();
   window.localStorage.clear();

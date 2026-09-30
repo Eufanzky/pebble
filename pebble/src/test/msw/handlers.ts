@@ -1,5 +1,6 @@
 import { http, HttpResponse, type RequestHandler } from 'msw';
 import type { ApiSchema } from '@/shared/api';
+import { taskHandlers } from './tasks';
 
 // Handler bodies are typed from the generated API types, so a backend schema
 // change breaks these fakes at compile time instead of drifting silently.
@@ -50,4 +51,6 @@ export const documentHandlers = {
 
 // Default handlers shared by every test. Tests add their own per case with
 // `server.use(...)`.
-export const handlers: RequestHandler[] = [chatHandlers.reply(), readerHandlers.unavailable()];
+export const handlers: RequestHandler[] = [chatHandlers.reply(), readerHandlers.unavailable(), ...taskHandlers.api()];
+
+export { taskHandlers, taskStore } from './tasks';

@@ -16,6 +16,7 @@ import DistressPrompt from './DistressPrompt';
 import ProgressPath from './ProgressPath';
 import RoadmapView from './RoadmapView';
 import TaskList from './TaskList';
+import { TasksLoadFailed, TasksLoading, TasksSaveFailed } from './TasksStatus';
 import TodayGreeting from './TodayGreeting';
 import UpNextCard from './UpNextCard';
 import ViewToggle, { type ViewMode } from './ViewToggle';
@@ -23,7 +24,8 @@ import ViewToggle, { type ViewMode } from './ViewToggle';
 /** The Today screen: the task list or roadmap, Pebble, and what's up next. */
 export default function TodayView() {
   const { mood, currentMessage } = usePebble();
-  const { tasks, completionPercentage } = useTasks();
+  const { tasks, completionPercentage, isLoading, loadFailed, retry, saveFailed, dismissSaveError, addExampleTasks } =
+    useTasks();
   const { preferences, reduceMotion } = usePreferences();
   const timeOfDay = useTimeOfDay();
   const { formattedDate, hour } = useTodayClock();
@@ -48,7 +50,13 @@ export default function TodayView() {
           <ViewToggle value={viewMode} onChange={setViewMode} noMotion={noMotion} />
         </div>
 
-        {viewMode === 'list' ? (
+        {saveFailed && <TasksSaveFailed onDismiss={dismissSaveError} />}
+
+        {loadFailed ? (
+          <TasksLoadFailed onRetry={retry} />
+        ) : isLoading ? (
+          <TasksLoading />
+        ) : viewMode === 'list' ? (
           <TaskList
             open={open}
             done={done}
@@ -56,6 +64,7 @@ export default function TodayView() {
             onToggleSubtask={actions.toggleSubtask}
             onBreakDown={actions.breakDown}
             onWhyOpen={actions.openWhy}
+            onAddExamples={addExampleTasks}
           />
         ) : (
           <RoadmapView

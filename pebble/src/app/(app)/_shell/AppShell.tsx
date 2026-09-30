@@ -4,6 +4,7 @@ import { type ReactNode, useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Sidebar from './Sidebar';
 import { PreferencesProvider } from '@/shared/preferences';
+import { QueryProvider } from '@/shared/lib/query';
 import { PebbleProvider } from '@/features/companion';
 import { TasksProvider } from '@/features/tasks';
 import { ActivityLogProvider } from '@/features/activity';
@@ -82,16 +83,18 @@ function AppShellInner({ children }: { children: ReactNode }) {
 
 export default function AppShell({ children }: { children: ReactNode }) {
   return (
-    <PreferencesProvider>
-      <PebbleProvider>
-        <TasksProvider>
-          <ActivityLogProvider>
-            <ToastProvider>
-              <AppShellInner>{children}</AppShellInner>
-            </ToastProvider>
-          </ActivityLogProvider>
-        </TasksProvider>
-      </PebbleProvider>
-    </PreferencesProvider>
+    <QueryProvider>
+      <PreferencesProvider>
+        <PebbleProvider>
+          <TasksProvider>
+            <ActivityLogProvider>
+              <ToastProvider>
+                <AppShellInner>{children}</AppShellInner>
+              </ToastProvider>
+            </ActivityLogProvider>
+          </TasksProvider>
+        </PebbleProvider>
+      </PreferencesProvider>
+    </QueryProvider>
   );
 }

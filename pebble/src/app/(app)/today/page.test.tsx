@@ -1,42 +1,27 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { act, renderHookWithProviders, renderWithProviders, screen, within } from '@/test/render';
-import { usePreferences } from '@/shared/preferences';
-import { useTasks } from '@/features/tasks';
+import { renderWithProviders, screen, within } from '@/test/render';
+import { newTask, seed } from '@/features/tasks/testing';
 import TodayPage from './page';
 
-// useLocalStorage caches values at module level, so each test starts from a
-// known task list and turns off animations (the break-down shimmer waits 1.5s).
+// Each test starts from a known task list on the fake server, with animations
+// off (the break-down shimmer waits 1.5s).
 beforeEach(() => {
-  const { result, unmount } = renderHookWithProviders(() => ({ ...useTasks(), ...usePreferences() }));
-  act(() => {
-    result.current.setPreferences((prev) => ({ ...prev, reduceAnimations: true, calmMode: false }));
-    result.current.clearAll();
-    result.current.addTask({
-      title: 'Read Chapter 4',
+  seed([
+    newTask('Read Chapter 4', {
       timeEstimate: '~25 min',
-      tag: 'study',
-      priority: 'medium',
-      completed: false,
       whyExplanation: 'One step per section.',
       subtasks: [
         { id: 'st-a', title: 'Skim the headings', timeEstimate: '~5 min', completed: false },
         { id: 'st-b', title: 'Write a summary', timeEstimate: '~5 min', completed: false },
       ],
-    });
-    result.current.addTask({
-      title: 'Take a walk',
-      timeEstimate: '~10 min',
-      tag: 'wellbeing',
-      priority: 'low',
-      completed: false,
-    });
-  });
-  unmount();
+    }),
+    newTask('Take a walk', { tag: 'wellbeing', priority: 'low' }),
+  ]);
 });
 
 async function renderAndShowSteps() {
   const view = renderWithProviders(<TodayPage />);
-  await view.user.click(screen.getByRole('button', { name: 'Break down "Read Chapter 4" into subtasks' }));
+  await view.user.click(await screen.findByRole('button', { name: 'Break down "Read Chapter 4" into subtasks' }));
   return view;
 }
 

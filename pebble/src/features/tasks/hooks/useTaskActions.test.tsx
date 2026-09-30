@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { act, renderHookWithProviders } from '@/test/render';
+import { act, renderHookWithProviders, waitFor } from '@/test/render';
 import { useActivityLog } from '@/features/activity';
 import { playTaskComplete } from '@/shared/lib/audio';
 import { useTasks } from '../context/TasksContext';
@@ -8,12 +8,14 @@ import { useTaskActions } from './useTaskActions';
 
 vi.mock('@/shared/lib/audio', () => ({ playTaskComplete: vi.fn(), playChime: vi.fn() }));
 
-function renderActions() {
+async function renderActions() {
   const { result } = renderHookWithProviders(() => ({
     ...useTaskActions(),
     tasks: useTasks().tasks,
+    loading: useTasks().isLoading,
     entries: useActivityLog().entries,
   }));
+  await waitFor(() => expect(result.current.loading).toBe(false));
   const idOf = (title: string) => result.current.tasks.find((t) => t.title === title)!.id;
   return { result, idOf };
 }
@@ -26,8 +28,8 @@ beforeEach(() => {
 });
 
 describe('useTaskActions', () => {
-  it('completes a task with a chime and a specific note in the log', () => {
-    const { result, idOf } = renderActions();
+  it('completes a task with a chime and a specific note in the log', async () => {
+    const { result, idOf } = await renderActions();
 
     act(() => result.current.toggle(idOf('Read')));
 
@@ -39,8 +41,8 @@ describe('useTaskActions', () => {
     });
   });
 
-  it('unchecks a task gently and without a chime', () => {
-    const { result, idOf } = renderActions();
+  it('unchecks a task gently and without a chime', async () => {
+    const { result, idOf } = await renderActions();
 
     act(() => result.current.toggle(idOf('Walk')));
 
@@ -49,8 +51,8 @@ describe('useTaskActions', () => {
     expect(result.current.entries[0]).toMatchObject({ action: 'Unchecked "Walk". No worries — take your time.' });
   });
 
-  it('logs a break-down with the chunk-size preference', () => {
-    const { result, idOf } = renderActions();
+  it('logs a break-down with the chunk-size preference', async () => {
+    const { result, idOf } = await renderActions();
 
     act(() => result.current.breakDown(idOf('Read')));
 
@@ -60,8 +62,8 @@ describe('useTaskActions', () => {
     });
   });
 
-  it('does not log a break-down for a task without steps', () => {
-    const { result, idOf } = renderActions();
+  it('does not log a break-down for a task without steps', async () => {
+    const { result, idOf } = await renderActions();
     const before = result.current.entries.length;
 
     act(() => result.current.breakDown(idOf('Walk')));
@@ -69,24 +71,26 @@ describe('useTaskActions', () => {
     expect(result.current.entries).toHaveLength(before);
   });
 
-  it('logs opening the explanation as WhyBot', () => {
-    const { result, idOf } = renderActions();
+  it('logs opening the explanation as WhyBot', async () => {
+    const { result, idOf } = await renderActions();
 
     act(() => result.current.openWhy(idOf('Read')));
 
     expect(result.current.entries[0]).toMatchObject({ agent: 'WhyBot', action: expect.stringContaining('"Read"') });
   });
 
-  it('toggles a step', () => {
-    const { result, idOf } = renderActions();
+  it('toggles a step', async () => {
+    const { result, idOf } = await renderActions();
 
-    act(() => result.current.toggleSubtask(idOf('Read'), 's1'));
+    const read = () => result.current.tasks.find((t) => t.title === 'Read')!;
 
-    expect(result.current.tasks.find((t) => t.title === 'Read')!.subtasks![0].completed).toBe(true);
+    act(() => result.current.toggleSubtask(idOf('Read'), read().subtasks![0].id));
+
+    expect(read().subtasks![0].completed).toBe(true);
   });
 
-  it('ignores an unknown task id', () => {
-    const { result } = renderActions();
+  it('ignores an unknown task id', async () => {
+    const { result } = await renderActions();
     const before = result.current.entries.length;
 
     act(() => {

@@ -9,6 +9,10 @@ const CI = !!process.env.CI;
 // the backend checks it (roadmap 4.3).
 const AUTH_TOKEN_SECRET = 'e2e-token-secret-at-least-32-bytes-long';
 
+// Tasks live in Postgres (roadmap 4.4): a database for E2E only, migrated on start.
+// docker compose creates pebble_e2e; CI runs a service container.
+const DATABASE_URL = process.env.E2E_DATABASE_URL ?? 'postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_e2e';
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: false,
@@ -22,10 +26,10 @@ export default defineConfig({
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: [
     {
-      command: 'uv run --locked uvicorn app.main:app --port 8000',
+      command: 'uv run --locked alembic upgrade head && uv run --locked uvicorn app.main:app --port 8000',
       cwd: '../backend',
       url: 'http://localhost:8000/api/health',
-      env: { LLM_PROVIDER: 'fake', AUTH_TOKEN_SECRET },
+      env: { LLM_PROVIDER: 'fake', AUTH_TOKEN_SECRET, DATABASE_URL },
       reuseExistingServer: !CI,
       timeout: 120_000,
     },

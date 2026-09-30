@@ -1,5 +1,5 @@
 # Local Postgres for the backend (roadmap 4.1): `docker compose up -d db`.
-# The app uses the `pebble` database; the integration tests own `pebble_test`.
+# The app uses the `pebble` database; the integration tests own `pebble_test`, and E2E `pebble_e2e`.
 services:
   db:
     image: postgres:17

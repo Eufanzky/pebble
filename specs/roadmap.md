@@ -96,7 +96,7 @@ The characterization tests from 1.4 must stay green through every item in this p
   *Done:* a parametrized test proves every agent writes an activity row with its reasoning and safety status.
 - [x] **4.3 Auth.js.** Add GitHub and Google sign-in, have Next.js sign short-lived backend tokens, and add `get_current_user` in FastAPI. Remove Entra and `DEV_MODE`, and add a dev login for local use and E2E.
   *Done:* API tests cover missing, invalid, and expired tokens (401) and **user isolation** for every resource; E2E signs in with the dev login.
-- [ ] **4.4 Tasks from the API.** The tasks feature uses TanStack Query against the backend instead of localStorage.
+- [x] **4.4 Tasks from the API.** The tasks feature uses TanStack Query against the backend instead of localStorage.
   *Done:* component tests (MSW) cover loading, optimistic toggle, and rollback on error; E2E passes.
 - [ ] **4.5 Preferences and activity from the API.** Move both over, and import any existing localStorage data into the account once.
   *Done:* the one-time import is tested (runs once, idempotent); localStorage holds only UI conveniences.
