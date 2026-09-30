@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api import dependencies
 from app.api.errors import register_error_handlers
 from app.api.middleware import RequestLoggingMiddleware
-from app.api.routers import agents, documents
+from app.api.routers import agents, documents, tasks
 from app.infrastructure.config import settings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(name)s] %(levelname)s: %(message)s")
@@ -21,6 +21,7 @@ Backend for **Pebble**, a calm assistant for neurodivergent users.
   (simpler text at your reading level) or PebbleVoice (specific encouragement).
 - **Safety:** every input goes through Prompt Shields, Content Safety and PII redaction before any model
   sees it; every reply is checked again. Content Safety is optional; redaction always runs.
+- **Tasks:** each user's list and its steps, saved in Postgres.
 - **Documents:** PDF, Word and text files are parsed in memory and never stored.
 - **LLM:** Groq's free tier by default, any OpenAI-compatible provider by config, or a scripted fake
   with `LLM_PROVIDER=fake`.
@@ -31,6 +32,7 @@ Voice rules for every reply: never shame, rush or compare; be specific; short, p
 TAGS_METADATA = [
     {"name": "AI Agents", "description": "Chat with Pebble, or call CalmSense, SimplifyCore and PebbleVoice directly."},
     {"name": "Documents", "description": "Read a document's text in memory, and the optional Immersive Reader token."},
+    {"name": "Tasks", "description": "Your task list and the steps each task is broken into, saved in Postgres."},
     {"name": "Health", "description": "Server health check."},
 ]
 
@@ -59,12 +61,13 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=[settings.frontend_url],
     allow_credentials=True,
-    allow_methods=["GET", "POST", "OPTIONS"],
+    allow_methods=["GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"],
     allow_headers=["Authorization", "Content-Type"],
 )
 
 app.include_router(agents.router, prefix="/api/agents", tags=["AI Agents"])
 app.include_router(documents.router, prefix="/api/documents", tags=["Documents"])
+app.include_router(tasks.router, prefix="/api/tasks", tags=["Tasks"])
 
 
 @app.get("/api/health", tags=["Health"])

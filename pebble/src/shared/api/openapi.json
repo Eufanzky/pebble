@@ -366,6 +366,55 @@
         "title": "SimplifyResponse",
         "type": "object"
       },
+      "SubtaskIn": {
+        "properties": {
+          "timeEstimate": {
+            "default": "",
+            "maxLength": 50,
+            "title": "Timeestimate",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "title": "SubtaskIn",
+        "type": "object"
+      },
+      "SubtaskOut": {
+        "properties": {
+          "completed": {
+            "title": "Completed",
+            "type": "boolean"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "timeEstimate": {
+            "title": "Timeestimate",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "timeEstimate",
+          "completed"
+        ],
+        "title": "SubtaskOut",
+        "type": "object"
+      },
       "SubtaskResult": {
         "properties": {
           "timeEstimate": {
@@ -382,6 +431,227 @@
           "timeEstimate"
         ],
         "title": "SubtaskResult",
+        "type": "object"
+      },
+      "SubtaskUpdate": {
+        "properties": {
+          "completed": {
+            "title": "Completed",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "completed"
+        ],
+        "title": "SubtaskUpdate",
+        "type": "object"
+      },
+      "SubtasksReplace": {
+        "properties": {
+          "subtasks": {
+            "items": {
+              "$ref": "#/components/schemas/SubtaskIn"
+            },
+            "maxItems": 50,
+            "title": "Subtasks",
+            "type": "array"
+          }
+        },
+        "required": [
+          "subtasks"
+        ],
+        "title": "SubtasksReplace",
+        "type": "object"
+      },
+      "TaskCreate": {
+        "properties": {
+          "completed": {
+            "default": false,
+            "title": "Completed",
+            "type": "boolean"
+          },
+          "priority": {
+            "$ref": "#/components/schemas/TaskPriority",
+            "default": "medium"
+          },
+          "subtasks": {
+            "items": {
+              "$ref": "#/components/schemas/SubtaskIn"
+            },
+            "maxItems": 50,
+            "title": "Subtasks",
+            "type": "array"
+          },
+          "tag": {
+            "$ref": "#/components/schemas/TaskTag",
+            "default": "project"
+          },
+          "timeEstimate": {
+            "default": "",
+            "maxLength": 50,
+            "title": "Timeestimate",
+            "type": "string"
+          },
+          "title": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Title",
+            "type": "string"
+          },
+          "whyExplanation": {
+            "default": "",
+            "maxLength": 5000,
+            "title": "Whyexplanation",
+            "type": "string"
+          }
+        },
+        "required": [
+          "title"
+        ],
+        "title": "TaskCreate",
+        "type": "object"
+      },
+      "TaskOut": {
+        "properties": {
+          "completed": {
+            "title": "Completed",
+            "type": "boolean"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "priority": {
+            "$ref": "#/components/schemas/TaskPriority"
+          },
+          "subtasks": {
+            "items": {
+              "$ref": "#/components/schemas/SubtaskOut"
+            },
+            "title": "Subtasks",
+            "type": "array"
+          },
+          "tag": {
+            "$ref": "#/components/schemas/TaskTag"
+          },
+          "timeEstimate": {
+            "title": "Timeestimate",
+            "type": "string"
+          },
+          "title": {
+            "title": "Title",
+            "type": "string"
+          },
+          "whyExplanation": {
+            "title": "Whyexplanation",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "title",
+          "timeEstimate",
+          "tag",
+          "priority",
+          "completed",
+          "whyExplanation",
+          "subtasks"
+        ],
+        "title": "TaskOut",
+        "type": "object"
+      },
+      "TaskPriority": {
+        "enum": [
+          "high",
+          "medium",
+          "low"
+        ],
+        "title": "TaskPriority",
+        "type": "string"
+      },
+      "TaskTag": {
+        "enum": [
+          "study",
+          "communication",
+          "project",
+          "wellbeing"
+        ],
+        "title": "TaskTag",
+        "type": "string"
+      },
+      "TaskUpdate": {
+        "description": "Only the fields sent are changed.",
+        "properties": {
+          "completed": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Completed"
+          },
+          "priority": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TaskPriority"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "tag": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/TaskTag"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "timeEstimate": {
+            "anyOf": [
+              {
+                "maxLength": 50,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Timeestimate"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "maxLength": 500,
+                "minLength": 1,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Title"
+          },
+          "whyExplanation": {
+            "anyOf": [
+              {
+                "maxLength": 5000,
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Whyexplanation"
+          }
+        },
+        "title": "TaskUpdate",
         "type": "object"
       },
       "ValidationError": {
@@ -433,7 +703,7 @@
     }
   },
   "info": {
-    "description": "\nBackend for **Pebble**, a calm assistant for neurodivergent users.\n\n- **Agents:** the orchestrator routes each chat message to CalmSense (task breakdown), SimplifyCore\n  (simpler text at your reading level) or PebbleVoice (specific encouragement).\n- **Safety:** every input goes through Prompt Shields, Content Safety and PII redaction before any model\n  sees it; every reply is checked again. Content Safety is optional; redaction always runs.\n- **Documents:** PDF, Word and text files are parsed in memory and never stored.\n- **LLM:** Groq's free tier by default, any OpenAI-compatible provider by config, or a scripted fake\n  with `LLM_PROVIDER=fake`.\n\nVoice rules for every reply: never shame, rush or compare; be specific; short, plain sentences.\n",
+    "description": "\nBackend for **Pebble**, a calm assistant for neurodivergent users.\n\n- **Agents:** the orchestrator routes each chat message to CalmSense (task breakdown), SimplifyCore\n  (simpler text at your reading level) or PebbleVoice (specific encouragement).\n- **Safety:** every input goes through Prompt Shields, Content Safety and PII redaction before any model\n  sees it; every reply is checked again. Content Safety is optional; redaction always runs.\n- **Tasks:** each user's list and its steps, saved in Postgres.\n- **Documents:** PDF, Word and text files are parsed in memory and never stored.\n- **LLM:** Groq's free tier by default, any OpenAI-compatible provider by config, or a scripted fake\n  with `LLM_PROVIDER=fake`.\n\nVoice rules for every reply: never shame, rush or compare; be specific; short, plain sentences.\n",
     "license": {
       "name": "MIT"
     },
@@ -724,6 +994,321 @@
           "Health"
         ]
       }
+    },
+    "/api/tasks": {
+      "delete": {
+        "description": "Remove every task on your list.",
+        "operationId": "clear_tasks_api_tasks_delete",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Clear your list",
+        "tags": [
+          "Tasks"
+        ]
+      },
+      "get": {
+        "description": "Your tasks in the order you added them, each with its steps (`subtasks`).",
+        "operationId": "list_tasks_api_tasks_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TaskOut"
+                  },
+                  "title": "Response List Tasks Api Tasks Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "List your tasks",
+        "tags": [
+          "Tasks"
+        ]
+      },
+      "post": {
+        "description": "Add a task to the end of your list. Pebble picks the ids of the task and its steps.",
+        "operationId": "add_task_api_tasks_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskCreate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Add a task",
+        "tags": [
+          "Tasks"
+        ]
+      }
+    },
+    "/api/tasks/{task_id}": {
+      "delete": {
+        "operationId": "delete_task_api_tasks__task_id__delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "title": "Task Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Remove a task",
+        "tags": [
+          "Tasks"
+        ]
+      },
+      "patch": {
+        "description": "Change only the fields you send, for example `{\"completed\": true}`.",
+        "operationId": "update_task_api_tasks__task_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "title": "Task Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TaskUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Change a task",
+        "tags": [
+          "Tasks"
+        ]
+      }
+    },
+    "/api/tasks/{task_id}/subtasks": {
+      "put": {
+        "description": "Set a task's steps, for example from a CalmSense breakdown. The new steps start open.",
+        "operationId": "replace_subtasks_api_tasks__task_id__subtasks_put",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "title": "Task Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubtasksReplace"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Replace a task's steps",
+        "tags": [
+          "Tasks"
+        ]
+      }
+    },
+    "/api/tasks/{task_id}/subtasks/{subtask_id}": {
+      "patch": {
+        "description": "Finishing the last open step also finishes the task. Unticking a step never reopens it.",
+        "operationId": "update_subtask_api_tasks__task_id__subtasks__subtask_id__patch",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "title": "Task Id",
+              "type": "string"
+            }
+          },
+          {
+            "in": "path",
+            "name": "subtask_id",
+            "required": true,
+            "schema": {
+              "title": "Subtask Id",
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubtaskUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Tick a step on or off",
+        "tags": [
+          "Tasks"
+        ]
+      }
     }
   },
   "tags": [
@@ -734,6 +1319,10 @@
     {
       "description": "Read a document's text in memory, and the optional Immersive Reader token.",
       "name": "Documents"
+    },
+    {
+      "description": "Your task list and the steps each task is broken into, saved in Postgres.",
+      "name": "Tasks"
     },
     {
       "description": "Server health check.",

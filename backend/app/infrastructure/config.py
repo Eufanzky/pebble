@@ -15,6 +15,10 @@ class Settings(BaseSettings):
     llm_reasoning_effort: str = ""  # empty: low on Groq, not sent elsewhere; low | medium | high for reasoning models
     llm_timeout_seconds: float = 30.0
 
+    # Postgres, e.g. postgresql+asyncpg://pebble:pebble@localhost:5432/pebble (docker compose).
+    # Empty: nothing is saved, and the task endpoints answer 503.
+    database_url: str = ""
+
     # Azure OpenAI, when LLM_PROVIDER=azure
     azure_openai_endpoint: str = ""
     azure_openai_key: str = ""

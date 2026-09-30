@@ -10,10 +10,13 @@ from app.application.errors import AgentReplyError, PromptAttackError, UnsafeCon
 from app.application.ports.documents import DocumentError, UnsupportedDocumentError
 from app.application.ports.llm import LLMError, LLMRateLimitedError
 from app.application.ports.safety import SafetyCheckError
+from app.application.ports.tasks import PersistenceError
+from app.application.tasks import TaskNotFoundError
 
 logger = logging.getLogger("pebble.api")
 
 UNAVAILABLE = "Pebble couldn't answer just now. Try again in a little while."
+NOT_SAVED = "Pebble couldn't reach your saved tasks just now. Try again in a little while."
 RESTING = "Pebble is resting for a moment. Try again in a little while."
 
 
@@ -47,11 +50,22 @@ async def _document(_: Request, exc: Exception) -> JSONResponse:
     return _detail(422, str(exc))
 
 
+async def _not_found(_: Request, exc: Exception) -> JSONResponse:
+    return _detail(404, str(exc))
+
+
+async def _persistence(_: Request, exc: Exception) -> JSONResponse:
+    logger.warning("Database unavailable: %s", exc)
+    return _detail(503, NOT_SAVED)
+
+
 def register_error_handlers(app: FastAPI) -> None:
     app.add_exception_handler(DocumentError, _document)
     app.add_exception_handler(PromptAttackError, _rejected_input)
     app.add_exception_handler(UnsafeContentError, _rejected_input)
     app.add_exception_handler(UnsafeOutputError, _unsafe_output)
     app.add_exception_handler(LLMRateLimitedError, _rate_limited)
+    app.add_exception_handler(TaskNotFoundError, _not_found)
+    app.add_exception_handler(PersistenceError, _persistence)
     for error in (LLMError, SafetyCheckError, AgentReplyError):
         app.add_exception_handler(error, _unavailable)

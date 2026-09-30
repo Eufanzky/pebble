@@ -193,6 +193,95 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/tasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * List your tasks
+         * @description Your tasks in the order you added them, each with its steps (`subtasks`).
+         */
+        get: operations["list_tasks_api_tasks_get"];
+        put?: never;
+        /**
+         * Add a task
+         * @description Add a task to the end of your list. Pebble picks the ids of the task and its steps.
+         */
+        post: operations["add_task_api_tasks_post"];
+        /**
+         * Clear your list
+         * @description Remove every task on your list.
+         */
+        delete: operations["clear_tasks_api_tasks_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tasks/{task_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Remove a task */
+        delete: operations["delete_task_api_tasks__task_id__delete"];
+        options?: never;
+        head?: never;
+        /**
+         * Change a task
+         * @description Change only the fields you send, for example `{"completed": true}`.
+         */
+        patch: operations["update_task_api_tasks__task_id__patch"];
+        trace?: never;
+    };
+    "/api/tasks/{task_id}/subtasks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Replace a task's steps
+         * @description Set a task's steps, for example from a CalmSense breakdown. The new steps start open.
+         */
+        put: operations["replace_subtasks_api_tasks__task_id__subtasks_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/tasks/{task_id}/subtasks/{subtask_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /**
+         * Tick a step on or off
+         * @description Finishing the last open step also finishes the task. Unticking a step never reopens it.
+         */
+        patch: operations["update_subtask_api_tasks__task_id__subtasks__subtask_id__patch"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -378,12 +467,112 @@ export interface components {
             /** Whyexplanation */
             whyExplanation: string;
         };
+        /** SubtaskIn */
+        SubtaskIn: {
+            /**
+             * Timeestimate
+             * @default
+             */
+            timeEstimate: string;
+            /** Title */
+            title: string;
+        };
+        /** SubtaskOut */
+        SubtaskOut: {
+            /** Completed */
+            completed: boolean;
+            /** Id */
+            id: string;
+            /** Timeestimate */
+            timeEstimate: string;
+            /** Title */
+            title: string;
+        };
         /** SubtaskResult */
         SubtaskResult: {
             /** Timeestimate */
             timeEstimate: string;
             /** Title */
             title: string;
+        };
+        /** SubtaskUpdate */
+        SubtaskUpdate: {
+            /** Completed */
+            completed: boolean;
+        };
+        /** SubtasksReplace */
+        SubtasksReplace: {
+            /** Subtasks */
+            subtasks: components["schemas"]["SubtaskIn"][];
+        };
+        /** TaskCreate */
+        TaskCreate: {
+            /**
+             * Completed
+             * @default false
+             */
+            completed: boolean;
+            /** @default medium */
+            priority: components["schemas"]["TaskPriority"];
+            /** Subtasks */
+            subtasks?: components["schemas"]["SubtaskIn"][];
+            /** @default project */
+            tag: components["schemas"]["TaskTag"];
+            /**
+             * Timeestimate
+             * @default
+             */
+            timeEstimate: string;
+            /** Title */
+            title: string;
+            /**
+             * Whyexplanation
+             * @default
+             */
+            whyExplanation: string;
+        };
+        /** TaskOut */
+        TaskOut: {
+            /** Completed */
+            completed: boolean;
+            /** Id */
+            id: string;
+            priority: components["schemas"]["TaskPriority"];
+            /** Subtasks */
+            subtasks: components["schemas"]["SubtaskOut"][];
+            tag: components["schemas"]["TaskTag"];
+            /** Timeestimate */
+            timeEstimate: string;
+            /** Title */
+            title: string;
+            /** Whyexplanation */
+            whyExplanation: string;
+        };
+        /**
+         * TaskPriority
+         * @enum {string}
+         */
+        TaskPriority: "high" | "medium" | "low";
+        /**
+         * TaskTag
+         * @enum {string}
+         */
+        TaskTag: "study" | "communication" | "project" | "wellbeing";
+        /**
+         * TaskUpdate
+         * @description Only the fields sent are changed.
+         */
+        TaskUpdate: {
+            /** Completed */
+            completed?: boolean | null;
+            priority?: components["schemas"]["TaskPriority"] | null;
+            tag?: components["schemas"]["TaskTag"] | null;
+            /** Timeestimate */
+            timeEstimate?: string | null;
+            /** Title */
+            title?: string | null;
+            /** Whyexplanation */
+            whyExplanation?: string | null;
         };
         /** ValidationError */
         ValidationError: {
@@ -608,6 +797,212 @@ export interface operations {
                 };
                 content: {
                     "application/json": unknown;
+                };
+            };
+        };
+    };
+    list_tasks_api_tasks_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskOut"][];
+                };
+            };
+        };
+    };
+    add_task_api_tasks_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaskCreate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    clear_tasks_api_tasks_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    delete_task_api_tasks__task_id__delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_task_api_tasks__task_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TaskUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    replace_subtasks_api_tasks__task_id__subtasks_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubtasksReplace"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    update_subtask_api_tasks__task_id__subtasks__subtask_id__patch: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                task_id: string;
+                subtask_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubtaskUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
         };

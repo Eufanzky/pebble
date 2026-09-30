@@ -6,6 +6,8 @@ container with fakes through ``set_container()``.
 
 from dataclasses import dataclass, field
 
+from sqlalchemy.ext.asyncio import AsyncEngine
+
 from app.application.agents.calmsense import DecomposeTask
 from app.application.agents.orchestrator import HandleChat
 from app.application.agents.pebblevoice import Encourage
@@ -15,8 +17,12 @@ from app.application.ports.documents import DocumentParser
 from app.application.ports.llm import LLMProvider
 from app.application.ports.reader import ReaderTokenProvider
 from app.application.ports.safety import PIIRedactor, SafetyChecker
+from app.application.ports.tasks import TaskRepository
 from app.application.safety import SafetyGate
+from app.application.tasks import Tasks
 from app.infrastructure.config import Settings, settings
+from app.infrastructure.db.engine import build_engine, build_sessions
+from app.infrastructure.db.tasks import SqlTaskRepository, UnconfiguredTaskRepository
 from app.infrastructure.immersive_reader import UnconfiguredReader, build_reader
 from app.infrastructure.llm.factory import build_llm_provider
 from app.infrastructure.parsing.local_parser import LocalDocumentParser
@@ -31,14 +37,20 @@ class Container:
     pii_redactor: PIIRedactor = field(default_factory=RegexPIIRedactor)
     document_parser: DocumentParser = field(default_factory=LocalDocumentParser)
     reader: ReaderTokenProvider = field(default_factory=UnconfiguredReader)
+    task_repository: TaskRepository = field(default_factory=UnconfiguredTaskRepository)
+    engine: AsyncEngine | None = None
 
     @classmethod
     def from_settings(cls, config: Settings) -> "Container":
-        return cls(
+        container = cls(
             llm=build_llm_provider(config),
             safety_checker=build_safety_checker(config),
             reader=build_reader(config),
         )
+        if config.database_url:
+            container.engine = build_engine(config.database_url)
+            container.task_repository = SqlTaskRepository(build_sessions(container.engine))
+        return container
 
     @property
     def gate(self) -> SafetyGate:
@@ -61,6 +73,10 @@ class Container:
         return ParseDocument(self.document_parser)
 
     @property
+    def tasks(self) -> Tasks:
+        return Tasks(self.task_repository)
+
+    @property
     def handle_chat(self) -> HandleChat:
         return HandleChat(self.llm, self.gate, self.decompose_task, self.simplify_document, self.encourage)
 
@@ -69,6 +85,8 @@ class Container:
             close = getattr(adapter, "aclose", None)
             if close is not None:
                 await close()
+        if self.engine is not None:
+            await self.engine.dispose()
 
 
 _container: Container | None = None
@@ -108,3 +126,7 @@ def get_parse_document() -> ParseDocument:
 
 def get_reader() -> ReaderTokenProvider:
     return get_container().reader
+
+
+def get_tasks() -> Tasks:
+    return get_container().tasks

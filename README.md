@@ -152,6 +152,7 @@ Every message goes through Prompt Shields, Content Safety (severity ≥ 2 is rej
 | **Node.js** | 22.13+ (Vitest and jsdom need it) |
 | **Python** | 3.12+ |
 | **uv** | [Install guide](https://docs.astral.sh/uv/getting-started/installation/) |
+| **Docker** | Optional: runs Postgres with `docker compose` (saved tasks) |
 | **Azure account** | With services provisioned (see backend setup) |
 
 ### 🖥️ Frontend
@@ -185,13 +186,17 @@ uv sync
 # 2. Configure: set LLM_API_KEY to a free Groq key (console.groq.com/keys), or LLM_PROVIDER=fake
 cp .env.example .env
 
-# 3. Start the server
+# 3. Optional: Postgres for saved tasks (from the repo root), then the migrations
+docker compose up -d db
+uv run alembic upgrade head
+
+# 4. Start the server
 uv run uvicorn app.main:app --port 8000 --reload
 ```
 
-Run the backend tests with `uv run pytest` and the linter with `uv run ruff check`.
+Without Postgres the app still runs; only the task endpoints answer 503. Run the backend tests with `uv run pytest` and the linter with `uv run ruff check`. The integration tests need a database they can wipe: `TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test uv run pytest` (without it they skip).
 
-CI (`.github/workflows/ci.yml`) runs the same checks on every pull request and on `main`: frontend lint, `tsc --noEmit`, tests and build; backend `ruff check`, and `pytest` with coverage floors (80% overall, 90% on the domain and application layers).
+CI (`.github/workflows/ci.yml`) runs the same checks on every pull request and on `main`: frontend lint, `tsc --noEmit`, tests and build; backend `ruff check`, and `pytest` against a Postgres service container with coverage floors (80% overall, 90% on the domain and application layers).
 
 The API runs at **http://localhost:8000**. Swagger docs at **http://localhost:8000/docs**.
 
@@ -237,10 +242,12 @@ Focusbuddy/
 │   │   ├── application/             # Use cases, ports, prompts
 │   │   ├── infrastructure/          # Adapters for the ports, settings (config.py)
 │   │   └── api/                     # Routers, schemas, auth, wiring
+│   ├── migrations/                  # Alembic migrations (alembic.ini next to it)
 │   ├── tests/                       # pytest suite
 │   ├── pyproject.toml               # Dependencies (uv), pytest and ruff config
 │   ├── uv.lock
 │   └── .env.example
+├── docker-compose.yml               # Local Postgres
 ├── 📐 docs/
 │   ├── architecture.png             # System architecture diagram
 │   └── Pebble_Original_English.pptx # Presentation slides
@@ -259,8 +266,10 @@ See [**backend/README.md**](backend/README.md) for full API endpoint documentati
 | `POST /api/agents/{decompose,simplify,motivate}` | Call CalmSense, SimplifyCore or PebbleVoice directly |
 | `POST /api/documents/parse` | Read a PDF, Word or text file's text (in memory, never stored) |
 | `GET /api/documents/immersive-reader/token` | Optional Immersive Reader token |
+| `GET/POST/DELETE /api/tasks`, `PATCH/DELETE /api/tasks/{id}` | Your saved tasks (Postgres) |
+| `PUT /api/tasks/{id}/subtasks`, `PATCH /api/tasks/{id}/subtasks/{subtaskId}` | Set a task's steps, tick one off |
 
-Tasks, preferences and the activity log live in the browser for now; roadmap phase 4 moves them to Postgres.
+The frontend still keeps tasks, preferences and the activity log in the browser; the rest of roadmap phase 4 moves them to the API.
 
 ---
 

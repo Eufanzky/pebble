@@ -5,7 +5,7 @@ transport doesn't run the lifespan, so no Azure service (Cosmos, telemetry) is
 initialised and no test touches the network.
 
 Every test runs with a container of fakes (``FakeLLM``, ``ScriptedSafety``, the real
-regex PII redactor), so no test can reach a provider configured in a developer's
+regex PII redactor, an in-memory task store), so no test can reach a provider configured in a developer's
 ``.env``.
 """
 
@@ -17,13 +17,13 @@ from httpx import ASGITransport, AsyncClient
 
 from app.api.dependencies import Container, set_container
 from app.infrastructure.llm.fake import FakeLLM
-from tests.fakes import ScriptedSafety
+from tests.fakes import InMemoryTaskRepository, ScriptedSafety
 
 
 @pytest.fixture(autouse=True)
 def container() -> Iterator[Container]:
-    """The adapters every test runs with: fakes for the LLM and Content Safety."""
-    fakes = Container(llm=FakeLLM(), safety_checker=ScriptedSafety())
+    """The adapters every test runs with: fakes for the LLM, Content Safety and the task store."""
+    fakes = Container(llm=FakeLLM(), safety_checker=ScriptedSafety(), task_repository=InMemoryTaskRepository())
     set_container(fakes)
     yield fakes
     set_container(None)
@@ -39,6 +39,12 @@ def llm(container: Container) -> FakeLLM:
 def safety(container: Container) -> ScriptedSafety:
     """Content Safety: everything is safe unless ``safety.flag(...)`` or ``safety.attack_on(...)``."""
     return container.safety_checker
+
+
+@pytest.fixture
+def task_repository(container: Container) -> InMemoryTaskRepository:
+    """The task store, in memory. ``tests/integration`` runs the Postgres one."""
+    return container.task_repository
 
 
 @pytest.fixture
