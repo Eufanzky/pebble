@@ -3,7 +3,7 @@
 import pytest
 
 from app.api.auth import get_current_user_id
-from app.application.ports.tasks import PersistenceError
+from app.application.ports.persistence import PersistenceError
 from app.infrastructure.config import settings
 from app.infrastructure.db.tasks import UnconfiguredTaskRepository
 

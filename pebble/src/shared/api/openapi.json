@@ -1,6 +1,85 @@
 {
   "components": {
     "schemas": {
+      "ActivityEntryIn": {
+        "description": "Something the user did that Pebble reacted to (the agents log their own results).",
+        "properties": {
+          "action": {
+            "maxLength": 500,
+            "minLength": 1,
+            "title": "Action",
+            "type": "string"
+          },
+          "agent": {
+            "$ref": "#/components/schemas/AgentName"
+          },
+          "reasoning": {
+            "default": "",
+            "maxLength": 2000,
+            "title": "Reasoning",
+            "type": "string"
+          },
+          "safetyStatus": {
+            "$ref": "#/components/schemas/SafetyStatus",
+            "default": "passed"
+          }
+        },
+        "required": [
+          "agent",
+          "action"
+        ],
+        "title": "ActivityEntryIn",
+        "type": "object"
+      },
+      "ActivityEntryOut": {
+        "properties": {
+          "action": {
+            "title": "Action",
+            "type": "string"
+          },
+          "agent": {
+            "$ref": "#/components/schemas/AgentName"
+          },
+          "id": {
+            "title": "Id",
+            "type": "string"
+          },
+          "reasoning": {
+            "title": "Reasoning",
+            "type": "string"
+          },
+          "safetyStatus": {
+            "$ref": "#/components/schemas/SafetyStatus"
+          },
+          "timestamp": {
+            "format": "date-time",
+            "title": "Timestamp",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "timestamp",
+          "agent",
+          "action",
+          "reasoning",
+          "safetyStatus"
+        ],
+        "title": "ActivityEntryOut",
+        "type": "object"
+      },
+      "AgentName": {
+        "enum": [
+          "CalmSense",
+          "SimplifyCore",
+          "PebbleVoice",
+          "AdaptLens",
+          "WhyBot",
+          "BridgeBot"
+        ],
+        "title": "AgentName",
+        "type": "string"
+      },
       "Body_parse_api_documents_parse_post": {
         "properties": {
           "file": {
@@ -109,6 +188,15 @@
         ],
         "title": "ChatResponse",
         "type": "object"
+      },
+      "ChunkSize": {
+        "enum": [
+          "small",
+          "medium",
+          "large"
+        ],
+        "title": "ChunkSize",
+        "type": "string"
       },
       "DecomposeRequest": {
         "properties": {
@@ -289,6 +377,161 @@
         "title": "ParsedDocumentResponse",
         "type": "object"
       },
+      "PebbleColor": {
+        "enum": [
+          "lavender",
+          "sage",
+          "coral",
+          "amber",
+          "sky"
+        ],
+        "title": "PebbleColor",
+        "type": "string"
+      },
+      "PebbleModel": {
+        "enum": [
+          "classic",
+          "chonky",
+          "mochi",
+          "minimal",
+          "chonky-plus",
+          "mochi-plus",
+          "minimal-plus"
+        ],
+        "title": "PebbleModel",
+        "type": "string"
+      },
+      "PebblePersonality": {
+        "enum": [
+          "gentle",
+          "playful",
+          "calm"
+        ],
+        "title": "PebblePersonality",
+        "type": "string"
+      },
+      "PreferencesOut": {
+        "properties": {
+          "calmMode": {
+            "title": "Calmmode",
+            "type": "boolean"
+          },
+          "chunkSize": {
+            "$ref": "#/components/schemas/ChunkSize"
+          },
+          "pebbleColor": {
+            "$ref": "#/components/schemas/PebbleColor"
+          },
+          "pebbleModel": {
+            "$ref": "#/components/schemas/PebbleModel"
+          },
+          "pebblePersonality": {
+            "$ref": "#/components/schemas/PebblePersonality"
+          },
+          "readingLevel": {
+            "title": "Readinglevel",
+            "type": "integer"
+          },
+          "reduceAnimations": {
+            "title": "Reduceanimations",
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "readingLevel",
+          "chunkSize",
+          "reduceAnimations",
+          "calmMode",
+          "pebbleColor",
+          "pebblePersonality",
+          "pebbleModel"
+        ],
+        "title": "PreferencesOut",
+        "type": "object"
+      },
+      "PreferencesUpdate": {
+        "additionalProperties": false,
+        "description": "Only the fields sent are changed.",
+        "properties": {
+          "calmMode": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Calmmode"
+          },
+          "chunkSize": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ChunkSize"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pebbleColor": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PebbleColor"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pebbleModel": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PebbleModel"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "pebblePersonality": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/PebblePersonality"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "readingLevel": {
+            "anyOf": [
+              {
+                "maximum": 10.0,
+                "minimum": 1.0,
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Readinglevel"
+          },
+          "reduceAnimations": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reduceanimations"
+          }
+        },
+        "title": "PreferencesUpdate",
+        "type": "object"
+      },
       "ReaderTokenResponse": {
         "properties": {
           "subdomain": {
@@ -306,6 +549,14 @@
         ],
         "title": "ReaderTokenResponse",
         "type": "object"
+      },
+      "SafetyStatus": {
+        "enum": [
+          "passed",
+          "flagged"
+        ],
+        "title": "SafetyStatus",
+        "type": "string"
       },
       "SimplifyRequest": {
         "properties": {
@@ -703,7 +954,7 @@
     }
   },
   "info": {
-    "description": "\nBackend for **Pebble**, a calm assistant for neurodivergent users.\n\n- **Agents:** the orchestrator routes each chat message to CalmSense (task breakdown), SimplifyCore\n  (simpler text at your reading level) or PebbleVoice (specific encouragement).\n- **Safety:** every input goes through Prompt Shields, Content Safety and PII redaction before any model\n  sees it; every reply is checked again. Content Safety is optional; redaction always runs.\n- **Tasks:** each user's list and its steps, saved in Postgres.\n- **Documents:** PDF, Word and text files are parsed in memory and never stored.\n- **LLM:** Groq's free tier by default, any OpenAI-compatible provider by config, or a scripted fake\n  with `LLM_PROVIDER=fake`.\n\nVoice rules for every reply: never shame, rush or compare; be specific; short, plain sentences.\n",
+    "description": "\nBackend for **Pebble**, a calm assistant for neurodivergent users.\n\n- **Agents:** the orchestrator routes each chat message to CalmSense (task breakdown), SimplifyCore\n  (simpler text at your reading level) or PebbleVoice (specific encouragement).\n- **Safety:** every input goes through Prompt Shields, Content Safety and PII redaction before any model\n  sees it; every reply is checked again. Content Safety is optional; redaction always runs.\n- **Tasks, preferences and activity:** saved per user in Postgres. Every agent result, and every message\n  held back by the safety checks, is written to the activity log with the agent's reasoning.\n- **Documents:** PDF, Word and text files are parsed in memory and never stored.\n- **LLM:** Groq's free tier by default, any OpenAI-compatible provider by config, or a scripted fake\n  with `LLM_PROVIDER=fake`.\n\nVoice rules for every reply: never shame, rush or compare; be specific; short, plain sentences.\n",
     "license": {
       "name": "MIT"
     },
@@ -713,6 +964,106 @@
   },
   "openapi": "3.1.0",
   "paths": {
+    "/api/activity": {
+      "get": {
+        "description": "What each agent did for you and why, newest first. The agents write their own entries.",
+        "operationId": "list_activity_api_activity_get",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "limit",
+            "required": false,
+            "schema": {
+              "default": 50,
+              "maximum": 200,
+              "minimum": 1,
+              "title": "Limit",
+              "type": "integer"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ActivityEntryOut"
+                  },
+                  "title": "Response List Activity Api Activity Get",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Your activity log",
+        "tags": [
+          "Activity"
+        ]
+      },
+      "post": {
+        "description": "Log something you did that Pebble reacted to, such as finishing a task. Pebble sets the time.",
+        "operationId": "add_activity_api_activity_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ActivityEntryIn"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ActivityEntryOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Log an action",
+        "tags": [
+          "Activity"
+        ]
+      }
+    },
     "/api/agents/chat": {
       "post": {
         "description": "**Pebble Orchestrator** \u2014 The main entry point for talking to Pebble.\n\nClassifies the user's intent and routes to the appropriate sub-agent:\n- `decompose` \u2192 CalmSense (task breakdown)\n- `simplify` \u2192 SimplifyCore (text simplification)\n- `motivate` \u2192 PebbleVoice (encouragement)\n- `chat` \u2192 Direct response from Pebble\n- `distress` \u2192 Immediate empathetic response with support\n\nAll input is screened by Prompt Shields (anti-jailbreak) and Content Safety, then PII-redacted:\nthe classifier and every sub-agent see only the redacted message. A flagged reply is replaced\nwith a safe one.\n\nIf the user expresses distress (*\"I'm overwhelmed\"*, *\"I can't do this\"*),\nPebble responds with empathy and offers to simplify their day.\n\nThe `data` field contains structured output from the sub-agent (e.g., subtasks\nfor decompose, simplified text for simplify), or `null` for chat/distress.",
@@ -992,6 +1343,78 @@
         "summary": "Health Check",
         "tags": [
           "Health"
+        ]
+      }
+    },
+    "/api/preferences": {
+      "get": {
+        "description": "Your saved preferences over the defaults. A new account gets the defaults.",
+        "operationId": "get_preferences__api_preferences_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreferencesOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Your preferences",
+        "tags": [
+          "Preferences"
+        ]
+      },
+      "patch": {
+        "description": "Change only the fields you send, for example `{\"calmMode\": true}`. Returns all of them.",
+        "operationId": "update_preferences_api_preferences_patch",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PreferencesUpdate"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreferencesOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Change some preferences",
+        "tags": [
+          "Preferences"
         ]
       }
     },
@@ -1323,6 +1746,14 @@
     {
       "description": "Your task list and the steps each task is broken into, saved in Postgres.",
       "name": "Tasks"
+    },
+    {
+      "description": "How you like Pebble to look, speak and pace things.",
+      "name": "Preferences"
+    },
+    {
+      "description": "What each agent did for you, and why. The agents log their own results.",
+      "name": "Activity"
     },
     {
       "description": "Server health check.",

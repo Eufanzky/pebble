@@ -1,7 +1,9 @@
 """Domain results as the JSON the frontend reads (camelCase, the ``ChatResponse`` shape)."""
 
+from app.domain.activity import ActivityEntry
 from app.domain.chat import ChatReply
 from app.domain.documents import Simplification
+from app.domain.preferences import Preferences
 from app.domain.tasks import Task, TaskBreakdown
 
 
@@ -57,4 +59,27 @@ def task_data(task: Task) -> dict:
             {"id": s.id, "title": s.title, "timeEstimate": s.time_estimate, "completed": s.completed}
             for s in task.steps
         ],
+    }
+
+
+def preferences_data(preferences: Preferences) -> dict:
+    return {
+        "readingLevel": preferences.reading_level,
+        "chunkSize": str(preferences.chunk_size),
+        "reduceAnimations": preferences.reduce_animations,
+        "calmMode": preferences.calm_mode,
+        "pebbleColor": str(preferences.pebble_color),
+        "pebblePersonality": str(preferences.pebble_personality),
+        "pebbleModel": str(preferences.pebble_model),
+    }
+
+
+def activity_data(entry: ActivityEntry) -> dict:
+    return {
+        "id": entry.id,
+        "timestamp": entry.timestamp,
+        "agent": str(entry.agent),
+        "action": entry.action,
+        "reasoning": entry.reasoning,
+        "safetyStatus": str(entry.safety_status),
     }

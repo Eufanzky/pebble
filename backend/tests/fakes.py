@@ -4,6 +4,7 @@ because ``LLM_PROVIDER=fake`` uses it outside tests too.
 
 from dataclasses import dataclass, field
 
+from app.domain.activity import ActivityEntry
 from app.domain.safety import Groundedness, HarmCategory, SafetyVerdict
 from app.domain.tasks import Task
 
@@ -76,3 +77,26 @@ class InMemoryTaskRepository:
 
     async def delete_all(self, user_id: str) -> None:
         self.rows.pop(user_id, None)
+
+
+@dataclass
+class InMemoryPreferencesRepository:
+    saved: dict[str, dict[str, object]] = field(default_factory=dict)
+
+    async def get(self, user_id: str) -> dict[str, object] | None:
+        values = self.saved.get(user_id)
+        return dict(values) if values is not None else None
+
+    async def save(self, user_id: str, values: dict[str, object]) -> None:
+        self.saved[user_id] = dict(values)
+
+
+@dataclass
+class InMemoryActivityRepository:
+    entries: dict[str, list[ActivityEntry]] = field(default_factory=dict)
+
+    async def add(self, user_id: str, entry: ActivityEntry) -> None:
+        self.entries.setdefault(user_id, []).append(entry)
+
+    async def recent(self, user_id: str, limit: int) -> list[ActivityEntry]:
+        return list(reversed(self.entries.get(user_id, [])))[:limit]

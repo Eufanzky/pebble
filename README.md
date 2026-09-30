@@ -194,7 +194,7 @@ uv run alembic upgrade head
 uv run uvicorn app.main:app --port 8000 --reload
 ```
 
-Without Postgres the app still runs; only the task endpoints answer 503. Run the backend tests with `uv run pytest` and the linter with `uv run ruff check`. The integration tests need a database they can wipe: `TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test uv run pytest` (without it they skip).
+Without Postgres the app still runs; only the task, preferences and activity endpoints answer 503. Run the backend tests with `uv run pytest` and the linter with `uv run ruff check`. The integration tests need a database they can wipe: `TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test uv run pytest` (without it they skip).
 
 CI (`.github/workflows/ci.yml`) runs the same checks on every pull request and on `main`: frontend lint, `tsc --noEmit`, tests and build; backend `ruff check`, and `pytest` against a Postgres service container with coverage floors (80% overall, 90% on the domain and application layers).
 
@@ -268,8 +268,10 @@ See [**backend/README.md**](backend/README.md) for full API endpoint documentati
 | `GET /api/documents/immersive-reader/token` | Optional Immersive Reader token |
 | `GET/POST/DELETE /api/tasks`, `PATCH/DELETE /api/tasks/{id}` | Your saved tasks (Postgres) |
 | `PUT /api/tasks/{id}/subtasks`, `PATCH /api/tasks/{id}/subtasks/{subtaskId}` | Set a task's steps, tick one off |
+| `GET/PATCH /api/preferences` | Your saved preferences |
+| `GET/POST /api/activity` | Your activity log; the agents write their own entries |
 
-The frontend still keeps tasks, preferences and the activity log in the browser; the rest of roadmap phase 4 moves them to the API.
+The frontend still keeps tasks, preferences and the activity log in the browser; roadmap 4.4 and 4.5 move them to the API.
 
 ---
 

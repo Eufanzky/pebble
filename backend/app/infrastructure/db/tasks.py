@@ -1,15 +1,12 @@
 """``TaskRepository`` on Postgres, and the stand-in used when no database is configured."""
 
 import uuid
-from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
 
 from sqlalchemy import delete, select
-from sqlalchemy.exc import SQLAlchemyError
-from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.application.ports.tasks import PersistenceError
 from app.domain.tasks import Task, TaskPriority, TaskStep, TaskTag
+from app.infrastructure.db.engine import SqlRepository, Unconfigured
 from app.infrastructure.db.models import StepRow, TaskRow
 
 
@@ -50,18 +47,7 @@ def _copy_fields(row: TaskRow, task: Task) -> None:
     row.why = task.why
 
 
-class SqlTaskRepository:
-    def __init__(self, sessions: async_sessionmaker[AsyncSession]) -> None:
-        self._sessions = sessions
-
-    @asynccontextmanager
-    async def _transaction(self) -> AsyncIterator[AsyncSession]:
-        try:
-            async with self._sessions() as session, session.begin():
-                yield session
-        except (SQLAlchemyError, OSError) as exc:
-            raise PersistenceError(str(exc)) from exc
-
+class SqlTaskRepository(SqlRepository):
     async def _row(self, session: AsyncSession, user_id: str, task_id: str) -> TaskRow | None:
         key = _uuid(task_id)
         if key is None:
@@ -112,10 +98,5 @@ class SqlTaskRepository:
             await session.execute(delete(TaskRow).where(TaskRow.user_id == user_id))
 
 
-class UnconfiguredTaskRepository:
-    """No ``DATABASE_URL``: tasks can't be saved, and every call says so."""
-
-    async def _unavailable(self, *_args: object) -> None:
-        raise PersistenceError("DATABASE_URL is not set")
-
-    list = get = add = save = delete = delete_all = _unavailable
+class UnconfiguredTaskRepository(Unconfigured):
+    list = get = add = save = delete = delete_all = Unconfigured._unavailable

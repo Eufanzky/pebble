@@ -2,6 +2,7 @@
 
 from dataclasses import dataclass, field
 
+from app.domain.activity import SafetyStatus
 from app.domain.agents import AgentName, Intent, Mood
 
 
@@ -24,6 +25,8 @@ class ChatReply:
     agent: AgentName
     data: object | None = None
     """The sub-agent's structured result (a ``TaskBreakdown``, a simplification), or None."""
+    safety: SafetyStatus = SafetyStatus.PASSED
+    """FLAGGED when a reply was replaced with a safe one."""
 
 
 @dataclass(frozen=True)

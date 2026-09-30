@@ -46,7 +46,7 @@ async def decompose(
 
     Input and output go through the safety gate (Content Safety and PII redaction).
     """
-    breakdown = await decompose_task(body.task_title, body.chunk_size, body.time_of_day)
+    breakdown = await decompose_task(body.task_title, body.chunk_size, body.time_of_day, user_id=user_id)
     return breakdown_data(breakdown)
 
 
@@ -74,7 +74,7 @@ async def simplify(
     Includes a `whyExplanation` describing what was changed and why.
     Output is verified against the original text using Groundedness Detection.
     """
-    return simplification_data(await simplify_document(body.text, body.reading_level))
+    return simplification_data(await simplify_document(body.text, body.reading_level, user_id=user_id))
 
 
 @router.post(
@@ -105,7 +105,8 @@ async def motivate(
             recent_task_titles=tuple(body.recent_task_titles),
             time_of_day=body.time_of_day,
             personality=body.personality,
-        )
+        ),
+        user_id=user_id,
     )
     return {"message": encouragement.message, "mood": str(encouragement.mood)}
 
@@ -150,4 +151,4 @@ async def chat(
         time_of_day=body.time_of_day,
         personality=body.personality,
     )
-    return chat_response(await handle_chat(body.message, context))
+    return chat_response(await handle_chat(body.message, context, user_id=user_id))
