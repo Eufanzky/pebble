@@ -11,6 +11,16 @@ const featureDeepImport = {
   message: "Import a feature through its public index: '@/features/<name>' (or '@/features/<name>/server').",
 };
 
+// Tests may also use a feature's test helpers, '@/features/<name>/testing'.
+const featureDeepImportInTests = {
+  ...featureDeepImport,
+  group: [...featureDeepImport.group, "!@/features/*/testing"],
+};
+const stayInFeature = {
+  group: ["../../*"],
+  message: "Stay inside the feature; import other features through '@/features/<name>'.",
+};
+
 const eslintConfig = defineConfig([
   ...nextVitals,
   ...nextTs,
@@ -26,10 +36,7 @@ const eslintConfig = defineConfig([
       "no-restricted-imports": ["error", {
         patterns: [
           featureDeepImport,
-          {
-            group: ["../../*"],
-            message: "Stay inside the feature; import other features through '@/features/<name>'.",
-          },
+          stayInFeature,
         ],
       }],
     },
@@ -40,6 +47,18 @@ const eslintConfig = defineConfig([
       "no-restricted-imports": ["error", {
         patterns: [{ group: ["@/features", "@/features/*"], message: "shared/ must not depend on a feature." }],
       }],
+    },
+  },
+  {
+    files: ["src/**/*.test.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": ["error", { patterns: [featureDeepImportInTests] }],
+    },
+  },
+  {
+    files: ["src/features/**/*.test.{ts,tsx}"],
+    rules: {
+      "no-restricted-imports": ["error", { patterns: [featureDeepImportInTests, stayInFeature] }],
     },
   },
   // Override default ignores of eslint-config-next.

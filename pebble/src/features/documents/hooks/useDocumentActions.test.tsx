@@ -14,7 +14,6 @@ function renderActions(doc = testDocument(), onDone = vi.fn()) {
     tasks: useTasks(),
     log: useActivityLog(),
   }));
-  act(() => result.current.tasks.clearAll());
   return { result, onDone };
 }
 

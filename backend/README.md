@@ -2,7 +2,7 @@
 
 FastAPI backend for Pebble. It runs the AI agents (the orchestrator, CalmSense, SimplifyCore and PebbleVoice) behind a safety pipeline, and reads uploaded documents in memory. The only thing it needs is an LLM: Groq's free tier by default, any OpenAI-compatible API by config, or `LLM_PROVIDER=fake` to run with no model at all.
 
-Tasks, preferences and the activity log are saved per user in Postgres (SQLAlchemy 2 async, Alembic). Every agent result, and every message the safety checks hold back, is written to the activity log server-side. The frontend still keeps all three in the browser until roadmap 4.4 and 4.5.
+Tasks, preferences and the activity log are saved per user in Postgres (SQLAlchemy 2 async, Alembic). Every agent result, and every message the safety checks hold back, is written to the activity log server-side. The frontend reads and saves tasks through the API; preferences and the activity log follow in roadmap 4.5.
 
 ## Setup
 

@@ -9,10 +9,12 @@ interface TaskListProps {
   onToggleSubtask: (taskId: string, subtaskId: string) => void;
   onBreakDown: (id: string) => void;
   onWhyOpen: (id: string) => void;
+  /** Offered when the list is empty: fills it with example tasks to look around with. */
+  onAddExamples?: () => void;
 }
 
 /** The list view: open tasks, then the ones done today. */
-export default function TaskList({ open, done, ...handlers }: TaskListProps) {
+export default function TaskList({ open, done, onAddExamples, ...handlers }: TaskListProps) {
   return (
     <>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
@@ -25,6 +27,25 @@ export default function TaskList({ open, done, ...handlers }: TaskListProps) {
           <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 12 }}>
             All clear! Add a task when you&apos;re ready, or just rest.
           </p>
+          {onAddExamples && (
+            <button
+              type="button"
+              onClick={onAddExamples}
+              style={{
+                marginTop: 14,
+                padding: '8px 18px',
+                borderRadius: 999,
+                border: '1px solid var(--pebble-color)',
+                background: 'transparent',
+                color: 'var(--text-primary)',
+                fontSize: 13,
+                fontWeight: 600,
+                cursor: 'pointer',
+              }}
+            >
+              Add example tasks
+            </button>
+          )}
         </div>
       )}
 

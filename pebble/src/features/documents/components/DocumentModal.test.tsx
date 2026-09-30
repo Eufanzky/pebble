@@ -1,7 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, renderHookWithProviders, renderWithProviders, screen, waitFor } from '@/test/render';
 import { usePreferences } from '@/shared/preferences';
-import { useTasks } from '@/features/tasks';
+import { taskStore } from '@/test/msw/tasks';
 import { testDocument } from '../testing';
 import DocumentModal from './DocumentModal';
 
@@ -10,10 +10,9 @@ vi.mock('next/navigation', () => ({ useRouter: () => ({ push }) }));
 
 beforeEach(() => {
   push.mockClear();
-  const { result, unmount } = renderHookWithProviders(() => ({ ...usePreferences(), ...useTasks() }));
+  const { result, unmount } = renderHookWithProviders(() => usePreferences());
   act(() => {
     result.current.setPreferences((prev) => ({ ...prev, readingLevel: 5, reduceAnimations: true, calmMode: false }));
-    result.current.clearAll();
   });
   unmount();
 });
@@ -89,7 +88,7 @@ describe('DocumentModal', () => {
 
     expect(onClose).toHaveBeenCalledOnce();
     expect(push).toHaveBeenCalledWith('/today');
-    expect(JSON.parse(window.localStorage.getItem('pebble-tasks')!)).toHaveLength(2);
+    await waitFor(() => expect(taskStore.all()).toHaveLength(2));
   });
 
   it('closes on Escape and on the close button', async () => {
