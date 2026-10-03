@@ -1,4 +1,5 @@
 import type { FormEvent } from 'react';
+import { Field } from '@/shared/ui';
 
 interface AddTaskFormProps {
   value: string;
@@ -6,6 +7,7 @@ interface AddTaskFormProps {
   onSubmit: () => void;
 }
 
+/** "What do you need to do?": Enter adds the task to the list. */
 export default function AddTaskForm({ value, onChange, onSubmit }: AddTaskFormProps) {
   const handleSubmit = (e: FormEvent) => {
     e.preventDefault();
@@ -13,28 +15,15 @@ export default function AddTaskForm({ value, onChange, onSubmit }: AddTaskFormPr
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ marginTop: 20 }}>
-      <label htmlFor="task-input" className="sr-only">Add a new task</label>
-      <input
+    <form onSubmit={handleSubmit} className="add-task">
+      <Field
         id="task-input"
-        type="text"
+        label="Add a new task"
+        hideLabel
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder="What do you need to do?"
-        style={{
-          width: '100%',
-          padding: '12px 16px',
-          borderRadius: 12,
-          border: '1px solid var(--border-soft)',
-          background: 'rgba(255,248,235,0.04)',
-          color: 'var(--text-primary)',
-          fontFamily: 'var(--font-nunito)',
-          fontSize: 14,
-          outline: 'none',
-          transition: 'border-color 0.15s ease',
-        }}
-        onFocus={(e) => { e.currentTarget.style.borderColor = 'var(--accent-lavender)'; }}
-        onBlur={(e) => { e.currentTarget.style.borderColor = 'var(--border-soft)'; }}
+        autoComplete="off"
       />
     </form>
   );

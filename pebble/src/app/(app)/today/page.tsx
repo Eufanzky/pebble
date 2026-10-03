@@ -5,7 +5,7 @@ export default function TodayPage() {
   return (
     <>
       <AmbientBackground mood="today" />
-      <div className="relative z-[1] p-10 px-12">
+      <div className="relative z-[1]">
         <TodayView />
       </div>
     </>

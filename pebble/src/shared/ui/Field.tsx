@@ -2,6 +2,8 @@ import { useId, type InputHTMLAttributes, type TextareaHTMLAttributes } from 're
 
 interface FieldBase {
   label: string;
+  /** Keeps the label for screen readers only, when the placeholder and context already say it. */
+  hideLabel?: boolean;
   /** Help shown under the control, linked to it for screen readers. */
   hint?: string;
   /** What to change, shown under the control; marks it invalid. Written as guidance, never blame. */
@@ -14,7 +16,7 @@ export type FieldProps = InputFieldProps | TextareaFieldProps;
 
 /** A labelled text input (or textarea) with its hint and note wired up. */
 export function Field(props: FieldProps) {
-  const { label, hint, note, multiline, id: givenId, className = '', ...control } = props;
+  const { label, hideLabel = false, hint, note, multiline, id: givenId, className = '', ...control } = props;
   const generated = useId();
   const id = givenId ?? generated;
   const hintId = hint ? `${id}-hint` : undefined;
@@ -29,7 +31,7 @@ export function Field(props: FieldProps) {
 
   return (
     <div className="ui-field">
-      <label className="ui-field__label" htmlFor={id}>
+      <label className={hideLabel ? 'ui-visually-hidden' : 'ui-field__label'} htmlFor={id}>
         {label}
       </label>
       {multiline ? (

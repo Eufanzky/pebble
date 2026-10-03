@@ -1,0 +1,206 @@
+/* Today (roadmap 5.4). Tokens only. */
+
+.today {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--space-6);
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-5) var(--space-7);
+  color: var(--color-text);
+}
+
+.today__main {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  min-width: 0;
+  max-width: 44rem;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* Pebble's own column only where there's room for it */
+.today__companion {
+  display: none;
+}
+
+@media (min-width: 1240px) {
+  .today {
+    grid-template-columns: minmax(0, 1fr) 17rem;
+  }
+  .today__main {
+    margin: 0;
+  }
+  .today__companion {
+    position: sticky;
+    top: var(--space-6);
+    align-self: start;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-3);
+  }
+  .today-greeting__pebble {
+    display: none;
+  }
+}
+
+.today__nudge {
+  margin: 0;
+  padding: 0 var(--space-2);
+  font-size: var(--text-sm);
+  line-height: var(--leading-body);
+  color: var(--color-text-2);
+  text-align: center;
+}
+
+/* ---------- Greeting ---------- */
+.today-greeting {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+.today-greeting[data-muted] {
+  opacity: 0.85;
+}
+.today-greeting__pebble {
+  flex-shrink: 0;
+}
+.today-greeting__text {
+  min-width: 0;
+}
+.today-greeting__date {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-3);
+}
+.today-greeting__hello {
+  margin: var(--space-1) 0;
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-display);
+  line-height: var(--leading-tight);
+}
+.today-greeting__sub {
+  margin: 0;
+  font-size: var(--text-md);
+  line-height: var(--leading-body);
+  color: var(--color-text-2);
+  max-width: 38rem;
+}
+
+.today__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+.today__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-display);
+  line-height: var(--leading-tight);
+}
+
+/* ---------- Up next ---------- */
+.up-next {
+  border-left: 3px solid var(--color-accent);
+}
+.up-next__label {
+  margin: 0 0 var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-strong);
+  color: var(--color-text-2);
+}
+.up-next__body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+.up-next__task {
+  min-width: 0;
+  flex: 1 1 14rem;
+}
+.up-next__title {
+  margin: 0 0 var(--space-2);
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-display);
+  line-height: var(--leading-tight);
+  overflow-wrap: anywhere;
+}
+.up-next__meta {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+.up-next__all-done {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  color: var(--color-tag-wellbeing);
+}
+
+/* ---------- Groups ---------- */
+.task-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+.task-group__title {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  margin: 0;
+  font-size: var(--text-md);
+  font-weight: var(--weight-strong);
+  color: var(--color-text);
+}
+.task-group__count {
+  font-weight: var(--weight-regular);
+  color: var(--color-text-3);
+}
+.task-group__list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.task-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-6) var(--space-4);
+  border-radius: var(--radius-lg);
+  border: 1px dashed var(--color-line-strong);
+  text-align: center;
+  color: var(--color-text-2);
+  font-size: var(--text-sm);
+}
+.task-empty p {
+  margin: 0;
+}
+
+.add-task {
+  margin: 0;
+}
+
+.today__progress {
+  color: var(--color-text-2);
+}
+
+@media (max-width: 767px) {
+  .today {
+    padding: var(--space-5) var(--space-4) var(--space-6);
+  }
+  .today-greeting__hello {
+    font-size: var(--text-xl);
+  }
+}

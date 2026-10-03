@@ -57,7 +57,7 @@ describe('Today: toggling a task step', () => {
     await user.click(within(stepRow('Skim the headings')).getByRole('button', { name: 'Check subtask' }));
     await user.click(within(stepRow('Write a summary')).getByRole('button', { name: 'Check subtask' }));
 
-    expect(screen.getByText('done today')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Done today/ })).toBeInTheDocument();
     const card = screen.getByText('Read Chapter 4').closest('.task-card') as HTMLElement;
     expect(card).toHaveClass('completed');
     expect(within(card).getByRole('button', { name: 'Mark as incomplete' })).toBeInTheDocument();

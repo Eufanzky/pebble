@@ -67,6 +67,7 @@ Found by the first unit tests (1.2 onwards), not by the static checks above.
 | A-020 | major | Settings simulates features and shows made-up results (principle 6, honest claims). "Connected apps" toggles wait 1.5 s and add canned tasks ("Authenticating via Azure API Management OAuth flow", "Powered by BridgeBot agent via Azure API Management"). The voice-input button waits 2.5 s and adds a random canned phrase as a task ("Listening via Azure AI Speech SDK"). The "Pebble has adapted" cards describe adjustments that never happened ("You completed 4 out of 4 small tasks yesterday…"), and "This week" shows fixed numbers (12 tasks, 3h 20m, 4 documents). Found during the A-019 fix and 3.4. | /settings: turn on a connected app, or voice input and press the mic | needs a product decision: remove, or label as a preview until 5.4/5.5 |
 | A-021 | minor | The activity page said "In production, this feed maps to Microsoft Foundry Control Plane tracing", which the app doesn't use (principle 6). Found during 3.4. | /activity, the note under the log | 3.4 |
 | A-022 | minor | A new user's activity log starts with 16 made-up entries ("Session started. Good morning detected." at 9:01, and so on), stamped at fixed times today. They describe things that never happened (principle 6), and before 9 AM they show times still to come and sort above real entries. Found during 3.7, where they pushed the flow's own entries off the first page in CI (00:29 UTC). | Open /activity before 9 AM with a fresh browser | same decision as A-020 |
+| A-023 | minor | Pebble's rotating message "You finished {completedCount} things already. That's really good." also shows with 0 finished ("You finished 0 things already"), which is generic praise for nothing (voice rule: be specific) and reads oddly. Found during 5.4. | `features/companion/data/pebbleMessages.ts`; a new account on Today | 7.1 |
 
 ## Backend behaviour
 
@@ -95,7 +96,7 @@ Found by the characterization tests (1.3 onwards), not by the static checks abov
 
 ## Summary
 
-Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011). Found during 1.3: 1 major, 1 minor (A-012, A-013). Found during 1.4: 1 major (A-014). Found during 1.5: 1 minor (A-015). Found during 1.7: 1 major, 1 cosmetic (A-016, A-017). Found during 2.8: 1 major (A-018). Found during 3.3: 2 major (A-019, A-020). Found during 3.4: 1 minor (A-021). Found during 3.7: 1 minor (A-022).
+Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011). Found during 1.3: 1 major, 1 minor (A-012, A-013). Found during 1.4: 1 major (A-014). Found during 1.5: 1 minor (A-015). Found during 1.7: 1 major, 1 cosmetic (A-016, A-017). Found during 2.8: 1 major (A-018). Found during 3.3: 2 major (A-019, A-020). Found during 3.4: 1 minor (A-021). Found during 3.7: 1 minor (A-022). Found during 5.4: 1 minor (A-023).
 
 ## Status
 

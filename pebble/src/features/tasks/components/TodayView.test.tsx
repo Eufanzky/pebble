@@ -21,7 +21,9 @@ describe('TodayView', () => {
     await renderToday();
 
     expect(screen.getByRole('heading', { name: 'Today' })).toBeInTheDocument();
-    expect(screen.getByText('done today')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Done today/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /To do/ })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Up next' })).toBeInTheDocument();
     expect(screen.getByText('1 of 2 tasks done')).toBeInTheDocument();
     expect(screen.getAllByText('Write intro')).toHaveLength(2); // the card and "up next"
   });
@@ -29,7 +31,7 @@ describe('TodayView', () => {
   it('completes the next task from "up next"', async () => {
     const { user } = await renderToday();
 
-    await user.click(screen.getByRole('button', { name: /Start this one/ }));
+    await user.click(screen.getByRole('button', { name: 'Mark "Write intro" as done' }));
 
     expect(screen.getByText("You're all done! 🎉")).toBeInTheDocument();
     expect(screen.getByText('2 of 2 tasks done')).toBeInTheDocument();
@@ -42,10 +44,10 @@ describe('TodayView', () => {
 
     expect(screen.getByRole('button', { name: 'Roadmap' })).toHaveAttribute('aria-pressed', 'true');
     expect(screen.getByRole('button', { name: 'Complete task: Write intro' })).toBeInTheDocument();
-    expect(screen.queryByText('done today')).not.toBeInTheDocument();
+    expect(screen.queryByRole('heading', { name: /Done today/ })).not.toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'List' }));
-    expect(screen.getByText('done today')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Done today/ })).toBeInTheDocument();
   });
 
   it('adds a typed task', async () => {

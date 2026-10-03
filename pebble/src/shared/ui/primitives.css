@@ -253,3 +253,13 @@ button.ui-chip:hover {
 @keyframes ui-rise {
   from { opacity: 0; transform: translateY(12px); }
 }
+
+/* ---------- Visually hidden: read by screen readers, not shown ---------- */
+.ui-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}

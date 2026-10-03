@@ -6,33 +6,27 @@ interface SubtaskListProps {
   onToggle: (subtaskId: string) => void;
 }
 
+/** A task's steps, each with its own tick. */
 export default function SubtaskList({ subtasks, noMotion, onToggle }: SubtaskListProps) {
   return (
-    <div className="subtask-list">
+    <ul className="subtask-list">
       {subtasks.map((st, i) => (
-        <div
+        <li
           key={st.id}
           className={`subtask-item ${noMotion ? '' : 'animate-in'}`}
-          style={noMotion ? undefined : { animationDelay: `${i * 150}ms` }}
+          style={noMotion ? undefined : { animationDelay: `${i * 90}ms` }}
         >
           <button
             className={`subtask-checkbox ${st.completed ? 'checked' : ''} ${st.completed && !noMotion ? 'animate' : ''}`}
             onClick={() => onToggle(st.id)}
             aria-label={st.completed ? 'Uncheck subtask' : 'Check subtask'}
           >
-            {st.completed && '✓'}
+            <span aria-hidden="true">{st.completed && '✓'}</span>
           </button>
-          <span
-            className={`subtask-title ${st.completed ? 'done' : ''}`}
-            style={{ fontFamily: 'var(--font-nunito)', fontSize: 13, color: 'var(--text-secondary)', flex: 1 }}
-          >
-            {st.title}
-          </span>
-          <span style={{ fontFamily: 'var(--font-jetbrains)', fontSize: 10, color: 'var(--text-muted)', flexShrink: 0 }}>
-            {st.timeEstimate}
-          </span>
-        </div>
+          <span className={`subtask-title ${st.completed ? 'done' : ''}`}>{st.title}</span>
+          {st.timeEstimate && <span className="subtask-estimate">{st.timeEstimate}</span>}
+        </li>
       ))}
-    </div>
+    </ul>
   );
 }
