@@ -102,3 +102,34 @@ async def test_users_never_see_each_others_tasks(repository):
 
     assert await repository.list("a") == [mine]
     assert await repository.list("b") == []
+
+
+async def test_reorder_and_new_tasks_go_last(repository):
+    one, two, three = a_task("One"), a_task("Two"), a_task("Three")
+    for task in (one, two, three):
+        await repository.add("a", task)
+
+    await repository.reorder("a", [three.id, one.id, two.id])
+    four = a_task("Four")
+    await repository.add("a", four)
+
+    assert [t.title for t in await repository.list("a")] == ["Three", "One", "Two", "Four"]
+
+
+@pytest.mark.parametrize("which", ["missing", "unknown", "not-a-uuid", "someone-elses"])
+async def test_reorder_refuses_anything_but_exactly_the_users_tasks(repository, which):
+    one, two = a_task("One"), a_task("Two")
+    await repository.add("a", one)
+    await repository.add("a", two)
+    theirs = a_task("Theirs")
+    await repository.add("b", theirs)
+    order = {
+        "missing": [one.id],
+        "unknown": [one.id, two.id, new_id()],
+        "not-a-uuid": [one.id, "nope"],
+        "someone-elses": [one.id, two.id, theirs.id],
+    }[which]
+
+    with pytest.raises(KeyError):
+        await repository.reorder("a", order)
+    assert [t.title for t in await repository.list("a")] == ["One", "Two"]

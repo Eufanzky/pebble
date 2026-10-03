@@ -1001,6 +1001,24 @@
         "title": "TaskUpdate",
         "type": "object"
       },
+      "TasksOrder": {
+        "description": "Every task on the list, in the new order.",
+        "properties": {
+          "taskIds": {
+            "items": {
+              "type": "string"
+            },
+            "maxItems": 1000,
+            "title": "Taskids",
+            "type": "array"
+          }
+        },
+        "required": [
+          "taskIds"
+        ],
+        "title": "TasksOrder",
+        "type": "object"
+      },
       "ValidationError": {
         "properties": {
           "ctx": {
@@ -1695,6 +1713,57 @@
           }
         ],
         "summary": "Add a task",
+        "tags": [
+          "Tasks"
+        ]
+      }
+    },
+    "/api/tasks/order": {
+      "put": {
+        "description": "Put your tasks in this order. List every task exactly once; if the list changed meanwhile (or an id\nisn't yours), nothing moves and the answer is 409.",
+        "operationId": "reorder_tasks_api_tasks_order_put",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/TasksOrder"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/TaskOut"
+                  },
+                  "title": "Response Reorder Tasks Api Tasks Order Put",
+                  "type": "array"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Reorder your list",
         "tags": [
           "Tasks"
         ]

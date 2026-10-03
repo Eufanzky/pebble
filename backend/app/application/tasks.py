@@ -11,6 +11,13 @@ from app.domain.tasks import Step, Task, TaskStep
 EDITABLE_FIELDS = frozenset({"title", "time_estimate", "tag", "priority", "completed", "why"})
 
 
+class TaskOrderError(Exception):
+    """The order sent doesn't list exactly the user's tasks (one changed meanwhile, or an id isn't theirs)."""
+
+    def __init__(self) -> None:
+        super().__init__("Your list changed meanwhile. Pebble kept the order it had.")
+
+
 class TaskNotFoundError(Exception):
     """No such task (or step) for this user. Someone else's task is reported the same way."""
 
@@ -62,6 +69,16 @@ class Tasks:
     async def delete(self, user_id: str, task_id: str) -> None:
         if not await self.repository.delete(user_id, task_id):
             raise TaskNotFoundError()
+
+    async def reorder(self, user_id: str, task_ids: Sequence[str]) -> "list[Task]":
+        """Put the user's tasks in the order given; every task must be listed exactly once."""
+        if len(set(task_ids)) != len(task_ids):
+            raise TaskOrderError()
+        try:
+            await self.repository.reorder(user_id, task_ids)
+        except KeyError:
+            raise TaskOrderError() from None
+        return await self.repository.list(user_id)
 
     async def clear(self, user_id: str) -> None:
         await self.repository.delete_all(user_id)

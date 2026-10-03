@@ -204,3 +204,54 @@
     font-size: var(--text-xl);
   }
 }
+
+/* ---------- Filters (5.5) ---------- */
+.task-filters {
+  display: grid;
+  gap: var(--space-3);
+}
+.task-filters__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.task-filters__count {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-2);
+}
+.task-filters__count:empty {
+  display: none;
+}
+
+/* ---------- Edit dialog (5.5) ---------- */
+.edit-task {
+  display: grid;
+  gap: var(--space-4);
+}
+.edit-task__choices {
+  display: grid;
+  gap: var(--space-2);
+}
+.edit-task__choices .ui-field__label {
+  margin: 0;
+}
+.edit-task__chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.edit-task__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+.edit-task__delete {
+  margin-left: auto;
+}
+.edit-task__text {
+  margin: 0 0 var(--space-5);
+  color: var(--color-text-2);
+  line-height: var(--leading-body);
+}

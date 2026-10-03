@@ -3,7 +3,16 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { usePebble } from '@/features/companion';
-import { clearTasks, createTask, listTasks, replaceSubtasks, updateSubtask, updateTask } from '../api/tasks';
+import {
+  clearTasks,
+  createTask,
+  deleteTask as deleteTaskRequest,
+  listTasks,
+  reorderTasks as reorderRequest,
+  replaceSubtasks,
+  updateSubtask,
+  updateTask,
+} from '../api/tasks';
 import { sampleTasks } from '../data/sampleTasks';
 import type { NewTask, Subtask, Task } from '../types';
 
@@ -27,8 +36,15 @@ interface TasksContextValue {
   /** Adds the example tasks, for a first look around. */
   addExampleTasks: () => void;
   breakDownTask: (taskId: string, subtasks: Omit<Subtask, 'id'>[]) => void;
+  /** Change what a task says: its title, estimate, tag or priority. */
+  editTask: (id: string, changes: TaskEdit) => void;
+  deleteTask: (id: string) => void;
+  /** Put the tasks in this order; `ids` lists every task once. */
+  reorderTasks: (ids: string[]) => void;
   clearAll: () => void;
 }
+
+export type TaskEdit = Partial<Pick<Task, 'title' | 'timeEstimate' | 'tag' | 'priority'>>;
 
 const TasksContext = createContext<TasksContextValue | null>(null);
 
@@ -194,6 +210,37 @@ export function TasksProvider({ children }: { children: ReactNode }) {
     [setTasks, enqueue, adoptIds, idFor],
   );
 
+  const editTask = useCallback(
+    (id: string, changes: TaskEdit) => {
+      setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...changes } : t)));
+      enqueue(async () => {
+        await updateTask(idFor(id), changes);
+      });
+    },
+    [setTasks, enqueue, idFor],
+  );
+
+  const deleteTask = useCallback(
+    (id: string) => {
+      setTasks((prev) => prev.filter((t) => t.id !== id));
+      enqueue(() => deleteTaskRequest(idFor(id)));
+    },
+    [setTasks, enqueue, idFor],
+  );
+
+  const reorderTasks = useCallback(
+    (ids: string[]) => {
+      setTasks((prev) => {
+        const byId = new Map(prev.map((t) => [t.id, t]));
+        return ids.map((id) => byId.get(id)).filter((t): t is Task => t !== undefined);
+      });
+      enqueue(async () => {
+        await reorderRequest(ids.map(idFor));
+      });
+    },
+    [setTasks, enqueue, idFor],
+  );
+
   const clearAll = useCallback(() => {
     if (beforeFirstLoad(clearTasks)) return;
     setTasks(() => []);
@@ -214,6 +261,9 @@ export function TasksProvider({ children }: { children: ReactNode }) {
     addTaskFromDocument,
     addExampleTasks,
     breakDownTask,
+    editTask,
+    deleteTask,
+    reorderTasks,
     clearAll,
   };
 

@@ -11,7 +11,7 @@ from app.application.ports.documents import DocumentError, UnsupportedDocumentEr
 from app.application.ports.llm import LLMError, LLMRateLimitedError
 from app.application.ports.persistence import PersistenceError
 from app.application.ports.safety import SafetyCheckError
-from app.application.tasks import TaskNotFoundError
+from app.application.tasks import TaskNotFoundError, TaskOrderError
 
 logger = logging.getLogger("pebble.api")
 
@@ -54,6 +54,10 @@ async def _not_found(_: Request, exc: Exception) -> JSONResponse:
     return _detail(404, str(exc))
 
 
+async def _order_conflict(_: Request, exc: Exception) -> JSONResponse:
+    return _detail(409, str(exc))
+
+
 async def _persistence(_: Request, exc: Exception) -> JSONResponse:
     logger.warning("Database unavailable: %s", exc)
     return _detail(503, NOT_SAVED)
@@ -66,6 +70,7 @@ def register_error_handlers(app: FastAPI) -> None:
     app.add_exception_handler(UnsafeOutputError, _unsafe_output)
     app.add_exception_handler(LLMRateLimitedError, _rate_limited)
     app.add_exception_handler(TaskNotFoundError, _not_found)
+    app.add_exception_handler(TaskOrderError, _order_conflict)
     app.add_exception_handler(PersistenceError, _persistence)
     for error in (LLMError, SafetyCheckError, AgentReplyError):
         app.add_exception_handler(error, _unavailable)

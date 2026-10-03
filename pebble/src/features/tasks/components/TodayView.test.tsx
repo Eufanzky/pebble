@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { renderWithProviders, screen, waitFor } from '@/test/render';
+import { renderWithProviders, screen, waitFor, within } from '@/test/render';
 import { server } from '@/test/msw/server';
 import { taskHandlers, taskStore } from '@/test/msw/tasks';
 import { newTask, seed } from '../testing';
@@ -124,4 +124,50 @@ describe('TodayView', () => {
     await user.click(screen.getByRole('button', { name: 'OK' }));
     expect(screen.queryByText(/couldn't save/)).not.toBeInTheDocument();
   });
+
+  it('edits a task through its dialog', async () => {
+    const { user } = await renderToday();
+
+    await user.click(screen.getByRole('button', { name: 'Edit "Write intro"' }));
+    const title = screen.getByRole('textbox', { name: 'Title' });
+    await user.clear(title);
+    await user.type(title, 'Write the intro{Enter}');
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
+    expect(screen.getAllByText('Write the intro').length).toBeGreaterThan(0);
+    await waitFor(() => expect(taskStore.all()[0].title).toBe('Write the intro'));
+  });
+
+  it('searches and filters by tag, and offers to show everything again', async () => {
+    seed([newTask('Read Chapter 4', { tag: 'study' }), newTask('Email Sam', { tag: 'communication' })]);
+    const { user } = await renderToday();
+    const todo = () => screen.getByRole('region', { name: /To do/ });
+
+    await user.type(screen.getByRole('searchbox', { name: 'Search tasks' }), 'email');
+    expect(within(todo()).getAllByRole('article').map((a) => a.getAttribute('aria-label'))).toEqual(['Email Sam']);
+    expect(screen.getByText('Showing 1 of 2 tasks.')).toBeInTheDocument();
+    // A filtered list can't be reordered
+    expect(screen.queryByRole('button', { name: /^Move / })).not.toBeInTheDocument();
+
+    await user.click(within(screen.getByRole('group', { name: 'Show one tag' })).getByRole('button', { name: 'Study' }));
+    expect(screen.getByText('Nothing here matches. Try other words or another tag.')).toBeInTheDocument();
+
+    await user.click(screen.getByRole('button', { name: 'Show all tasks' }));
+    expect(within(todo()).getAllByRole('article')).toHaveLength(2);
+  });
+
+  it('reorders by keyboard and saves the order', async () => {
+    seed([newTask('Read'), newTask('Write'), newTask('Walk')]);
+    const { user } = await renderToday();
+
+    screen.getByRole('button', { name: 'Move "Walk"' }).focus();
+    await user.keyboard('{ArrowUp}');
+
+    const todo = screen.getByRole('region', { name: /To do/ });
+    expect(within(todo).getAllByRole('article').map((a) => a.getAttribute('aria-label'))).toEqual(['Read', 'Walk', 'Write']);
+    expect(screen.getByRole('button', { name: 'Move "Walk"' })).toHaveFocus();
+    expect(screen.getByText('Moved "Walk" to position 2 of 3.')).toBeInTheDocument();
+    await waitFor(() => expect(taskStore.all().map((t) => t.title)).toEqual(['Read', 'Walk', 'Write']));
+  });
 });
+

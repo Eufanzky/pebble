@@ -336,6 +336,27 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/tasks/order": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * Reorder your list
+         * @description Put your tasks in this order. List every task exactly once; if the list changed meanwhile (or an id
+         *     isn't yours), nothing moves and the answer is 409.
+         */
+        put: operations["reorder_tasks_api_tasks_order_put"];
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tasks/{task_id}": {
         parameters: {
             query?: never;
@@ -823,6 +844,14 @@ export interface components {
             /** Whyexplanation */
             whyExplanation?: string | null;
         };
+        /**
+         * TasksOrder
+         * @description Every task on the list, in the new order.
+         */
+        TasksOrder: {
+            /** Taskids */
+            taskIds: string[];
+        };
         /** ValidationError */
         ValidationError: {
             /** Context */
@@ -1306,6 +1335,39 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content?: never;
+            };
+        };
+    };
+    reorder_tasks_api_tasks_order_put: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["TasksOrder"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
             };
         };
     };

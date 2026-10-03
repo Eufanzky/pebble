@@ -268,6 +268,7 @@ See [**backend/README.md**](backend/README.md) for full API endpoint documentati
 | `GET /api/documents/immersive-reader/token` | Optional Immersive Reader token |
 | `GET/POST/DELETE /api/tasks`, `PATCH/DELETE /api/tasks/{id}` | Your saved tasks (Postgres) |
 | `PUT /api/tasks/{id}/subtasks`, `PATCH /api/tasks/{id}/subtasks/{subtaskId}` | Set a task's steps, tick one off |
+| `PUT /api/tasks/order` | Reorder your list |
 | `GET/PATCH /api/preferences` | Your saved preferences |
 | `GET/POST /api/activity` | Your activity log; the agents write their own entries |
 | `POST /api/import` | Move what a browser kept before sign-in into your account, once |

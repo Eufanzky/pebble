@@ -78,6 +78,12 @@ class InMemoryTaskRepository:
     async def delete_all(self, user_id: str) -> None:
         self.rows.pop(user_id, None)
 
+    async def reorder(self, user_id: str, task_ids) -> None:
+        tasks = {t.id: t for t in self.rows.get(user_id, [])}
+        if len(task_ids) != len(tasks) or set(task_ids) != set(tasks):
+            raise KeyError("order")
+        self.rows[user_id] = [tasks[task_id] for task_id in task_ids]
+
 
 @dataclass
 class InMemoryPreferencesRepository:

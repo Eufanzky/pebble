@@ -160,21 +160,44 @@
   opacity: 0.8;
 }
 
-/* Wide cards keep "Break it down" at the top right; narrow ones put it under the meta */
 .task-card__break {
   margin-top: var(--space-3);
 }
-@container (min-width: 520px) {
-  .task-card__break {
-    position: absolute;
-    top: var(--space-3);
-    right: var(--space-4);
-    margin-top: 0;
-  }
-  .task-card__body:has(.task-card__break) .task-title {
-    padding-right: 10rem;
-    display: block;
-  }
+
+/* ---------- Tools: move and edit, at the end of the meta row ---------- */
+.task-card__tools {
+  display: inline-flex;
+  align-items: center;
+  margin-left: auto;
+}
+.task-card__handle {
+  display: grid;
+  place-items: center;
+  width: var(--tap);
+  height: var(--tap);
+  border: none;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text-3);
+  cursor: grab;
+  touch-action: none;
+}
+.task-card__handle:hover {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+}
+.task-card__handle:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+.task-card[data-dragging] {
+  z-index: 1;
+  background: var(--color-surface-3);
+  border-color: var(--color-accent);
+  box-shadow: var(--elevation-float);
+}
+.task-card[data-dragging] .task-card__handle {
+  cursor: grabbing;
 }
 
 /* ---------- Breaking it down ---------- */

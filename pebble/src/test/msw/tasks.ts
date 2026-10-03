@@ -72,6 +72,20 @@ export const taskHandlers = {
       tasks = [];
       return new HttpResponse(null, { status: 204 });
     }),
+    http.put('/api/tasks/order', async ({ request }) => {
+      const { taskIds } = (await request.json()) as ApiSchema<'TasksOrder'>;
+      const byId = new Map(tasks.map((t) => [t.id, t]));
+      if (taskIds.length !== tasks.length || taskIds.some((taskId) => !byId.has(taskId))) {
+        return HttpResponse.json({ detail: 'Your list changed meanwhile. Pebble kept the order it had.' }, { status: 409 });
+      }
+      tasks = taskIds.map((taskId) => byId.get(taskId)!);
+      return HttpResponse.json<TaskOut[]>(tasks);
+    }),
+    http.delete('/api/tasks/:taskId', ({ params }) => {
+      const before = tasks.length;
+      tasks = tasks.filter((t) => t.id !== params.taskId);
+      return tasks.length < before ? new HttpResponse(null, { status: 204 }) : notFound();
+    }),
     http.patch('/api/tasks/:taskId', async ({ params, request }) => {
       const changes = (await request.json()) as ApiSchema<'TaskUpdate'>;
       const set = Object.fromEntries(Object.entries(changes).filter(([, v]) => v !== null && v !== undefined));
@@ -102,5 +116,6 @@ export const taskHandlers = {
     http.patch('/api/tasks/*', () => HttpResponse.json({ detail: 'down' }, { status })),
     http.put('/api/tasks/*', () => HttpResponse.json({ detail: 'down' }, { status })),
     http.delete('/api/tasks', () => HttpResponse.json({ detail: 'down' }, { status })),
+    http.delete('/api/tasks/*', () => HttpResponse.json({ detail: 'down' }, { status })),
   ],
 };

@@ -2,7 +2,7 @@ import itertools
 
 import pytest
 
-from app.application.tasks import TaskNotFoundError, Tasks
+from app.application.tasks import TaskNotFoundError, TaskOrderError, Tasks
 from app.domain.tasks import Step, Task, TaskPriority, TaskStep
 from tests.fakes import InMemoryTaskRepository
 
@@ -113,3 +113,24 @@ async def test_the_default_ids_are_uuids(repository):
     added = await Tasks(repository).add(USER, Task("", "One"))
 
     assert len(added.id) == 36
+
+
+async def test_reorder_puts_the_tasks_in_the_order_given(tasks):
+    one, two, three = [await tasks.add(USER, Task("", title)) for title in ("One", "Two", "Three")]
+
+    ordered = await tasks.reorder(USER, [three.id, one.id, two.id])
+
+    assert [t.title for t in ordered] == ["Three", "One", "Two"]
+    assert [t.title for t in await tasks.list(USER)] == ["Three", "One", "Two"]
+
+
+@pytest.mark.parametrize(
+    "order", [["id-1"], ["id-1", "id-1"], ["id-1", "id-2", "id-9"]], ids=["missing", "twice", "unknown"]
+)
+async def test_reorder_needs_every_task_exactly_once(tasks, order):
+    await tasks.add(USER, Task("", "One"))
+    await tasks.add(USER, Task("", "Two"))
+
+    with pytest.raises(TaskOrderError):
+        await tasks.reorder(USER, order)
+    assert [t.title for t in await tasks.list(USER)] == ["One", "Two"]
