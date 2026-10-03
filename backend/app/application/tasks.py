@@ -6,6 +6,7 @@ from dataclasses import dataclass, replace
 from typing import Any
 
 from app.application.ports.tasks import TaskRepository
+from app.application.progress import ProgressLog
 from app.domain.tasks import Step, Task, TaskStep
 
 EDITABLE_FIELDS = frozenset({"title", "time_estimate", "tag", "priority", "completed", "why"})
@@ -33,6 +34,8 @@ def new_id() -> str:
 class Tasks:
     repository: TaskRepository
     make_id: Callable[[], str] = new_id
+    progress: ProgressLog | None = None
+    """Notes each task and step the first time it's finished (5.6)."""
 
     async def list(self, user_id: str) -> list[Task]:
         return await self.repository.list(user_id)
@@ -47,8 +50,10 @@ class Tasks:
         unknown = set(changes) - EDITABLE_FIELDS
         if unknown:
             raise ValueError(f"Not editable: {sorted(unknown)}")
-        task = replace(await self._get(user_id, task_id), **changes)
+        before = await self._get(user_id, task_id)
+        task = replace(before, **changes)
         await self._save(user_id, task)
+        await self._finished(user_id, before, task)
         return task
 
     async def set_steps(self, user_id: str, task_id: str, steps: Sequence[Step]) -> Task:
@@ -59,11 +64,13 @@ class Tasks:
         return task
 
     async def set_step_completed(self, user_id: str, task_id: str, step_id: str, completed: bool) -> Task:
+        before = await self._get(user_id, task_id)
         try:
-            task = (await self._get(user_id, task_id)).with_step_completed(step_id, completed)
+            task = before.with_step_completed(step_id, completed)
         except KeyError:
             raise TaskNotFoundError() from None
         await self._save(user_id, task)
+        await self._finished(user_id, before, task)
         return task
 
     async def delete(self, user_id: str, task_id: str) -> None:
@@ -82,6 +89,10 @@ class Tasks:
 
     async def clear(self, user_id: str) -> None:
         await self.repository.delete_all(user_id)
+
+    async def _finished(self, user_id: str, before: Task, after: Task) -> None:
+        if self.progress is not None:
+            await self.progress.finished(user_id, before, after)
 
     async def _get(self, user_id: str, task_id: str) -> Task:
         task = await self.repository.get(user_id, task_id)

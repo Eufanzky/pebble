@@ -67,7 +67,7 @@ describe('AppShell navigation', () => {
 
     expect(sidebar).toHaveAttribute('data-collapsed', 'true');
     expect(screen.getByRole('button', { name: 'Expand navigation' })).toHaveAttribute('aria-expanded', 'false');
-    for (const name of ['Today', 'Documents', 'Activity', 'Focus', 'Settings']) {
+    for (const name of ['Today', 'Documents', 'Stats', 'Activity', 'Focus', 'Settings']) {
       expect(screen.getByRole('link', { name })).toBeInTheDocument();
     }
 

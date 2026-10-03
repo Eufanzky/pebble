@@ -21,10 +21,12 @@ from app.application.ports.activity import ActivityRepository
 from app.application.ports.documents import DocumentParser
 from app.application.ports.llm import LLMProvider
 from app.application.ports.preferences import PreferencesRepository
+from app.application.ports.progress import ProgressRepository
 from app.application.ports.reader import ReaderTokenProvider
 from app.application.ports.safety import PIIRedactor, SafetyChecker
 from app.application.ports.tasks import TaskRepository
 from app.application.preferences import UserPreferences
+from app.application.progress import ProgressLog, ProgressStats
 from app.application.safety import SafetyGate
 from app.application.tasks import Tasks
 from app.infrastructure.config import Settings, settings
@@ -32,6 +34,7 @@ from app.infrastructure.db.account import SqlAccountDataStore, UnconfiguredAccou
 from app.infrastructure.db.activity import SqlActivityRepository, UnconfiguredActivityRepository
 from app.infrastructure.db.engine import build_engine, build_sessions
 from app.infrastructure.db.preferences import SqlPreferencesRepository, UnconfiguredPreferencesRepository
+from app.infrastructure.db.progress import SqlProgressRepository, UnconfiguredProgressRepository
 from app.infrastructure.db.tasks import SqlTaskRepository, UnconfiguredTaskRepository
 from app.infrastructure.immersive_reader import UnconfiguredReader, build_reader
 from app.infrastructure.llm.factory import build_llm_provider
@@ -51,6 +54,7 @@ class Container:
     preferences_repository: PreferencesRepository = field(default_factory=UnconfiguredPreferencesRepository)
     activity_repository: ActivityRepository = field(default_factory=UnconfiguredActivityRepository)
     account_data: AccountDataStore = field(default_factory=UnconfiguredAccountDataStore)
+    progress_repository: ProgressRepository = field(default_factory=UnconfiguredProgressRepository)
     engine: AsyncEngine | None = None
 
     @classmethod
@@ -67,6 +71,7 @@ class Container:
             container.preferences_repository = SqlPreferencesRepository(sessions)
             container.activity_repository = SqlActivityRepository(sessions)
             container.account_data = SqlAccountDataStore(sessions)
+            container.progress_repository = SqlProgressRepository(sessions)
         return container
 
     @property
@@ -95,7 +100,15 @@ class Container:
 
     @property
     def tasks(self) -> Tasks:
-        return Tasks(self.task_repository)
+        return Tasks(self.task_repository, progress=self.progress_log)
+
+    @property
+    def progress_log(self) -> ProgressLog:
+        return ProgressLog(self.progress_repository)
+
+    @property
+    def progress_stats(self) -> ProgressStats:
+        return ProgressStats(self.progress_repository)
 
     @property
     def preferences(self) -> UserPreferences:
@@ -189,3 +202,11 @@ def get_export_account_data() -> ExportAccountData:
 
 def get_delete_account() -> DeleteAccount:
     return get_container().delete_account
+
+
+def get_progress_log() -> ProgressLog:
+    return get_container().progress_log
+
+
+def get_progress_stats() -> ProgressStats:
+    return get_container().progress_stats

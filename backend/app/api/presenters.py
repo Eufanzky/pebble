@@ -4,6 +4,7 @@ from app.domain.activity import ActivityEntry
 from app.domain.chat import ChatReply
 from app.domain.documents import Simplification
 from app.domain.preferences import Preferences
+from app.domain.progress import ProgressSummary, Totals
 from app.domain.tasks import Task, TaskBreakdown
 
 
@@ -82,4 +83,19 @@ def activity_data(entry: ActivityEntry) -> dict:
         "action": entry.action,
         "reasoning": entry.reasoning,
         "safetyStatus": str(entry.safety_status),
+    }
+
+
+def _totals(totals: Totals) -> dict:
+    return {"tasks": totals.tasks, "steps": totals.steps, "focusMinutes": totals.focus_minutes}
+
+
+def stats_data(summary: ProgressSummary) -> dict:
+    return {
+        "start": summary.start,
+        "end": summary.end,
+        "totals": _totals(summary.totals),
+        "byTag": {str(tag): count for tag, count in summary.by_tag.items()},
+        "days": [{"date": day.day, **_totals(day.totals)} for day in summary.days],
+        "allTime": _totals(summary.all_time),
     }

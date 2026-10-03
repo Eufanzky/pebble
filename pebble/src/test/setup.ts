@@ -6,6 +6,7 @@ import * as axeMatchers from 'vitest-axe/matchers';
 import { server } from './msw/server';
 import { taskStore } from './msw/tasks';
 import { accountStore } from './msw/account';
+import { statsStore } from './msw/stats';
 
 expect.extend(axeMatchers);
 
@@ -51,6 +52,7 @@ afterEach(async () => {
   server.resetHandlers();
   taskStore.reset();
   accountStore.reset();
+  statsStore.reset();
   if (dom) window.localStorage.clear();
 });
 

@@ -5,6 +5,7 @@ because ``LLM_PROVIDER=fake`` uses it outside tests too.
 from dataclasses import dataclass, field
 
 from app.domain.activity import ActivityEntry
+from app.domain.progress import ProgressEvent
 from app.domain.safety import Groundedness, HarmCategory, SafetyVerdict
 from app.domain.tasks import Task
 
@@ -129,3 +130,18 @@ class InMemoryAccountData:
         self.tasks.rows.pop(user_id, None)
         self.preferences.saved.pop(user_id, None)
         self.activity.entries.pop(user_id, None)
+
+
+@dataclass
+class InMemoryProgressRepository:
+    events: dict[str, list[ProgressEvent]] = field(default_factory=dict)
+
+    async def add(self, user_id: str, event: ProgressEvent) -> bool:
+        mine = self.events.setdefault(user_id, [])
+        if any(e.kind == event.kind and e.item_id == event.item_id for e in mine):
+            return False
+        mine.append(event)
+        return True
+
+    async def list(self, user_id: str) -> list[ProgressEvent]:
+        return sorted(self.events.get(user_id, []), key=lambda e: e.at)

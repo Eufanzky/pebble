@@ -8,6 +8,7 @@ import { PebbleChat } from '@/features/chat';
 import { DocumentsView } from '@/features/documents';
 import { FocusView } from '@/features/focus';
 import { SettingsView } from '@/features/settings';
+import { StatsView } from '@/features/stats';
 import { TodayView } from '@/features/tasks';
 import { newTask, seed } from '@/features/tasks/testing';
 import { renderWithProviders, screen } from './render';
@@ -41,6 +42,7 @@ describe('axe: feature views', () => {
     ['Sign in', <SignInView key="signin" providers={['github', 'google', 'dev']} callbackUrl="/today" />],
     ['Account', <AccountSection key="account" name="Sam" userId="github:42" />],
     ['Design system', <DesignSystemPreview key="design-system" />],
+    ['Stats', <StatsView key="stats" />],
   ])('%s has no violations', async (_, ui) => {
     await expectNoViolations(ui);
   });

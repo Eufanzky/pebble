@@ -81,6 +81,8 @@ Real-LLM evals live in `tests/evals/` (`uv run pytest -m eval`). They're exclude
 | POST | `/api/import` | Move what a browser kept before sign-in into the account: tasks go after yours (with their steps), preferences apply only if you never saved any, log entries keep their times (none later than now) |
 | GET | `/api/account/export` | Download everything stored about you: every row of every table you own, as a JSON file |
 | DELETE | `/api/account` | Delete your account: every row you own, in every table, in one transaction (204) |
+| GET | `/api/stats?days=7&tz=Europe/Berlin` | Your progress: tasks, steps and focus minutes per day and per tag over the range, plus all-time totals. Counts only ever add up |
+| POST | `/api/stats/focus` | Note a finished focus session (`{"minutes": 25}`, 1-180) |
 | GET | `/api/health` | Health check |
 
 Everything except `/api/health` needs a signed-in user (see Authentication).

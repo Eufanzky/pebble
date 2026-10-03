@@ -308,6 +308,48 @@ export interface paths {
         patch: operations["update_preferences_api_preferences_patch"];
         trace?: never;
     };
+    "/api/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Your progress
+         * @description What you finished: tasks, steps and focus minutes over the last `days` days (in your time zone), tasks per
+         *     tag, one entry per day, and all-time totals. Counts only ever add up: unticking or deleting a task later
+         *     doesn't take back that you finished it. Nothing goes back to zero, and there are no goals or comparisons.
+         */
+        get: operations["get_stats_api_stats_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/stats/focus": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Note a focus session
+         * @description A focus session is over: its minutes count towards your progress.
+         */
+        post: operations["add_focus_session_api_stats_focus_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tasks": {
         parameters: {
             query?: never;
@@ -467,6 +509,17 @@ export interface components {
              */
             file: string;
         };
+        /** ByTagOut */
+        ByTagOut: {
+            /** Communication */
+            communication: number;
+            /** Project */
+            project: number;
+            /** Study */
+            study: number;
+            /** Wellbeing */
+            wellbeing: number;
+        };
         /** ChatRequest */
         ChatRequest: {
             /**
@@ -527,6 +580,20 @@ export interface components {
          * @enum {string}
          */
         ChunkSize: "small" | "medium" | "large";
+        /** DayOut */
+        DayOut: {
+            /**
+             * Date
+             * Format: date
+             */
+            date: string;
+            /** Focusminutes */
+            focusMinutes: number;
+            /** Steps */
+            steps: number;
+            /** Tasks */
+            tasks: number;
+        };
         /** DecomposeRequest */
         DecomposeRequest: {
             /**
@@ -557,6 +624,11 @@ export interface components {
             timeEstimate: string;
             /** Title */
             title: string;
+        };
+        /** FocusSession */
+        FocusSession: {
+            /** Minutes */
+            minutes: number;
         };
         /** GroundednessResult */
         GroundednessResult: {
@@ -732,6 +804,24 @@ export interface components {
             /** Whyexplanation */
             whyExplanation: string;
         };
+        /** StatsOut */
+        StatsOut: {
+            allTime: components["schemas"]["TotalsOut"];
+            byTag: components["schemas"]["ByTagOut"];
+            /** Days */
+            days: components["schemas"]["DayOut"][];
+            /**
+             * End
+             * Format: date
+             */
+            end: string;
+            /**
+             * Start
+             * Format: date
+             */
+            start: string;
+            totals: components["schemas"]["TotalsOut"];
+        };
         /** SubtaskIn */
         SubtaskIn: {
             /**
@@ -851,6 +941,15 @@ export interface components {
         TasksOrder: {
             /** Taskids */
             taskIds: string[];
+        };
+        /** TotalsOut */
+        TotalsOut: {
+            /** Focusminutes */
+            focusMinutes: number;
+            /** Steps */
+            steps: number;
+            /** Tasks */
+            tasks: number;
         };
         /** ValidationError */
         ValidationError: {
@@ -1255,6 +1354,71 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["PreferencesOut"];
                 };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    get_stats_api_stats_get: {
+        parameters: {
+            query?: {
+                /** @description How many days, up to and including today */
+                days?: number;
+                /** @description Your time zone, e.g. Europe/Berlin */
+                tz?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StatsOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    add_focus_session_api_stats_focus_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FocusSession"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Validation Error */
             422: {
