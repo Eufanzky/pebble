@@ -81,7 +81,7 @@ Features live in `src/features/<name>/` (`components/`, `hooks/`, `lib/`, `api/`
 - `companion`: `PebbleProvider`/`usePebble` (mood and rotating messages), `PebbleCharacter` and `PebbleSpeechBubble`.
 - `activity`: `ActivityLogProvider`/`useActivityLog` and `ActivityView`.
 - `settings`: `SettingsView`: Pebble's look and personality, reading level, chunk size, reduce animations, calm mode, and a reset.
-- `focus`: `FocusView` and the 25-minute timer (`useFocusTimer`). There are no rooms or other people (7.1); 7.2 ties a session to a task step.
+- `focus`: `FocusView` and the 25-minute timer (`useFocusTimer`). There are no rooms or other people (8.1); 8.2 ties a session to a task step.
 - `auth`: `SignInView`, `AccountSection`, and (server-only, `server.ts`) the Auth.js config, `forwardToBackend` and `signBackendToken`.
 
 `src/shared/` holds what features share and never imports a feature: `lib/` (`api.ts`, `audio.ts`), `hooks/` (`useLocalStorage`, `useTimeOfDay`, `useFocusOnNavigation`, `useFocusTrap`, `useFadeIn`), `ui/` (`ScreenBackground`, `ToastContext`), and `preferences/`. Preferences live in `shared/` because every feature reads them and the settings screen shows a Pebble preview, so putting them in a feature would create an import cycle.
@@ -124,4 +124,4 @@ Each agent is a use case in `application/agents/`: `DecomposeTask` (CalmSense), 
   - Respect reduced motion (`reduceMotion` from `usePreferences`) and `calmMode` (use `stripEmoji` for user-facing text).
   - Keep keyboard navigation and ARIA working (`useFocusOnNavigation`, `useFocusTrap`, skip link).
 - Every AI action should be explainable. The activity log records the agent name, reasoning, and safety status. Tasks have "Why?" cards (`WhyCard`).
-- The named agents shown in the UI are CalmSense, SimplifyCore, PebbleVoice, AdaptLens, WhyBot, and BridgeBot. Only the first three plus the orchestrator have agent code. The other three appear only as names in `domain/agents.py` and the frontend (roadmap phase 5 makes them real).
+- The named agents shown in the UI are CalmSense, SimplifyCore, PebbleVoice, AdaptLens, WhyBot, and BridgeBot. Only the first three plus the orchestrator have agent code. The other three appear only as names in `domain/agents.py` and the frontend (roadmap phase 6 makes them real).
