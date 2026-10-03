@@ -23,7 +23,9 @@ export const metadata: Metadata = {
     'An AI-powered assistant that reduces cognitive overload by transforming information into clear, personalized formats, guided by your companion Pebble.',
   icons: {
     icon: '/favicon.svg',
+    apple: '/icons/pebble-180.png',
   },
+  appleWebApp: { capable: true, title: 'Pebble', statusBarStyle: 'black-translucent' },
 };
 
 // Reach the edges of phones with a notch; shell.css keeps clear of them with safe-area insets.
