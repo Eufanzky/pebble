@@ -29,9 +29,12 @@ export function useImportLocalData() {
     }
     storage.setItem(IMPORT_MARK, String(Date.now()));
     postJson('/api/import', body)
-      .then(() => {
+      .then(async () => {
         forgetLocalData(storage);
-        void client.invalidateQueries();
+        // A first load still under way began before the import: drop it, or the
+        // reload would reuse it and miss what was just imported
+        await client.cancelQueries();
+        await client.invalidateQueries();
       })
       .catch(() => storage.removeItem(IMPORT_MARK));
   }, [client]);
