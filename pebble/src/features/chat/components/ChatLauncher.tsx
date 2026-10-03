@@ -11,7 +11,8 @@ export default function ChatLauncher({ isOpen, noMotion, onToggle }: ChatLaunche
       onClick={onToggle}
       aria-label={isOpen ? 'Close chat with Pebble' : 'Chat with Pebble'}
       style={{
-        position: 'fixed', bottom: 24, right: 24, zIndex: 50,
+        // Clear of the tab bar on phones (--app-bottom-inset, shell.css)
+        position: 'fixed', bottom: 'calc(24px + var(--app-bottom-inset, 0px))', right: 24, zIndex: 50,
         width: 56, height: 56, borderRadius: '50%',
         background: 'var(--pebble-color)', border: 'none', cursor: 'pointer',
         display: 'flex', alignItems: 'center', justifyContent: 'center',

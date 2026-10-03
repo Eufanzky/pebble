@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Nunito, Baloo_2, JetBrains_Mono } from 'next/font/google';
 import './globals.css';
 
@@ -30,6 +30,14 @@ export const metadata: Metadata = {
   icons: {
     icon: '/favicon.svg',
   },
+};
+
+// Reach the edges of phones with a notch; shell.css keeps clear of them with safe-area insets.
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  viewportFit: 'cover',
+  themeColor: '#0F0D0A',
 };
 
 export default function RootLayout({

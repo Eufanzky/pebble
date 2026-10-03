@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useTasks } from '@/features/tasks';
+import { useLocalStorage } from '@/shared/hooks/useLocalStorage';
+import { IconButton } from '@/shared/ui';
 
 const navItems = [
   { href: '/today', label: 'Today', icon: 'today' },
@@ -13,7 +15,7 @@ const navItems = [
 ] as const;
 
 function NavIcon({ type, active }: { type: string; active: boolean }) {
-  const color = active ? 'var(--text-primary)' : 'var(--text-secondary)';
+  const color = active ? 'var(--color-text)' : 'var(--color-text-2)';
 
   switch (type) {
     case 'today':
@@ -74,15 +76,15 @@ function NavIcon({ type, active }: { type: string; active: boolean }) {
 
 function CatSilhouette() {
   return (
-    <svg width="20" height="18" viewBox="0 0 20 18" fill="none" className="inline-block ml-1.5 -mb-0.5">
+    <svg width="20" height="18" viewBox="0 0 20 18" fill="none" className="sidebar-brand-cat" aria-hidden="true">
       {/* Ears */}
-      <polygon points="3,8 1,1 7,5" fill="var(--accent-lavender)" opacity="0.7" />
-      <polygon points="17,8 19,1 13,5" fill="var(--accent-lavender)" opacity="0.7" />
+      <polygon points="3,8 1,1 7,5" fill="var(--color-accent)" opacity="0.7" />
+      <polygon points="17,8 19,1 13,5" fill="var(--color-accent)" opacity="0.7" />
       {/* Head */}
-      <ellipse cx="10" cy="11" rx="8" ry="7" fill="var(--accent-lavender)" opacity="0.5" />
+      <ellipse cx="10" cy="11" rx="8" ry="7" fill="var(--color-accent)" opacity="0.5" />
       {/* Eyes */}
-      <circle cx="7" cy="10" r="1.2" fill="var(--bg-deep)" />
-      <circle cx="13" cy="10" r="1.2" fill="var(--bg-deep)" />
+      <circle cx="7" cy="10" r="1.2" fill="var(--color-bg)" />
+      <circle cx="13" cy="10" r="1.2" fill="var(--color-bg)" />
       {/* Eye shine */}
       <circle cx="7.5" cy="9.5" r="0.4" fill="white" opacity="0.8" />
       <circle cx="13.5" cy="9.5" r="0.4" fill="white" opacity="0.8" />
@@ -90,14 +92,15 @@ function CatSilhouette() {
   );
 }
 
-interface SidebarProps {
-  className?: string;
-  onNavClick?: () => void;
-}
-
-export default function Sidebar({ className, onNavClick }: SidebarProps) {
+/**
+ * The app's navigation: one list of links, laid out by shell.css as a sidebar
+ * on wider screens (collapsible to an icon rail) and as a bottom tab bar on
+ * phones. Labels stay readable to screen readers in every layout.
+ */
+export default function Sidebar() {
   const pathname = usePathname();
   const { tasks, completionPercentage } = useTasks();
+  const [collapsed, setCollapsed] = useLocalStorage('pebble-nav-collapsed', false);
 
   const done = tasks.filter((t) => t.completed).length;
   const total = tasks.length;
@@ -105,17 +108,28 @@ export default function Sidebar({ className, onNavClick }: SidebarProps) {
   const offset = circ - (circ * completionPercentage) / 100;
 
   return (
-    <aside className={`sidebar ${className ?? ''}`} aria-label="Main navigation">
-      {/* Brand */}
-      <div className="sidebar-brand">
-        <div className="sidebar-brand-main">
-          pebble
-          <CatSilhouette />
+    <aside className="sidebar" data-collapsed={collapsed || undefined} aria-label="Main navigation">
+      <div className="sidebar-top">
+        <div className="sidebar-brand">
+          <div className="sidebar-brand-main">
+            <span className="sidebar-brand-name">pebble</span>
+            <CatSilhouette />
+          </div>
+          <div className="sidebar-brand-sub">your calm corner</div>
         </div>
-        <div className="sidebar-brand-sub">your calm corner</div>
+        <IconButton
+          label={collapsed ? 'Expand navigation' : 'Collapse navigation'}
+          aria-expanded={!collapsed}
+          className="sidebar-toggle"
+          onClick={() => setCollapsed(!collapsed)}
+        >
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+            <rect x="2" y="2.5" width="12" height="11" rx="2.5" stroke="currentColor" strokeWidth="1.4" />
+            <line x1="6" y1="3" x2="6" y2="13" stroke="currentColor" strokeWidth="1.4" />
+          </svg>
+        </IconButton>
       </div>
 
-      {/* Navigation */}
       <nav className="sidebar-nav" aria-label="App sections">
         {navItems.map((item) => {
           const active = pathname === item.href || (pathname === '/' && item.href === '/today');
@@ -125,30 +139,25 @@ export default function Sidebar({ className, onNavClick }: SidebarProps) {
               href={item.href}
               className={`sidebar-nav-link ${active ? 'active' : ''}`}
               aria-current={active ? 'page' : undefined}
-              onClick={onNavClick}
             >
               <span className="sidebar-nav-icon" aria-hidden="true">
                 <NavIcon type={item.icon} active={active} />
               </span>
-              <span>{item.label}</span>
+              <span className="sidebar-nav-label">{item.label}</span>
             </Link>
           );
         })}
       </nav>
 
-      {/* Progress ring */}
       <div className="sidebar-footer" role="status" aria-label={`${done} of ${total} tasks completed`}>
         <svg viewBox="0 0 36 36" width={36} height={36} className="sidebar-ring" aria-hidden="true">
+          <circle cx="18" cy="18" r="14" fill="none" stroke="var(--color-line)" strokeWidth="3" />
           <circle
-            cx="18" cy="18" r="14"
+            cx="18"
+            cy="18"
+            r="14"
             fill="none"
-            stroke="var(--border-soft)"
-            strokeWidth="3"
-          />
-          <circle
-            cx="18" cy="18" r="14"
-            fill="none"
-            stroke="var(--accent-lavender)"
+            stroke="var(--color-accent)"
             strokeWidth="3"
             strokeLinecap="round"
             strokeDasharray={circ}
@@ -156,8 +165,10 @@ export default function Sidebar({ className, onNavClick }: SidebarProps) {
             className="sidebar-ring-fill"
           />
         </svg>
-        <div className="sidebar-footer-text">
-          <strong style={{ fontFamily: 'var(--font-jetbrains)', fontSize: 12 }}>{done} of {total}</strong>
+        <div className="sidebar-footer-text" aria-hidden="true">
+          <strong>
+            {done} of {total}
+          </strong>
           <span>tasks today</span>
         </div>
       </div>

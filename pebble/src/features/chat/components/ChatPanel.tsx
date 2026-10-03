@@ -41,8 +41,9 @@ export default function ChatPanel({ messages, isLoading, onSend, onClose, noMoti
       role="dialog"
       aria-label="Chat with Pebble"
       style={{
-        position: 'fixed', bottom: 90, right: 24, zIndex: 50,
-        width: 380, maxHeight: 520,
+        position: 'fixed', bottom: 'calc(90px + var(--app-bottom-inset, 0px))', right: 16, zIndex: 50,
+        width: 'min(380px, calc(100vw - 32px))',
+        maxHeight: 'min(520px, calc(100dvh - 120px - var(--app-bottom-inset, 0px)))',
         display: 'flex', flexDirection: 'column',
         background: 'rgba(20,18,14,0.95)',
         border: '1px solid var(--glass-border)',

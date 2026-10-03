@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { axe } from 'vitest-axe';
 import { act, render, screen, userEvent } from '@/test/render';
+import { setTestPreferences } from '@/test/preferences';
 import AppShell from './AppShell';
 
 let pathname = '/today';
@@ -51,5 +52,57 @@ describe('AppShell keyboard paths', () => {
     const { container } = render(<AppShell><Page title="Today" /></AppShell>);
 
     expect(await axe(container)).toHaveNoViolations();
+  });
+});
+
+describe('AppShell navigation', () => {
+  it('collapses the sidebar to icons and back, keeping every link named', async () => {
+    const user = userEvent.setup();
+    const { container } = render(<AppShell><Page title="Today" /></AppShell>);
+    const sidebar = container.querySelector('.sidebar')!;
+    const toggle = screen.getByRole('button', { name: 'Collapse navigation' });
+    expect(toggle).toHaveAttribute('aria-expanded', 'true');
+
+    await user.click(toggle);
+
+    expect(sidebar).toHaveAttribute('data-collapsed', 'true');
+    expect(screen.getByRole('button', { name: 'Expand navigation' })).toHaveAttribute('aria-expanded', 'false');
+    for (const name of ['Today', 'Documents', 'Activity', 'Focus', 'Settings']) {
+      expect(screen.getByRole('link', { name })).toBeInTheDocument();
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Expand navigation' }));
+    expect(sidebar).not.toHaveAttribute('data-collapsed');
+  });
+
+  it('remembers the collapsed sidebar on this device', async () => {
+    const user = userEvent.setup();
+    const first = render(<AppShell><Page title="Today" /></AppShell>);
+    await user.click(screen.getByRole('button', { name: 'Collapse navigation' }));
+    first.unmount();
+
+    const { container } = render(<AppShell><Page title="Today" /></AppShell>);
+
+    expect(container.querySelector('.sidebar')).toHaveAttribute('data-collapsed', 'true');
+    await user.click(screen.getByRole('button', { name: 'Expand navigation' }));
+  });
+
+  it('fades between pages, but swaps at once with reduced motion', () => {
+    setTestPreferences({ reduceAnimations: false });
+    const motion = render(<AppShell><Page title="Today" /></AppShell>);
+    pathname = '/documents';
+    motion.rerender(<AppShell><Page title="documents" /></AppShell>);
+    expect(motion.container.querySelector('.page-transition')).toHaveAttribute('data-leaving', 'true');
+    expect(screen.getByRole('heading', { name: 'Today' })).toBeInTheDocument();
+    motion.unmount();
+
+    setTestPreferences({ reduceAnimations: true });
+    pathname = '/today';
+    const still = render(<AppShell><Page title="Today" /></AppShell>);
+    pathname = '/documents';
+    still.rerender(<AppShell><Page title="documents" /></AppShell>);
+
+    expect(still.container.querySelector('.page-transition')).not.toHaveAttribute('data-leaving');
+    expect(screen.getByRole('heading', { name: 'documents' })).toBeInTheDocument();
   });
 });

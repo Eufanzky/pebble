@@ -1,0 +1,307 @@
+/*
+ * The app shell (roadmap 5.3): a sidebar on wide screens (collapsible to an
+ * icon rail, and a rail by default on tablets), a bottom tab bar on phones.
+ * Tokens only.
+ */
+
+.app-layout {
+  --nav-width: 248px;
+  --nav-rail: 76px;
+  --tab-bar: 64px;
+  /* What fixed things (the chat button) keep clear of at the bottom */
+  --app-bottom-inset: 0px;
+
+  display: flex;
+  height: 100dvh;
+  width: 100%;
+  overflow: hidden;
+  font-family: var(--font-body);
+}
+
+.main-content {
+  flex: 1;
+  min-width: 0;
+  height: 100dvh;
+  overflow: hidden;
+  position: relative;
+}
+
+.main-content-inner {
+  position: relative;
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-bottom: var(--app-bottom-inset);
+}
+
+/* ---------- Page transition ---------- */
+.page-transition {
+  min-height: 100%;
+  transition:
+    opacity var(--duration-base) var(--ease-settle),
+    transform var(--duration-slow) var(--ease-settle);
+}
+.page-transition[data-leaving] {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
+/* ---------- Sidebar (wide screens) ---------- */
+.sidebar {
+  position: relative;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  width: var(--nav-width);
+  min-width: var(--nav-width);
+  height: 100dvh;
+  border-right: 1px solid var(--color-line);
+  background: color-mix(in srgb, var(--color-bg) 82%, transparent);
+  backdrop-filter: blur(18px);
+  transition:
+    width var(--duration-slow) var(--ease-settle),
+    min-width var(--duration-slow) var(--ease-settle);
+}
+
+.sidebar-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-2);
+  padding: var(--space-5) var(--space-3) var(--space-4) var(--space-5);
+}
+
+.sidebar-brand-main {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-display);
+  line-height: 1;
+  color: var(--color-accent);
+}
+
+.sidebar-brand-sub {
+  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--color-text-3);
+}
+
+.sidebar-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  padding: var(--space-2) var(--space-3);
+}
+
+.sidebar-nav-link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--tap);
+  padding: 0 var(--space-4);
+  border-radius: var(--radius-md);
+  color: var(--color-text-2);
+  font-size: var(--text-sm);
+  text-decoration: none;
+  transition:
+    background-color var(--duration-base) var(--ease-settle),
+    color var(--duration-base) var(--ease-settle);
+}
+.sidebar-nav-link:hover {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+}
+.sidebar-nav-link.active {
+  background: var(--color-accent-soft);
+  color: var(--color-text);
+  font-weight: var(--weight-strong);
+}
+.sidebar-nav-link.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 25%;
+  bottom: 25%;
+  width: 3px;
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+}
+
+.sidebar-nav-icon {
+  display: grid;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+.sidebar-footer {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5);
+  border-top: 1px solid var(--color-line);
+}
+.sidebar-ring {
+  flex-shrink: 0;
+  transform: rotate(-90deg);
+}
+.sidebar-ring-fill {
+  transition: stroke-dashoffset var(--duration-calm) var(--ease-settle);
+}
+.sidebar-footer-text {
+  display: flex;
+  flex-direction: column;
+  font-size: var(--text-xs);
+  line-height: 1.4;
+  color: var(--color-text-3);
+}
+.sidebar-footer-text strong {
+  color: var(--color-text-2);
+  font-weight: var(--weight-strong);
+}
+
+/* ---------- Icon rail: collapsed by the user, or a tablet ---------- */
+.sidebar[data-collapsed] {
+  width: var(--nav-rail);
+  min-width: var(--nav-rail);
+}
+.sidebar[data-collapsed] .sidebar-top {
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-5) 0 var(--space-3);
+}
+.sidebar[data-collapsed] .sidebar-brand-name,
+.sidebar[data-collapsed] .sidebar-brand-sub,
+.sidebar[data-collapsed] .sidebar-footer-text {
+  display: none;
+}
+.sidebar[data-collapsed] .sidebar-nav-link {
+  justify-content: center;
+  padding: 0;
+}
+/* Labels stay in the accessibility tree; links are named by them */
+.sidebar[data-collapsed] .sidebar-nav-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+}
+.sidebar[data-collapsed] .sidebar-footer {
+  justify-content: center;
+  padding: var(--space-4) 0;
+}
+
+@media (min-width: 768px) and (max-width: 1099px) {
+  .sidebar {
+    width: var(--nav-rail);
+    min-width: var(--nav-rail);
+  }
+  .sidebar .sidebar-top {
+    flex-direction: column;
+    align-items: center;
+    padding: var(--space-5) 0 var(--space-3);
+  }
+  .sidebar .sidebar-brand-name,
+  .sidebar .sidebar-brand-sub,
+  .sidebar .sidebar-footer-text,
+  .sidebar .sidebar-toggle {
+    display: none;
+  }
+  .sidebar .sidebar-nav-link {
+    justify-content: center;
+    padding: 0;
+  }
+  .sidebar .sidebar-nav-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+  }
+  .sidebar .sidebar-footer {
+    justify-content: center;
+    padding: var(--space-4) 0;
+  }
+}
+
+/* ---------- Bottom tab bar (phones) ---------- */
+@media (max-width: 767px) {
+  .app-layout {
+    --app-bottom-inset: calc(var(--tab-bar) + env(safe-area-inset-bottom));
+  }
+
+  .sidebar,
+  .sidebar[data-collapsed] {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 40;
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    border-right: none;
+    border-top: 1px solid var(--color-line);
+    padding-bottom: env(safe-area-inset-bottom);
+    background: color-mix(in srgb, var(--color-bg) 88%, transparent);
+  }
+
+  .sidebar .sidebar-top,
+  .sidebar .sidebar-footer {
+    display: none;
+  }
+
+  .sidebar .sidebar-nav {
+    flex-direction: row;
+    gap: 0;
+    padding: 0 var(--space-1);
+    height: var(--tab-bar);
+  }
+
+  .sidebar .sidebar-nav-link,
+  .sidebar[data-collapsed] .sidebar-nav-link {
+    flex: 1;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2px;
+    min-width: 0;
+    padding: var(--space-1) 0;
+    border-radius: var(--radius-md);
+    font-size: 0.6875rem;
+    background: transparent;
+  }
+  .sidebar .sidebar-nav-link.active {
+    background: transparent;
+  }
+  .sidebar .sidebar-nav-link.active::before {
+    left: 30%;
+    right: 30%;
+    top: 0;
+    bottom: auto;
+    width: auto;
+    height: 3px;
+  }
+  .sidebar .sidebar-nav-link.active .sidebar-nav-icon {
+    background: var(--color-accent-soft);
+    border-radius: var(--radius-pill);
+  }
+  .sidebar .sidebar-nav-icon {
+    width: 44px;
+    height: 26px;
+  }
+  /* On the tab bar the labels show again, even when the rail was collapsed */
+  .sidebar[data-collapsed] .sidebar-nav-label {
+    position: static;
+    width: auto;
+    height: auto;
+    clip: auto;
+  }
+}
