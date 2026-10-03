@@ -151,21 +151,68 @@ test('signing out goes back to the sign-in page', async ({ page }) => {
   await expect(page).toHaveURL(/\/signin\?callbackUrl=/);
 });
 
-for (const path of ['/today', '/documents', '/activity', '/focus', '/settings']) {
-  test(`${path} has no axe violations`, async ({ page }) => {
-    // The backgrounds are drawn in CSS (5.2): no page loads a picture for them
-    const pictures: string[] = [];
-    page.on('request', (request) => {
-      if (request.resourceType() === 'image' && !/favicon|icon/.test(request.url())) pictures.push(request.url());
-    });
-    await page.goto(path);
-    // By role, not `h1`: while Next.js streams a page, a hidden copy of it
-    // sits in <body> until it's swapped in
-    await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
-
-    const results = await new AxeBuilder({ page }).analyze();
-
-    expect(results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`)).toEqual([]);
-    expect(pictures).toEqual([]);
+/** Elements (outside fixed and decorative layers) that run past the right edge of the screen. */
+function overflowing(page: Page) {
+  return page.evaluate(() => {
+    const width = document.documentElement.clientWidth;
+    return Array.from(document.querySelectorAll('body *'))
+      .filter((el) => {
+        if (el.closest('[aria-hidden="true"], [hidden]')) return false;
+        const box = el.getBoundingClientRect();
+        let node: Element | null = el;
+        while (node) {
+          if (getComputedStyle(node).position === 'fixed') return false;
+          node = node.parentElement;
+        }
+        return box.width > 0 && box.height > 0 && box.right > width + 1;
+      })
+      .slice(0, 5)
+      .map((el) => `${el.tagName.toLowerCase()}.${String(el.className).split(' ')[0]}`);
   });
 }
+
+// Phone, tablet and laptop (roadmap 5.3)
+const WIDTHS = [
+  { width: 360, height: 780 },
+  { width: 768, height: 1024 },
+  { width: 1280, height: 800 },
+];
+
+for (const path of ['/today', '/documents', '/activity', '/focus', '/settings']) {
+  for (const viewport of WIDTHS) {
+    test(`${path} at ${viewport.width}px fits the screen, with no axe violations`, async ({ page }) => {
+      await page.setViewportSize(viewport);
+      // The backgrounds are drawn in CSS (5.2): no page loads a picture for them
+      const pictures: string[] = [];
+      page.on('request', (request) => {
+        if (request.resourceType() === 'image' && !/favicon|icon/.test(request.url())) pictures.push(request.url());
+      });
+      await page.goto(path);
+      // By role, not `h1`: while Next.js streams a page, a hidden copy of it
+      // sits in <body> until it's swapped in
+      await expect(page.getByRole('heading', { level: 1 })).toBeVisible();
+
+      expect(await overflowing(page)).toEqual([]);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
+      const results = await new AxeBuilder({ page }).analyze();
+      expect(results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`)).toEqual([]);
+      expect(pictures).toEqual([]);
+    });
+  }
+}
+
+test('phones get a bottom tab bar that moves between pages', async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('/today');
+  const tabs = page.getByRole('navigation', { name: 'App sections' });
+  const box = await tabs.boundingBox();
+  expect(box!.y + box!.height).toBeGreaterThan(844 - 100);
+
+  await tabs.getByRole('link', { name: 'Focus' }).click();
+  await expect(page).toHaveURL('/focus');
+  await expect(tabs.getByRole('link', { name: 'Focus' })).toHaveAttribute('aria-current', 'page');
+  // Each tab is a comfortable target
+  const tab = await tabs.getByRole('link', { name: 'Today' }).boundingBox();
+  expect(tab!.height).toBeGreaterThanOrEqual(44);
+  expect(tab!.width).toBeGreaterThanOrEqual(44);
+});

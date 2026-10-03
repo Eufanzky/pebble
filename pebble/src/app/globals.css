@@ -72,151 +72,6 @@ body {
   outline-offset: 2px;
 }
 
-/* ========== App Layout ========== */
-.app-layout {
-  display: flex;
-  height: 100vh;
-  width: 100vw;
-  overflow: hidden;
-}
-
-.main-content {
-  flex: 1;
-  height: 100vh;
-  overflow: hidden;
-  position: relative;
-}
-
-.main-content-inner {
-  position: relative;
-  height: 100%;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-/* ========== Page Transitions ========== */
-.page-transition {
-  transition: opacity 250ms ease-out, transform 250ms ease-out;
-  min-height: 100%;
-}
-
-/* ========== Sidebar ========== */
-.sidebar {
-  width: 260px;
-  min-width: 260px;
-  height: 100vh;
-  background: var(--bg-deep);
-  border-right: 1px solid var(--border-soft);
-  display: flex;
-  flex-direction: column;
-  position: relative;
-  z-index: 20;
-}
-
-.sidebar-brand {
-  padding: 28px 24px 20px;
-}
-
-.sidebar-brand-main {
-  font-family: var(--font-baloo);
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--accent-lavender);
-  letter-spacing: -0.5px;
-  line-height: 1;
-  display: flex;
-  align-items: center;
-}
-
-.sidebar-brand-sub {
-  font-family: var(--font-nunito);
-  font-size: 11px;
-  color: var(--text-muted);
-  margin-top: 4px;
-  letter-spacing: 0.3px;
-}
-
-/* Sidebar navigation */
-.sidebar-nav {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  padding: 8px 12px;
-  flex: 1;
-}
-
-.sidebar-nav-link {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 11px 16px;
-  border-radius: 10px;
-  cursor: pointer;
-  color: var(--text-secondary);
-  font-family: var(--font-nunito);
-  font-size: 14px;
-  font-weight: 400;
-  text-decoration: none;
-  transition: background 200ms ease, color 200ms ease;
-  border-left: 3px solid transparent;
-  position: relative;
-}
-
-.sidebar-nav-link:hover {
-  background: var(--bg-surface);
-  color: var(--text-primary);
-}
-
-.sidebar-nav-link.active {
-  background: rgba(196, 181, 212, 0.08);
-  color: var(--text-primary);
-  border-left-color: var(--accent-lavender);
-  font-weight: 600;
-}
-
-.sidebar-nav-icon {
-  width: 20px;
-  height: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-/* Sidebar footer */
-.sidebar-footer {
-  padding: 16px 20px;
-  border-top: 1px solid var(--border-soft);
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.sidebar-ring {
-  transform: rotate(-90deg);
-  flex-shrink: 0;
-}
-
-.sidebar-ring-fill {
-  transition: stroke-dashoffset 500ms ease;
-}
-
-.sidebar-footer-text {
-  font-family: var(--font-nunito);
-  font-size: 11px;
-  color: var(--text-muted);
-  line-height: 1.5;
-  display: flex;
-  flex-direction: column;
-}
-
-.sidebar-footer-text strong {
-  color: var(--text-secondary);
-  font-weight: 600;
-  font-family: var(--font-jetbrains);
-  font-size: 12px;
-}
-
 /* ========== Glass Card ========== */
 .glass-card {
   background: var(--glass-bg);
@@ -292,42 +147,9 @@ body {
   }
 }
 
-/* ========== Mobile Responsive ========== */
-@media (max-width: 768px) {
-  .sidebar {
-    position: fixed;
-    left: 0;
-    top: 0;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-    z-index: 40;
-  }
-
-  .sidebar.sidebar-open {
-    transform: translateX(0);
-  }
-
-  .sidebar-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(15, 13, 10, 0.7);
-    z-index: 39;
-  }
-
-  .sidebar-overlay.visible {
-    display: block;
-  }
-
-  .mobile-menu-btn {
-    display: flex;
-  }
-
-  .main-content {
-    width: 100%;
-  }
-
-  /* Roadmap: stack nodes left on mobile */
+/* ========== Roadmap on phones ========== */
+@media (max-width: 767px) {
+  /* Stack nodes left */
   .roadmap-line {
     left: 20px !important;
   }
@@ -347,34 +169,6 @@ body {
   .roadmap-card-slot:first-child {
     display: none !important;
   }
-}
-
-@media (min-width: 769px) {
-  .mobile-menu-btn {
-    display: none;
-  }
-
-  .sidebar-overlay {
-    display: none !important;
-  }
-}
-
-.mobile-menu-btn {
-  position: fixed;
-  top: 16px;
-  left: 16px;
-  z-index: 38;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  border: 1px solid var(--border-soft);
-  background: rgba(15, 13, 10, 0.9);
-  color: var(--text-primary);
-  cursor: pointer;
-  align-items: center;
-  justify-content: center;
-  display: none;
-  backdrop-filter: blur(12px);
 }
 
 /* ========== Visually Hidden (screen reader only) ========== */

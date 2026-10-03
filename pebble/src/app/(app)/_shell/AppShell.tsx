@@ -1,8 +1,10 @@
 'use client';
 
 import { type ReactNode, useEffect, useState } from 'react';
+import { usePreferences } from '@/shared/preferences';
 import { usePathname } from 'next/navigation';
 import Sidebar from './Sidebar';
+import './shell.css';
 import { useImportLocalData } from './useImportLocalData';
 import { PreferencesProvider } from '@/shared/preferences';
 import { QueryProvider } from '@/shared/lib/query';
@@ -13,14 +15,16 @@ import { ToastProvider } from '@/shared/ui/ToastContext';
 import { useFocusOnNavigation } from '@/shared/hooks/useFocusOnNavigation';
 import { PebbleChat } from '@/features/chat';
 
+/** The old page fades out and the new one settles in; with reduced motion the new page shows at once. */
 function PageTransition({ children }: { children: ReactNode }) {
   const pathname = usePathname();
+  const { reduceMotion } = usePreferences();
   // The page currently on screen. On navigation it stays up while fading out.
   const [shown, setShown] = useState({ pathname, children });
   const navigating = pathname !== shown.pathname;
 
-  // Same page re-rendered: keep the shown children current
-  if (!navigating && shown.children !== children) {
+  // Same page re-rendered, or no motion wanted: show the current children now
+  if ((!navigating || reduceMotion) && shown.children !== children) {
     setShown({ pathname, children });
   }
 
@@ -31,13 +35,7 @@ function PageTransition({ children }: { children: ReactNode }) {
   }, [navigating, pathname, children]);
 
   return (
-    <div
-      className="page-transition"
-      style={{
-        opacity: navigating ? 0 : 1,
-        transform: navigating ? 'translateY(8px)' : 'none',
-      }}
-    >
+    <div className="page-transition" data-leaving={(navigating && !reduceMotion) || undefined}>
       {shown.children}
     </div>
   );
@@ -46,36 +44,16 @@ function PageTransition({ children }: { children: ReactNode }) {
 function AppShellInner({ children }: { children: ReactNode }) {
   useFocusOnNavigation();
   useImportLocalData();
-  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   return (
     <div className="app-layout">
       <a href="#main-content" className="skip-link">
         Skip to main content
       </a>
-      <button
-        className="mobile-menu-btn"
-        onClick={() => setSidebarOpen(!sidebarOpen)}
-        aria-label={sidebarOpen ? 'Close navigation menu' : 'Open navigation menu'}
-        aria-expanded={sidebarOpen}
-      >
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-          <line x1="3" y1="5" x2="17" y2="5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          <line x1="3" y1="10" x2="17" y2="10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-          <line x1="3" y1="15" x2="17" y2="15" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-        </svg>
-      </button>
-      <div
-        className={`sidebar-overlay ${sidebarOpen ? 'visible' : ''}`}
-        onClick={() => setSidebarOpen(false)}
-        aria-hidden="true"
-      />
-      <Sidebar className={sidebarOpen ? 'sidebar-open' : ''} onNavClick={() => setSidebarOpen(false)} />
+      <Sidebar />
       <main id="main-content" className="main-content" tabIndex={-1}>
         <div className="main-content-inner">
-          <PageTransition>
-            {children}
-          </PageTransition>
+          <PageTransition>{children}</PageTransition>
         </div>
       </main>
       <PebbleChat />

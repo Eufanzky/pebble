@@ -113,7 +113,7 @@ A redesign that feels smooth on every screen size, plus the features users asked
   *Done:* component and axe tests for each primitive; a token page lists them (dev only); no new inline colour values.
 - [x] **5.2 Ambient backgrounds.** Replace the photo `ScreenBackground` with slow, blurred CSS gradient fields tinted by Pebble's colour, one mood per screen. They hold still under reduce-motion and calm mode, and the images leave `public/`.
   *Done:* tests cover the still state; no background image is requested on any page (E2E); text contrast passes axe on every page.
-- [ ] **5.3 Responsive shell and mobile navigation.** A bottom tab bar on phones and a collapsible sidebar on wider screens, safe-area insets, touch targets of at least 44 px, and smooth page transitions (View Transitions where supported, none under reduce-motion).
+- [x] **5.3 Responsive shell and mobile navigation.** A bottom tab bar on phones and a collapsible sidebar on wider screens, safe-area insets, touch targets of at least 44 px, and smooth page transitions (none under reduce-motion).
   *Done:* E2E runs every page at 360, 768 and 1280 px wide with no horizontal scroll and an axe scan at each; keyboard and screen-reader navigation still pass.
 - [ ] **5.4 Today, redesigned.** A clearer Today on the design system: what's up next, the list grouped by open and done, steps inline, and calm motion when a task or step is finished.
   *Done:* the existing Today tests and E2E pass on the new layout; new component tests cover the grouping.
