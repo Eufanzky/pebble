@@ -12,6 +12,7 @@ import { TodayView } from '@/features/tasks';
 import { newTask, seed } from '@/features/tasks/testing';
 import { renderWithProviders, screen } from './render';
 import { setTestPreferences } from './preferences';
+import { DesignSystemPreview } from '@/shared/ui';
 import { accountStore } from './msw/account';
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }), usePathname: () => '/today' }));
@@ -39,6 +40,7 @@ describe('axe: feature views', () => {
     ['Pebble', <PebbleCharacter key="pebble" />],
     ['Sign in', <SignInView key="signin" providers={['github', 'google', 'dev']} callbackUrl="/today" />],
     ['Account', <AccountSection key="account" name="Sam" userId="github:42" />],
+    ['Design system', <DesignSystemPreview key="design-system" />],
   ])('%s has no violations', async (_, ui) => {
     await expectNoViolations(ui);
   });
