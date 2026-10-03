@@ -6,4 +6,5 @@ export { Card, type CardProps } from './Card';
 export { Field, type FieldProps } from './Field';
 export { Chip, type ChipTone } from './Chip';
 export { Dialog } from './Dialog';
+export { AmbientBackground, type AmbientMood } from './AmbientBackground';
 export { DesignSystemPreview } from './DesignSystemPreview';

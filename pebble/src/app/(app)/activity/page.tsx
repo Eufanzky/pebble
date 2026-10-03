@@ -1,10 +1,10 @@
 import { ActivityView } from '@/features/activity';
-import ScreenBackground from '@/shared/ui/ScreenBackground';
+import { AmbientBackground } from '@/shared/ui';
 
 export default function ActivityPage() {
   return (
     <>
-      <ScreenBackground scene="rooftop" />
+      <AmbientBackground mood="activity" />
       <div className="relative z-[1] p-10 px-12">
         <ActivityView />
       </div>

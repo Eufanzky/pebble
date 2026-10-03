@@ -142,8 +142,10 @@ test('downloading your data, then deleting the account for good', async ({ page 
 
 test('signing out goes back to the sign-in page', async ({ page }) => {
   await page.goto('/settings');
-  await expect(page.getByText(/^Signed in as e2e-\d+ with the dev login\.$/)).toBeVisible();
-  await page.getByRole('button', { name: 'Sign out' }).click();
+  // By role: while Next.js streams the page, a hidden copy of it can sit in <body>
+  const account = page.getByRole('region', { name: 'Your account' });
+  await expect(account.getByText(/^Signed in as e2e-\d+ with the dev login\.$/)).toBeVisible();
+  await account.getByRole('button', { name: 'Sign out' }).click();
   await expect(page).toHaveURL(/\/signin/);
   await page.goto('/today');
   await expect(page).toHaveURL(/\/signin\?callbackUrl=/);
@@ -151,6 +153,11 @@ test('signing out goes back to the sign-in page', async ({ page }) => {
 
 for (const path of ['/today', '/documents', '/activity', '/focus', '/settings']) {
   test(`${path} has no axe violations`, async ({ page }) => {
+    // The backgrounds are drawn in CSS (5.2): no page loads a picture for them
+    const pictures: string[] = [];
+    page.on('request', (request) => {
+      if (request.resourceType() === 'image' && !/favicon|icon/.test(request.url())) pictures.push(request.url());
+    });
     await page.goto(path);
     // By role, not `h1`: while Next.js streams a page, a hidden copy of it
     // sits in <body> until it's swapped in
@@ -159,5 +166,6 @@ for (const path of ['/today', '/documents', '/activity', '/focus', '/settings'])
     const results = await new AxeBuilder({ page }).analyze();
 
     expect(results.violations.map((v) => `${v.id}: ${v.nodes.map((n) => n.target.join(' ')).join(', ')}`)).toEqual([]);
+    expect(pictures).toEqual([]);
   });
 }
