@@ -1,4 +1,6 @@
+import type { ReactNode } from 'react';
 import { PebbleCharacter } from '@/features/companion';
+import { Button } from '@/shared/ui';
 import type { Task } from '../types';
 import TaskCard from './TaskCard';
 
@@ -11,62 +13,54 @@ interface TaskListProps {
   onWhyOpen: (id: string) => void;
   /** Offered when the list is empty: fills it with example tasks to look around with. */
   onAddExamples?: () => void;
+  /** Shown between the open tasks and the done ones: where a new task goes. */
+  addTask?: ReactNode;
 }
 
-/** The list view: open tasks, then the ones done today. */
-export default function TaskList({ open, done, onAddExamples, ...handlers }: TaskListProps) {
+/** The list view: what's left to do, then what's done today. */
+export default function TaskList({ open, done, onAddExamples, addTask, ...handlers }: TaskListProps) {
+  const empty = open.length === 0 && done.length === 0;
+
   return (
     <>
-      <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-        {open.map((task) => <TaskCard key={task.id} task={task} {...handlers} />)}
-      </div>
+      <section className="task-group" aria-labelledby="group-open">
+        <h2 id="group-open" className="task-group__title">
+          To do <span className="task-group__count">{open.length}</span>
+        </h2>
+        {open.length > 0 && (
+          <div className="task-group__list">
+            {open.map((task) => (
+              <TaskCard key={task.id} task={task} {...handlers} />
+            ))}
+          </div>
+        )}
 
-      {open.length === 0 && done.length === 0 && (
-        <div style={{ textAlign: 'center', padding: '32px 0' }}>
-          <PebbleCharacter mood="normal" size="small" />
-          <p style={{ fontSize: 13, color: 'var(--text-muted)', marginTop: 12 }}>
-            All clear! Add a task when you&apos;re ready, or just rest.
-          </p>
-          {onAddExamples && (
-            <button
-              type="button"
-              onClick={onAddExamples}
-              style={{
-                marginTop: 14,
-                padding: '8px 18px',
-                borderRadius: 999,
-                border: '1px solid var(--pebble-color)',
-                background: 'transparent',
-                color: 'var(--text-primary)',
-                fontSize: 13,
-                fontWeight: 600,
-                cursor: 'pointer',
-              }}
-            >
-              Add example tasks
-            </button>
-          )}
-        </div>
-      )}
+        {empty && (
+          <div className="task-empty">
+            <PebbleCharacter mood="normal" size="small" />
+            <p>All clear! Add a task when you&apos;re ready, or just rest.</p>
+            {onAddExamples && (
+              <Button variant="quiet" onClick={onAddExamples}>
+                Add example tasks
+              </Button>
+            )}
+          </div>
+        )}
+
+        {addTask}
+      </section>
 
       {done.length > 0 && (
-        <>
-          <div style={{
-            fontSize: 10,
-            fontWeight: 700,
-            textTransform: 'uppercase',
-            letterSpacing: '1.5px',
-            color: 'var(--text-muted)',
-            marginTop: 24,
-            marginBottom: 10,
-            paddingLeft: 4,
-          }}>
-            done today
+        <section className="task-group" aria-labelledby="group-done">
+          <h2 id="group-done" className="task-group__title">
+            Done today <span className="task-group__count">{done.length}</span>
+          </h2>
+          <div className="task-group__list">
+            {done.map((task) => (
+              <TaskCard key={task.id} task={task} {...handlers} />
+            ))}
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {done.map((task) => <TaskCard key={task.id} task={task} {...handlers} />)}
-          </div>
-        </>
+        </section>
       )}
     </>
   );

@@ -115,7 +115,7 @@ A redesign that feels smooth on every screen size, plus the features users asked
   *Done:* tests cover the still state; no background image is requested on any page (E2E); text contrast passes axe on every page.
 - [x] **5.3 Responsive shell and mobile navigation.** A bottom tab bar on phones and a collapsible sidebar on wider screens, safe-area insets, touch targets of at least 44 px, and smooth page transitions (none under reduce-motion).
   *Done:* E2E runs every page at 360, 768 and 1280 px wide with no horizontal scroll and an axe scan at each; keyboard and screen-reader navigation still pass.
-- [ ] **5.4 Today, redesigned.** A clearer Today on the design system: what's up next, the list grouped by open and done, steps inline, and calm motion when a task or step is finished.
+- [x] **5.4 Today, redesigned.** A clearer Today on the design system: what's up next, the list grouped by open and done, steps inline, and calm motion when a task or step is finished.
   *Done:* the existing Today tests and E2E pass on the new layout; new component tests cover the grouping.
 - [ ] **5.5 Edit and organise tasks.** Edit a task's title, estimate, tag and priority; delete one task; reorder by drag or keyboard (a `position` on the server); filter by tag and search by title.
   *Done:* API tests for reorder (including user isolation), component tests for edit, delete, keyboard reorder, filter and search, and an E2E edit-and-reorder step.

@@ -28,13 +28,13 @@ export default function ProgressPath({ completed, total, percentage }: ProgressP
         viewBox="0 0 300 50"
         width={300}
         height={50}
-        style={{ display: 'block', overflow: 'visible' }}
+        style={{ display: 'block', overflow: 'visible', maxWidth: '100%', height: 'auto' }}
       >
         {/* Background path */}
         <path
           d={pathD}
           fill="none"
-          stroke="var(--border-soft)"
+          stroke="var(--color-line-strong)"
           strokeWidth="3"
           strokeLinecap="round"
         />
@@ -42,7 +42,7 @@ export default function ProgressPath({ completed, total, percentage }: ProgressP
         <path
           d={pathD}
           fill="none"
-          stroke="var(--accent-lavender)"
+          stroke="var(--color-accent)"
           strokeWidth="3"
           strokeLinecap="round"
           strokeDasharray={pathLength}
@@ -54,8 +54,8 @@ export default function ProgressPath({ completed, total, percentage }: ProgressP
           cx={dotX}
           cy={dotY}
           r="5"
-          fill="var(--accent-lavender)"
-          stroke="var(--bg-deep)"
+          fill="var(--color-accent)"
+          stroke="var(--color-bg)"
           strokeWidth="2"
           style={noMotion ? undefined : { transition: 'cx 0.6s ease-out, cy 0.6s ease-out' }}
         />
@@ -64,17 +64,12 @@ export default function ProgressPath({ completed, total, percentage }: ProgressP
           cx={dotX}
           cy={dotY}
           r="10"
-          fill="var(--accent-lavender)"
+          fill="var(--color-accent)"
           opacity="0.15"
           style={noMotion ? undefined : { transition: 'cx 0.6s ease-out, cy 0.6s ease-out' }}
         />
       </svg>
-      <div style={{
-        fontFamily: 'var(--font-jetbrains)',
-        fontSize: 13,
-        color: 'var(--text-muted)',
-        marginTop: 8,
-      }}>
+      <div style={{ fontSize: 'var(--text-sm)', color: 'var(--color-text-2)', marginTop: 'var(--space-2)' }}>
         {completed} of {total} tasks done
       </div>
     </div>

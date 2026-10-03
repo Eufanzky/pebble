@@ -34,12 +34,13 @@ describe('TaskCard', () => {
     renderCard(task());
 
     expect(screen.getByText('Read Chapter 4')).toBeInTheDocument();
-    expect(screen.getByText('📚 Study')).toBeInTheDocument();
+    expect(screen.getByText('Study')).toBeInTheDocument();
     expect(screen.getByText('~25 min')).toBeInTheDocument();
-    expect(screen.getByTitle('Medium priority')).toBeInTheDocument();
+    expect(screen.getByText('Medium priority')).toBeInTheDocument();
+    expect(screen.getByRole('article', { name: 'Read Chapter 4' })).toBeInTheDocument();
   });
 
-  it('hides the tag emoji in calm mode', () => {
+  it('shows the tag as a plain label, in calm mode too', () => {
     seed([], { calmMode: true });
     renderCard(task());
 
