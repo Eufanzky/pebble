@@ -1,0 +1,89 @@
+/*
+ * Design tokens (roadmap 5.1). Every redesigned screen and every primitive in
+ * shared/ui uses only these. Dark only; the accent is the user's Pebble colour.
+ */
+:root {
+  /* Colour: surfaces are warm cream over the deep background, separated by tone, not shadows */
+  --color-bg: #0f0d0a;
+  --color-surface-1: rgba(255, 248, 235, 0.04);
+  --color-surface-2: rgba(255, 248, 235, 0.07);
+  --color-surface-3: rgba(255, 248, 235, 0.11);
+  --color-line: rgba(255, 248, 235, 0.1);
+  --color-line-strong: rgba(255, 248, 235, 0.2);
+  --color-text: #f5edd6;
+  --color-text-2: rgba(245, 237, 214, 0.72);
+  --color-text-3: rgba(245, 237, 214, 0.55);
+  --color-accent: var(--pebble-color, #c4b5d4);
+  --color-accent-soft: color-mix(in srgb, var(--color-accent) 18%, transparent);
+  --color-on-accent: #1a1612;
+  --color-focus: #f5edd6;
+  --color-scrim: rgba(8, 7, 5, 0.72);
+
+  /* The four task tags */
+  --color-tag-study: #c4b5d4;
+  --color-tag-communication: #d4a843;
+  --color-tag-project: #e8856a;
+  --color-tag-wellbeing: #8faf8a;
+
+  /* Type: Baloo 2 for headings, Nunito for everything else; a 1.25 scale on 16px */
+  --font-display: var(--font-baloo), ui-rounded, system-ui, sans-serif;
+  --font-body: var(--font-nunito), system-ui, sans-serif;
+  --text-xs: 0.8rem;
+  --text-sm: 0.875rem;
+  --text-md: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5625rem;
+  --text-2xl: 1.953rem;
+  --text-3xl: 2.441rem;
+  --leading-tight: 1.15;
+  --leading-body: 1.55;
+  --weight-regular: 400;
+  --weight-strong: 600;
+  --weight-display: 700;
+
+  /* Space: a 4px grid */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  /* Radius: smaller things are tighter, containers rounder */
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --radius-xl: 28px;
+  --radius-pill: 999px;
+
+  /* Elevation: a lighter surface and a hairline; the one shadow is for things that float */
+  --elevation-float: 0 18px 48px rgba(0, 0, 0, 0.45);
+
+  /* Motion: one easing that settles; durations go to 0 with reduced motion */
+  --ease-settle: cubic-bezier(0.22, 1, 0.36, 1);
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+  --duration-calm: 600ms;
+
+  /* Touch targets */
+  --tap: 44px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --duration-fast: 0ms;
+    --duration-base: 0ms;
+    --duration-slow: 0ms;
+    --duration-calm: 0ms;
+  }
+}
+
+.reduce-animations {
+  --duration-fast: 0ms;
+  --duration-base: 0ms;
+  --duration-slow: 0ms;
+  --duration-calm: 0ms;
+}

@@ -1,0 +1,255 @@
+/* Shared primitives (roadmap 5.1). Colours, sizes and motion come only from tokens.css. */
+
+/* ---------- Button ---------- */
+.ui-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: var(--tap);
+  padding: 0 var(--space-5);
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-strong);
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-base) var(--ease-settle),
+    border-color var(--duration-base) var(--ease-settle),
+    color var(--duration-base) var(--ease-settle),
+    transform var(--duration-fast) var(--ease-settle);
+}
+.ui-button:active:not(:disabled) {
+  transform: scale(0.97);
+}
+.ui-button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+.ui-button[aria-busy='true'] {
+  cursor: progress;
+}
+.ui-button--sm {
+  min-height: 36px;
+  padding: 0 var(--space-4);
+  font-size: var(--text-xs);
+}
+.ui-button--primary {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+}
+.ui-button--primary:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-accent) 86%, var(--color-text));
+}
+.ui-button--quiet {
+  background: transparent;
+  border-color: var(--color-accent);
+  color: var(--color-text);
+}
+.ui-button--quiet:hover:not(:disabled) {
+  background: var(--color-accent-soft);
+}
+.ui-button--ghost {
+  background: transparent;
+  color: var(--color-text-2);
+}
+.ui-button--ghost:hover:not(:disabled) {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+}
+
+/* ---------- IconButton ---------- */
+.ui-icon-button {
+  display: inline-grid;
+  place-items: center;
+  width: var(--tap);
+  height: var(--tap);
+  border-radius: var(--radius-pill);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--color-text-2);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-base) var(--ease-settle),
+    color var(--duration-base) var(--ease-settle);
+}
+.ui-icon-button:hover:not(:disabled) {
+  background: var(--color-surface-2);
+  color: var(--color-text);
+}
+.ui-icon-button[aria-pressed='true'] {
+  background: var(--color-accent-soft);
+  color: var(--color-text);
+}
+
+/* ---------- Focus, for every interactive primitive ---------- */
+.ui-button:focus-visible,
+.ui-icon-button:focus-visible,
+.ui-chip:focus-visible,
+.ui-field__control:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 3px;
+}
+
+/* ---------- Card ---------- */
+.ui-card {
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--color-line);
+  background: var(--color-surface-1);
+  color: var(--color-text);
+}
+.ui-card--raised {
+  background: var(--color-surface-2);
+}
+.ui-card--pad-sm {
+  padding: var(--space-4);
+}
+.ui-card--pad-md {
+  padding: var(--space-5);
+}
+.ui-card--pad-lg {
+  padding: var(--space-6);
+}
+
+/* ---------- Field ---------- */
+.ui-field {
+  display: grid;
+  gap: var(--space-2);
+}
+.ui-field__label {
+  font-size: var(--text-sm);
+  font-weight: var(--weight-strong);
+  color: var(--color-text);
+}
+.ui-field__control {
+  width: 100%;
+  min-height: var(--tap);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-line-strong);
+  background: var(--color-surface-1);
+  color: var(--color-text);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  line-height: var(--leading-body);
+  transition: border-color var(--duration-base) var(--ease-settle);
+}
+.ui-field__control::placeholder {
+  color: var(--color-text-3);
+}
+.ui-field__control:hover {
+  border-color: var(--color-accent);
+}
+.ui-field__control[aria-invalid='true'] {
+  border-color: var(--color-tag-communication);
+}
+textarea.ui-field__control {
+  resize: vertical;
+  min-height: 6rem;
+}
+.ui-field__hint,
+.ui-field__note {
+  font-size: var(--text-sm);
+  color: var(--color-text-2);
+}
+
+/* ---------- Chip ---------- */
+.ui-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  min-height: 28px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-line);
+  background: var(--color-surface-1);
+  color: var(--color-text-2);
+  font-family: var(--font-body);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-strong);
+  white-space: nowrap;
+}
+.ui-chip__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: var(--chip-tone, var(--color-accent));
+}
+button.ui-chip {
+  min-height: 36px;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-base) var(--ease-settle),
+    border-color var(--duration-base) var(--ease-settle);
+}
+button.ui-chip:hover {
+  border-color: var(--color-line-strong);
+}
+.ui-chip[aria-pressed='true'] {
+  background: var(--color-accent-soft);
+  border-color: var(--color-accent);
+  color: var(--color-text);
+}
+.ui-chip[data-tone='study'] { --chip-tone: var(--color-tag-study); }
+.ui-chip[data-tone='communication'] { --chip-tone: var(--color-tag-communication); }
+.ui-chip[data-tone='project'] { --chip-tone: var(--color-tag-project); }
+.ui-chip[data-tone='wellbeing'] { --chip-tone: var(--color-tag-wellbeing); }
+
+/* ---------- Dialog and Sheet ---------- */
+.ui-dialog-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: var(--space-4);
+  background: var(--color-scrim);
+  animation: ui-fade-in var(--duration-base) var(--ease-settle);
+}
+.ui-dialog {
+  width: min(32rem, 100%);
+  max-height: calc(100dvh - 2 * var(--space-4));
+  overflow: auto;
+  padding: var(--space-5);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--color-line);
+  background: color-mix(in srgb, var(--color-bg) 92%, var(--color-text));
+  color: var(--color-text);
+  box-shadow: var(--elevation-float);
+  animation: ui-rise var(--duration-slow) var(--ease-settle);
+}
+.ui-dialog__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
+}
+.ui-dialog__title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-display);
+  line-height: var(--leading-tight);
+  margin: 0;
+}
+/* On phones a sheet comes up from the bottom edge */
+@media (max-width: 640px) {
+  .ui-dialog-scrim--sheet {
+    place-items: end stretch;
+    padding: 0;
+  }
+  .ui-dialog--sheet {
+    width: 100%;
+    border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+    padding-bottom: calc(var(--space-5) + env(safe-area-inset-bottom));
+  }
+}
+
+@keyframes ui-fade-in {
+  from { opacity: 0; }
+}
+@keyframes ui-rise {
+  from { opacity: 0; transform: translateY(12px); }
+}

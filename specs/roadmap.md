@@ -109,7 +109,7 @@ The characterization tests from 1.4 must stay green through every item in this p
 
 A redesign that feels smooth on every screen size, plus the features users asked for most. The photo backgrounds render poorly and go; everything visual is drawn in CSS, like Pebble. Every item keeps principle 1 (no streaks, no red, progress only adds up), reduced motion, calm mode, and the axe checks.
 
-- [ ] **5.1 Design system.** Tokens for colour, type scale, spacing, radius, elevation and motion (durations, easing, reduced-motion variants), and shared primitives in `shared/ui/` (Button, IconButton, Card, Field, Chip, Sheet/Dialog with the focus trap). New and redesigned screens use only these.
+- [x] **5.1 Design system.** Tokens for colour, type scale, spacing, radius, elevation and motion (durations, easing, reduced-motion variants), and shared primitives in `shared/ui/` (Button, IconButton, Card, Field, Chip, Sheet/Dialog with the focus trap). New and redesigned screens use only these.
   *Done:* component and axe tests for each primitive; a token page lists them (dev only); no new inline colour values.
 - [ ] **5.2 Ambient backgrounds.** Replace the photo `ScreenBackground` with slow, blurred CSS gradient fields tinted by Pebble's colour, one mood per screen. They hold still under reduce-motion and calm mode, and the images leave `public/`.
   *Done:* tests cover the still state; no background image is requested on any page (E2E); text contrast passes axe on every page.

@@ -1,4 +1,6 @@
 @import "tailwindcss";
+@import "../shared/ui/tokens.css";
+@import "../shared/ui/primitives.css";
 
 :root {
   --bg-deep: #0F0D0A;
