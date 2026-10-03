@@ -2,6 +2,7 @@ import { http, HttpResponse, type RequestHandler } from 'msw';
 import type { ApiSchema } from '@/shared/api';
 import { taskHandlers } from './tasks';
 import { accountHandlers } from './account';
+import { statsHandlers } from './stats';
 
 // Handler bodies are typed from the generated API types, so a backend schema
 // change breaks these fakes at compile time instead of drifting silently.
@@ -57,7 +58,9 @@ export const handlers: RequestHandler[] = [
   readerHandlers.unavailable(),
   ...taskHandlers.api(),
   ...accountHandlers.api(),
+  ...statsHandlers.api(),
 ];
 
 export { taskHandlers, taskStore } from './tasks';
 export { accountHandlers, accountStore } from './account';
+export { statsHandlers, statsStore } from './stats';

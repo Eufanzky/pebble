@@ -22,6 +22,7 @@ from tests.fakes import (
     InMemoryAccountData,
     InMemoryActivityRepository,
     InMemoryPreferencesRepository,
+    InMemoryProgressRepository,
     InMemoryTaskRepository,
     ScriptedSafety,
 )
@@ -51,6 +52,7 @@ def container() -> Iterator[Container]:
         preferences_repository=preferences,
         activity_repository=activity,
         account_data=InMemoryAccountData(tasks, preferences, activity),
+        progress_repository=InMemoryProgressRepository(),
     )
     set_container(fakes)
     yield fakes
@@ -84,6 +86,12 @@ def preferences_repository(container: Container) -> InMemoryPreferencesRepositor
 def activity_repository(container: Container) -> InMemoryActivityRepository:
     """What the agents logged: ``activity_repository.entries[user_id]``, oldest first."""
     return container.activity_repository
+
+
+@pytest.fixture
+def progress_repository(container: Container) -> InMemoryProgressRepository:
+    """What the user finished: ``progress_repository.events[user_id]``."""
+    return container.progress_repository
 
 
 @pytest.fixture

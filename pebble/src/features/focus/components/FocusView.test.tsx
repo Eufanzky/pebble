@@ -1,5 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { act, renderWithProviders, screen } from '@/test/render';
+import { act, renderWithProviders, screen, waitFor } from '@/test/render';
+import { statsStore } from '@/test/msw/stats';
 import { expectLogged } from '@/test/activity';
 import { playChime } from '@/shared/lib/audio';
 import { FOCUS_SECONDS } from '../lib/timer';
@@ -36,6 +37,8 @@ describe('FocusView', () => {
     expect(timer()).toHaveTextContent('25:00');
     vi.useRealTimers(); // the log is saved over the (fake) network
     await expectLogged({ action: expect.stringContaining('Focus session completed') });
+    // The minutes count towards progress (5.6)
+    await waitFor(() => expect(statsStore.focusSessions()).toEqual([25]));
   });
 
   // Roadmap 8.1: no made-up people or participant counts (principle 6).

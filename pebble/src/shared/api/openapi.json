@@ -95,6 +95,34 @@
         "title": "Body_parse_api_documents_parse_post",
         "type": "object"
       },
+      "ByTagOut": {
+        "properties": {
+          "communication": {
+            "title": "Communication",
+            "type": "integer"
+          },
+          "project": {
+            "title": "Project",
+            "type": "integer"
+          },
+          "study": {
+            "title": "Study",
+            "type": "integer"
+          },
+          "wellbeing": {
+            "title": "Wellbeing",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "study",
+          "communication",
+          "project",
+          "wellbeing"
+        ],
+        "title": "ByTagOut",
+        "type": "object"
+      },
       "ChatRequest": {
         "properties": {
           "chunkSize": {
@@ -198,6 +226,35 @@
         "title": "ChunkSize",
         "type": "string"
       },
+      "DayOut": {
+        "properties": {
+          "date": {
+            "format": "date",
+            "title": "Date",
+            "type": "string"
+          },
+          "focusMinutes": {
+            "title": "Focusminutes",
+            "type": "integer"
+          },
+          "steps": {
+            "title": "Steps",
+            "type": "integer"
+          },
+          "tasks": {
+            "title": "Tasks",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "tasks",
+          "steps",
+          "focusMinutes",
+          "date"
+        ],
+        "title": "DayOut",
+        "type": "object"
+      },
       "DecomposeRequest": {
         "properties": {
           "chunkSize": {
@@ -264,6 +321,21 @@
           "tag"
         ],
         "title": "ExtractedTask",
+        "type": "object"
+      },
+      "FocusSession": {
+        "properties": {
+          "minutes": {
+            "maximum": 180.0,
+            "minimum": 1.0,
+            "title": "Minutes",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "minutes"
+        ],
+        "title": "FocusSession",
         "type": "object"
       },
       "GroundednessResult": {
@@ -708,6 +780,46 @@
         "title": "SimplifyResponse",
         "type": "object"
       },
+      "StatsOut": {
+        "properties": {
+          "allTime": {
+            "$ref": "#/components/schemas/TotalsOut"
+          },
+          "byTag": {
+            "$ref": "#/components/schemas/ByTagOut"
+          },
+          "days": {
+            "items": {
+              "$ref": "#/components/schemas/DayOut"
+            },
+            "title": "Days",
+            "type": "array"
+          },
+          "end": {
+            "format": "date",
+            "title": "End",
+            "type": "string"
+          },
+          "start": {
+            "format": "date",
+            "title": "Start",
+            "type": "string"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/TotalsOut"
+          }
+        },
+        "required": [
+          "start",
+          "end",
+          "totals",
+          "byTag",
+          "days",
+          "allTime"
+        ],
+        "title": "StatsOut",
+        "type": "object"
+      },
       "SubtaskIn": {
         "properties": {
           "completed": {
@@ -1017,6 +1129,29 @@
           "taskIds"
         ],
         "title": "TasksOrder",
+        "type": "object"
+      },
+      "TotalsOut": {
+        "properties": {
+          "focusMinutes": {
+            "title": "Focusminutes",
+            "type": "integer"
+          },
+          "steps": {
+            "title": "Steps",
+            "type": "integer"
+          },
+          "tasks": {
+            "title": "Tasks",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "tasks",
+          "steps",
+          "focusMinutes"
+        ],
+        "title": "TotalsOut",
         "type": "object"
       },
       "ValidationError": {
@@ -1624,6 +1759,112 @@
         ]
       }
     },
+    "/api/stats": {
+      "get": {
+        "description": "What you finished: tasks, steps and focus minutes over the last `days` days (in your time zone), tasks per\ntag, one entry per day, and all-time totals. Counts only ever add up: unticking or deleting a task later\ndoesn't take back that you finished it. Nothing goes back to zero, and there are no goals or comparisons.",
+        "operationId": "get_stats_api_stats_get",
+        "parameters": [
+          {
+            "description": "How many days, up to and including today",
+            "in": "query",
+            "name": "days",
+            "required": false,
+            "schema": {
+              "default": 7,
+              "description": "How many days, up to and including today",
+              "maximum": 366,
+              "minimum": 1,
+              "title": "Days",
+              "type": "integer"
+            }
+          },
+          {
+            "description": "Your time zone, e.g. Europe/Berlin",
+            "in": "query",
+            "name": "tz",
+            "required": false,
+            "schema": {
+              "default": "UTC",
+              "description": "Your time zone, e.g. Europe/Berlin",
+              "maxLength": 64,
+              "title": "Tz",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StatsOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Your progress",
+        "tags": [
+          "Stats"
+        ]
+      }
+    },
+    "/api/stats/focus": {
+      "post": {
+        "description": "A focus session is over: its minutes count towards your progress.",
+        "operationId": "add_focus_session_api_stats_focus_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FocusSession"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Note a focus session",
+        "tags": [
+          "Stats"
+        ]
+      }
+    },
     "/api/tasks": {
       "delete": {
         "description": "Remove every task on your list.",
@@ -2019,6 +2260,10 @@
     {
       "description": "Download everything Pebble stores about you, or delete it all.",
       "name": "Account"
+    },
+    {
+      "description": "What you finished, by day and tag. Counts only ever add up.",
+      "name": "Stats"
     },
     {
       "description": "Server health check.",

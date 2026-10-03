@@ -60,6 +60,8 @@ async def test_only_working_routes_are_exposed(client):
         "/api/import",
         "/api/account/export",
         "/api/account",
+        "/api/stats",
+        "/api/stats/focus",
         "/api/tasks/{task_id}",
         "/api/tasks/order",
         "/api/tasks/{task_id}/subtasks",

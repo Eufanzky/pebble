@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api import dependencies
 from app.api.errors import register_error_handlers
 from app.api.middleware import RequestLoggingMiddleware
-from app.api.routers import account, activity, agents, documents, importing, preferences, tasks
+from app.api.routers import account, activity, agents, documents, importing, preferences, stats, tasks
 from app.infrastructure.config import settings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(name)s] %(levelname)s: %(message)s")
@@ -38,6 +38,7 @@ TAGS_METADATA = [
     {"name": "Activity", "description": "What each agent did for you, and why. The agents log their own results."},
     {"name": "Import", "description": "Move what a browser kept before sign-in into your account, once."},
     {"name": "Account", "description": "Download everything Pebble stores about you, or delete it all."},
+    {"name": "Stats", "description": "What you finished, by day and tag. Counts only ever add up."},
     {"name": "Health", "description": "Server health check."},
 ]
 
@@ -77,6 +78,7 @@ app.include_router(preferences.router, prefix="/api/preferences", tags=["Prefere
 app.include_router(activity.router, prefix="/api/activity", tags=["Activity"])
 app.include_router(importing.router, prefix="/api/import", tags=["Import"])
 app.include_router(account.router, prefix="/api/account", tags=["Account"])
+app.include_router(stats.router, prefix="/api/stats", tags=["Stats"])
 
 
 @app.get("/api/health", tags=["Health"])

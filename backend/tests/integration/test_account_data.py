@@ -12,11 +12,13 @@ from sqlalchemy import Column, Integer, MetaData, Table, func, select
 
 from app.domain.activity import ActivityEntry
 from app.domain.agents import AgentName
+from app.domain.progress import ProgressEvent, ProgressKind
 from app.domain.tasks import Task, TaskStep
 from app.infrastructure.db.account import SqlAccountDataStore, _owned, owner_path, user_tables
 from app.infrastructure.db.activity import SqlActivityRepository
 from app.infrastructure.db.models import Base
 from app.infrastructure.db.preferences import SqlPreferencesRepository
+from app.infrastructure.db.progress import SqlProgressRepository
 from app.infrastructure.db.tasks import SqlTaskRepository
 
 TABLES = [table.name for table in Base.metadata.sorted_tables]
@@ -31,6 +33,9 @@ async def fill(sessions, user_id: str) -> None:
     task = Task(new_id(), f"{user_id}'s task", steps=(TaskStep(new_id(), "Step"),))
     await SqlTaskRepository(sessions).add(user_id, task)
     await SqlPreferencesRepository(sessions).save(user_id, {"calm_mode": True})
+    await SqlProgressRepository(sessions).add(
+        user_id, ProgressEvent(ProgressKind.FOCUS, new_id(), datetime.now(UTC), minutes=25)
+    )
     await SqlActivityRepository(sessions).add(
         user_id, ActivityEntry(new_id(), datetime.now(UTC), AgentName.CALM_SENSE, "Did a thing", "Because.")
     )

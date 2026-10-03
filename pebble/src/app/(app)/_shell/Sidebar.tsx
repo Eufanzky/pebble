@@ -9,6 +9,7 @@ import { IconButton } from '@/shared/ui';
 const navItems = [
   { href: '/today', label: 'Today', icon: 'today' },
   { href: '/documents', label: 'Documents', icon: 'docs' },
+  { href: '/stats', label: 'Stats', icon: 'stats' },
   { href: '/activity', label: 'Activity', icon: 'activity' },
   { href: '/focus', label: 'Focus', icon: 'focus' },
   { href: '/settings', label: 'Settings', icon: 'settings' },
@@ -36,6 +37,14 @@ function NavIcon({ type, active }: { type: string; active: boolean }) {
           <line x1="4" y1="5" x2="10" y2="5" stroke={color} strokeWidth="1.2" strokeLinecap="round" />
           <line x1="4" y1="8" x2="10" y2="8" stroke={color} strokeWidth="1.2" strokeLinecap="round" />
           <line x1="4" y1="11" x2="8" y2="11" stroke={color} strokeWidth="1.2" strokeLinecap="round" />
+        </svg>
+      );
+    case 'stats':
+      return (
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+          <line x1="3" y1="14" x2="3" y2="9" stroke={color} strokeWidth="2" strokeLinecap="round" />
+          <line x1="8" y1="14" x2="8" y2="4" stroke={color} strokeWidth="2" strokeLinecap="round" />
+          <line x1="13" y1="14" x2="13" y2="7" stroke={color} strokeWidth="2" strokeLinecap="round" />
         </svg>
       );
     case 'activity':

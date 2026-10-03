@@ -3,7 +3,20 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import BigInteger, DateTime, ForeignKey, Identity, Index, Integer, MetaData, String, Text, Uuid, func
+from sqlalchemy import (
+    BigInteger,
+    DateTime,
+    ForeignKey,
+    Identity,
+    Index,
+    Integer,
+    MetaData,
+    String,
+    Text,
+    UniqueConstraint,
+    Uuid,
+    func,
+)
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -83,3 +96,18 @@ class ActivityRow(Base):
     action: Mapped[str] = mapped_column(Text)
     reasoning: Mapped[str] = mapped_column(Text)
     safety_status: Mapped[str] = mapped_column(String(10))
+
+
+class ProgressRow(Base):
+    """What the user finished (5.6). Only ever added to: one row per finished task or step, and per focus session."""
+
+    __tablename__ = "progress_events"
+    __table_args__ = (UniqueConstraint("user_id", "kind", "item_id", name="uq_progress_events_user_kind_item"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True)
+    user_id: Mapped[str] = mapped_column(String(255), index=True)
+    kind: Mapped[str] = mapped_column(String(10))
+    item_id: Mapped[str] = mapped_column(String(64))
+    tag: Mapped[str | None] = mapped_column(String(20))
+    minutes: Mapped[int] = mapped_column(Integer, server_default="0")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
