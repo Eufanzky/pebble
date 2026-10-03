@@ -64,7 +64,7 @@ export default function RoadmapView({
           background: 'var(--bg-surface)', border: '2px solid var(--accent-lavender)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <span style={{ fontSize: 11, fontWeight: 700, fontFamily: 'var(--font-jetbrains)', color: 'var(--accent-lavender)' }}>
+          <span style={{ fontSize: 11, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: 'var(--accent-lavender)' }}>
             GO
           </span>
         </div>
@@ -122,8 +122,7 @@ export default function RoadmapView({
         </div>
         <div style={{
           position: 'absolute', top: 52,
-          fontFamily: 'var(--font-jetbrains)', fontSize: 10, fontWeight: 700,
-          textTransform: 'uppercase', letterSpacing: '1.5px',
+          fontVariantNumeric: 'tabular-nums', fontSize: 10, fontWeight: 700,
           color: allDone ? 'var(--accent-lavender)' : 'var(--text-muted)',
         }}>
           {allDone ? 'All done!' : 'Finish'}

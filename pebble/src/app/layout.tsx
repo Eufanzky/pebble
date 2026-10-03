@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Nunito, Baloo_2, JetBrains_Mono } from 'next/font/google';
+import { Nunito, Baloo_2 } from 'next/font/google';
 import './globals.css';
 
 const nunito = Nunito({
@@ -16,12 +16,6 @@ const baloo = Baloo_2({
   display: 'swap',
 });
 
-const jetbrains = JetBrains_Mono({
-  subsets: ['latin'],
-  weight: ['400'],
-  variable: '--font-jetbrains',
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   title: 'pebble — your calm corner for getting things done',
@@ -46,7 +40,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${nunito.variable} ${baloo.variable} ${jetbrains.variable} dark`}>
+    <html lang="en" className={`${nunito.variable} ${baloo.variable} dark`}>
       <body className={nunito.className} style={{ background: '#0F0D0A' }}>
         {children}
       </body>

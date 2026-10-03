@@ -1,37 +1,37 @@
-/* ========== Focus timer buttons ========== */
-.focus-btn {
-  padding: 12px 28px;
-  min-height: 44px;
-  border-radius: 12px;
-  font-family: var(--font-nunito);
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  border: none;
-  letter-spacing: 0.3px;
+/* Focus (roadmap 5.7). Tokens only. */
+
+.focus-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-5);
+  padding: var(--space-6) var(--space-5);
 }
 
-.focus-btn-primary {
-  background: linear-gradient(135deg, var(--accent-lavender), var(--pebble-dark));
-  color: var(--bg-deep);
+.focus-ring {
+  position: relative;
+  width: min(15rem, 70vw);
+  aspect-ratio: 1;
+}
+.focus-ring svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.focus-ring__time {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-display);
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-display);
+  color: var(--color-text);
+  font-variant-numeric: tabular-nums;
 }
 
-.focus-btn-primary:hover {
-  box-shadow: 0 4px 20px color-mix(in srgb, var(--accent-lavender) 30%, transparent);
-}
-
-.focus-btn-secondary {
-  background: rgba(255, 248, 235, 0.08);
-  border: 1px solid var(--border-soft);
-  color: var(--text-secondary);
-}
-
-.focus-btn-secondary:hover {
-  border-color: var(--accent-lavender);
-  color: var(--accent-lavender);
-}
-
-.reduce-animations .focus-btn {
-  transition: none;
+.focus-note {
+  margin: 0;
+  text-align: center;
+  color: var(--color-text-2);
 }

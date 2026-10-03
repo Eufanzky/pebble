@@ -1,3 +1,4 @@
+import { Button } from '@/shared/ui';
 import type { TimerState } from '../hooks/useFocusTimer';
 
 interface TimerControlsProps {
@@ -9,10 +10,22 @@ interface TimerControlsProps {
 
 export default function TimerControls({ state, onStart, onPause, onResume }: TimerControlsProps) {
   if (state === 'running') {
-    return <button onClick={onPause} className="focus-btn focus-btn-secondary">Pause</button>;
+    return (
+      <Button variant="quiet" onClick={onPause}>
+        Pause
+      </Button>
+    );
   }
   if (state === 'paused') {
-    return <button onClick={onResume} className="focus-btn focus-btn-primary">Resume</button>;
+    return (
+      <Button variant="primary" onClick={onResume}>
+        Resume
+      </Button>
+    );
   }
-  return <button onClick={onStart} className="focus-btn focus-btn-primary">Start Focus Session</button>;
+  return (
+    <Button variant="primary" onClick={onStart}>
+      Start focus session
+    </Button>
+  );
 }

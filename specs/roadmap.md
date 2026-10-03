@@ -121,7 +121,7 @@ A redesign that feels smooth on every screen size, plus the features users asked
   *Done:* API tests for reorder (including user isolation), component tests for edit, delete, keyboard reorder, filter and search, and an E2E edit-and-reorder step.
 - [x] **5.6 Stats.** A stats page with progress that only adds up: steps and tasks finished, focus minutes, and finished tasks per tag, by week and by month. Served by a backend stats endpoint computed from the user's tasks and activity. No streaks, no "missed" days, no comparisons.
   *Done:* domain tests prove counts never go down across gaps of days; API tests cover the ranges and isolation; the guilt scan covers the copy; axe passes.
-- [ ] **5.7 The other screens.** Documents, Activity, Focus, Settings and sign-in move to the design system and the new backgrounds.
+- [x] **5.7 The other screens.** Documents, Activity, Focus, Settings and sign-in move to the design system and the new backgrounds.
   *Done:* each screen's tests and the E2E pass; axe passes at all three widths.
 - [ ] **5.8 Installable app.** A web app manifest, icons drawn from Pebble, a theme colour, and an offline page that says calmly that Pebble needs a connection.
   *Done:* Lighthouse's installability check passes in CI; a test covers the offline page.

@@ -263,3 +263,59 @@ button.ui-chip:hover {
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
 }
+
+/* ---------- Screen and its header (5.7) ---------- */
+.ui-screen {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-5) var(--space-7);
+  color: var(--color-text);
+}
+.ui-screen--wide {
+  max-width: 64rem;
+}
+.ui-screen--narrow {
+  max-width: 44rem;
+}
+.ui-screen-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+.ui-screen-header__text {
+  min-width: 0;
+}
+.ui-screen-header__title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-display);
+  line-height: var(--leading-tight);
+}
+.ui-screen-header__lead {
+  margin: var(--space-2) 0 0;
+  color: var(--color-text-2);
+  line-height: var(--leading-body);
+  max-width: 40rem;
+}
+.ui-screen-header__companion {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-shrink: 0;
+}
+@media (max-width: 767px) {
+  .ui-screen {
+    padding: var(--space-5) var(--space-4) var(--space-6);
+  }
+  .ui-screen-header__title {
+    font-size: var(--text-xl);
+  }
+  /* On phones Pebble stays, its words don't: the content comes first */
+  .ui-screen-header__bubble {
+    display: none;
+  }
+}

@@ -83,8 +83,7 @@ export default function WhyCard({ explanation, onOpen }: WhyCardProps) {
           <MiniPebbleFace />
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{
-              fontSize: 11, fontWeight: 700, textTransform: 'uppercase',
-              letterSpacing: '1px', color: 'var(--text-muted)', marginBottom: 4,
+              fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', marginBottom: 4,
             }}>
               Pebble explains:
             </div>

@@ -113,7 +113,7 @@ export default function BuiltInReader({ text, onClose }: { text: string; onClose
         <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
           Pebble&apos;s built-in reader — designed for dyslexia, ADHD, and emerging readers
         </span>
-        <span style={{ fontSize: 11, color: 'var(--text-muted)', fontFamily: 'var(--font-jetbrains)' }}>
+        <span style={{ fontSize: 11, color: 'var(--text-muted)', fontVariantNumeric: 'tabular-nums' }}>
           {fontSize}px
         </span>
       </div>

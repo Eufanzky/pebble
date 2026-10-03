@@ -72,14 +72,11 @@ body {
   outline-offset: 2px;
 }
 
-/* ========== Glass Card ========== */
+/* ========== Card (older screens; the same surface as the Card primitive) ========== */
 .glass-card {
-  background: var(--glass-bg);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
-  box-shadow: var(--glass-shadow);
-  border-radius: 16px;
+  background: var(--color-surface-1);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
 }
 
 /* ========== Custom Scrollbar ========== */
@@ -103,20 +100,6 @@ body {
 }
 
 /* ========== Screen Title Typography ========== */
-.screen-title {
-  font-family: var(--font-baloo);
-  font-size: 28px;
-  font-weight: 700;
-  color: var(--text-primary);
-  margin-bottom: 4px;
-}
-
-.screen-subtitle {
-  font-size: 14px;
-  color: var(--text-secondary);
-  line-height: 1.5;
-}
-
 /* ========== Roadmap on phones ========== */
 @media (max-width: 767px) {
   /* Stack nodes left */

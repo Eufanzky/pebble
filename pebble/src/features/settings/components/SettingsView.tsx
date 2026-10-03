@@ -1,7 +1,9 @@
 'use client';
 
 import { PebbleCharacter, PebbleSpeechBubble, usePebble } from '@/features/companion';
+import type { ReactNode } from 'react';
 import { usePreferences } from '@/shared/preferences';
+import { Button, Screen, ScreenHeader } from '@/shared/ui';
 import { useResetPreferences } from '../hooks/useResetPreferences';
 import { settingsGreeting } from '../lib/greeting';
 import ChunkSizeSetting from './ChunkSizeSetting';
@@ -10,24 +12,27 @@ import PebblePickers from './PebblePickers';
 import ReadingLevelSetting from './ReadingLevelSetting';
 import SectionHeader from './SectionHeader';
 
-/** The settings screen: Pebble, accessibility, and a reset. */
-export default function SettingsView() {
+/** The settings screen: Pebble, accessibility, a reset, and (from the page) the account. */
+export default function SettingsView({ account }: { account?: ReactNode }) {
   const { preferences } = usePreferences();
   const { mood } = usePebble();
   const reset = useResetPreferences();
 
   return (
-    <>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28 }}>
-        <div>
-          <h1 className="screen-title" style={{ textTransform: 'lowercase' }}>settings</h1>
-          <p className="screen-subtitle">Make pebble yours.</p>
-        </div>
-        <div className="flex flex-col items-center gap-2">
-          <PebbleSpeechBubble message={settingsGreeting(preferences.pebblePersonality)} />
-          <PebbleCharacter mood={mood} size="medium" />
-        </div>
-      </div>
+    <Screen width="narrow">
+      <ScreenHeader
+        title="Settings"
+        lead="Make Pebble yours."
+        companion={
+          <>
+            <PebbleSpeechBubble
+              className="ui-screen-header__bubble"
+              message={settingsGreeting(preferences.pebblePersonality)}
+            />
+            <PebbleCharacter mood={mood} size="small" />
+          </>
+        }
+      />
 
       <SectionHeader title="Pebble" subtitle="Customize your companion" />
       <PebblePickers />
@@ -39,18 +44,13 @@ export default function SettingsView() {
         <DisplayToggles />
       </div>
 
-      <div style={{ textAlign: 'center' }}>
-        <button
-          onClick={reset}
-          style={{
-            background: 'none', border: 'none', cursor: 'pointer',
-            fontFamily: 'var(--font-nunito)', fontSize: 12, color: 'var(--text-muted)',
-            textDecoration: 'underline', textUnderlineOffset: '3px',
-          }}
-        >
+      <div>
+        <Button variant="ghost" onClick={reset}>
           Reset all preferences
-        </button>
+        </Button>
       </div>
-    </>
+
+      {account}
+    </Screen>
   );
 }

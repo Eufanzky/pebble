@@ -47,7 +47,7 @@ function EntryCard({ entry, isNew }: { entry: ActivityEntry; isNew: boolean }) {
         >
           {entry.agent}
         </span>
-        <span style={{ fontFamily: 'var(--font-jetbrains)', fontSize: 11, color: 'var(--text-muted)' }}>
+        <span style={{ fontVariantNumeric: 'tabular-nums', fontSize: 11, color: 'var(--text-muted)' }}>
           {entryTime(entry.timestamp)}
         </span>
       </div>

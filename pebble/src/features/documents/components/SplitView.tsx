@@ -15,7 +15,7 @@ interface SplitViewProps {
 
 const heading = {
   fontFamily: 'var(--font-baloo)', fontSize: 13, marginBottom: 12, paddingBottom: 8,
-  borderBottom: '1px solid var(--border-soft)', textTransform: 'uppercase', letterSpacing: '0.5px',
+  borderBottom: '1px solid var(--border-soft)',
 } as const;
 
 const scrollColumn = { overflowY: 'auto', scrollbarWidth: 'thin' } as const;

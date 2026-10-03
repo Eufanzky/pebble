@@ -5,7 +5,7 @@ export default function ActivityPage() {
   return (
     <>
       <AmbientBackground mood="activity" />
-      <div className="relative z-[1] p-10 px-12">
+      <div className="relative z-[1]">
         <ActivityView />
       </div>
     </>
