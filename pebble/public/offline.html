@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="theme-color" content="#0F0D0A" />
+    <title>Pebble is waiting for a connection</title>
+    <style>
+      /* The offline page (roadmap 5.8): served by sw.js when there's no connection. Self-contained. */
+      :root {
+        --bg: #0f0d0a;
+        --text: #f5edd6;
+        --text-2: rgba(245, 237, 214, 0.72);
+        --accent: #c4b5d4;
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        min-height: 100dvh;
+        display: grid;
+        place-items: center;
+        padding: 1.5rem;
+        background: radial-gradient(60vmax 60vmax at 20% 10%, rgba(196, 181, 212, 0.18), transparent 60%), var(--bg);
+        color: var(--text);
+        font-family: ui-rounded, system-ui, -apple-system, 'Segoe UI', sans-serif;
+        text-align: center;
+      }
+      main { max-width: 26rem; }
+      .pebble { position: relative; width: 96px; height: 96px; margin: 0 auto 1.5rem; }
+      .ear { position: absolute; top: 4px; width: 32px; height: 32px; background: var(--accent); border-radius: 6px; transform: rotate(45deg); }
+      .ear.left { left: 12px; }
+      .ear.right { right: 12px; }
+      .head { position: absolute; bottom: 0; left: 0; right: 0; height: 80px; border-radius: 50%; background: var(--accent); }
+      .eye { position: absolute; top: 30px; width: 6px; height: 2px; border-radius: 2px; background: #2a2a2e; }
+      .eye.left { left: 30px; }
+      .eye.right { right: 30px; }
+      h1 { margin: 0 0 0.5rem; font-size: 1.6rem; line-height: 1.2; }
+      p { margin: 0 0 1.5rem; color: var(--text-2); line-height: 1.55; }
+      button {
+        min-height: 44px;
+        padding: 0 1.5rem;
+        border: none;
+        border-radius: 999px;
+        background: var(--accent);
+        color: #1a1612;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+      button:focus-visible { outline: 2px solid var(--text); outline-offset: 3px; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="pebble" aria-hidden="true">
+        <span class="ear left"></span><span class="ear right"></span>
+        <span class="head"><span class="eye left"></span><span class="eye right"></span></span>
+      </div>
+      <h1>Pebble needs a connection</h1>
+      <p>Your list is safe in your account. It'll be right here once you're back online.</p>
+      <button type="button" onclick="location.reload()">Try again</button>
+    </main>
+  </body>
+</html>

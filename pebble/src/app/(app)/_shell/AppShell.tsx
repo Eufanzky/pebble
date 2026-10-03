@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation';
 import Sidebar from './Sidebar';
 import './shell.css';
 import { useImportLocalData } from './useImportLocalData';
+import { useServiceWorker } from './useServiceWorker';
 import { PreferencesProvider } from '@/shared/preferences';
 import { QueryProvider } from '@/shared/lib/query';
 import { PebbleProvider } from '@/features/companion';
@@ -44,6 +45,7 @@ function PageTransition({ children }: { children: ReactNode }) {
 function AppShellInner({ children }: { children: ReactNode }) {
   useFocusOnNavigation();
   useImportLocalData();
+  useServiceWorker();
 
   return (
     <div className="app-layout">

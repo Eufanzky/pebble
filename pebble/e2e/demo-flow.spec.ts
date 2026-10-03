@@ -210,6 +210,30 @@ test('what you finish adds up on the stats page (5.6)', async ({ page }) => {
   await expect(study).toHaveText('Study1');
 });
 
+test('Pebble can be installed as an app, and has a calm offline page (5.8)', async ({ page, context }) => {
+  // Chromium's own installability check (what decides whether "Install" is offered)
+  const cdp = await context.newCDPSession(page);
+  await page.goto('/today');
+  await expect.poll(async () => (await cdp.send('Page.getInstallabilityErrors')).installabilityErrors).toEqual([]);
+
+  const manifest = await (await page.request.get('/manifest.webmanifest')).json();
+  for (const icon of manifest.icons) {
+    const response = await page.request.get(icon.src);
+    expect(response.headers()['content-type']).toBe('image/png');
+  }
+
+  // Once the service worker is in charge, a page that can't load shows the offline page
+  await page.evaluate(() => navigator.serviceWorker.ready);
+  await page.reload();
+  await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
+  await context.setOffline(true);
+  await page.goto('/focus').catch(() => undefined);
+  await expect(page.getByRole('heading', { name: 'Pebble needs a connection' })).toBeVisible();
+  await context.setOffline(false);
+  await page.getByRole('button', { name: 'Try again' }).click();
+  await expect(page).toHaveURL('/focus');
+});
+
 test('signing out goes back to the sign-in page', async ({ page }) => {
   await page.goto('/settings');
   // By role: while Next.js streams the page, a hidden copy of it can sit in <body>
