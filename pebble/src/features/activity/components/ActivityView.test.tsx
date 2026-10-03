@@ -24,7 +24,7 @@ describe('ActivityView', () => {
 
     expect(await screen.findByText('Showing 8 of 10 entries')).toBeInTheDocument();
     expect(screen.getAllByText(/^Action \d$/)[0]).toHaveTextContent('Action 9');
-    expect(screen.getByText('Decisions made').parentElement).toHaveTextContent('10');
+    expect(screen.getByText('10 entries from 2 agents. 9 passed the safety checks, and 1 was held back.')).toBeInTheDocument();
   });
 
   it('filters by agent and shows more on request', async () => {

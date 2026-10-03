@@ -17,7 +17,7 @@ describe('FocusView', () => {
     const { user } = renderWithProviders(<FocusView />);
     expect(timer()).toHaveTextContent('25:00');
 
-    await user.click(screen.getByRole('button', { name: 'Start Focus Session' }));
+    await user.click(screen.getByRole('button', { name: 'Start focus session' }));
     expect(screen.getByText("I'm right here with you.")).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: 'Pause' }));
@@ -29,7 +29,7 @@ describe('FocusView', () => {
     vi.useFakeTimers();
     renderWithProviders(<FocusView />);
 
-    act(() => screen.getByRole('button', { name: 'Start Focus Session' }).click());
+    act(() => screen.getByRole('button', { name: 'Start focus session' }).click());
     act(() => vi.advanceTimersByTime(FOCUS_SECONDS * 1000));
 
     expect(playChime).toHaveBeenCalledOnce();

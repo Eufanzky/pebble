@@ -23,7 +23,7 @@ export default function ReadingLevelSlider({ level, onChange }: ReadingLevelSlid
           borderRadius: 2, outline: 'none', cursor: 'pointer', minWidth: 100,
         }}
       />
-      <span aria-hidden="true" style={{ fontFamily: 'var(--font-jetbrains)', fontSize: 12, color: 'var(--accent-lavender)', minWidth: 16, textAlign: 'center' }}>
+      <span aria-hidden="true" style={{ fontVariantNumeric: 'tabular-nums', fontSize: 12, color: 'var(--accent-lavender)', minWidth: 16, textAlign: 'center' }}>
         {level}
       </span>
     </>

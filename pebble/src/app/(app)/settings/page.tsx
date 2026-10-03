@@ -8,9 +8,8 @@ export default async function SettingsPage() {
   return (
     <>
       <AmbientBackground mood="settings" />
-      <div className="relative z-[1] p-10 px-12 pb-20">
-        <SettingsView />
-        {user && <AccountSection name={user.name ?? user.id} userId={user.id} />}
+      <div className="relative z-[1]">
+        <SettingsView account={user && <AccountSection name={user.name ?? user.id} userId={user.id} />} />
       </div>
     </>
   );

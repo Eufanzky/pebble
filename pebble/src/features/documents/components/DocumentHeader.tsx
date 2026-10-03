@@ -9,8 +9,8 @@ export default function DocumentHeader({ doc, onClose }: { doc: DocumentItem; on
         </h2>
         <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
           {doc.tags.map((tag) => (
-            <span key={tag} style={{ fontSize: 9, fontWeight: 600, padding: '2px 7px', borderRadius: 6, background: 'rgba(196,181,212,0.12)', color: 'var(--accent-lavender)', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              {tag}
+            <span key={tag} style={{ fontSize: 9, fontWeight: 600, padding: '2px 7px', borderRadius: 6, background: 'rgba(196,181,212,0.12)', color: 'var(--accent-lavender)' }}>
+              {tag[0].toUpperCase() + tag.slice(1)}
             </span>
           ))}
         </div>

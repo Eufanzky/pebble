@@ -7,8 +7,8 @@ import { postFocusSession, STATS_KEY } from '@/features/stats';
 import { useQueryClient } from '@tanstack/react-query';
 import { playChime } from '@/shared/lib/audio';
 import { usePreferences } from '@/shared/preferences';
+import { Card, Screen, ScreenHeader } from '@/shared/ui';
 import { useFocusTimer } from '../hooks/useFocusTimer';
-import { formatTime } from '../lib/timer';
 import FocusRing from './FocusRing';
 import TimerControls from './TimerControls';
 import './focus.css';
@@ -43,25 +43,18 @@ export default function FocusView() {
   };
 
   return (
-    <>
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 28 }}>
-        <div>
-          <h1 className="screen-title" style={{ textTransform: 'lowercase' }}>focus</h1>
-          <p className="screen-subtitle">A 25-minute timer, with Pebble beside you. Stop whenever you need to.</p>
-        </div>
-        <div className="flex flex-col items-center gap-2">
-          <PebbleSpeechBubble message={message} />
-          <PebbleCharacter mood={timer.state === 'running' ? 'happy' : mood} size="small" />
-        </div>
-      </div>
+    <Screen width="narrow">
+      <ScreenHeader
+        title="Focus"
+        lead="A 25-minute timer, with Pebble beside you. Stop whenever you need to."
+        companion={<PebbleCharacter mood={timer.state === 'running' ? 'happy' : mood} size="small" />}
+      />
 
-      <div className="glass-card" style={{ padding: '28px 32px', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 20, maxWidth: 420 }}>
+      <Card as="section" padding="lg" className="focus-card" aria-label="Focus timer">
+        <PebbleSpeechBubble message={message} />
         <FocusRing secondsLeft={timer.secondsLeft} noMotion={noMotion} />
-        <div role="timer" aria-label="Time left" style={{ fontFamily: 'var(--font-baloo)', fontSize: 48, color: 'var(--text-primary)', lineHeight: 1 }}>
-          {formatTime(timer.secondsLeft)}
-        </div>
         <TimerControls state={timer.state} onStart={start} onPause={pause} onResume={start} />
-      </div>
-    </>
+      </Card>
+    </Screen>
   );
 }

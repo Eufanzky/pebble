@@ -3,7 +3,7 @@
 import { usePreferences } from '@/shared/preferences';
 import { usePreferenceActions } from '../hooks/usePreferenceActions';
 
-const scaleLabel = { fontSize: 10, color: 'var(--text-muted)', fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px' } as const;
+const scaleLabel = { fontSize: 10, color: 'var(--text-muted)', fontWeight: 600 } as const;
 
 export default function ReadingLevelSetting() {
   const { preferences } = usePreferences();
@@ -15,7 +15,7 @@ export default function ReadingLevelSetting() {
     <div className="glass-card" style={{ padding: '18px 20px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
         <label htmlFor="settings-reading-level" style={{ fontFamily: 'var(--font-nunito)', fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>Default reading level</label>
-        <span aria-hidden="true" style={{ fontFamily: 'var(--font-jetbrains)', fontSize: 12, color: 'var(--accent-lavender)' }}>Level {level}</span>
+        <span aria-hidden="true" style={{ fontVariantNumeric: 'tabular-nums', fontSize: 12, color: 'var(--accent-lavender)' }}>Level {level}</span>
       </div>
       <input
         id="settings-reading-level"

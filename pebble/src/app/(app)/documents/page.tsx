@@ -5,7 +5,7 @@ export default function DocumentsPage() {
   return (
     <>
       <AmbientBackground mood="documents" />
-      <div className="relative z-[1] p-10 px-12">
+      <div className="relative z-[1]">
         <DocumentsView />
       </div>
     </>

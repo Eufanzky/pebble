@@ -133,11 +133,10 @@ function NodeCard({ task, done, isActive, tagColor, tagLabel, tagEmoji, calm, no
         <span style={{
           fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 6,
           background: `color-mix(in srgb, ${tagColor} 15%, transparent)`,
-          color: tagColor, textTransform: 'uppercase', letterSpacing: '0.5px',
-        }}>
+          color: tagColor, }}>
           {calm ? tagLabel : `${tagEmoji} ${tagLabel}`}
         </span>
-        <span style={{ fontFamily: 'var(--font-jetbrains)', fontSize: 11, color: 'var(--text-muted)' }}>
+        <span style={{ fontVariantNumeric: 'tabular-nums', fontSize: 11, color: 'var(--text-muted)' }}>
           {task.timeEstimate}
         </span>
       </div>
