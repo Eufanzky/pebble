@@ -5,6 +5,7 @@ import { signIn } from 'next-auth/react';
 import { PebbleCharacter } from '@/features/companion';
 import { PreferencesProvider } from '@/shared/preferences';
 import { QueryProvider } from '@/shared/lib/query';
+import { AmbientBackground } from '@/shared/ui';
 import type { ProviderId } from '../lib/providers';
 import './SignInView.css';
 
@@ -26,6 +27,7 @@ export function SignInView(props: SignInViewProps) {
     <QueryProvider>
       {/* Nobody is signed in yet: this device's copy of the preferences only */}
       <PreferencesProvider offline>
+        <AmbientBackground mood="welcome" />
         <SignInPanel {...props} />
       </PreferencesProvider>
     </QueryProvider>

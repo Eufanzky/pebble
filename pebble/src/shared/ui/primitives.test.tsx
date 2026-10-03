@@ -201,7 +201,7 @@ describe('axe', () => {
 });
 
 // Older pieces that 5.2 and 5.7 move onto the tokens.
-const LEGACY: string[] = ['ScreenBackground.tsx', 'ToastContext.tsx'];
+const LEGACY: string[] = ['ToastContext.tsx'];
 
 describe('tokens only', () => {
   // Colours are defined once, in tokens.css; everything else refers to them.

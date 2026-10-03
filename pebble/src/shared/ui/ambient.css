@@ -1,0 +1,120 @@
+/* Ambient backgrounds (roadmap 5.2): blurred colour fields, tokens only, transform-only motion. */
+
+.ambient {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  pointer-events: none;
+  background: var(--color-bg);
+
+  /* Each mood sets three colours, how strong they are, and where they sit */
+  --field-a: var(--color-accent);
+  --field-b: var(--color-tag-communication);
+  --field-c: var(--color-tag-wellbeing);
+  --field-strength: 55%;
+}
+
+.ambient__field {
+  position: absolute;
+  width: 70vmax;
+  height: 70vmax;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.8;
+  will-change: transform;
+  animation: ambient-drift 48s var(--ease-settle) infinite alternate;
+}
+
+.ambient__field--a {
+  top: -30vmax;
+  left: -20vmax;
+  background: radial-gradient(circle, color-mix(in srgb, var(--field-a) var(--field-strength), transparent) 0%, transparent 65%);
+}
+
+.ambient__field--b {
+  bottom: -35vmax;
+  right: -25vmax;
+  background: radial-gradient(circle, color-mix(in srgb, var(--field-b) var(--field-strength), transparent) 0%, transparent 65%);
+  animation-duration: 62s;
+  animation-direction: alternate-reverse;
+}
+
+.ambient__field--c {
+  top: 20vh;
+  right: 10vw;
+  width: 45vmax;
+  height: 45vmax;
+  background: radial-gradient(circle, color-mix(in srgb, var(--field-c) var(--field-strength), transparent) 0%, transparent 65%);
+  animation-duration: 75s;
+}
+
+/* A soft vignette keeps the edges deep and the text area calm */
+.ambient__veil {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at 50% 40%, transparent 35%, var(--color-bg) 100%);
+  opacity: 0.55;
+}
+
+/* Today: warm, the Pebble colour up top, amber low */
+.ambient[data-mood='today'] {
+  --field-b: var(--color-tag-communication);
+  --field-c: var(--color-tag-project);
+}
+
+/* Documents: reading light, cooler and quieter */
+.ambient[data-mood='documents'] {
+  --field-b: var(--color-tag-wellbeing);
+  --field-c: var(--color-accent);
+  --field-strength: 42%;
+}
+
+/* Activity: dusk, the Pebble colour and coral */
+.ambient[data-mood='activity'] {
+  --field-b: var(--color-tag-project);
+  --field-c: var(--color-tag-study);
+}
+
+/* Focus: one still glow, almost nothing else */
+.ambient[data-mood='focus'] {
+  --field-b: var(--color-accent);
+  --field-c: var(--color-bg);
+  --field-strength: 38%;
+}
+
+/* Settings: the Pebble colour, so changing it shows here too */
+.ambient[data-mood='settings'] {
+  --field-b: var(--color-accent);
+  --field-c: var(--color-tag-wellbeing);
+}
+
+/* Sign-in: a soft welcome */
+.ambient[data-mood='welcome'] {
+  --field-b: var(--color-tag-communication);
+  --field-c: var(--color-accent);
+  --field-strength: 48%;
+}
+
+/* Still: no drift at all */
+.ambient[data-still] .ambient__field {
+  animation: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ambient__field {
+    animation: none;
+  }
+}
+
+@keyframes ambient-drift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(6vw, 4vh, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(-4vw, 8vh, 0) scale(0.96);
+  }
+}
