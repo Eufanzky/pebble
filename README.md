@@ -53,6 +53,7 @@ Pebble helps neurodivergent users (ADHD, autism, dyslexia) manage tasks, simplif
 - Color-coded tasks by category (study, communication, project, wellbeing)
 - AI-powered **task decomposition** — breaks large tasks into time-boxed subtasks
 - Explainability cards ("Why?") for every AI decision
+- **Edit, delete, reorder** (drag or keyboard), **search and filter by tag**; saved to your account
 - Roadmap view as an alternative vertical timeline
 - **Distress detection** — responds to phrases like "I'm overwhelmed" with gentle support
 
@@ -75,7 +76,7 @@ Pebble helps neurodivergent users (ADHD, autism, dyslexia) manage tasks, simplif
 ### 🎯 Focus
 - A 25-minute **Pomodoro timer** with a circular progress ring, and Pebble beside you
 - Pause and resume any time; stopping early is fine
-- Audio chime on session completion
+- Audio chime on session completion; the minutes count towards your stats
 
 </td>
 </tr>
@@ -88,6 +89,10 @@ Pebble helps neurodivergent users (ADHD, autism, dyslexia) manage tasks, simplif
 - Safety status on every action (passed/flagged)
 - Filterable by agent
 
+### 📈 Stats
+- **Progress that only adds up**: steps, tasks and focus minutes over 7 or 30 days, per day and per tag, and since you started
+- No streaks, no "missed" days, no comparisons; unticking a task never takes progress back
+
 </td>
 <td width="50%">
 
@@ -98,6 +103,7 @@ Pebble helps neurodivergent users (ADHD, autism, dyslexia) manage tasks, simplif
 - Configurable task chunk sizes (small/medium/large)
 - Keyboard navigation with focus management
 - Skip-to-content link and full ARIA support
+- **Works on any screen**: a bottom tab bar on phones, a collapsible sidebar on wider screens; **installable** as an app, with a calm offline page
 
 </td>
 </tr>
