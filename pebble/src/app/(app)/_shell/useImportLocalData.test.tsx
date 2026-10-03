@@ -1,4 +1,7 @@
+import { http, HttpResponse } from 'msw';
 import { beforeEach, describe, expect, it } from 'vitest';
+import { useTasks } from '@/features/tasks';
+import { taskStore } from '@/test/msw/tasks';
 import { renderHookWithProviders, waitFor } from '@/test/render';
 import { accountHandlers, accountStore } from '@/test/msw/account';
 import { server } from '@/test/msw/server';
@@ -67,5 +70,37 @@ describe('useImportLocalData', () => {
 
     expect(accountStore.imports()).toEqual([]);
     expect(window.localStorage.getItem('pebble-tasks')).not.toBeNull();
+  });
+});
+
+describe('useImportLocalData and a first load under way', () => {
+  it('shows the imported tasks even when the list was already loading', async () => {
+    // The first load of the list is answered only after the import is done,
+    // with what the server had before the import (the race seen in E2E)
+    let releaseLoad!: () => void;
+    const loadHeld = new Promise<void>((resolve) => (releaseLoad = resolve));
+    let loads = 0;
+    server.use(
+      http.get('/api/tasks', async () => {
+        loads += 1;
+        if (loads === 1) {
+          const before = taskStore.all();
+          await loadHeld;
+          return HttpResponse.json(before);
+        }
+        return HttpResponse.json(taskStore.all());
+      }),
+    );
+    window.localStorage.setItem('pebble-tasks', JSON.stringify([{ title: 'Water the plants' }]));
+
+    const { result } = renderHookWithProviders(() => {
+      useImportLocalData();
+      return useTasks();
+    });
+    await waitFor(() => expect(accountStore.imports()).toHaveLength(1));
+    await waitFor(() => expect(window.localStorage.getItem('pebble-tasks')).toBeNull());
+    releaseLoad();
+
+    await waitFor(() => expect(result.current.tasks.map((t) => t.title)).toEqual(['Water the plants']));
   });
 });

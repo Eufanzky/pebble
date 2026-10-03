@@ -36,6 +36,8 @@ export const taskStore = {
   set(list: TaskCreate[]) {
     tasks = list.map(toTask);
   },
+  /** Tasks as the server would create them from request bodies (new ids), without storing them. */
+  created: (list: TaskCreate[]): TaskOut[] => list.map(toTask),
   /** Replaces the server's list with tasks exactly as given (ids included). */
   replace(list: TaskOut[]) {
     tasks = structuredClone(list);

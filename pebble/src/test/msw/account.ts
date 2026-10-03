@@ -1,5 +1,6 @@
 import { http, HttpResponse } from 'msw';
 import type { ApiSchema } from '@/shared/api';
+import { taskStore } from './tasks';
 
 // Fakes of the account's preferences, activity log and import, with the
 // backend's behaviour, so providers load and save against state that persists
@@ -84,6 +85,8 @@ export const accountHandlers = {
     http.post('/api/import', async ({ request }) => {
       const body = (await request.json()) as ImportRequest;
       imports.push(body);
+      // Like the backend: imported tasks go after the account's own
+      taskStore.replace([...taskStore.all(), ...taskStore.created(body.tasks ?? [])]);
       return HttpResponse.json<ApiSchema<'ImportResponse'>>({
         tasks: body.tasks?.length ?? 0,
         preferences: body.preferences != null,
