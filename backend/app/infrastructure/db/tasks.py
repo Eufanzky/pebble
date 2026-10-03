@@ -1,8 +1,9 @@
 """``TaskRepository`` on Postgres, and the stand-in used when no database is configured."""
 
 import uuid
+from collections.abc import Sequence
 
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.domain.tasks import Task, TaskPriority, TaskStep, TaskTag
@@ -56,7 +57,8 @@ class SqlTaskRepository(SqlRepository):
 
     async def list(self, user_id: str) -> list[Task]:
         async with self._transaction() as session:
-            rows = await session.scalars(select(TaskRow).where(TaskRow.user_id == user_id).order_by(TaskRow.seq))
+            query = select(TaskRow).where(TaskRow.user_id == user_id).order_by(TaskRow.position, TaskRow.seq)
+            rows = await session.scalars(query)
             return [_to_domain(row) for row in rows]
 
     async def get(self, user_id: str, task_id: str) -> Task | None:
@@ -68,6 +70,8 @@ class SqlTaskRepository(SqlRepository):
         row = TaskRow(id=uuid.UUID(task.id), user_id=user_id, steps=_step_rows(task))
         _copy_fields(row, task)
         async with self._transaction() as session:
+            last = await session.scalar(select(func.max(TaskRow.position)).where(TaskRow.user_id == user_id))
+            row.position = (last or 0) + 1
             session.add(row)
 
     async def save(self, user_id: str, task: Task) -> None:
@@ -97,6 +101,17 @@ class SqlTaskRepository(SqlRepository):
         async with self._transaction() as session:
             await session.execute(delete(TaskRow).where(TaskRow.user_id == user_id))
 
+    async def reorder(self, user_id: str, task_ids: Sequence[str]) -> None:
+        keys = [_uuid(task_id) for task_id in task_ids]
+        async with self._transaction() as session:
+            owned = set(await session.scalars(select(TaskRow.id).where(TaskRow.user_id == user_id)))
+            if None in keys or set(keys) != owned or len(keys) != len(owned):
+                raise KeyError("order")
+            for position, key in enumerate(keys, start=1):
+                await session.execute(
+                    update(TaskRow).where(TaskRow.id == key, TaskRow.user_id == user_id).values(position=position)
+                )
+
 
 class UnconfiguredTaskRepository(Unconfigured):
-    list = get = add = save = delete = delete_all = Unconfigured._unavailable
+    list = get = add = save = delete = delete_all = reorder = Unconfigured._unavailable

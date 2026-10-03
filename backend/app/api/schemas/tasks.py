@@ -67,3 +67,11 @@ class TaskOut(BaseModel):
     subtasks: list[SubtaskOut]
 
     model_config = {"populate_by_name": True, "by_alias": True}
+
+
+class TasksOrder(BaseModel):
+    """Every task on the list, in the new order."""
+
+    task_ids: list[str] = Field(alias="taskIds", max_length=1000)
+
+    model_config = {"populate_by_name": True}

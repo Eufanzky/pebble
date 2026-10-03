@@ -1,6 +1,7 @@
 'use client';
 
 import { useId, useRef, type ReactNode } from 'react';
+import { createPortal } from 'react-dom';
 import { useFocusTrap } from '@/shared/hooks/useFocusTrap';
 import { IconButton } from './IconButton';
 
@@ -17,6 +18,8 @@ interface DialogProps {
 /**
  * A modal dialog. Render it only while open: it traps focus, closes on Escape,
  * on the close button and on a click outside, and gives focus back on close.
+ * It renders on <body>, above everything else on screen (the tab bar, the chat
+ * button), whatever stacking the page it was opened from has.
  */
 export function Dialog({ title, onClose, children, variant = 'center', active = true }: DialogProps) {
   const ref = useRef<HTMLDivElement>(null);
@@ -24,7 +27,7 @@ export function Dialog({ title, onClose, children, variant = 'center', active = 
   useFocusTrap(ref, active, onClose);
   const sheet = variant === 'sheet';
 
-  return (
+  return createPortal(
     <div
       className={`ui-dialog-scrim ${sheet ? 'ui-dialog-scrim--sheet' : ''}`.trim()}
       onMouseDown={(e) => {
@@ -50,6 +53,7 @@ export function Dialog({ title, onClose, children, variant = 'center', active = 
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

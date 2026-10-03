@@ -273,3 +273,34 @@ describe('saving changes', () => {
     expect(result.current.saveFailed).toBe(false);
   });
 });
+
+describe('editing, deleting and reordering', () => {
+  it('saves an edit to the server', async () => {
+    const result = await renderTasks([task('Read')]);
+
+    act(() => result.current.editTask(idOf(result, 'Read'), { title: 'Read slowly', tag: 'wellbeing', priority: 'low' }));
+
+    expect(result.current.tasks[0]).toMatchObject({ title: 'Read slowly', tag: 'wellbeing', priority: 'low' });
+    await waitFor(() => expect(taskStore.all()[0]).toMatchObject({ title: 'Read slowly', tag: 'wellbeing' }));
+  });
+
+  it('deletes one task on the server', async () => {
+    const result = await renderTasks([task('Read'), task('Write')]);
+
+    act(() => result.current.deleteTask(idOf(result, 'Read')));
+
+    expect(result.current.tasks.map((t) => t.title)).toEqual(['Write']);
+    await waitFor(() => expect(taskStore.all().map((t) => t.title)).toEqual(['Write']));
+  });
+
+  it('saves a new order, including tasks the server has not answered for yet', async () => {
+    const result = await renderTasks([task('Read'), task('Write')]);
+
+    act(() => result.current.addTask(task('Walk')));
+    const ids = result.current.tasks.map((t) => t.id);
+    act(() => result.current.reorderTasks([ids[2], ids[0], ids[1]]));
+
+    expect(result.current.tasks.map((t) => t.title)).toEqual(['Walk', 'Read', 'Write']);
+    await waitFor(() => expect(taskStore.all().map((t) => t.title)).toEqual(['Walk', 'Read', 'Write']));
+  });
+});

@@ -51,3 +51,12 @@ export async function updateSubtask(taskId: string, subtaskId: string, completed
 export function clearTasks(): Promise<void> {
   return deleteRequest(TASKS);
 }
+
+export function deleteTask(id: string): Promise<void> {
+  return deleteRequest(`${TASKS}/${encodeURIComponent(id)}`);
+}
+
+/** Every task on the list, in the new order. */
+export async function reorderTasks(ids: string[]): Promise<Task[]> {
+  return (await putJson<TaskOut[]>(`${TASKS}/order`, { taskIds: ids })).map(fromApi);
+}

@@ -3,7 +3,7 @@
 import uuid
 from datetime import datetime
 
-from sqlalchemy import BigInteger, DateTime, ForeignKey, Identity, Index, MetaData, String, Text, Uuid, func
+from sqlalchemy import BigInteger, DateTime, ForeignKey, Identity, Index, Integer, MetaData, String, Text, Uuid, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, relationship
 
@@ -33,8 +33,10 @@ class TaskRow(Timestamps, Base):
 
     id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True)
     user_id: Mapped[str] = mapped_column(String(255), index=True)
-    # Insertion order: the list shows tasks in the order they were added.
+    # Insertion order, and the tie-break for equal positions.
     seq: Mapped[int] = mapped_column(BigInteger, Identity(), unique=True)
+    # The user's order (5.5); new tasks go last.
+    position: Mapped[int] = mapped_column(Integer, server_default="0")
     title: Mapped[str] = mapped_column(Text)
     time_estimate: Mapped[str] = mapped_column(String(50))
     tag: Mapped[str] = mapped_column(String(20))

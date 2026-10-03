@@ -197,6 +197,8 @@ describe('axe', () => {
     );
 
     expect(await axe(container)).toHaveNoViolations();
+    // The dialog renders on <body>, outside the container
+    expect(await axe(document.body)).toHaveNoViolations();
   });
 });
 

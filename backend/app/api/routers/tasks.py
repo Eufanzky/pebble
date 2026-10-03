@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Response, status
 from app.api.auth import get_current_user
 from app.api.dependencies import get_tasks
 from app.api.presenters import task_data
-from app.api.schemas.tasks import SubtasksReplace, SubtaskUpdate, TaskCreate, TaskOut, TaskUpdate
+from app.api.schemas.tasks import SubtasksReplace, SubtaskUpdate, TaskCreate, TaskOut, TasksOrder, TaskUpdate
 from app.application.tasks import Tasks
 from app.domain.tasks import Step, Task, TaskStep
 
@@ -46,6 +46,15 @@ async def add_task(
 ):
     """Add a task to the end of your list. Pebble picks the ids of the task and its steps."""
     return task_data(await tasks.add(user_id, task_from(body)))
+
+
+@router.put("/order", response_model=list[TaskOut], summary="Reorder your list")
+async def reorder_tasks(
+    body: TasksOrder, user_id: str = Depends(get_current_user), tasks: Tasks = Depends(get_tasks)
+):
+    """Put your tasks in this order. List every task exactly once; if the list changed meanwhile (or an id
+    isn't yours), nothing moves and the answer is 409."""
+    return [task_data(task) for task in await tasks.reorder(user_id, body.task_ids)]
 
 
 @router.patch("/{task_id}", response_model=TaskOut, summary="Change a task")

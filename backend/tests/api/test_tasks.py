@@ -185,3 +185,45 @@ async def test_a_database_outage_is_a_503(client, signed_in, task_repository):
     task_repository.list = down
 
     assert (await client.get(URL)).status_code == 503
+
+
+async def test_reorder_the_list(client, signed_in):
+    one, two, three = [await add(client, title=title) for title in ("One", "Two", "Three")]
+
+    resp = await client.put(f"{URL}/order", json={"taskIds": [three["id"], one["id"], two["id"]]})
+
+    assert resp.status_code == 200
+    assert [t["title"] for t in resp.json()] == ["Three", "One", "Two"]
+    assert [t["title"] for t in (await client.get(URL)).json()] == ["Three", "One", "Two"]
+
+
+async def test_a_new_task_goes_last_after_a_reorder(client, signed_in):
+    one, two = await add(client, title="One"), await add(client, title="Two")
+    await client.put(f"{URL}/order", json={"taskIds": [two["id"], one["id"]]})
+
+    await add(client, title="Three")
+
+    assert [t["title"] for t in (await client.get(URL)).json()] == ["Two", "One", "Three"]
+
+
+async def test_an_order_that_does_not_match_the_list_is_a_409_and_moves_nothing(client, signed_in):
+    await add(client, title="One")
+    two = await add(client, title="Two")
+
+    resp = await client.put(f"{URL}/order", json={"taskIds": [two["id"]]})
+
+    assert resp.status_code == 409
+    assert resp.json() == {"detail": "Your list changed meanwhile. Pebble kept the order it had."}
+    assert [t["title"] for t in (await client.get(URL)).json()] == ["One", "Two"]
+
+
+async def test_another_users_task_cannot_be_put_in_an_order(client, signed_in):
+    theirs = await add(client, title="Theirs")
+    signed_in.user = "user-b"
+    mine = await add(client, title="Mine")
+
+    resp = await client.put(f"{URL}/order", json={"taskIds": [mine["id"], theirs["id"]]})
+
+    assert resp.status_code == 409
+    signed_in.user = "user-a"
+    assert [t["title"] for t in (await client.get(URL)).json()] == ["Theirs"]
