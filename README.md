@@ -20,15 +20,7 @@ Pebble helps neurodivergent users (ADHD, autism, dyslexia) manage tasks, simplif
 
 <div align="center">
 
-### 📐 Architecture
-
-</div>
-
-![Architecture Diagram](docs/architecture.png)
-
-<div align="center">
-
-> 📊 [**Presentation Slides (PowerPoint)**](docs/Pebble_Original_English.pptx)
+> The original hackathon submission, with its slides and architecture diagram, is the [`v0.1.0-hackathon` release](https://github.com/Eufanzky/pebble/releases/tag/v0.1.0-hackathon).
 
 </div>
 
@@ -254,9 +246,7 @@ Focusbuddy/
 │   ├── uv.lock
 │   └── .env.example
 ├── docker-compose.yml               # Local Postgres
-├── 📐 docs/
-│   ├── architecture.png             # System architecture diagram
-│   └── Pebble_Original_English.pptx # Presentation slides
+├── specs/                           # Mission, stack, testing rules, roadmap, and a spec per change
 └── README.md
 ```
 

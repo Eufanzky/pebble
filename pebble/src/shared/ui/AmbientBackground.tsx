@@ -4,7 +4,7 @@ import { memo } from 'react';
 import { usePreferences } from '@/shared/preferences';
 
 /** One feeling per screen; the colours come from Pebble's colour and the tag tokens. */
-export type AmbientMood = 'today' | 'documents' | 'activity' | 'focus' | 'settings' | 'welcome';
+type AmbientMood = 'today' | 'documents' | 'activity' | 'focus' | 'settings' | 'welcome';
 
 /**
  * The screen's background: two or three large, blurred fields of colour that

@@ -2,7 +2,7 @@ import { getJson, postJson } from '@/shared/lib/api';
 import type { Stats } from '../types';
 
 /** The user's time zone, so "today" is their today. */
-export function timeZone(): string {
+function timeZone(): string {
   try {
     return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC';
   } catch {

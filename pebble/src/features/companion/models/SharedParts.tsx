@@ -3,7 +3,7 @@ import type { PebbleMood } from '../types';
 /* ========== Mood Particles (excited burst) ========== */
 const PARTICLE_ANGLES = [0, 45, 90, 135, 180, 225, 270, 315];
 
-export function MoodParticles() {
+function MoodParticles() {
   return (
     <div className="pb-particles">
       {PARTICLE_ANGLES.map((angle, i) => (

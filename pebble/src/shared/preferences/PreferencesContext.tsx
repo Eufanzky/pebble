@@ -7,9 +7,9 @@ import { PEBBLE_COLORS } from '@/shared/preferences';
 import type { UserPreferences } from '@/shared/preferences';
 import { getPreferences, patchPreferences } from './api';
 
-export const PREFERENCES_KEY = ['preferences'] as const;
+const PREFERENCES_KEY = ['preferences'] as const;
 /** This device's copy of the account's preferences, so they apply before the server answers. */
-export const PREFERENCES_CACHE = 'pebble-preferences-cache';
+const PREFERENCES_CACHE = 'pebble-preferences-cache';
 
 export const defaultPreferences: UserPreferences = {
   readingLevel: 5,

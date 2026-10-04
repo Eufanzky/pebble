@@ -2,5 +2,5 @@
 // from here.
 export { TasksProvider, useTasks } from './context/TasksContext';
 export { default as TodayView } from './components/TodayView';
-export { TAG_CONFIG, PRIORITY_CONFIG, tagLabel } from './lib/tags';
-export type { NewTask, Subtask, Task, TaskPriority, TaskTag } from './types';
+export { TAG_CONFIG } from './lib/tags';
+export type { Task, TaskTag } from './types';

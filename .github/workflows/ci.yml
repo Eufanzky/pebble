@@ -31,6 +31,8 @@ jobs:
       - run: npm ci
       - name: Lint
         run: npm run lint
+      - name: Dead code (unused files, exports and dependencies)
+        run: npm run lint:dead
       - name: Typecheck
         run: npx tsc --noEmit
       - name: Test with the coverage floor (80% on features/*/lib + hooks; includes the guilt scan)
@@ -73,6 +75,8 @@ jobs:
         run: uv sync --locked
       - name: Lint
         run: uv run ruff check
+      - name: Dead code
+        run: uv run vulture
       - name: Test (coverage floor 80% overall)
         run: uv run pytest --cov
       - name: Coverage floor 90% on domain and application

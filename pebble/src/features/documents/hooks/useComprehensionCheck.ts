@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useActivityLog } from '@/features/activity';
 import type { ComprehensionQuestion } from '../types';
 
-export type Answer = 'correct' | 'wrong' | null;
+type Answer = 'correct' | 'wrong' | null;
 
 /**
  * A two-choice question after reading. The order of the choices is random per

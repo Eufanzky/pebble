@@ -85,12 +85,3 @@ export function interpolateMessage(
     .replace(/\{taskCount\}/g, String(vars.taskCount))
     .replace(/\{completedCount\}/g, String(vars.completedCount));
 }
-
-export const pebbleTips = [
-  'Start with the smallest task first. Momentum builds on itself.',
-  "If you're stuck, try working for just 5 minutes. You'll often want to continue.",
-  "Taking breaks isn't lazy — it's how your brain processes what you've learned.",
-  "You don't need to finish everything today. Progress matters more than perfection.",
-  "Try explaining what you're learning to someone else. Teaching deepens understanding.",
-  'Drink some water. Your brain works better when hydrated.',
-];

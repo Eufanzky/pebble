@@ -1,8 +1,8 @@
 import { applySyllables } from './syllables';
 import { simulateTranslation } from './translation';
 
-export const MIN_FONT_SIZE = 12;
-export const MAX_FONT_SIZE = 32;
+const MIN_FONT_SIZE = 12;
+const MAX_FONT_SIZE = 32;
 export const DEFAULT_FONT_SIZE = 18;
 
 /** The text as the built-in reader shows it: translated, then split into syllables. */
