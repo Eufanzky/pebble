@@ -130,9 +130,9 @@ Each agent is a use case behind small interfaces (ports), so the LLM and the saf
 | **🧩 CalmSense** | Task decomposition with time-boxed subtasks | Working |
 | **📖 SimplifyCore** | Document simplification at target reading levels | Working |
 | **💬 PebbleVoice** | Specific encouragement (never generic platitudes) | Working |
-| **🔄 AdaptLens** | Suggests preference changes from how you use Pebble | Planned (roadmap 6.3) |
-| **❓ WhyBot** | A plain-language "why" for every AI decision | Planned (roadmap 6.1) |
-| **🔗 BridgeBot** | Calendar export and integrations | Planned (roadmap 6.4) |
+| **🔄 AdaptLens** | Suggests preference changes from how you use Pebble | Planned (roadmap 7.3) |
+| **❓ WhyBot** | A plain-language "why" for every AI decision | Planned (roadmap 7.1) |
+| **🔗 BridgeBot** | Calendar export and integrations | Planned (roadmap 7.4) |
 
 ### 🛡️ Safety and privacy
 

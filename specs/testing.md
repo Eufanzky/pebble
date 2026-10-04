@@ -89,7 +89,7 @@ One demo-flow spec, kept short and stable:
 4. Simplify a document.
 5. Open the activity log and see the agent name and its "why".
 
-It runs on every PR against the local stack with the fake LLM, and after deploy against production (roadmap 10.3). Each page also gets an axe scan.
+It runs on every PR against the local stack with the fake LLM, and after deploy against production (roadmap 11.3). Each page also gets an axe scan.
 
 ### Principle checks
 

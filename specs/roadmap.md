@@ -12,7 +12,7 @@ Rules for every phase:
 
 ---
 
-Phases 6 to 10 were numbered 5 to 9 until 2026-10-03, when the redesign became Phase 5. Spec folders written before then use the old numbers.
+Phases were renumbered twice: on 2026-10-03 the redesign became Phase 5 (old 5–9 became 6–10), and on 2026-10-04 "Tidy up and document" became Phase 6 (6–10 became 7–11). Spec folders use the numbers of their day.
 
 ## Phase 0: Baseline
 
@@ -126,61 +126,72 @@ A redesign that feels smooth on every screen size, plus the features users asked
 - [x] **5.8 Installable app.** A web app manifest, icons drawn from Pebble, a theme colour, and an offline page that says calmly that Pebble needs a connection.
   *Done:* Chromium's installability check (`Page.getInstallabilityErrors`; Lighthouse 12 dropped its PWA audits) passes in the E2E; a test covers the offline page.
 
-## Phase 6: Make the named agents real
+## Phase 6: Tidy up and document
 
-- [ ] **6.1 WhyBot.** Generate a plain-language explanation in the pipeline for every agent result, store it with the activity entry, and have `WhyCard` show it.
+The repo still carries the hackathon's leftovers, and the docs grew item by item. Before building more, remove what isn't used, give the repo a structure that's easy to find your way in, and bring every document up to date. Nothing here changes what the app does.
+
+- [ ] **6.1 Remove what isn't used.** Delete the old `demo/` prototype, the hackathon slides and the outdated architecture PNG in `docs/` (all kept in the `v0.1.0-hackathon` tag), the placeholder stubs in `pebble/` (`api/`, `docs/`, `presentation/`, the create-next-app README), duplicate icons, and any unused code, styles, exports and dependencies found by a dead-code scan (`knip` for the frontend, `vulture` for the backend).
+  *Done:* the dead-code scans report nothing (or only listed, justified exceptions); build, lint, tests and E2E pass.
+- [ ] **6.2 A clearer structure.** The dated spec folders move under `specs/changes/`, with an index; leftover old-layout code and styles (`globals.css` pieces that belong to a feature, the old `--accent-*` tokens) move into their features or onto the design tokens; the repo root holds only what a newcomer needs.
+  *Done:* a test fails on colour tokens outside `tokens.css` across `src/`; links in the docs resolve (a link check); build, lint, tests and E2E pass.
+- [ ] **6.3 Docs up to date.** Rewrite the root README for the app as it is today (features, a Mermaid architecture diagram, setup in a few commands, structure, tests), update `backend/README.md`, restructure `CLAUDE.md` into short sections, and bring `tech-stack.md`, `testing.md` and `audit.md` in line with the code.
+  *Done:* every command in the README and `CLAUDE.md` is run as part of the check; the link check passes; every claimed feature is covered by a test.
+
+## Phase 7: Make the named agents real
+
+- [ ] **7.1 WhyBot.** Generate a plain-language explanation in the pipeline for every agent result, store it with the activity entry, and have `WhyCard` show it.
   *Done:* the pipeline test asserts that every agent result has an explanation; no hard-coded "why" text remains.
-- [ ] **6.2 Undo and dismiss.** Every AI-created change (steps, tasks from documents) can be undone or dismissed.
+- [ ] **7.2 Undo and dismiss.** Every AI-created change (steps, tasks from documents) can be undone or dismissed.
   *Done:* API and component tests cover undo for each kind of AI change.
-- [ ] **6.3 AdaptLens.** Collect simple usage signals (skipped steps, reading-level changes, chunk-size edits) and suggest preference changes that the user approves.
+- [ ] **7.3 AdaptLens.** Collect simple usage signals (skipped steps, reading-level changes, chunk-size edits) and suggest preference changes that the user approves.
   *Done:* tests prove that a suggestion applies only when accepted, and that a dismissed one doesn't come back immediately.
-- [ ] **6.4 BridgeBot: calendar export.** Export a task plan as an `.ics` file.
+- [ ] **7.4 BridgeBot: calendar export.** Export a task plan as an `.ics` file.
   *Done:* tests validate the `.ics` output against a parser; a manual import into Google Calendar and Outlook works.
-- [ ] **6.5 BridgeBot: Google Calendar (optional).** Push steps to Google Calendar using the Google sign-in scope.
+- [ ] **7.5 BridgeBot: Google Calendar (optional).** Push steps to Google Calendar using the Google sign-in scope.
   *Done:* adapter contract tests (respx) pass, and steps appear in the user's calendar after consent.
-- [ ] **6.6 Evals for new agents.** Extend the eval set for WhyBot (explanations follow the voice rules) and AdaptLens (sensible suggestions).
+- [ ] **7.6 Evals for new agents.** Extend the eval set for WhyBot (explanations follow the voice rules) and AdaptLens (sensible suggestions).
   *Done:* the scores are recorded.
 
-## Phase 7: Structure without guilt
+## Phase 8: Structure without guilt
 
 See principle 1 in `mission.md`.
 
-- [ ] **7.1 Guilt audit.** Review UI copy, sample data, and prompts against principle 1, and extend the guilt scan (1.5) with any new patterns found.
+- [ ] **8.1 Guilt audit.** Review UI copy, sample data, and prompts against principle 1, and extend the guilt scan (1.5) with any new patterns found.
   *Done:* the scan covers every rule in principle 1 and passes.
-- [ ] **7.2 Cumulative progress.** Show the counts from the 5.6 stats ("14 steps finished this month") on Today and Activity too. Nothing resets.
+- [ ] **8.2 Cumulative progress.** Show the counts from the 5.6 stats ("14 steps finished this month") on Today and Activity too. Nothing resets.
   *Done:* a domain test proves counts never decrease across gaps of days.
-- [ ] **7.3 Neutral deadlines.** Show time left as a calm bar. Near a deadline, Pebble offers to make the task smaller with CalmSense.
+- [ ] **8.3 Neutral deadlines.** Show time left as a calm bar. Near a deadline, Pebble offers to make the task smaller with CalmSense.
   *Done:* tests with a fixed clock cover the bar maths and when the offer appears; there is no red styling.
-- [ ] **7.4 "Still open" flow.** Past-due tasks offer three choices: move it, make it smaller, or let it go. Letting go archives the task and logs it neutrally.
+- [ ] **8.4 "Still open" flow.** Past-due tasks offer three choices: move it, make it smaller, or let it go. Letting go archives the task and logs it neutrally.
   *Done:* domain, API, and component tests cover all three paths.
-- [ ] **7.5 Welcome back.** After time away, Today opens fresh with "Want to pick one small thing?" and never mentions how long the user was gone.
+- [ ] **8.5 Welcome back.** After time away, Today opens fresh with "Want to pick one small thing?" and never mentions how long the user was gone.
   *Done:* tests with a fixed clock cover the greeting, and the guilt scan covers the copy.
-- [ ] **7.6 Opt-in reminders.** The user sets a gentle reminder (in-app, plus optional browser notifications). They are off by default.
+- [ ] **8.6 Opt-in reminders.** The user sets a gentle reminder (in-app, plus optional browser notifications). They are off by default.
   *Done:* tests prove nothing notifies unless the user turned it on.
 
-## Phase 8: Solo focus
+## Phase 9: Solo focus
 
-- [x] **8.1 Remove rooms.** Delete the multi-user rooms UI, fake participant counts, and related sample data.
+- [x] **9.1 Remove rooms.** Delete the multi-user rooms UI, fake participant counts, and related sample data.
   *Done:* no fake presence numbers remain, and the 1.4 tests and E2E pass.
-- [ ] **8.2 Focus session.** A Pomodoro session tied to one task step, with Pebble working beside you. It respects reduce-animations and never penalizes stopping early.
+- [ ] **9.2 Focus session.** A Pomodoro session tied to one task step, with Pebble working beside you. It respects reduce-animations and never penalizes stopping early.
   *Done:* timer hook tests use fake timers; component tests cover stopping early with no penalty; E2E starts focus from a step.
 
-## Phase 9: Deploy
+## Phase 10: Deploy
 
-- [ ] **9.1 Backend Dockerfile.** Build the backend with `uv` and add a health check.
+- [ ] **10.1 Backend Dockerfile.** Build the backend with `uv` and add a health check.
   *Done:* `docker compose up` runs the backend and Postgres locally, and CI runs E2E against the built image.
-- [ ] **9.2 Neon and Render.** Deploy the database and backend, running migrations on deploy.
+- [ ] **10.2 Neon and Render.** Deploy the database and backend, running migrations on deploy.
   *Done:* the public health endpoint responds.
-- [ ] **9.3 Vercel.** Deploy the frontend with the rewrite target from an env var and the Auth.js callback URLs.
+- [ ] **10.3 Vercel.** Deploy the frontend with the rewrite target from an env var and the Auth.js callback URLs.
   *Done:* sign-in and chat work on the live URL.
-- [ ] **9.4 Rate limits.** Add a per-user limit on agent calls so one account can't use up the shared Groq free-tier rate limits. Over the limit, the API answers 429 with `Retry-After`. The backend already turns a provider 429 into a 503 "Pebble is resting"; the frontend shows that gentle "resting" message in both cases instead of its generic error.
+- [ ] **10.4 Rate limits.** Add a per-user limit on agent calls so one account can't use up the shared Groq free-tier rate limits. Over the limit, the API answers 429 with `Retry-After`. The backend already turns a provider 429 into a 503 "Pebble is resting"; the frontend shows that gentle "resting" message in both cases instead of its generic error.
   *Done:* an API test covers the limit, an MSW component test covers the message, and the message passes the guilt scan.
 
-## Phase 10: Presentation
+## Phase 11: Presentation
 
-- [ ] **10.1 Architecture diagram.** Redraw it for the new stack as Mermaid in the README (so it stays in sync with the code) and remove the old PNG.
+- [ ] **11.1 Architecture diagram.** Keep the Mermaid diagram from 6.3 in step with what deploy adds (hosts, the proxy, the database).
   *Done:* the diagram matches `tech-stack.md`.
-- [ ] **10.2 README rewrite.** Cover honest features, screenshots/GIFs, the live link, local setup in five commands or fewer, and how to run the tests.
+- [ ] **11.2 README rewrite.** Cover honest features, screenshots/GIFs, the live link, local setup in five commands or fewer, and how to run the tests.
   *Done:* every claimed feature is covered by the E2E demo flow.
-- [ ] **10.3 Production smoke test.** Run the E2E demo flow against production after each deploy.
+- [ ] **11.3 Production smoke test.** Run the E2E demo flow against production after each deploy.
   *Done:* the post-deploy job is green against the live URL.
