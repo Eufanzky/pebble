@@ -1,7 +1,15 @@
 import { expect, test, type Page } from '@playwright/test';
 
+/**
+ * A dev user nobody else uses. The specs run in parallel workers, so the time alone isn't enough: two tests
+ * starting in the same millisecond would share an account (and one's sign-out or deletion would hit the other).
+ */
+function newUserName() {
+  return `e2e-${Date.now()}${crypto.randomUUID().replace(/\D/g, '').slice(0, 6)}`;
+}
+
 /** Each test signs in as a new dev user, so it starts from an empty account. */
-export async function devLogin(page: Page, path = '/today', name = `e2e-${Date.now()}`) {
+export async function devLogin(page: Page, path = '/today', name = newUserName()) {
   await page.goto(path);
   // Signed out: every page sends you to sign in, and back afterwards
   await expect(page).toHaveURL(/\/signin\?callbackUrl=/);
