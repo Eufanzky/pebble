@@ -41,7 +41,7 @@ describe('FocusView', () => {
     await waitFor(() => expect(statsStore.focusSessions()).toEqual([25]));
   });
 
-  // Roadmap 8.1: no made-up people or participant counts (principle 6).
+  // Roadmap 9.1: no made-up people or participant counts (principle 6).
   it('shows no rooms or other people', () => {
     renderWithProviders(<FocusView />);
 

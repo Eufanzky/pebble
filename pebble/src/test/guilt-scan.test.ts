@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 
 // Guilt scan: principle 1 of specs/mission.md, "structure without guilt".
 // Fails when UI copy, sample data, or agent prompts use a banned pattern.
-// Roadmap 7.1 extends the patterns.
+// Roadmap 8.1 extends the patterns.
 
 const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 
