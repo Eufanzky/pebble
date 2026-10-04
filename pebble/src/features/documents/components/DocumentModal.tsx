@@ -69,7 +69,7 @@ export default function DocumentModal({ document: doc, onClose }: Props) {
           style={{
             width: '100%', maxWidth: 940, height: '88vh',
             display: 'flex', flexDirection: 'column',
-            background: 'rgba(20,18,14,0.95)', border: '1px solid var(--glass-border)',
+            background: 'rgba(20,18,14,0.95)', border: '1px solid var(--color-line)',
             borderRadius: 20, overflow: 'hidden',
             boxShadow: '0 24px 80px rgba(0,0,0,0.5)',
             opacity: visible ? 1 : 0,

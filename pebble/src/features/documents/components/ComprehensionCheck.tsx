@@ -18,14 +18,14 @@ export default function ComprehensionCheck({ question, docTitle }: Props) {
 
   const optionStyle = (option: string): CSSProperties => {
     const isCorrect = option === question.correctAnswer;
-    let bg = 'var(--glass-bg)';
-    let border = '1px solid var(--glass-border)';
-    if (isCorrect && answered === 'correct') { bg = 'rgba(143,175,138,0.2)'; border = '1px solid var(--accent-sage)'; }
-    if (!isCorrect && answered === 'wrong') { bg = 'rgba(232,133,106,0.15)'; border = '1px solid var(--accent-coral)'; }
+    let bg = 'var(--color-surface-2)';
+    let border = '1px solid var(--color-line)';
+    if (isCorrect && answered === 'correct') { bg = 'rgba(143,175,138,0.2)'; border = '1px solid var(--color-tag-wellbeing)'; }
+    if (!isCorrect && answered === 'wrong') { bg = 'rgba(232,133,106,0.15)'; border = '1px solid var(--color-tag-project)'; }
     return {
       flex: 1, padding: '10px 14px', borderRadius: 10, background: bg, border,
       cursor: answered ? 'default' : 'pointer', fontFamily: 'var(--font-nunito)',
-      fontSize: 13, color: 'var(--text-primary)', textAlign: 'left', lineHeight: 1.4,
+      fontSize: 13, color: 'var(--color-text)', textAlign: 'left', lineHeight: 1.4,
       transition: noMotion ? 'none' : 'all 0.2s ease',
     };
   };
@@ -34,12 +34,12 @@ export default function ComprehensionCheck({ question, docTitle }: Props) {
     <div style={{ padding: '16px 18px', background: 'rgba(255,248,235,0.05)', borderRadius: 12, marginTop: 16 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
         <MiniPebble />
-        <span style={{ fontFamily: 'var(--font-nunito)', fontSize: 14, color: 'var(--text-secondary)' }}>
+        <span style={{ fontFamily: 'var(--font-nunito)', fontSize: 14, color: 'var(--color-text-2)' }}>
           Let&apos;s see how that landed:
         </span>
       </div>
 
-      <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 14, lineHeight: 1.4 }}>
+      <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 15, fontWeight: 600, color: 'var(--color-text)', marginBottom: 14, lineHeight: 1.4 }}>
         {question.question}
       </div>
 
@@ -54,7 +54,7 @@ export default function ComprehensionCheck({ question, docTitle }: Props) {
       {feedback !== null && (
         <div role="status" style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginTop: 12 }}>
           <MiniPebble />
-          <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 13, color: 'var(--text-secondary)', lineHeight: 1.6 }}>
+          <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 13, color: 'var(--color-text-2)', lineHeight: 1.6 }}>
             {feedback}
           </div>
         </div>

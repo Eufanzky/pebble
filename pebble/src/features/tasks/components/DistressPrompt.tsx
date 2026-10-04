@@ -12,13 +12,13 @@ export default function DistressPrompt({ onStartFresh, onKeepGoing }: DistressPr
       className="glass-card"
       role="alert"
       aria-live="assertive"
-      style={{ marginTop: 16, padding: '20px 24px', borderLeft: '3px solid var(--accent-sage)' }}
+      style={{ marginTop: 16, padding: '20px 24px', borderLeft: '3px solid var(--color-tag-wellbeing)' }}
     >
       <div style={{ display: 'flex', gap: 12, alignItems: 'flex-start', marginBottom: 16 }}>
         <div style={{ flexShrink: 0 }}>
           <PebbleCharacter mood="normal" size="small" />
         </div>
-        <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.6 }}>
+        <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 14, color: 'var(--color-text)', lineHeight: 1.6 }}>
           That sounds really hard. It&apos;s okay to step back. Would you like me to clear today&apos;s tasks and start smaller?
         </div>
       </div>
@@ -27,7 +27,7 @@ export default function DistressPrompt({ onStartFresh, onKeepGoing }: DistressPr
           onClick={onStartFresh}
           style={{
             padding: '10px 18px', borderRadius: 12, border: 'none', cursor: 'pointer',
-            background: 'rgba(143,175,138,0.2)', color: 'var(--accent-sage)',
+            background: 'rgba(143,175,138,0.2)', color: 'var(--color-tag-wellbeing)',
             fontFamily: 'var(--font-nunito)', fontSize: 13, fontWeight: 600,
           }}
         >
@@ -37,8 +37,8 @@ export default function DistressPrompt({ onStartFresh, onKeepGoing }: DistressPr
           onClick={onKeepGoing}
           style={{
             padding: '10px 18px', borderRadius: 12, cursor: 'pointer',
-            background: 'transparent', border: '1px solid var(--border-soft)',
-            color: 'var(--text-secondary)', fontFamily: 'var(--font-nunito)', fontSize: 13, fontWeight: 600,
+            background: 'transparent', border: '1px solid var(--color-line)',
+            color: 'var(--color-text-2)', fontFamily: 'var(--font-nunito)', fontSize: 13, fontWeight: 600,
           }}
         >
           I&apos;m okay, keep going

@@ -9,12 +9,12 @@ import './ActivityFeed.css';
 const AGENTS = ['All', 'CalmSense', 'AdaptLens', 'SimplifyCore', 'PebbleVoice', 'WhyBot', 'BridgeBot'] as const;
 
 const AGENT_COLORS: Record<string, string> = {
-  CalmSense: 'var(--accent-sage)',
-  AdaptLens: 'var(--accent-sky)',
-  SimplifyCore: 'var(--accent-coral)',
-  PebbleVoice: 'var(--accent-lavender)',
-  WhyBot: 'var(--accent-amber)',
-  BridgeBot: 'var(--accent-cream)',
+  CalmSense: 'var(--color-tag-wellbeing)',
+  AdaptLens: 'var(--color-sky)',
+  SimplifyCore: 'var(--color-tag-project)',
+  PebbleVoice: 'var(--color-accent)',
+  WhyBot: 'var(--color-tag-communication)',
+  BridgeBot: 'var(--color-text)',
 };
 
 interface ActivityFeedProps {
@@ -27,8 +27,8 @@ function EntryCard({ entry, isNew }: { entry: ActivityEntry; isNew: boolean }) {
   const noMotion = reduceMotion;
   const [showReasoning, setShowReasoning] = useState(false);
 
-  const agentColor = AGENT_COLORS[entry.agent] ?? 'var(--text-muted)';
-  const safetyColor = entry.safetyStatus === 'passed' ? 'var(--accent-sage)' : 'var(--accent-coral)';
+  const agentColor = AGENT_COLORS[entry.agent] ?? 'var(--color-text-3)';
+  const safetyColor = entry.safetyStatus === 'passed' ? 'var(--color-tag-wellbeing)' : 'var(--color-tag-project)';
   const safetyBg = entry.safetyStatus === 'passed' ? 'rgba(143,175,138,0.1)' : 'rgba(232,133,106,0.1)';
 
   return (
@@ -47,13 +47,13 @@ function EntryCard({ entry, isNew }: { entry: ActivityEntry; isNew: boolean }) {
         >
           {entry.agent}
         </span>
-        <span style={{ fontVariantNumeric: 'tabular-nums', fontSize: 11, color: 'var(--text-muted)' }}>
+        <span style={{ fontVariantNumeric: 'tabular-nums', fontSize: 11, color: 'var(--color-text-3)' }}>
           {entryTime(entry.timestamp)}
         </span>
       </div>
 
       {/* Action text + safety badge */}
-      <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 14, color: 'var(--text-primary)', lineHeight: 1.5, marginBottom: 8 }}>
+      <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 14, color: 'var(--color-text)', lineHeight: 1.5, marginBottom: 8 }}>
         {entry.action}
         <span className="safety-badge" style={{ background: safetyBg, color: safetyColor }}>
           {entry.safetyStatus === 'passed' ? 'Content Safety: passed' : 'Content Safety: flagged'}
@@ -74,7 +74,7 @@ function EntryCard({ entry, isNew }: { entry: ActivityEntry; isNew: boolean }) {
           style={{ maxHeight: showReasoning ? 500 : 0 }}
         >
           <div style={{
-            fontFamily: 'var(--font-nunito)', fontSize: 12, color: 'var(--text-secondary)',
+            fontFamily: 'var(--font-nunito)', fontSize: 12, color: 'var(--color-text-2)',
             lineHeight: 1.6, marginTop: 8, paddingLeft: 10,
             borderLeft: `2px solid ${agentColor}`, opacity: 0.8,
           }}>
@@ -105,7 +105,7 @@ export default function ActivityFeed({ entries, maxHeight }: ActivityFeedProps) 
       <div className="activity-filters" role="group" aria-label="Filter by agent">
         {AGENTS.map((agent) => {
           const active = filter === agent;
-          const color = agent === 'All' ? 'var(--accent-lavender)' : AGENT_COLORS[agent];
+          const color = agent === 'All' ? 'var(--color-accent)' : AGENT_COLORS[agent];
           return (
             <button
               key={agent}
@@ -123,7 +123,7 @@ export default function ActivityFeed({ entries, maxHeight }: ActivityFeedProps) 
 
       {/* Count */}
       {sorted.length > 0 && (
-        <div style={{ fontSize: 12, color: 'var(--text-muted)', marginBottom: 12 }}>
+        <div style={{ fontSize: 12, color: 'var(--color-text-3)', marginBottom: 12 }}>
           Showing {visible.length} of {sorted.length} entries
         </div>
       )}
@@ -137,7 +137,7 @@ export default function ActivityFeed({ entries, maxHeight }: ActivityFeedProps) 
           <EntryCard key={entry.id} entry={entry} isNew={i === 0} />
         ))}
         {sorted.length === 0 && (
-          <div style={{ padding: 24, textAlign: 'center', color: 'var(--text-muted)', fontSize: 13 }}>
+          <div style={{ padding: 24, textAlign: 'center', color: 'var(--color-text-3)', fontSize: 13 }}>
             No entries from {filter} yet.
           </div>
         )}

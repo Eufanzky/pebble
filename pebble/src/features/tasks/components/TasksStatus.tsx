@@ -4,8 +4,8 @@ const noteStyle = {
   padding: '14px 18px',
   borderRadius: 16,
   borderLeft: '2px solid var(--pebble-color)',
-  background: 'var(--bg-surface)',
-  color: 'var(--text-secondary)',
+  background: 'var(--color-surface-2)',
+  color: 'var(--color-text-2)',
   fontSize: 14,
   lineHeight: 1.5,
   display: 'flex',
@@ -20,7 +20,7 @@ const buttonStyle = {
   borderRadius: 999,
   border: '1px solid var(--pebble-color)',
   background: 'transparent',
-  color: 'var(--text-primary)',
+  color: 'var(--color-text)',
   fontSize: 13,
   fontWeight: 600,
   cursor: 'pointer',
@@ -41,7 +41,7 @@ function Note({ children, action, onAction }: { children: ReactNode; action: str
 /** The list is on its way from the server. */
 export function TasksLoading() {
   return (
-    <p role="status" style={{ color: 'var(--text-muted)', fontSize: 14, padding: '24px 0' }}>
+    <p role="status" style={{ color: 'var(--color-text-3)', fontSize: 14, padding: '24px 0' }}>
       Getting your list…
     </p>
   );

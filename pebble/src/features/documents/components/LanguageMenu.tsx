@@ -38,7 +38,7 @@ export default function LanguageMenu({ selected, onSelect, calm, noMotion }: Lan
               style={{
                 display: 'flex', width: '100%', padding: '8px 14px', border: 'none', gap: 8,
                 background: selected === l.name ? 'rgba(196,181,212,0.1)' : 'transparent',
-                color: selected === l.name ? 'var(--accent-lavender)' : 'var(--text-secondary)',
+                color: selected === l.name ? 'var(--color-accent)' : 'var(--color-text-2)',
                 fontSize: 12, fontFamily: 'var(--font-nunito)', cursor: 'pointer', textAlign: 'left',
                 alignItems: 'center',
               }}

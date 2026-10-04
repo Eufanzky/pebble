@@ -3,7 +3,7 @@
 import { usePreferences } from '@/shared/preferences';
 import { usePreferenceActions } from '../hooks/usePreferenceActions';
 
-const scaleLabel = { fontSize: 10, color: 'var(--text-muted)', fontWeight: 600 } as const;
+const scaleLabel = { fontSize: 10, color: 'var(--color-text-3)', fontWeight: 600 } as const;
 
 export default function ReadingLevelSetting() {
   const { preferences } = usePreferences();
@@ -14,8 +14,8 @@ export default function ReadingLevelSetting() {
   return (
     <div className="glass-card" style={{ padding: '18px 20px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
-        <label htmlFor="settings-reading-level" style={{ fontFamily: 'var(--font-nunito)', fontSize: 14, fontWeight: 600, color: 'var(--text-primary)' }}>Default reading level</label>
-        <span aria-hidden="true" style={{ fontVariantNumeric: 'tabular-nums', fontSize: 12, color: 'var(--accent-lavender)' }}>Level {level}</span>
+        <label htmlFor="settings-reading-level" style={{ fontFamily: 'var(--font-nunito)', fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>Default reading level</label>
+        <span aria-hidden="true" style={{ fontVariantNumeric: 'tabular-nums', fontSize: 12, color: 'var(--color-accent)' }}>Level {level}</span>
       </div>
       <input
         id="settings-reading-level"
@@ -24,7 +24,7 @@ export default function ReadingLevelSetting() {
         aria-valuetext={`Reading level ${level} of 10`}
         style={{
           width: '100%', height: 4, appearance: 'none', WebkitAppearance: 'none',
-          background: `linear-gradient(to right, var(--accent-lavender) ${fill}%, var(--border-soft) ${fill}%)`,
+          background: `linear-gradient(to right, var(--color-accent) ${fill}%, var(--color-line) ${fill}%)`,
           borderRadius: 2, outline: 'none', cursor: 'pointer',
         }}
       />
@@ -37,12 +37,12 @@ export default function ReadingLevelSetting() {
         {Array.from({ length: 10 }, (_, i) => (
           <div key={i} style={{
             width: 8, height: 8, borderRadius: '50%',
-            background: i < level ? 'var(--accent-lavender)' : 'var(--border-soft)',
+            background: i < level ? 'var(--color-accent)' : 'var(--color-line)',
             transition: 'background 0.15s ease',
           }} />
         ))}
       </div>
-      <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 10 }}>
+      <div style={{ fontSize: 11, color: 'var(--color-text-3)', marginTop: 10 }}>
         This sets the starting level when Pebble simplifies documents for you
       </div>
     </div>

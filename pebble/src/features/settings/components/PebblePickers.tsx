@@ -5,7 +5,7 @@ import { PEBBLE_COLORS, usePreferences } from '@/shared/preferences';
 import { colorOptions, models, personalities } from '../data/options';
 import { usePreferenceActions } from '../hooks/usePreferenceActions';
 
-const label = { fontFamily: 'var(--font-nunito)', fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 12 } as const;
+const label = { fontFamily: 'var(--font-nunito)', fontSize: 14, fontWeight: 600, color: 'var(--color-text)', marginBottom: 12 } as const;
 
 /** Pebble's model, color and personality. */
 export default function PebblePickers() {
@@ -27,16 +27,16 @@ export default function PebblePickers() {
                 className="glass-card"
                 style={{
                   padding: '14px 8px 10px', cursor: 'pointer', textAlign: 'center',
-                  border: active ? '2px solid var(--accent-lavender)' : '1px solid var(--glass-border)',
-                  background: active ? 'rgba(196,181,212,0.1)' : 'var(--glass-bg)',
+                  border: active ? '2px solid var(--color-accent)' : '1px solid var(--color-line)',
+                  background: active ? 'rgba(196,181,212,0.1)' : 'var(--color-surface-2)',
                   transition: 'all 0.2s ease',
                 }}
               >
                 <div style={{ display: 'flex', justifyContent: 'center', height: 95, alignItems: 'flex-end', marginBottom: 6, overflow: 'visible' }}>
                   <PebbleCharacter mood="normal" size="small" model={m.id} />
                 </div>
-                <div style={{ fontFamily: 'var(--font-baloo)', fontSize: 12, color: active ? 'var(--text-primary)' : 'var(--text-secondary)' }}>{m.name}</div>
-                <div style={{ fontSize: 9, color: 'var(--text-muted)' }}>{m.desc}</div>
+                <div style={{ fontFamily: 'var(--font-baloo)', fontSize: 12, color: active ? 'var(--color-text)' : 'var(--color-text-2)' }}>{m.name}</div>
+                <div style={{ fontSize: 9, color: 'var(--color-text-3)' }}>{m.desc}</div>
               </button>
             );
           })}
@@ -82,16 +82,16 @@ export default function PebblePickers() {
                 className="glass-card"
                 style={{
                   padding: 16, textAlign: 'left', cursor: 'pointer',
-                  border: active ? '1px solid var(--accent-lavender)' : '1px solid var(--glass-border)',
-                  background: active ? 'rgba(196,181,212,0.1)' : 'var(--glass-bg)',
+                  border: active ? '1px solid var(--color-accent)' : '1px solid var(--color-line)',
+                  background: active ? 'rgba(196,181,212,0.1)' : 'var(--color-surface-2)',
                   transition: 'all 0.2s ease',
                 }}
               >
-                <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 14, fontWeight: 600, color: active ? 'var(--text-primary)' : 'var(--text-secondary)', marginBottom: 4 }}>
+                <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 14, fontWeight: 600, color: active ? 'var(--color-text)' : 'var(--color-text-2)', marginBottom: 4 }}>
                   {p.name}
                 </div>
-                <div style={{ fontSize: 12, color: 'var(--text-secondary)', marginBottom: 8 }}>{p.desc}</div>
-                <div style={{ fontSize: 12, color: 'var(--text-muted)', fontStyle: 'italic' }}>&ldquo;{p.quote}&rdquo;</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-2)', marginBottom: 8 }}>{p.desc}</div>
+                <div style={{ fontSize: 12, color: 'var(--color-text-3)', fontStyle: 'italic' }}>&ldquo;{p.quote}&rdquo;</div>
               </button>
             );
           })}

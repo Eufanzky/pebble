@@ -5,10 +5,10 @@ import { useAccountData } from '../hooks/useAccountData';
 
 const VIA: Record<string, string> = { github: 'GitHub', google: 'Google', dev: 'the dev login' };
 
-const headingStyle = { fontFamily: 'var(--font-baloo)', fontSize: 18, color: 'var(--text-primary)', fontWeight: 700 };
-const textStyle = { color: 'var(--text-secondary)' };
+const headingStyle = { fontFamily: 'var(--font-baloo)', fontSize: 18, color: 'var(--color-text)', fontWeight: 700 };
+const textStyle = { color: 'var(--color-text-2)' };
 const buttonClass = 'px-5 py-2 rounded-full text-sm font-semibold';
-const buttonStyle = { border: '1px solid var(--pebble-color)', color: 'var(--text-primary)' };
+const buttonStyle = { border: '1px solid var(--pebble-color)', color: 'var(--color-text)' };
 
 interface AccountSectionProps {
   name: string;
@@ -62,7 +62,7 @@ export function AccountSection({ name, userId }: AccountSectionProps) {
           disabled={busy !== null}
           aria-busy={busy === 'delete'}
           className={buttonClass}
-          style={{ ...buttonStyle, borderColor: 'var(--border-soft)' }}
+          style={{ ...buttonStyle, borderColor: 'var(--color-line)' }}
         >
           {busy === 'delete' ? 'Deleting…' : 'Delete my account'}
         </button>

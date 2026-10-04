@@ -107,7 +107,7 @@ const PATTERNS: Pattern[] = [
       'i'
     ),
     banned: ['className="text-red-500"', 'color: red;', "{ color: 'crimson' }", 'background: #FF0000;', 'btn-danger', 'Urgent!'],
-    allowed: ["color: 'var(--accent-coral)'", 'background: #E8856A;', 'rgba(232,133,106,0.1)', 'bg-amber-200', 'Reading level'],
+    allowed: ["color: 'var(--color-tag-project)'", 'background: #E8856A;', 'rgba(232,133,106,0.1)', 'bg-amber-200', 'Reading level'],
   },
 ];
 

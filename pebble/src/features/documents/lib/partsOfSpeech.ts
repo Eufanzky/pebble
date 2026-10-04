@@ -45,9 +45,9 @@ export function getPOS(word: string): POS | null {
 }
 
 export const POS_COLORS: Record<POS, string> = {
-  noun: 'var(--accent-lavender)',
-  verb: 'var(--accent-sage)',
-  adj: 'var(--accent-amber)',
+  noun: 'var(--color-accent)',
+  verb: 'var(--color-tag-wellbeing)',
+  adj: 'var(--color-tag-communication)',
 };
 
 export const POS_LABELS: Record<POS, string> = {

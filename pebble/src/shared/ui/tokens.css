@@ -19,6 +19,9 @@
   --color-focus: #f5edd6;
   --color-scrim: rgba(8, 7, 5, 0.72);
 
+  /* One more hue, for an agent mark in the activity log */
+  --color-sky: #87ceeb;
+
   /* The four task tags */
   --color-tag-study: #c4b5d4;
   --color-tag-communication: #d4a843;

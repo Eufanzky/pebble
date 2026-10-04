@@ -46,7 +46,7 @@ export default function ChatPanel({ messages, isLoading, onSend, onClose, noMoti
         maxHeight: 'min(520px, calc(100dvh - 120px - var(--app-bottom-inset, 0px)))',
         display: 'flex', flexDirection: 'column',
         background: 'rgba(20,18,14,0.95)',
-        border: '1px solid var(--glass-border)',
+        border: '1px solid var(--color-line)',
         borderRadius: 20, overflow: 'hidden',
         boxShadow: '0 16px 60px rgba(0,0,0,0.5)',
         backdropFilter: 'blur(20px)',
@@ -62,10 +62,10 @@ export default function ChatPanel({ messages, isLoading, onSend, onClose, noMoti
         display: 'flex', justifyContent: 'space-between', alignItems: 'center',
       }}>
         <div>
-          <div style={{ fontFamily: 'var(--font-baloo)', fontSize: 15, color: 'var(--text-primary)' }}>
+          <div style={{ fontFamily: 'var(--font-baloo)', fontSize: 15, color: 'var(--color-text)' }}>
             Chat with Pebble
           </div>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+          <div style={{ fontSize: 11, color: 'var(--color-text-3)' }}>
             Ask me anything, or tell me how you feel
           </div>
         </div>
@@ -73,8 +73,8 @@ export default function ChatPanel({ messages, isLoading, onSend, onClose, noMoti
           onClick={onClose}
           aria-label="Close chat"
           style={{
-            width: 32, height: 32, borderRadius: 8, border: '1px solid var(--border-soft)',
-            background: 'transparent', color: 'var(--text-muted)', cursor: 'pointer',
+            width: 32, height: 32, borderRadius: 8, border: '1px solid var(--color-line)',
+            background: 'transparent', color: 'var(--color-text-3)', cursor: 'pointer',
             fontSize: 14, display: 'flex', alignItems: 'center', justifyContent: 'center',
           }}
         >
@@ -91,7 +91,7 @@ export default function ChatPanel({ messages, isLoading, onSend, onClose, noMoti
         scrollbarColor: 'rgba(196,181,212,0.15) transparent',
       }}>
         {messages.length === 0 && (
-          <div style={{ textAlign: 'center', padding: '30px 10px', color: 'var(--text-muted)', fontSize: 12, lineHeight: 1.6 }}>
+          <div style={{ textAlign: 'center', padding: '30px 10px', color: 'var(--color-text-3)', fontSize: 12, lineHeight: 1.6 }}>
             Hi there. I&apos;m Pebble.
             <br />
             Try: &quot;Help me break down writing my essay&quot;

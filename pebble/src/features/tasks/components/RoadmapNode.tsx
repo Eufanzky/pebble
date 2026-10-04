@@ -60,8 +60,8 @@ export default function RoadmapNode({
       {/* Center dot */}
       <div style={{
         width: 16, height: 16, borderRadius: '50%', flexShrink: 0,
-        background: done ? 'var(--accent-sage)' : tagColor,
-        border: isActive ? `2px solid var(--accent-lavender)` : '2px solid transparent',
+        background: done ? 'var(--color-tag-wellbeing)' : tagColor,
+        border: isActive ? `2px solid var(--color-accent)` : '2px solid transparent',
         boxShadow: isActive && !noMotion ? `0 0 12px ${tagColor}` : 'none',
         transition: noMotion ? 'none' : 'all 0.3s ease',
         zIndex: 2,
@@ -136,7 +136,7 @@ function NodeCard({ task, done, isActive, tagColor, tagLabel, tagEmoji, calm, no
           color: tagColor, }}>
           {calm ? tagLabel : `${tagEmoji} ${tagLabel}`}
         </span>
-        <span style={{ fontVariantNumeric: 'tabular-nums', fontSize: 11, color: 'var(--text-muted)' }}>
+        <span style={{ fontVariantNumeric: 'tabular-nums', fontSize: 11, color: 'var(--color-text-3)' }}>
           {task.timeEstimate}
         </span>
       </div>
@@ -144,7 +144,7 @@ function NodeCard({ task, done, isActive, tagColor, tagLabel, tagEmoji, calm, no
       {/* Title */}
       <div style={{
         fontFamily: 'var(--font-nunito)', fontSize: 13, fontWeight: 600, lineHeight: 1.4,
-        color: 'var(--text-primary)',
+        color: 'var(--color-text)',
         textDecoration: done ? 'line-through' : 'none',
       }}>
         {task.title}
@@ -152,7 +152,7 @@ function NodeCard({ task, done, isActive, tagColor, tagLabel, tagEmoji, calm, no
 
       {/* Subtask count */}
       {task.subtasks && task.subtasks.length > 0 && (
-        <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 4 }}>
+        <div style={{ fontSize: 11, color: 'var(--color-text-3)', marginTop: 4 }}>
           {task.subtasks.filter((s) => s.completed).length}/{task.subtasks.length} steps
         </div>
       )}

@@ -4,33 +4,19 @@
 @import "../shared/ui/ambient.css";
 
 :root {
-  --bg-deep: #0F0D0A;
-  --bg-surface: rgba(255, 248, 235, 0.06);
-  --bg-card: rgba(255, 248, 235, 0.09);
-  --accent-lavender: #C4B5D4;
-  --accent-sage: #8FAF8A;
-  --accent-amber: #D4A843;
-  --accent-coral: #E8856A;
-  --accent-cream: #F5EDD6;
-  --accent-sky: #87CEEB;
-  --text-primary: #F5EDD6;
-  --text-secondary: rgba(245, 237, 214, 0.65);
-  --text-muted: rgba(245, 237, 214, 0.50);
-  --border-soft: rgba(255, 248, 235, 0.10);
+  /* Set by PreferencesContext from the user's Pebble colour; these are the defaults */
   --pebble-color: #C4B5D4;
   --pebble-dark: #A89ABC;
-  --pebble-light: #D4C5E4;
-  --glass-bg: rgba(255, 248, 235, 0.08);
-  --glass-border: rgba(255, 248, 235, 0.12);
-  --glass-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  /* A lighter tint of whichever colour Pebble is (the belly on Chonky+) */
+  --pebble-light: color-mix(in srgb, var(--pebble-color) 70%, white);
 }
 
 html,
 body {
   height: 100%;
   overflow: hidden;
-  color: var(--text-primary);
-  background: var(--bg-deep);
+  color: var(--color-text);
+  background: var(--color-bg);
 }
 
 /* ========== Reduce Animations ========== */
@@ -56,8 +42,8 @@ body {
   left: 16px;
   z-index: 100;
   padding: 12px 20px;
-  background: var(--accent-lavender);
-  color: var(--bg-deep);
+  background: var(--color-accent);
+  color: var(--color-bg);
   font-family: var(--font-nunito);
   font-size: 14px;
   font-weight: 700;
@@ -68,7 +54,7 @@ body {
 
 .skip-link:focus {
   top: 0;
-  outline: 2px solid var(--accent-lavender);
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 
@@ -99,31 +85,6 @@ body {
   border-radius: 3px;
 }
 
-/* ========== Screen Title Typography ========== */
-/* ========== Roadmap on phones ========== */
-@media (max-width: 767px) {
-  /* Stack nodes left */
-  .roadmap-line {
-    left: 20px !important;
-  }
-
-  .roadmap-node {
-    flex-direction: row !important;
-    justify-content: flex-start !important;
-  }
-
-  .roadmap-card-slot {
-    flex: none !important;
-    padding-left: 20px !important;
-    padding-right: 0 !important;
-    justify-content: flex-start !important;
-  }
-
-  .roadmap-card-slot:first-child {
-    display: none !important;
-  }
-}
-
 /* ========== Visually Hidden (screen reader only) ========== */
 .sr-only {
   position: absolute;
@@ -139,7 +100,7 @@ body {
 
 /* ========== Focus Indicators (keyboard accessibility) ========== */
 *:focus-visible {
-  outline: 2px solid var(--accent-lavender);
+  outline: 2px solid var(--color-accent);
   outline-offset: 2px;
 }
 

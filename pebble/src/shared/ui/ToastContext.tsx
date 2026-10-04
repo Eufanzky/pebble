@@ -65,7 +65,7 @@ function ToastDisplay({ message, onDone }: { message: string; onDone: () => void
         background: 'rgba(212,168,67,0.15)',
         border: '1px solid rgba(212,168,67,0.30)',
         borderRadius: 12, padding: '12px 20px',
-        fontFamily: 'var(--font-nunito)', fontSize: 14, color: 'var(--accent-amber)',
+        fontFamily: 'var(--font-nunito)', fontSize: 14, color: 'var(--color-tag-communication)',
         boxShadow: '0 4px 20px rgba(0,0,0,0.3)',
         opacity: phase === 'visible' ? 1 : 0,
         marginBottom: phase === 'enter' ? -20 : 0,

@@ -9,7 +9,7 @@ export default function ReadingLevelSlider({ level, onChange }: ReadingLevelSlid
   const fill = sliderFill(level);
   return (
     <>
-      <label htmlFor="modal-reading-level" title="Based on Flesch-Kincaid readability grades" style={{ fontSize: 11, color: 'var(--text-muted)', whiteSpace: 'nowrap', cursor: 'help', borderBottom: '1px dotted var(--text-muted)' }}>
+      <label htmlFor="modal-reading-level" title="Based on Flesch-Kincaid readability grades" style={{ fontSize: 11, color: 'var(--color-text-3)', whiteSpace: 'nowrap', cursor: 'help', borderBottom: '1px dotted var(--color-text-3)' }}>
         Complexity (FK)
       </label>
       <input
@@ -19,11 +19,11 @@ export default function ReadingLevelSlider({ level, onChange }: ReadingLevelSlid
         aria-valuetext={`Reading level ${level} of ${MAX_LEVEL}`}
         style={{
           flex: 1, height: 4, appearance: 'none', WebkitAppearance: 'none',
-          background: `linear-gradient(to right, var(--accent-lavender) ${fill}%, var(--border-soft) ${fill}%)`,
+          background: `linear-gradient(to right, var(--color-accent) ${fill}%, var(--color-line) ${fill}%)`,
           borderRadius: 2, outline: 'none', cursor: 'pointer', minWidth: 100,
         }}
       />
-      <span aria-hidden="true" style={{ fontVariantNumeric: 'tabular-nums', fontSize: 12, color: 'var(--accent-lavender)', minWidth: 16, textAlign: 'center' }}>
+      <span aria-hidden="true" style={{ fontVariantNumeric: 'tabular-nums', fontSize: 12, color: 'var(--color-accent)', minWidth: 16, textAlign: 'center' }}>
         {level}
       </span>
     </>

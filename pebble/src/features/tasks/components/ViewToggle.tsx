@@ -10,7 +10,7 @@ interface ViewToggleProps {
 
 export default function ViewToggle({ value, onChange, noMotion }: ViewToggleProps) {
   return (
-    <div style={{ display: 'flex', gap: 4, background: 'var(--bg-surface)', borderRadius: 10, padding: 3 }}>
+    <div style={{ display: 'flex', gap: 4, background: 'var(--color-surface-2)', borderRadius: 10, padding: 3 }}>
       {(['list', 'roadmap'] as const).map((mode) => (
         <button
           key={mode}
@@ -20,7 +20,7 @@ export default function ViewToggle({ value, onChange, noMotion }: ViewToggleProp
             padding: '6px 14px', borderRadius: 8, border: 'none', cursor: 'pointer',
             fontFamily: 'var(--font-nunito)', fontSize: 12, fontWeight: 600,
             background: value === mode ? 'rgba(196,181,212,0.2)' : 'transparent',
-            color: value === mode ? 'var(--accent-lavender)' : 'var(--text-muted)',
+            color: value === mode ? 'var(--color-accent)' : 'var(--color-text-3)',
             transition: noMotion ? 'none' : 'all 0.15s ease',
             textTransform: 'capitalize',
           }}
