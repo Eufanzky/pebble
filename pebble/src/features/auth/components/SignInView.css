@@ -8,7 +8,7 @@
   justify-content: center;
   gap: clamp(2rem, 6vw, 6rem);
   padding: 3rem 1.5rem;
-  color: var(--text-primary);
+  color: var(--color-text);
 }
 
 .signin-pebble {
@@ -23,7 +23,7 @@
   padding: 2.25rem 2rem;
   border-radius: 28px 28px 28px 8px;
   background: rgba(15, 13, 10, 0.72);
-  border: 1px solid var(--glass-border);
+  border: 1px solid var(--color-line);
   backdrop-filter: blur(14px);
 }
 
@@ -36,7 +36,7 @@
 }
 
 .signin-lead {
-  color: var(--text-secondary);
+  color: var(--color-text-2);
   font-size: 1rem;
   line-height: 1.55;
   margin: 0 0 1.75rem;
@@ -56,7 +56,7 @@
   border-radius: 999px;
   border: 1px solid var(--pebble-color);
   background: transparent;
-  color: var(--text-primary);
+  color: var(--color-text);
   cursor: pointer;
   text-align: center;
   transition: background-color 0.2s ease, color 0.2s ease;
@@ -65,12 +65,12 @@
 .signin-button:hover:not(:disabled),
 .signin-button:focus-visible {
   background: var(--pebble-color);
-  color: var(--bg-deep);
+  color: var(--color-bg);
 }
 
 .signin-button:focus-visible,
 .signin-dev-input:focus-visible {
-  outline: 2px solid var(--accent-cream);
+  outline: 2px solid var(--color-focus);
   outline-offset: 3px;
 }
 
@@ -80,7 +80,7 @@
 }
 
 .signin-note {
-  color: var(--text-secondary);
+  color: var(--color-text-2);
   line-height: 1.55;
   margin: 0 0 1.25rem;
   padding-left: 0.9rem;
@@ -91,7 +91,7 @@
 .signin-options + .signin-dev {
   margin-top: 1.75rem;
   padding-top: 1.5rem;
-  border-top: 1px solid var(--border-soft);
+  border-top: 1px solid var(--color-line);
 }
 
 .signin-dev-title {
@@ -102,7 +102,7 @@
 }
 
 .signin-dev-note {
-  color: var(--text-muted);
+  color: var(--color-text-3);
   font-size: 0.875rem;
   line-height: 1.5;
   margin: 0 0 1rem;
@@ -111,7 +111,7 @@
 .signin-dev-label {
   display: block;
   font-size: 0.875rem;
-  color: var(--text-secondary);
+  color: var(--color-text-2);
   margin-bottom: 0.4rem;
 }
 
@@ -127,9 +127,9 @@
   font: inherit;
   padding: 0.7rem 1rem;
   border-radius: 999px;
-  border: 1px solid var(--glass-border);
-  background: var(--bg-surface);
-  color: var(--text-primary);
+  border: 1px solid var(--color-line);
+  background: var(--color-surface-2);
+  color: var(--color-text);
 }
 
 @media (max-width: 760px) {

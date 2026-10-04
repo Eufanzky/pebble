@@ -17,8 +17,8 @@ export default function ToolButton({ active, noMotion, onClick, children, ariaEx
       aria-expanded={ariaExpanded}
       style={{
         padding: '8px 14px', borderRadius: 20, border: 'none', cursor: 'pointer',
-        background: active ? 'rgba(196,181,212,0.2)' : 'var(--bg-surface)',
-        color: active ? 'var(--accent-lavender)' : 'var(--text-secondary)',
+        background: active ? 'rgba(196,181,212,0.2)' : 'var(--color-surface-2)',
+        color: active ? 'var(--color-accent)' : 'var(--color-text-2)',
         fontFamily: 'var(--font-nunito)', fontSize: 12, fontWeight: 600,
         transition: noMotion ? 'none' : 'all 0.15s ease',
       }}

@@ -15,11 +15,11 @@ interface DocumentToolbarProps {
 
 const action: CSSProperties = {
   padding: '5px 12px', borderRadius: 8, cursor: 'pointer',
-  background: 'transparent', border: '1px solid var(--border-soft)',
-  color: 'var(--text-muted)', fontFamily: 'var(--font-nunito)', fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap',
+  background: 'transparent', border: '1px solid var(--color-line)',
+  color: 'var(--color-text-3)', fontFamily: 'var(--font-nunito)', fontSize: 11, fontWeight: 600, whiteSpace: 'nowrap',
 };
 
-const divider = <div style={{ width: 1, height: 18, background: 'var(--border-soft)', margin: '0 4px' }} />;
+const divider = <div style={{ width: 1, height: 18, background: 'var(--color-line)', margin: '0 4px' }} />;
 
 /** The reading-level slider, the document actions and the view toggle. */
 export default function DocumentToolbar({ level, onLevelChange, onTasks, onStudyPlan, onReader, view, onViewChange }: DocumentToolbarProps) {
@@ -29,7 +29,7 @@ export default function DocumentToolbar({ level, onLevelChange, onTasks, onStudy
 
       {divider}
 
-      <button onClick={onTasks} style={{ ...action, border: 'none', background: 'rgba(196,181,212,0.15)', color: 'var(--accent-lavender)' }}>
+      <button onClick={onTasks} style={{ ...action, border: 'none', background: 'rgba(196,181,212,0.15)', color: 'var(--color-accent)' }}>
         Tasks
       </button>
       <button onClick={onStudyPlan} style={action}>Study Plan</button>
@@ -37,7 +37,7 @@ export default function DocumentToolbar({ level, onLevelChange, onTasks, onStudy
 
       {divider}
 
-      <div style={{ display: 'flex', gap: 2, background: 'var(--bg-surface)', borderRadius: 6, padding: 2 }}>
+      <div style={{ display: 'flex', gap: 2, background: 'var(--color-surface-2)', borderRadius: 6, padding: 2 }}>
         {(['split', 'reader'] as const).map((m) => (
           <button
             key={m}
@@ -47,7 +47,7 @@ export default function DocumentToolbar({ level, onLevelChange, onTasks, onStudy
               padding: '3px 10px', borderRadius: 5, border: 'none', cursor: 'pointer',
               fontSize: 10, fontWeight: 600, fontFamily: 'var(--font-nunito)',
               background: view === m ? 'rgba(196,181,212,0.2)' : 'transparent',
-              color: view === m ? 'var(--accent-lavender)' : 'var(--text-muted)',
+              color: view === m ? 'var(--color-accent)' : 'var(--color-text-3)',
               textTransform: 'capitalize',
             }}
           >

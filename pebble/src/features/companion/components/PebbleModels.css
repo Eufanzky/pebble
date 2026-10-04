@@ -71,11 +71,11 @@
   left: 0;
   font-size: 6px;
   opacity: 0;
-  color: var(--accent-amber);
+  color: var(--color-tag-communication);
 }
 
 .pb-particle:nth-child(odd) {
-  color: var(--accent-lavender);
+  color: var(--color-accent);
 }
 
 .mood-excited .pb-particles { opacity: 1; }
@@ -98,7 +98,7 @@
   right: 0;
   font-family: var(--font-baloo);
   font-weight: 700;
-  color: var(--text-muted);
+  color: var(--color-text-3);
   opacity: 0;
 }
 
@@ -170,7 +170,7 @@
   inset: -32px;
   background: radial-gradient(ellipse at center 60%,
     color-mix(in srgb, var(--pebble-color) 18%, transparent) 0%,
-    color-mix(in srgb, var(--accent-amber) 6%, transparent) 40%,
+    color-mix(in srgb, var(--color-tag-communication) 6%, transparent) 40%,
     transparent 70%);
   border-radius: 50%;
   z-index: -1;

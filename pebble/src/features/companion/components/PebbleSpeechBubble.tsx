@@ -15,11 +15,11 @@ export default function PebbleSpeechBubble({ message, className = '' }: PebbleSp
         key={message}
         className="pebble-speech-bubble rounded-[14px] px-4 py-2.5"
         style={{
-          background: 'var(--glass-bg)',
+          background: 'var(--color-surface-2)',
           backdropFilter: 'blur(20px)',
           WebkitBackdropFilter: 'blur(20px)',
-          border: '1px solid var(--glass-border)',
-          color: 'var(--text-primary)',
+          border: '1px solid var(--color-line)',
+          color: 'var(--color-text)',
           fontFamily: 'var(--font-baloo)',
           fontSize: '12.5px',
           lineHeight: 1.55,
@@ -36,7 +36,7 @@ export default function PebbleSpeechBubble({ message, className = '' }: PebbleSp
           height: 0,
           borderLeft: '7px solid transparent',
           borderRight: '7px solid transparent',
-          borderTop: '7px solid var(--glass-bg)',
+          borderTop: '7px solid var(--color-surface-2)',
         }}
       />
     </div>

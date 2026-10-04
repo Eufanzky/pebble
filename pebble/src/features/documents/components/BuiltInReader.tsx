@@ -14,7 +14,7 @@ import ToolButton from './ToolButton';
 
 const fontButton = {
   width: 28, height: 28, borderRadius: 8, border: 'none', cursor: 'pointer',
-  background: 'var(--bg-surface)', color: 'var(--text-secondary)', fontWeight: 700,
+  background: 'var(--color-surface-2)', color: 'var(--color-text-2)', fontWeight: 700,
 } as const;
 
 /** The reader Pebble ships with, for when Azure Immersive Reader isn't set up. */
@@ -69,7 +69,7 @@ export default function BuiltInReader({ text, onClose }: { text: string; onClose
         </div>
         <button onClick={close} style={{
           background: 'none', border: '1px solid rgba(255,248,235,0.1)', borderRadius: 8,
-          padding: '6px 14px', color: 'var(--text-secondary)', fontFamily: 'var(--font-nunito)',
+          padding: '6px 14px', color: 'var(--color-text-2)', fontFamily: 'var(--font-nunito)',
           fontSize: 12, cursor: 'pointer',
         }}>
           Exit Reader
@@ -95,7 +95,7 @@ export default function BuiltInReader({ text, onClose }: { text: string; onClose
           style={{
             maxWidth: 600, width: '100%',
             fontFamily: 'var(--font-nunito)', fontSize, lineHeight: 1.8,
-            color: 'var(--text-primary)', letterSpacing: '0.02em',
+            color: 'var(--color-text)', letterSpacing: '0.02em',
             whiteSpace: 'pre-wrap',
           }}
         >
@@ -110,10 +110,10 @@ export default function BuiltInReader({ text, onClose }: { text: string; onClose
       </div>
 
       <div style={{ padding: '12px 24px', borderTop: '1px solid rgba(255,248,235,0.06)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <span style={{ fontSize: 11, color: 'var(--text-muted)' }}>
+        <span style={{ fontSize: 11, color: 'var(--color-text-3)' }}>
           Pebble&apos;s built-in reader — designed for dyslexia, ADHD, and emerging readers
         </span>
-        <span style={{ fontSize: 11, color: 'var(--text-muted)', fontVariantNumeric: 'tabular-nums' }}>
+        <span style={{ fontSize: 11, color: 'var(--color-text-3)', fontVariantNumeric: 'tabular-nums' }}>
           {fontSize}px
         </span>
       </div>

@@ -62,7 +62,7 @@ export function Eye({ side, mood, size = 12, top = 34, offset = 26, shine = 4, s
         {/* Amber inner star */}
         <div style={{
           position: 'absolute', inset: '15%',
-          background: 'var(--accent-amber)',
+          background: 'var(--color-tag-communication)',
           clipPath: starClip,
         }} />
         {/* White shine dot */}

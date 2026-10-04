@@ -15,7 +15,7 @@ interface SplitViewProps {
 
 const heading = {
   fontFamily: 'var(--font-baloo)', fontSize: 13, marginBottom: 12, paddingBottom: 8,
-  borderBottom: '1px solid var(--border-soft)',
+  borderBottom: '1px solid var(--color-line)',
 } as const;
 
 const scrollColumn = { overflowY: 'auto', scrollbarWidth: 'thin' } as const;
@@ -28,21 +28,21 @@ export default function SplitView({ doc, text, textVersion, level, defaultLevel,
         ...scrollColumn, padding: '20px 20px 20px 28px',
         borderRight: '1px solid rgba(255,248,235,0.06)', scrollbarColor: 'rgba(196,181,212,0.1) transparent',
       }}>
-        <h3 style={{ ...heading, color: 'var(--text-muted)' }}>Original</h3>
-        <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 13, color: 'var(--text-muted)', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
+        <h3 style={{ ...heading, color: 'var(--color-text-3)' }}>Original</h3>
+        <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 13, color: 'var(--color-text-3)', lineHeight: 1.7, whiteSpace: 'pre-wrap' }}>
           {doc.original}
         </div>
       </div>
 
       <div style={{ ...scrollColumn, padding: '20px 28px 20px 20px', scrollbarColor: 'rgba(196,181,212,0.2) transparent' }}>
-        <h3 style={{ ...heading, color: 'var(--accent-lavender)' }}>
+        <h3 style={{ ...heading, color: 'var(--color-accent)' }}>
           {calm ? "Pebble's version" : "Pebble's version ✦"} — Level {level}
         </h3>
         <div
           key={textVersion}
           data-testid="simplified-text"
           style={{
-            fontFamily: 'var(--font-nunito)', fontSize: 15, color: 'var(--text-primary)',
+            fontFamily: 'var(--font-nunito)', fontSize: 15, color: 'var(--color-text)',
             lineHeight: 1.8, whiteSpace: 'pre-wrap',
             animation: noMotion ? 'none' : 'docFadeIn 0.4s ease',
           }}

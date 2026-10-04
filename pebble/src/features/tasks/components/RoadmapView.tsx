@@ -3,6 +3,7 @@
 import { TAG_CONFIG } from '../lib/tags';
 import type { Task } from '../types';
 import RoadmapNode from './RoadmapNode';
+import './Roadmap.css';
 
 interface RoadmapViewProps {
   tasks: Task[];
@@ -35,7 +36,7 @@ export default function RoadmapView({
           bottom: 0,
           width: 2,
           transform: 'translateX(-50%)',
-          background: 'var(--border-soft)',
+          background: 'var(--color-line)',
           borderRadius: 1,
         }}
       />
@@ -51,7 +52,7 @@ export default function RoadmapView({
           width: 2,
           transform: 'translateX(-50%)',
           height: `${completionPercentage}%`,
-          background: 'var(--accent-lavender)',
+          background: 'var(--color-accent)',
           borderRadius: 1,
           transition: noMotion ? 'none' : 'height 0.6s ease',
         }}
@@ -61,10 +62,10 @@ export default function RoadmapView({
       <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 32, position: 'relative', zIndex: 1 }}>
         <div style={{
           width: 36, height: 36, borderRadius: '50%',
-          background: 'var(--bg-surface)', border: '2px solid var(--accent-lavender)',
+          background: 'var(--color-surface-2)', border: '2px solid var(--color-accent)',
           display: 'flex', alignItems: 'center', justifyContent: 'center',
         }}>
-          <span style={{ fontSize: 11, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: 'var(--accent-lavender)' }}>
+          <span style={{ fontSize: 11, fontWeight: 700, fontVariantNumeric: 'tabular-nums', color: 'var(--color-accent)' }}>
             GO
           </span>
         </div>
@@ -100,8 +101,8 @@ export default function RoadmapView({
       }}>
         <div style={{
           width: 44, height: 44, borderRadius: '50%',
-          background: allDone ? 'var(--accent-lavender)' : 'var(--bg-surface)',
-          border: `2px solid ${allDone ? 'var(--accent-lavender)' : 'var(--border-soft)'}`,
+          background: allDone ? 'var(--color-accent)' : 'var(--color-surface-2)',
+          border: `2px solid ${allDone ? 'var(--color-accent)' : 'var(--color-line)'}`,
           display: 'flex', alignItems: 'center', justifyContent: 'center',
           boxShadow: allDone ? '0 0 20px rgba(196,181,212,0.4)' : 'none',
           transition: noMotion ? 'none' : 'all 0.4s ease',
@@ -112,7 +113,7 @@ export default function RoadmapView({
             <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
               <polygon
                 points="9,1 11.5,6.5 17,7.2 13,11.1 14,16.5 9,13.8 4,16.5 5,11.1 1,7.2 6.5,6.5"
-                stroke="var(--text-muted)"
+                stroke="var(--color-text-3)"
                 strokeWidth="1.2"
                 fill="none"
                 opacity={0.5}
@@ -123,7 +124,7 @@ export default function RoadmapView({
         <div style={{
           position: 'absolute', top: 52,
           fontVariantNumeric: 'tabular-nums', fontSize: 10, fontWeight: 700,
-          color: allDone ? 'var(--accent-lavender)' : 'var(--text-muted)',
+          color: allDone ? 'var(--color-accent)' : 'var(--color-text-3)',
         }}>
           {allDone ? 'All done!' : 'Finish'}
         </div>

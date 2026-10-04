@@ -25,7 +25,7 @@ export default function ImmersiveReader({ text, title = 'Document', lang = 'en',
         position: 'fixed', inset: 0, zIndex: 60, background: '#1a1a2e',
         display: 'flex', alignItems: 'center', justifyContent: 'center',
       }}>
-        <div style={{ fontSize: 14, fontFamily: 'var(--font-nunito)', color: 'var(--text-muted)' }}>
+        <div style={{ fontSize: 14, fontFamily: 'var(--font-nunito)', color: 'var(--color-text-3)' }}>
           Opening the reader...
         </div>
       </div>

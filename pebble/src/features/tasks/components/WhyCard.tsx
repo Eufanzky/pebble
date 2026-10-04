@@ -50,7 +50,7 @@ export default function WhyCard({ explanation, onOpen }: WhyCardProps) {
         className="why-toggle"
         style={{
           background: 'none', border: 'none', cursor: 'pointer', padding: 0,
-          fontFamily: 'var(--font-nunito)', fontSize: 12, color: 'var(--accent-lavender)',
+          fontFamily: 'var(--font-nunito)', fontSize: 12, color: 'var(--color-accent)',
           display: 'flex', alignItems: 'center', gap: 4,
           transition: noMotion ? 'none' : 'opacity 0.15s ease',
           opacity: 0.8,
@@ -74,7 +74,7 @@ export default function WhyCard({ explanation, onOpen }: WhyCardProps) {
           marginTop: 8,
           padding: '12px 14px',
           background: 'rgba(255, 248, 235, 0.04)',
-          borderLeft: '2px solid var(--accent-lavender)',
+          borderLeft: '2px solid var(--color-accent)',
           borderRadius: '0 10px 10px 0',
           display: 'flex',
           gap: 10,
@@ -83,13 +83,13 @@ export default function WhyCard({ explanation, onOpen }: WhyCardProps) {
           <MiniPebbleFace />
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{
-              fontSize: 11, fontWeight: 700, color: 'var(--text-muted)', marginBottom: 4,
+              fontSize: 11, fontWeight: 700, color: 'var(--color-text-3)', marginBottom: 4,
             }}>
               Pebble explains:
             </div>
             <div style={{
               fontFamily: 'var(--font-nunito)', fontSize: 13,
-              color: 'var(--text-secondary)', lineHeight: 1.6,
+              color: 'var(--color-text-2)', lineHeight: 1.6,
             }}>
               {explanation}
             </div>

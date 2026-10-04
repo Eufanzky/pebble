@@ -28,7 +28,7 @@ export default function ReaderView({ doc, text, textVersion, level, defaultLevel
         key={textVersion}
         data-testid="simplified-text"
         style={{
-          fontFamily: 'var(--font-nunito)', fontSize: 15, color: 'var(--text-primary)',
+          fontFamily: 'var(--font-nunito)', fontSize: 15, color: 'var(--color-text)',
           lineHeight: 1.8, whiteSpace: 'pre-wrap', marginBottom: 20,
           animation: noMotion ? 'none' : 'docFadeIn 0.4s ease',
         }}
@@ -41,7 +41,7 @@ export default function ReaderView({ doc, text, textVersion, level, defaultLevel
         aria-expanded={showOriginal}
         style={{
           background: 'none', border: 'none', cursor: 'pointer',
-          fontFamily: 'var(--font-nunito)', fontSize: 12, color: 'var(--text-muted)',
+          fontFamily: 'var(--font-nunito)', fontSize: 12, color: 'var(--color-text-3)',
           display: 'flex', alignItems: 'center', gap: 6, padding: '8px 0', marginBottom: 8,
         }}
       >
@@ -51,10 +51,10 @@ export default function ReaderView({ doc, text, textVersion, level, defaultLevel
 
       {showOriginal && (
         <div style={{
-          fontFamily: 'var(--font-nunito)', fontSize: 13, color: 'var(--text-muted)',
+          fontFamily: 'var(--font-nunito)', fontSize: 13, color: 'var(--color-text-3)',
           lineHeight: 1.7, whiteSpace: 'pre-wrap', marginBottom: 20,
           padding: '16px 18px', background: 'rgba(255,248,235,0.03)', borderRadius: 12,
-          borderLeft: '2px solid var(--border-soft)',
+          borderLeft: '2px solid var(--color-line)',
         }}>
           {doc.original}
         </div>
