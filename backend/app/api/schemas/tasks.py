@@ -6,7 +6,7 @@ TITLE = Field(min_length=1, max_length=500)
 TIME_ESTIMATE = Field(alias="timeEstimate", default="", max_length=50)
 
 
-class SubtaskIn(BaseModel):
+class StepIn(BaseModel):
     title: str = TITLE
     time_estimate: str = TIME_ESTIMATE
     completed: bool = False
@@ -21,7 +21,7 @@ class TaskCreate(BaseModel):
     priority: TaskPriority = TaskPriority.MEDIUM
     completed: bool = False
     why_explanation: str = Field(alias="whyExplanation", default="", max_length=5000)
-    subtasks: list[SubtaskIn] = Field(default_factory=list, max_length=50)
+    steps: list[StepIn] = Field(default_factory=list, max_length=50)
 
     model_config = {"populate_by_name": True}
 
@@ -39,15 +39,15 @@ class TaskUpdate(BaseModel):
     model_config = {"populate_by_name": True}
 
 
-class SubtasksReplace(BaseModel):
-    subtasks: list[SubtaskIn] = Field(max_length=50)
+class StepsReplace(BaseModel):
+    steps: list[StepIn] = Field(max_length=50)
 
 
-class SubtaskUpdate(BaseModel):
+class StepUpdate(BaseModel):
     completed: bool
 
 
-class SubtaskOut(BaseModel):
+class StepOut(BaseModel):
     id: str
     title: str
     time_estimate: str = Field(alias="timeEstimate")
@@ -64,7 +64,7 @@ class TaskOut(BaseModel):
     priority: TaskPriority
     completed: bool
     why_explanation: str = Field(alias="whyExplanation")
-    subtasks: list[SubtaskOut]
+    steps: list[StepOut]
 
     model_config = {"populate_by_name": True, "by_alias": True}
 

@@ -9,12 +9,12 @@ import {
   deleteTask as deleteTaskRequest,
   listTasks,
   reorderTasks as reorderRequest,
-  replaceSubtasks,
-  updateSubtask,
+  replaceSteps,
+  updateStep,
   updateTask,
 } from '../api/tasks';
 import { sampleTasks } from '../data/sampleTasks';
-import type { NewTask, Subtask, Task } from '../types';
+import type { NewTask, Step, Task } from '../types';
 
 const TASKS_KEY = ['tasks'] as const;
 
@@ -30,12 +30,12 @@ interface TasksContextValue {
   saveFailed: boolean;
   dismissSaveError: () => void;
   toggleTask: (id: string) => void;
-  toggleSubtask: (taskId: string, subtaskId: string) => void;
+  toggleStep: (taskId: string, stepId: string) => void;
   addTask: (task: NewTask) => void;
   addTaskFromDocument: (title: string, docName: string, type: 'academic' | 'meeting') => void;
   /** Adds the example tasks, for a first look around. */
   addExampleTasks: () => void;
-  breakDownTask: (taskId: string, subtasks: Omit<Subtask, 'id'>[]) => void;
+  breakDownTask: (taskId: string, steps: Omit<Step, 'id'>[]) => void;
   /** Change what a task says: its title, estimate, tag or priority. */
   editTask: (id: string, changes: TaskEdit) => void;
   deleteTask: (id: string) => void;
@@ -68,7 +68,7 @@ export function TasksProvider({ children }: { children: ReactNode }) {
   const serverIds = useRef(new Map<string, string>());
 
   const tasks = useMemo(
-    () => (query.data ?? []).map((t) => (expanded.has(t.id) ? { ...t, showSubtasks: true } : t)),
+    () => (query.data ?? []).map((t) => (expanded.has(t.id) ? { ...t, showSteps: true } : t)),
     [query.data, expanded],
   );
 
@@ -101,17 +101,17 @@ export function TasksProvider({ children }: { children: ReactNode }) {
 
   /** The server answered: swap temporary ids for its ids, keeping any change made meanwhile. */
   const adoptIds = useCallback(
-    (localId: string, local: Pick<Task, 'subtasks'>, saved: Task) => {
+    (localId: string, local: Pick<Task, 'steps'>, saved: Task) => {
       serverIds.current.set(localId, saved.id);
-      (local.subtasks ?? []).forEach((s, i) => {
-        const savedStep = saved.subtasks?.[i];
+      (local.steps ?? []).forEach((s, i) => {
+        const savedStep = saved.steps?.[i];
         if (savedStep) serverIds.current.set(s.id, savedStep.id);
       });
       const swap = (id: string) => serverIds.current.get(id) ?? id;
       setTasks((prev) =>
         prev.map((t) =>
           t.id === localId || t.id === saved.id
-            ? { ...t, id: saved.id, subtasks: t.subtasks?.map((s) => ({ ...s, id: swap(s.id) })) }
+            ? { ...t, id: saved.id, steps: t.steps?.map((s) => ({ ...s, id: swap(s.id) })) }
             : t,
         ),
       );
@@ -139,7 +139,7 @@ export function TasksProvider({ children }: { children: ReactNode }) {
       const local: Task = {
         ...task,
         id: tempId(),
-        subtasks: task.subtasks?.map((s) => ({ ...s, id: tempId() })),
+        steps: task.steps?.map((s) => ({ ...s, id: tempId() })),
       };
       setTasks((prev) => [...prev, local]);
       enqueue(async () => adoptIds(local.id, local, await createTask(task)));
@@ -161,21 +161,21 @@ export function TasksProvider({ children }: { children: ReactNode }) {
     [tasks, setTasks, flashMood, enqueue, idFor],
   );
 
-  const toggleSubtask = useCallback(
-    (taskId: string, subtaskId: string) => {
-      const step = tasks.find((t) => t.id === taskId)?.subtasks?.find((s) => s.id === subtaskId);
+  const toggleStep = useCallback(
+    (taskId: string, stepId: string) => {
+      const step = tasks.find((t) => t.id === taskId)?.steps?.find((s) => s.id === stepId);
       if (!step) return;
       const completed = !step.completed;
       // The same rule as the backend: the last open step finishes the task; unticking never reopens it
       setTasks((prev) =>
         prev.map((t) => {
-          if (t.id !== taskId || !t.subtasks) return t;
-          const subtasks = t.subtasks.map((s) => (s.id === subtaskId ? { ...s, completed } : s));
-          return { ...t, subtasks, completed: t.completed || subtasks.every((s) => s.completed) };
+          if (t.id !== taskId || !t.steps) return t;
+          const steps = t.steps.map((s) => (s.id === stepId ? { ...s, completed } : s));
+          return { ...t, steps, completed: t.completed || steps.every((s) => s.completed) };
         }),
       );
       enqueue(async () => {
-        await updateSubtask(idFor(taskId), idFor(subtaskId), completed);
+        await updateStep(idFor(taskId), idFor(stepId), completed);
       });
     },
     [tasks, setTasks, enqueue, idFor],
@@ -197,15 +197,15 @@ export function TasksProvider({ children }: { children: ReactNode }) {
 
   const addExampleTasks = useCallback(() => {
     // Each gets new ids (the server's); the sample ids are never sent
-    sampleTasks.forEach((sample) => addTask({ ...sample, showSubtasks: false }));
+    sampleTasks.forEach((sample) => addTask({ ...sample, showSteps: false }));
   }, [addTask]);
 
   const breakDownTask = useCallback(
-    (taskId: string, subtasks: Omit<Subtask, 'id'>[]) => {
-      const steps = subtasks.map((s) => ({ ...s, id: tempId(), completed: false }));
-      setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, subtasks: steps } : t)));
+    (taskId: string, newSteps: Omit<Step, 'id'>[]) => {
+      const steps = newSteps.map((s) => ({ ...s, id: tempId(), completed: false }));
+      setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, steps } : t)));
       setExpanded((prev) => new Set(prev).add(taskId));
-      enqueue(async () => adoptIds(taskId, { subtasks: steps }, await replaceSubtasks(idFor(taskId), subtasks)));
+      enqueue(async () => adoptIds(taskId, { steps }, await replaceSteps(idFor(taskId), newSteps)));
     },
     [setTasks, enqueue, adoptIds, idFor],
   );
@@ -256,7 +256,7 @@ export function TasksProvider({ children }: { children: ReactNode }) {
     saveFailed,
     dismissSaveError: () => setSaveFailed(false),
     toggleTask,
-    toggleSubtask,
+    toggleStep,
     addTask,
     addTaskFromDocument,
     addExampleTasks,

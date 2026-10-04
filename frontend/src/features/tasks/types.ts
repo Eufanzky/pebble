@@ -1,4 +1,4 @@
-export interface Subtask {
+export interface Step {
   id: string;
   title: string;
   timeEstimate: string;
@@ -15,8 +15,8 @@ export interface Task {
   tag: TaskTag;
   priority: TaskPriority;
   completed: boolean;
-  subtasks?: Subtask[];
-  showSubtasks?: boolean;
+  steps?: Step[];
+  showSteps?: boolean;
   whyExplanation?: string;
 }
 

@@ -17,7 +17,7 @@ const PRIORITIES = ['high', 'medium', 'low'];
 const AGENTS = ['CalmSense', 'AdaptLens', 'SimplifyCore', 'PebbleVoice', 'WhyBot', 'BridgeBot'];
 const PREFERENCE_VALUES: Record<string, (v: unknown) => boolean> = {
   readingLevel: (v) => Number.isInteger(v) && (v as number) >= 1 && (v as number) <= 10,
-  chunkSize: (v) => ['small', 'medium', 'large'].includes(v as string),
+  stepSize: (v) => ['small', 'medium', 'large'].includes(v as string),
   reduceAnimations: (v) => typeof v === 'boolean',
   calmMode: (v) => typeof v === 'boolean',
   pebbleColor: (v) => ['lavender', 'sage', 'coral', 'amber', 'sky'].includes(v as string),
@@ -25,6 +25,9 @@ const PREFERENCE_VALUES: Record<string, (v: unknown) => boolean> = {
   pebbleModel: (v) =>
     ['classic', 'chonky', 'mochi', 'minimal', 'chonky-plus', 'mochi-plus', 'minimal-plus'].includes(v as string),
 };
+
+/** Names the browser used before 6.6 called everything "steps": `chunkSize` is now `stepSize`. */
+const RENAMED_PREFERENCES: Record<string, string> = { chunkSize: 'stepSize' };
 
 type Loose = Record<string, unknown>;
 
@@ -45,6 +48,7 @@ function tasksFrom(value: unknown): ImportTask[] {
   return value.filter(isObject).flatMap((t) => {
     const title = text(t.title, 500);
     if (!title) return [];
+    // The browser kept a task's steps as `subtasks` (the name before 6.6)
     const steps = Array.isArray(t.subtasks) ? t.subtasks.filter(isObject) : [];
     return [
       {
@@ -54,7 +58,7 @@ function tasksFrom(value: unknown): ImportTask[] {
         priority: (PRIORITIES.includes(t.priority as string) ? t.priority : 'medium') as ImportTask['priority'],
         completed: t.completed === true,
         whyExplanation: text(t.whyExplanation, 5000),
-        subtasks: steps
+        steps: steps
           .map((s) => ({
             title: text(s.title, 500),
             timeEstimate: text(s.timeEstimate, 50),
@@ -69,7 +73,11 @@ function tasksFrom(value: unknown): ImportTask[] {
 
 function preferencesFrom(value: unknown): ImportRequest['preferences'] {
   if (!isObject(value)) return null;
-  const valid = Object.fromEntries(Object.entries(value).filter(([k, v]) => PREFERENCE_VALUES[k]?.(v)));
+  const valid = Object.fromEntries(
+    Object.entries(value)
+      .map(([k, v]) => [RENAMED_PREFERENCES[k] ?? k, v] as const)
+      .filter(([k, v]) => PREFERENCE_VALUES[k]?.(v)),
+  );
   return Object.keys(valid).length > 0 ? (valid as ImportRequest['preferences']) : null;
 }
 

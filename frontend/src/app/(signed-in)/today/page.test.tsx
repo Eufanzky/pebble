@@ -11,7 +11,7 @@ beforeEach(() => {
     newTask('Read Chapter 4', {
       timeEstimate: '~25 min',
       whyExplanation: 'One step per section.',
-      subtasks: [
+      steps: [
         { id: 'st-a', title: 'Skim the headings', timeEstimate: '~5 min', completed: false },
         { id: 'st-b', title: 'Write a summary', timeEstimate: '~5 min', completed: false },
       ],
@@ -22,12 +22,12 @@ beforeEach(() => {
 
 async function renderAndShowSteps() {
   const view = renderWithProviders(<TodayPage />);
-  await view.user.click(await screen.findByRole('button', { name: 'Break down "Read Chapter 4" into subtasks' }));
+  await view.user.click(await screen.findByRole('button', { name: 'Break down "Read Chapter 4" into steps' }));
   return view;
 }
 
 function stepRow(title: string) {
-  return screen.getByText(title).closest('.subtask-item') as HTMLElement;
+  return screen.getByText(title).closest('.step-item') as HTMLElement;
 }
 
 describe('Today: toggling a task step', () => {
@@ -41,21 +41,21 @@ describe('Today: toggling a task step', () => {
   it('checks a step and unchecks it again', async () => {
     const { user } = await renderAndShowSteps();
 
-    await user.click(within(stepRow('Skim the headings')).getByRole('button', { name: 'Check subtask' }));
+    await user.click(within(stepRow('Skim the headings')).getByRole('button', { name: 'Check step' }));
 
-    expect(within(stepRow('Skim the headings')).getByRole('button', { name: 'Uncheck subtask' })).toBeInTheDocument();
-    expect(within(stepRow('Write a summary')).getByRole('button', { name: 'Check subtask' })).toBeInTheDocument();
+    expect(within(stepRow('Skim the headings')).getByRole('button', { name: 'Uncheck step' })).toBeInTheDocument();
+    expect(within(stepRow('Write a summary')).getByRole('button', { name: 'Check step' })).toBeInTheDocument();
 
-    await user.click(within(stepRow('Skim the headings')).getByRole('button', { name: 'Uncheck subtask' }));
+    await user.click(within(stepRow('Skim the headings')).getByRole('button', { name: 'Uncheck step' }));
 
-    expect(within(stepRow('Skim the headings')).getByRole('button', { name: 'Check subtask' })).toBeInTheDocument();
+    expect(within(stepRow('Skim the headings')).getByRole('button', { name: 'Check step' })).toBeInTheDocument();
   });
 
   it('moves the task to "done today" when its last step is checked', async () => {
     const { user } = await renderAndShowSteps();
 
-    await user.click(within(stepRow('Skim the headings')).getByRole('button', { name: 'Check subtask' }));
-    await user.click(within(stepRow('Write a summary')).getByRole('button', { name: 'Check subtask' }));
+    await user.click(within(stepRow('Skim the headings')).getByRole('button', { name: 'Check step' }));
+    await user.click(within(stepRow('Write a summary')).getByRole('button', { name: 'Check step' }));
 
     expect(screen.getByRole('heading', { name: /Done today/ })).toBeInTheDocument();
     const card = screen.getByText('Read Chapter 4').closest('.task-card') as HTMLElement;

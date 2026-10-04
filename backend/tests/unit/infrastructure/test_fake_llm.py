@@ -57,14 +57,14 @@ async def test_default_classifier_picks_an_intent_by_keyword(message, intent):
     assert reply["mood"] in {"sleepy", "normal", "happy", "excited"}
 
 
-async def test_default_decompose_uses_the_task_and_chunk_size():
-    message = "Task: Clean my room\nUser's preferred chunk size: small\nCurrent time of day: day"
+async def test_default_decompose_uses_the_task_and_step_size():
+    message = "Task: Clean my room\nUser's preferred step size: small\nCurrent time of day: day"
 
     reply = json.loads(await FakeLLM().complete(request("CalmSense", message)))
 
-    assert len(reply["subtasks"]) == 3
-    assert "Clean my room" in reply["subtasks"][0]["title"]
-    assert reply["subtasks"][1]["timeEstimate"] == "~5 min"
+    assert len(reply["steps"]) == 3
+    assert "Clean my room" in reply["steps"][0]["title"]
+    assert reply["steps"][1]["timeEstimate"] == "~5 min"
     assert reply["whyExplanation"]
 
 

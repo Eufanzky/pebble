@@ -21,7 +21,7 @@ Each capability belongs to a named agent. Every named agent must be backed by re
 | Capability | Agent | What the user gets |
 |:--|:--|:--|
 | Understand the request | Orchestrator | Pebble works out what you need and sends it to the right agent. |
-| Task breakdown | CalmSense | A big task becomes small, time-boxed steps sized to your chunk-size preference. |
+| Task breakdown | CalmSense | A big task becomes small, time-boxed steps sized to your step-size preference. |
 | Document simplification | SimplifyCore | A rewrite at your reading level, comprehension checks, and action items you can turn into tasks. |
 | Encouragement | PebbleVoice | Specific, honest encouragement based on what you actually did. |
 | Explanations | WhyBot | A plain-language "why" for every AI decision. |

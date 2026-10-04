@@ -13,7 +13,7 @@ const PREFERENCES_CACHE = 'pebble-preferences-cache';
 
 export const defaultPreferences: UserPreferences = {
   readingLevel: 5,
-  chunkSize: 'medium',
+  stepSize: 'medium',
   reduceAnimations: false,
   calmMode: false,
   pebbleColor: 'lavender',

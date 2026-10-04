@@ -6,7 +6,7 @@ import { usePreferences } from '@/shared/preferences';
 import { Button, Screen, ScreenHeader } from '@/shared/ui';
 import { useResetPreferences } from '../hooks/useResetPreferences';
 import { settingsGreeting } from '../lib/greeting';
-import ChunkSizeSetting from './ChunkSizeSetting';
+import StepSizeSetting from './StepSizeSetting';
 import DisplayToggles from './DisplayToggles';
 import PebblePickers from './PebblePickers';
 import ReadingLevelSetting from './ReadingLevelSetting';
@@ -40,7 +40,7 @@ export default function SettingsView({ account }: { account?: ReactNode }) {
       <SectionHeader title="Accessibility preferences" subtitle="These settings are applied across the entire app" />
       <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 32 }}>
         <ReadingLevelSetting />
-        <ChunkSizeSetting />
+        <StepSizeSetting />
         <DisplayToggles />
       </div>
 

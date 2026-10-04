@@ -125,11 +125,6 @@
       },
       "ChatRequest": {
         "properties": {
-          "chunkSize": {
-            "default": "medium",
-            "title": "Chunksize",
-            "type": "string"
-          },
           "message": {
             "minLength": 1,
             "title": "Message",
@@ -154,6 +149,11 @@
             },
             "title": "Recenttasktitles",
             "type": "array"
+          },
+          "stepSize": {
+            "default": "medium",
+            "title": "Stepsize",
+            "type": "string"
           },
           "tasksCompleted": {
             "default": 0,
@@ -217,15 +217,6 @@
         "title": "ChatResponse",
         "type": "object"
       },
-      "ChunkSize": {
-        "enum": [
-          "small",
-          "medium",
-          "large"
-        ],
-        "title": "ChunkSize",
-        "type": "string"
-      },
       "DayOut": {
         "properties": {
           "date": {
@@ -257,9 +248,9 @@
       },
       "DecomposeRequest": {
         "properties": {
-          "chunkSize": {
+          "stepSize": {
             "default": "medium",
-            "title": "Chunksize",
+            "title": "Stepsize",
             "type": "string"
           },
           "taskTitle": {
@@ -281,11 +272,11 @@
       },
       "DecomposeResponse": {
         "properties": {
-          "subtasks": {
+          "steps": {
             "items": {
-              "$ref": "#/components/schemas/SubtaskResult"
+              "$ref": "#/components/schemas/StepResult"
             },
-            "title": "Subtasks",
+            "title": "Steps",
             "type": "array"
           },
           "whyExplanation": {
@@ -294,7 +285,7 @@
           }
         },
         "required": [
-          "subtasks",
+          "steps",
           "whyExplanation"
         ],
         "title": "DecomposeResponse",
@@ -579,9 +570,6 @@
             "title": "Calmmode",
             "type": "boolean"
           },
-          "chunkSize": {
-            "$ref": "#/components/schemas/ChunkSize"
-          },
           "pebbleColor": {
             "$ref": "#/components/schemas/PebbleColor"
           },
@@ -598,11 +586,14 @@
           "reduceAnimations": {
             "title": "Reduceanimations",
             "type": "boolean"
+          },
+          "stepSize": {
+            "$ref": "#/components/schemas/StepSize"
           }
         },
         "required": [
           "readingLevel",
-          "chunkSize",
+          "stepSize",
           "reduceAnimations",
           "calmMode",
           "pebbleColor",
@@ -626,16 +617,6 @@
               }
             ],
             "title": "Calmmode"
-          },
-          "chunkSize": {
-            "anyOf": [
-              {
-                "$ref": "#/components/schemas/ChunkSize"
-              },
-              {
-                "type": "null"
-              }
-            ]
           },
           "pebbleColor": {
             "anyOf": [
@@ -690,6 +671,16 @@
               }
             ],
             "title": "Reduceanimations"
+          },
+          "stepSize": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/StepSize"
+              },
+              {
+                "type": "null"
+              }
+            ]
           }
         },
         "title": "PreferencesUpdate",
@@ -820,7 +811,7 @@
         "title": "StatsOut",
         "type": "object"
       },
-      "SubtaskIn": {
+      "StepIn": {
         "properties": {
           "completed": {
             "default": false,
@@ -843,10 +834,10 @@
         "required": [
           "title"
         ],
-        "title": "SubtaskIn",
+        "title": "StepIn",
         "type": "object"
       },
-      "SubtaskOut": {
+      "StepOut": {
         "properties": {
           "completed": {
             "title": "Completed",
@@ -871,10 +862,10 @@
           "timeEstimate",
           "completed"
         ],
-        "title": "SubtaskOut",
+        "title": "StepOut",
         "type": "object"
       },
-      "SubtaskResult": {
+      "StepResult": {
         "properties": {
           "timeEstimate": {
             "title": "Timeestimate",
@@ -889,10 +880,19 @@
           "title",
           "timeEstimate"
         ],
-        "title": "SubtaskResult",
+        "title": "StepResult",
         "type": "object"
       },
-      "SubtaskUpdate": {
+      "StepSize": {
+        "enum": [
+          "small",
+          "medium",
+          "large"
+        ],
+        "title": "StepSize",
+        "type": "string"
+      },
+      "StepUpdate": {
         "properties": {
           "completed": {
             "title": "Completed",
@@ -902,24 +902,24 @@
         "required": [
           "completed"
         ],
-        "title": "SubtaskUpdate",
+        "title": "StepUpdate",
         "type": "object"
       },
-      "SubtasksReplace": {
+      "StepsReplace": {
         "properties": {
-          "subtasks": {
+          "steps": {
             "items": {
-              "$ref": "#/components/schemas/SubtaskIn"
+              "$ref": "#/components/schemas/StepIn"
             },
             "maxItems": 50,
-            "title": "Subtasks",
+            "title": "Steps",
             "type": "array"
           }
         },
         "required": [
-          "subtasks"
+          "steps"
         ],
-        "title": "SubtasksReplace",
+        "title": "StepsReplace",
         "type": "object"
       },
       "TaskCreate": {
@@ -933,12 +933,12 @@
             "$ref": "#/components/schemas/TaskPriority",
             "default": "medium"
           },
-          "subtasks": {
+          "steps": {
             "items": {
-              "$ref": "#/components/schemas/SubtaskIn"
+              "$ref": "#/components/schemas/StepIn"
             },
             "maxItems": 50,
-            "title": "Subtasks",
+            "title": "Steps",
             "type": "array"
           },
           "tag": {
@@ -983,11 +983,11 @@
           "priority": {
             "$ref": "#/components/schemas/TaskPriority"
           },
-          "subtasks": {
+          "steps": {
             "items": {
-              "$ref": "#/components/schemas/SubtaskOut"
+              "$ref": "#/components/schemas/StepOut"
             },
-            "title": "Subtasks",
+            "title": "Steps",
             "type": "array"
           },
           "tag": {
@@ -1014,7 +1014,7 @@
           "priority",
           "completed",
           "whyExplanation",
-          "subtasks"
+          "steps"
         ],
         "title": "TaskOut",
         "type": "object"
@@ -1360,7 +1360,7 @@
     },
     "/api/agents/chat": {
       "post": {
-        "description": "**Pebble Orchestrator** \u2014 The main entry point for talking to Pebble.\n\nClassifies the user's intent and routes to the appropriate sub-agent:\n- `decompose` \u2192 CalmSense (task breakdown)\n- `simplify` \u2192 SimplifyCore (text simplification)\n- `motivate` \u2192 PebbleVoice (encouragement)\n- `chat` \u2192 Direct response from Pebble\n- `distress` \u2192 Immediate empathetic response with support\n\nAll input is screened by Prompt Shields (anti-jailbreak) and Content Safety, then PII-redacted:\nthe classifier and every sub-agent see only the redacted message. A flagged reply is replaced\nwith a safe one.\n\nIf the user expresses distress (*\"I'm overwhelmed\"*, *\"I can't do this\"*),\nPebble responds with empathy and offers to simplify their day.\n\nThe `data` field contains structured output from the sub-agent (e.g., subtasks\nfor decompose, simplified text for simplify), or `null` for chat/distress.",
+        "description": "**Pebble Orchestrator** \u2014 The main entry point for talking to Pebble.\n\nClassifies the user's intent and routes to the appropriate sub-agent:\n- `decompose` \u2192 CalmSense (task breakdown)\n- `simplify` \u2192 SimplifyCore (text simplification)\n- `motivate` \u2192 PebbleVoice (encouragement)\n- `chat` \u2192 Direct response from Pebble\n- `distress` \u2192 Immediate empathetic response with support\n\nAll input is screened by Prompt Shields (anti-jailbreak) and Content Safety, then PII-redacted:\nthe classifier and every sub-agent see only the redacted message. A flagged reply is replaced\nwith a safe one.\n\nIf the user expresses distress (*\"I'm overwhelmed\"*, *\"I can't do this\"*),\nPebble responds with empathy and offers to simplify their day.\n\nThe `data` field contains structured output from the sub-agent (e.g., steps\nfor decompose, simplified text for simplify), or `null` for chat/distress.",
         "operationId": "chat_api_agents_chat_post",
         "requestBody": {
           "content": {
@@ -1407,7 +1407,7 @@
     },
     "/api/agents/decompose": {
       "post": {
-        "description": "**Agent: CalmSense** \u2014 Takes a task title and breaks it into smaller, achievable subtasks.\n\nRespects the user's preferred chunk size:\n- `small`: 5-10 minute steps\n- `medium`: 15-20 minute steps\n- `large`: 30+ minute steps\n\nThe agent starts with the easiest step to reduce task initiation friction,\nand includes a `whyExplanation` describing why it chose this breakdown.\n\nInput and output go through the safety gate (Content Safety and PII redaction).",
+        "description": "**Agent: CalmSense** \u2014 Takes a task title and breaks it into smaller, achievable steps.\n\nRespects the user's preferred step size:\n- `small`: 5-10 minute steps\n- `medium`: 15-20 minute steps\n- `large`: 30+ minute steps\n\nThe agent starts with the easiest step to reduce task initiation friction,\nand includes a `whyExplanation` describing why it chose this breakdown.\n\nInput and output go through the safety gate (Content Safety and PII redaction).",
         "operationId": "decompose_api_agents_decompose_post",
         "requestBody": {
           "content": {
@@ -1428,7 +1428,7 @@
                 }
               }
             },
-            "description": "Time-boxed subtasks with an explanation of why they were split this way"
+            "description": "Time-boxed steps with an explanation of why they were split this way"
           },
           "422": {
             "content": {
@@ -1885,7 +1885,7 @@
         ]
       },
       "get": {
-        "description": "Your tasks in the order you added them, each with its steps (`subtasks`).",
+        "description": "Your tasks in the order you added them, each with its steps.",
         "operationId": "list_tasks_api_tasks_get",
         "responses": {
           "200": {
@@ -2106,10 +2106,10 @@
         ]
       }
     },
-    "/api/tasks/{task_id}/subtasks": {
+    "/api/tasks/{task_id}/steps": {
       "put": {
         "description": "Set a task's steps, for example from a CalmSense breakdown. The new steps start open.",
-        "operationId": "replace_subtasks_api_tasks__task_id__subtasks_put",
+        "operationId": "replace_steps_api_tasks__task_id__steps_put",
         "parameters": [
           {
             "in": "path",
@@ -2125,7 +2125,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SubtasksReplace"
+                "$ref": "#/components/schemas/StepsReplace"
               }
             }
           },
@@ -2164,10 +2164,10 @@
         ]
       }
     },
-    "/api/tasks/{task_id}/subtasks/{subtask_id}": {
+    "/api/tasks/{task_id}/steps/{step_id}": {
       "patch": {
         "description": "Finishing the last open step also finishes the task. Unticking a step never reopens it.",
-        "operationId": "update_subtask_api_tasks__task_id__subtasks__subtask_id__patch",
+        "operationId": "update_step_api_tasks__task_id__steps__step_id__patch",
         "parameters": [
           {
             "in": "path",
@@ -2180,10 +2180,10 @@
           },
           {
             "in": "path",
-            "name": "subtask_id",
+            "name": "step_id",
             "required": true,
             "schema": {
-              "title": "Subtask Id",
+              "title": "Step Id",
               "type": "string"
             }
           }
@@ -2192,7 +2192,7 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/SubtaskUpdate"
+                "$ref": "#/components/schemas/StepUpdate"
               }
             }
           },

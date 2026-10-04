@@ -106,7 +106,7 @@ TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test 
   - `src/test/guilt-scan.test.ts`: principle-1 patterns (streaks, "overdue", missed days or time away, loss framing, red or alarm styling) in `frontend/src` and `backend/app`. Justified matches go in `EXCEPTIONS`, with a reason.
   - `src/test/tokens.test.ts`: colour tokens are defined only in `shared/ui/tokens.css`, and every `var(--…)` used is defined.
   - `src/test/docs-links.test.ts`: relative links in the Markdown docs resolve, and every repo path the current docs name in backticks (`frontend/…`, `backend/…`, `specs/…`, `docker/…`) exists. The roadmap and the audit are exempt, since they record old paths.
-  - `src/test/names.test.ts`: the code calls the app Pebble; its hackathon name, Focusbuddy, appears only in docs that record history.
+  - `src/test/names.test.ts`: one name for each thing. The code calls the app Pebble (its hackathon name, Focusbuddy, appears only in docs that record history), a part of a task a step and its size the step size (`subtask` and `chunk size` appear only where old data is read: the browser import and migration 0005).
   - `shared/ui/primitives.test.tsx`: no colour literals in redesigned screens.
 - Accessibility: `src/test/a11y.test.tsx` runs axe on every main view and open state; `AppShell.test.tsx` covers the skip link, `aria-current` and focus on navigation; `DocumentKeyboard.test.tsx` covers the focus traps. Add new views and modals to them.
 
@@ -137,7 +137,7 @@ TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test 
 - `chat`: `PebbleChat` and `useChat` (`POST /api/agents/chat`). It refreshes the activity log after each turn.
 - `companion`: `PebbleProvider`/`usePebble` (mood, rotating messages), `PebbleCharacter`, `PebbleSpeechBubble`, and the 7 models.
 - `activity`: `ActivityLogProvider`/`useActivityLog` and `ActivityView`.
-- `settings`: `SettingsView`: Pebble's look and personality, reading level, chunk size, reduce animations, calm mode, a reset to defaults, and "Your data".
+- `settings`: `SettingsView`: Pebble's look and personality, reading level, step size, reduce animations, calm mode, a reset to defaults, and "Your data".
 - `focus`: `FocusView` and the 25-minute timer (`useFocusTimer`). A finished session calls `postFocusSession`. There are no rooms or other people (9.1).
 - `stats`: `StatsView` at `/stats`. The range is a sentence, with a one-hue column chart per day (arrow keys read a day, plus a table view) and tasks per tag as one-hue bars named on each row (the tag colours fail the dataviz checks, so colour never tells them apart). `lib/summary.ts` has the copy and the axis maths.
 - `auth`: `SignInView`, `AccountSection` (download my data, delete my account; `useAccountData`), and, server-only in `server.ts`, the Auth.js config, `forwardToBackend` and `signBackendToken`.
@@ -196,7 +196,7 @@ Each agent has `run()` for screened input and `__call__` for the direct endpoint
 
 ### Data
 
-- **Tasks** (`application/tasks.py` over `TaskRepository`; `SqlTaskRepository`): one transaction per call, every query scoped to the user, so another user's task is a 404. `Task.with_step_completed` finishes a task when its last open step is ticked and never reopens it. New tasks go last; `PUT /api/tasks/order` takes every id exactly once, or it's a 409 and nothing moves. The API calls steps `subtasks`.
+- **Tasks** (`application/tasks.py` over `TaskRepository`; `SqlTaskRepository`): one transaction per call, every query scoped to the user, so another user's task is a 404. `Task.with_step_completed` finishes a task when its last open step is ticked and never reopens it. New tasks go last; `PUT /api/tasks/order` takes every id exactly once, or it's a 409 and nothing moves.
 - **Progress** (`domain/progress.py`, `application/progress.py`): `ProgressLog` notes an event the first time a task or step is finished, and `POST /api/stats/focus` notes a focus session. Events are only ever added (unique per user, kind and item), so counts only grow. `GET /api/stats?days=&tz=` sums them per local day and per tag.
 - **Preferences:** one JSONB row per user holding what was saved; `Preferences.from_saved` fills the gaps with defaults and drops damaged values.
 - **Activity:** each agent use case takes an optional `ActivityLog`, and writes one entry per result (`note()`). `watch()` logs held-back input or flagged replies as `flagged`, without their text. Entries hold only redacted text. A failed write never breaks chat. `tests/api/test_activity_pipeline.py` covers every agent.

@@ -150,10 +150,10 @@ function NodeCard({ task, done, isActive, tagColor, tagLabel, tagEmoji, calm, no
         {task.title}
       </div>
 
-      {/* Subtask count */}
-      {task.subtasks && task.subtasks.length > 0 && (
+      {/* Step count */}
+      {task.steps && task.steps.length > 0 && (
         <div style={{ fontSize: 11, color: 'var(--color-text-3)', marginTop: 4 }}>
-          {task.subtasks.filter((s) => s.completed).length}/{task.subtasks.length} steps
+          {task.steps.filter((s) => s.completed).length}/{task.steps.length} steps
         </div>
       )}
     </button>

@@ -69,14 +69,14 @@ Real-LLM evals live in `tests/evals/` (`uv run pytest -m eval`). They're exclude
 | POST | `/api/agents/motivate` | PebbleVoice: specific encouragement from the user's progress |
 | POST | `/api/documents/parse` | Read a PDF, Word (.docx) or text file's text in memory (never stored) |
 | GET | `/api/documents/immersive-reader/token` | Optional Azure Immersive Reader token (503 when not configured) |
-| GET | `/api/tasks` | Your tasks in your order (new ones go last), each with its `subtasks` |
+| GET | `/api/tasks` | Your tasks in your order (new ones go last), each with its `steps` |
 | PUT | `/api/tasks/order` | Reorder your list: `{"taskIds": [...]}` with every task exactly once; otherwise 409 and nothing moves |
 | POST | `/api/tasks` | Add a task (201). Pebble picks the ids |
 | PATCH | `/api/tasks/{id}` | Change only the fields sent, e.g. `{"completed": true}` |
 | DELETE | `/api/tasks/{id}` | Remove one task (204) |
 | DELETE | `/api/tasks` | Clear your list (204) |
-| PUT | `/api/tasks/{id}/subtasks` | Replace a task's steps (e.g. from CalmSense); new steps start open |
-| PATCH | `/api/tasks/{id}/subtasks/{subtaskId}` | Tick a step on or off. The last open step finishes the task; unticking never reopens it |
+| PUT | `/api/tasks/{id}/steps` | Replace a task's steps (e.g. from CalmSense); new steps start open |
+| PATCH | `/api/tasks/{id}/steps/{stepId}` | Tick a step on or off. The last open step finishes the task; unticking never reopens it |
 | GET | `/api/preferences` | Your preferences over the defaults (a new account gets the defaults) |
 | PATCH | `/api/preferences` | Change only the fields sent; returns all of them |
 | GET | `/api/activity?limit=50` | Your activity log, newest first (limit 1-200) |

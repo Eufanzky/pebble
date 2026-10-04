@@ -22,7 +22,7 @@ export function buildChatRequest(
     tasksCompleted: completed.length,
     tasksTotal: tasks.length,
     recentTaskTitles: completed.slice(-3).map((t) => t.title),
-    chunkSize: preferences.chunkSize,
+    stepSize: preferences.stepSize,
     readingLevel: preferences.readingLevel,
     timeOfDay,
     personality: preferences.pebblePersonality,

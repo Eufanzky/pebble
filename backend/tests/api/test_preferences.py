@@ -8,7 +8,7 @@ from app.infrastructure.db.preferences import UnconfiguredPreferencesRepository
 URL = "/api/preferences"
 DEFAULTS = {
     "readingLevel": 5,
-    "chunkSize": "medium",
+    "stepSize": "medium",
     "reduceAnimations": False,
     "calmMode": False,
     "pebbleColor": "lavender",
@@ -43,8 +43,8 @@ async def test_patch_changes_only_what_was_sent(client, signed_in):
 
 @pytest.mark.parametrize(
     "body",
-    [{"readingLevel": 0}, {"readingLevel": 11}, {"chunkSize": "huge"}, {"pebbleColor": "red"}, {"theme": "light"}],
-    ids=["level-0", "level-11", "chunk", "color", "unknown-field"],
+    [{"readingLevel": 0}, {"readingLevel": 11}, {"stepSize": "huge"}, {"pebbleColor": "red"}, {"theme": "light"}],
+    ids=["level-0", "level-11", "step-size", "color", "unknown-field"],
 )
 async def test_patch_validates(client, signed_in, body):
     assert (await client.patch(URL, json=body)).status_code == 422

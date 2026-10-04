@@ -1,7 +1,7 @@
 import pytest
 
 from app.application.preferences import UserPreferences
-from app.domain.preferences import ChunkSize, Preferences
+from app.domain.preferences import Preferences, StepSize
 from tests.fakes import InMemoryPreferencesRepository
 
 
@@ -19,10 +19,10 @@ async def test_update_changes_only_the_given_fields_and_saves_all(repository):
     prefs = UserPreferences(repository)
 
     await prefs.update("u", {"calm_mode": True})
-    updated = await prefs.update("u", {"chunk_size": ChunkSize.SMALL})
+    updated = await prefs.update("u", {"step_size": StepSize.SMALL})
 
-    assert updated == Preferences(calm_mode=True, chunk_size=ChunkSize.SMALL)
-    assert repository.saved["u"]["chunk_size"] == "small"
+    assert updated == Preferences(calm_mode=True, step_size=StepSize.SMALL)
+    assert repository.saved["u"]["step_size"] == "small"
     assert await prefs.get("u") == updated
 
 

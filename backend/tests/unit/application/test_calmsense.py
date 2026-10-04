@@ -12,7 +12,7 @@ from app.infrastructure.pii.regex_redactor import RegexPIIRedactor
 from tests.fakes import ScriptedSafety
 
 REPLY = {
-    "subtasks": [{"title": "Open the file", "timeEstimate": "~5 min"}, {"title": "Write one line"}],
+    "steps": [{"title": "Open the file", "timeEstimate": "~5 min"}, {"title": "Write one line"}],
     "whyExplanation": "Smallest step first.",
 }
 
@@ -43,8 +43,8 @@ async def test_builds_the_request_and_reads_the_steps(calmsense, llm):
     [call] = llm.calls
     assert call.system_prompt == CALMSENSE_PROMPT
     assert call.user_message == (
-        "Task: Write essay\nUser's preferred chunk size: small\nCurrent time of day: evening\n\n"
-        "Break this task into achievable subtasks."
+        "Task: Write essay\nUser's preferred step size: small\nCurrent time of day: evening\n\n"
+        "Break this task into achievable steps."
     )
     assert (call.temperature, call.max_tokens, call.json_mode) == (0.7, 1024, True)
 
@@ -86,7 +86,7 @@ async def test_unsafe_output_raises(calmsense, llm, safety):
 
 @pytest.mark.parametrize(
     "reply",
-    ["not json", {"subtasks": "none"}, {"subtasks": [{"timeEstimate": "~5 min"}]}, {"subtasks": ["a step"]}],
+    ["not json", {"steps": "none"}, {"steps": [{"timeEstimate": "~5 min"}]}, {"steps": ["a step"]}],
     ids=["prose", "not-a-list", "no-title", "not-objects"],
 )
 async def test_unusable_reply_is_an_agent_reply_error(calmsense, llm, reply):

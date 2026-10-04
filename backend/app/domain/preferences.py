@@ -5,7 +5,7 @@ from dataclasses import asdict, dataclass, fields
 from enum import StrEnum
 
 
-class ChunkSize(StrEnum):
+class StepSize(StrEnum):
     SMALL = "small"
     MEDIUM = "medium"
     LARGE = "large"
@@ -43,7 +43,7 @@ class Preferences:
     """The defaults are what a new user sees (the same as the frontend's)."""
 
     reading_level: int = 5
-    chunk_size: ChunkSize = ChunkSize.MEDIUM
+    step_size: StepSize = StepSize.MEDIUM
     reduce_animations: bool = False
     calm_mode: bool = False
     pebble_color: PebbleColor = PebbleColor.LAVENDER
@@ -68,7 +68,7 @@ class Preferences:
 
 
 _ENUMS: dict[str, type[StrEnum]] = {
-    "chunk_size": ChunkSize,
+    "step_size": StepSize,
     "pebble_color": PebbleColor,
     "pebble_personality": PebblePersonality,
     "pebble_model": PebbleModel,

@@ -24,7 +24,7 @@ CHAT_URL = "/api/agents/chat"
 RESPONSE_KEYS = {"intent", "response", "mood", "agentName", "data"}
 
 DECOMPOSE_REPLY = {
-    "subtasks": [
+    "steps": [
         {"title": "Open the essay file", "timeEstimate": "~5 min"},
         {"title": "Write the first paragraph", "timeEstimate": "~15 min"},
     ],
@@ -212,10 +212,10 @@ async def test_motivate_gets_the_progress_from_the_request(client, llm: FakeLLM)
 async def test_decompose_and_simplify_get_the_chat_message_and_preferences(client, llm: FakeLLM):
     llm.script("orchestrator", classification("decompose"))
     llm.script("CalmSense", DECOMPOSE_REPLY)
-    await post_chat(client, "Clean my room", chunkSize="small", timeOfDay="night")
+    await post_chat(client, "Clean my room", stepSize="small", timeOfDay="night")
     decompose = llm.calls[1].user_message
     assert decompose.startswith("Task: Clean my room\n")
-    assert "User's preferred chunk size: small" in decompose
+    assert "User's preferred step size: small" in decompose
     assert "Current time of day: night" in decompose
 
     llm.calls.clear()

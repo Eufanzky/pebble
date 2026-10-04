@@ -16,7 +16,7 @@ def signed_in(app):
 
 
 async def fill(client) -> None:
-    await client.post("/api/tasks", json={"title": "Read Chapter 4", "subtasks": [{"title": "Skim"}]})
+    await client.post("/api/tasks", json={"title": "Read Chapter 4", "steps": [{"title": "Skim"}]})
     await client.patch("/api/preferences", json={"calmMode": True})
     await client.post("/api/activity", json={"agent": "PebbleVoice", "action": "Finished a task"})
 

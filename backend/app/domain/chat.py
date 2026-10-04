@@ -11,7 +11,7 @@ class ChatContext:
     tasks_completed: int = 0
     tasks_total: int = 0
     recent_task_titles: tuple[str, ...] = field(default_factory=tuple)
-    chunk_size: str = "medium"
+    step_size: str = "medium"
     reading_level: int = 5
     time_of_day: str = "day"
     personality: str = "gentle"

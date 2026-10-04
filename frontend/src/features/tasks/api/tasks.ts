@@ -1,6 +1,6 @@
 import type { ApiSchema } from '@/shared/api';
 import { deleteRequest, getJson, patchJson, postJson, putJson } from '@/shared/lib/api';
-import type { NewTask, Subtask, Task } from '../types';
+import type { NewTask, Step, Task } from '../types';
 
 type TaskOut = ApiSchema<'TaskOut'>;
 type TaskCreate = ApiSchema<'TaskCreate'>;
@@ -8,10 +8,10 @@ type TaskUpdate = ApiSchema<'TaskUpdate'>;
 
 const TASKS = '/api/tasks';
 
-/** A task as the UI holds it: a task with no steps has no `subtasks` (no "Break down" button). */
+/** A task as the UI holds it: a task with no steps has no `steps` (no "Break down" button). */
 function fromApi(task: TaskOut): Task {
-  const { subtasks, ...rest } = task;
-  return subtasks.length > 0 ? { ...rest, subtasks } : rest;
+  const { steps, ...rest } = task;
+  return steps.length > 0 ? { ...rest, steps } : rest;
 }
 
 function toCreate(task: NewTask): TaskCreate {
@@ -22,7 +22,7 @@ function toCreate(task: NewTask): TaskCreate {
     priority: task.priority,
     completed: task.completed,
     whyExplanation: task.whyExplanation ?? '',
-    subtasks: (task.subtasks ?? []).map((s) => ({ title: s.title, timeEstimate: s.timeEstimate, completed: s.completed })),
+    steps: (task.steps ?? []).map((s) => ({ title: s.title, timeEstimate: s.timeEstimate, completed: s.completed })),
   };
 }
 
@@ -38,13 +38,13 @@ export async function updateTask(id: string, changes: TaskUpdate): Promise<Task>
   return fromApi(await patchJson<TaskOut>(`${TASKS}/${encodeURIComponent(id)}`, changes));
 }
 
-export async function replaceSubtasks(id: string, subtasks: Omit<Subtask, 'id' | 'completed'>[]): Promise<Task> {
-  const body = { subtasks: subtasks.map((s) => ({ title: s.title, timeEstimate: s.timeEstimate })) };
-  return fromApi(await putJson<TaskOut>(`${TASKS}/${encodeURIComponent(id)}/subtasks`, body));
+export async function replaceSteps(id: string, steps: Omit<Step, 'id' | 'completed'>[]): Promise<Task> {
+  const body = { steps: steps.map((s) => ({ title: s.title, timeEstimate: s.timeEstimate })) };
+  return fromApi(await putJson<TaskOut>(`${TASKS}/${encodeURIComponent(id)}/steps`, body));
 }
 
-export async function updateSubtask(taskId: string, subtaskId: string, completed: boolean): Promise<Task> {
-  const path = `${TASKS}/${encodeURIComponent(taskId)}/subtasks/${encodeURIComponent(subtaskId)}`;
+export async function updateStep(taskId: string, stepId: string, completed: boolean): Promise<Task> {
+  const path = `${TASKS}/${encodeURIComponent(taskId)}/steps/${encodeURIComponent(stepId)}`;
   return fromApi(await patchJson<TaskOut>(path, { completed }));
 }
 

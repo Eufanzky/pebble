@@ -3,7 +3,7 @@ import { renderWithProviders, screen, within } from '@/test/render';
 import type { Task } from '../types';
 import TaskList from './TaskList';
 
-const handlers = { onToggle: vi.fn(), onToggleSubtask: vi.fn(), onBreakDown: vi.fn(), onWhyOpen: vi.fn() };
+const handlers = { onToggle: vi.fn(), onToggleStep: vi.fn(), onBreakDown: vi.fn(), onWhyOpen: vi.fn() };
 
 function task(id: string, title: string, completed = false): Task {
   return { id, title, timeEstimate: '~10 min', tag: 'study', priority: 'medium', completed };

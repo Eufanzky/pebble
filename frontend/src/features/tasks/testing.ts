@@ -23,7 +23,7 @@ export function seed(tasks: NewTask[], preferences: Partial<UserPreferences> = {
       priority: t.priority,
       completed: t.completed,
       whyExplanation: t.whyExplanation ?? '',
-      subtasks: (t.subtasks ?? []).map((s, j) => ({ ...s, id: `seeded-${i + 1}-${j + 1}` })),
+      steps: (t.steps ?? []).map((s, j) => ({ ...s, id: `seeded-${i + 1}-${j + 1}` })),
     })),
   );
   setTestPreferences({ reduceAnimations: true, calmMode: false, ...preferences });

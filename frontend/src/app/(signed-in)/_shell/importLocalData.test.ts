@@ -39,7 +39,7 @@ describe('readLocalData', () => {
         priority: 'high',
         completed: false,
         whyExplanation: 'One step per section.',
-        subtasks: [{ title: 'Skim', timeEstimate: '~5 min', completed: true }],
+        steps: [{ title: 'Skim', timeEstimate: '~5 min', completed: true }],
       },
     ]);
   });
@@ -48,14 +48,14 @@ describe('readLocalData', () => {
     put('pebble-tasks', [null, { title: '' }, { title: 42 }, { title: 'Ok', tag: 'homework', priority: 'urgent' }]);
 
     expect(readLocalData(window.localStorage).body.tasks).toEqual([
-      { title: 'Ok', timeEstimate: '', tag: 'project', priority: 'medium', completed: false, whyExplanation: '', subtasks: [] },
+      { title: 'Ok', timeEstimate: '', tag: 'project', priority: 'medium', completed: false, whyExplanation: '', steps: [] },
     ]);
   });
 
-  it('keeps only valid preferences', () => {
+  it('keeps only valid preferences, under their current names', () => {
     put('pebble-preferences', { calmMode: true, readingLevel: 11, pebbleColor: 'red', chunkSize: 'small', theme: 'x' });
 
-    expect(readLocalData(window.localStorage).body.preferences).toEqual({ calmMode: true, chunkSize: 'small' });
+    expect(readLocalData(window.localStorage).body.preferences).toEqual({ calmMode: true, stepSize: 'small' });
   });
 
   it('sends no preferences when none are usable', () => {

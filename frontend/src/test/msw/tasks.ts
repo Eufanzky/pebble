@@ -20,7 +20,7 @@ function toTask(body: TaskCreate): TaskOut {
     priority: body.priority ?? 'medium',
     completed: body.completed ?? false,
     whyExplanation: body.whyExplanation ?? '',
-    subtasks: (body.subtasks ?? []).map((s) => ({
+    steps: (body.steps ?? []).map((s) => ({
       id: id('step'),
       title: s.title,
       timeEstimate: s.timeEstimate ?? '',
@@ -91,19 +91,19 @@ export const taskHandlers = {
       const set = Object.fromEntries(Object.entries(changes).filter(([, v]) => v !== null && v !== undefined));
       return update(String(params.taskId), (t) => ({ ...t, ...set }));
     }),
-    http.put('/api/tasks/:taskId/subtasks', async ({ params, request }) => {
-      const { subtasks } = (await request.json()) as ApiSchema<'SubtasksReplace'>;
+    http.put('/api/tasks/:taskId/steps', async ({ params, request }) => {
+      const { steps } = (await request.json()) as ApiSchema<'StepsReplace'>;
       return update(String(params.taskId), (t) => ({
         ...t,
-        subtasks: subtasks.map((s) => ({ id: id('step'), title: s.title, timeEstimate: s.timeEstimate ?? '', completed: false })),
+        steps: steps.map((s) => ({ id: id('step'), title: s.title, timeEstimate: s.timeEstimate ?? '', completed: false })),
       }));
     }),
-    http.patch('/api/tasks/:taskId/subtasks/:subtaskId', async ({ params, request }) => {
-      const { completed } = (await request.json()) as ApiSchema<'SubtaskUpdate'>;
+    http.patch('/api/tasks/:taskId/steps/:stepId', async ({ params, request }) => {
+      const { completed } = (await request.json()) as ApiSchema<'StepUpdate'>;
       return update(String(params.taskId), (t) => {
-        if (!t.subtasks.some((s) => s.id === params.subtaskId)) return null;
-        const subtasks = t.subtasks.map((s) => (s.id === params.subtaskId ? { ...s, completed } : s));
-        return { ...t, subtasks, completed: t.completed || subtasks.every((s) => s.completed) };
+        if (!t.steps.some((s) => s.id === params.stepId)) return null;
+        const steps = t.steps.map((s) => (s.id === params.stepId ? { ...s, completed } : s));
+        return { ...t, steps, completed: t.completed || steps.every((s) => s.completed) };
       });
     }),
   ],

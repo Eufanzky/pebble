@@ -11,7 +11,7 @@ type ImportRequest = ApiSchema<'ImportRequest'>;
 
 const DEFAULTS: PreferencesOut = {
   readingLevel: 5,
-  chunkSize: 'medium',
+  stepSize: 'medium',
   reduceAnimations: false,
   calmMode: false,
   pebbleColor: 'lavender',

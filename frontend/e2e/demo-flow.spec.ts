@@ -24,19 +24,19 @@ test('the demo flow', async ({ page }) => {
 
   await test.step('break a task on Today into steps, and finish one', async () => {
     await page.getByRole('button', { name: /Break down "Read Chapter 4/ }).click();
-    const step = page.locator('.subtask-item', { hasText: 'Skim the chapter headings first' });
-    await step.getByRole('button', { name: 'Check subtask' }).click();
-    await expect(step.getByRole('button', { name: 'Uncheck subtask' })).toBeVisible();
+    const step = page.locator('.step-item', { hasText: 'Skim the chapter headings first' });
+    await step.getByRole('button', { name: 'Check step' }).click();
+    await expect(step.getByRole('button', { name: 'Uncheck step' })).toBeVisible();
 
     // Saved in the backend: a reload shows the same list, with the step still done
     await expect
-      .poll(async () => (await (await page.request.get('/api/tasks')).json())[0].subtasks[0].completed)
+      .poll(async () => (await (await page.request.get('/api/tasks')).json())[0].steps[0].completed)
       .toBe(true);
     await page.reload();
     await page.getByRole('button', { name: /Break down "Read Chapter 4/ }).click();
     await expect(
-      page.locator('.subtask-item', { hasText: 'Skim the chapter headings first' }).getByRole('button', {
-        name: 'Uncheck subtask',
+      page.locator('.step-item', { hasText: 'Skim the chapter headings first' }).getByRole('button', {
+        name: 'Uncheck step',
       }),
     ).toBeVisible();
   });

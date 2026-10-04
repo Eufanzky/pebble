@@ -7,14 +7,14 @@ import { useBreakDown } from '../hooks/useBreakDown';
 import { useRipple } from '../hooks/useRipple';
 import { PRIORITY_CONFIG, TAG_CONFIG } from '../lib/tags';
 import type { Task } from '../types';
-import SubtaskList from './SubtaskList';
+import StepList from './StepList';
 import WhyCard from './WhyCard';
 import './TaskCard.css';
 
 interface TaskCardProps {
   task: Task;
   onToggle: (id: string) => void;
-  onToggleSubtask: (taskId: string, subtaskId: string) => void;
+  onToggleStep: (taskId: string, stepId: string) => void;
   onBreakDown: (id: string) => void;
   onWhyOpen?: (id: string) => void;
   /** Opens the edit dialog for this task. */
@@ -27,7 +27,7 @@ interface TaskCardProps {
 export default function TaskCard({
   task,
   onToggle,
-  onToggleSubtask,
+  onToggleStep,
   onBreakDown,
   onWhyOpen,
   onEdit,
@@ -37,16 +37,16 @@ export default function TaskCard({
   const noMotion = reduceMotion;
 
   const onShown = useCallback(() => onBreakDown(task.id), [onBreakDown, task.id]);
-  const { showSteps, breaking, breakDown } = useBreakDown(task.showSubtasks ?? false, noMotion, onShown);
+  const { showSteps, breaking, breakDown } = useBreakDown(task.showSteps ?? false, noMotion, onShown);
   const { ripple, trigger: triggerRipple } = useRipple(noMotion);
 
   const tag = TAG_CONFIG[task.tag];
   const priority = PRIORITY_CONFIG[task.priority];
-  const subtasks = task.subtasks ?? [];
-  const hasSubtasks = subtasks.length > 0;
-  const canBreakDown = hasSubtasks && !showSteps && !breaking && !task.completed;
-  const showWhy = task.whyExplanation && (showSteps || !hasSubtasks);
-  const stepsDone = subtasks.filter((s) => s.completed).length;
+  const steps = task.steps ?? [];
+  const hasSteps = steps.length > 0;
+  const canBreakDown = hasSteps && !showSteps && !breaking && !task.completed;
+  const showWhy = task.whyExplanation && (showSteps || !hasSteps);
+  const stepsDone = steps.filter((s) => s.completed).length;
 
   return (
     <article
@@ -79,9 +79,9 @@ export default function TaskCard({
         <div className="task-card__meta">
           <Chip tone={tag.tone}>{tag.label}</Chip>
           {task.timeEstimate && <span className="task-card__estimate">{task.timeEstimate}</span>}
-          {hasSubtasks && showSteps && (
+          {hasSteps && showSteps && (
             <span className="task-card__estimate">
-              {stepsDone} of {subtasks.length} steps
+              {stepsDone} of {steps.length} steps
             </span>
           )}
           <span className="task-card__priority" style={{ background: priority.color }} aria-hidden="true" />
@@ -126,7 +126,7 @@ export default function TaskCard({
             className="task-card__break"
             icon="✦"
             onClick={breakDown}
-            aria-label={`Break down "${task.title}" into subtasks`}
+            aria-label={`Break down "${task.title}" into steps`}
           >
             Break it down
           </Button>
@@ -140,11 +140,11 @@ export default function TaskCard({
           </div>
         )}
 
-        {showSteps && hasSubtasks && !breaking && (
-          <SubtaskList
-            subtasks={subtasks}
+        {showSteps && hasSteps && !breaking && (
+          <StepList
+            steps={steps}
             noMotion={noMotion}
-            onToggle={(subtaskId) => onToggleSubtask(task.id, subtaskId)}
+            onToggle={(stepId) => onToggleStep(task.id, stepId)}
           />
         )}
 

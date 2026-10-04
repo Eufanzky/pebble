@@ -97,7 +97,7 @@ export interface paths {
          *     If the user expresses distress (*"I'm overwhelmed"*, *"I can't do this"*),
          *     Pebble responds with empathy and offers to simplify their day.
          *
-         *     The `data` field contains structured output from the sub-agent (e.g., subtasks
+         *     The `data` field contains structured output from the sub-agent (e.g., steps
          *     for decompose, simplified text for simplify), or `null` for chat/distress.
          */
         post: operations["chat_api_agents_chat_post"];
@@ -118,9 +118,9 @@ export interface paths {
         put?: never;
         /**
          * Break down a task
-         * @description **Agent: CalmSense** — Takes a task title and breaks it into smaller, achievable subtasks.
+         * @description **Agent: CalmSense** — Takes a task title and breaks it into smaller, achievable steps.
          *
-         *     Respects the user's preferred chunk size:
+         *     Respects the user's preferred step size:
          *     - `small`: 5-10 minute steps
          *     - `medium`: 15-20 minute steps
          *     - `large`: 30+ minute steps
@@ -359,7 +359,7 @@ export interface paths {
         };
         /**
          * List your tasks
-         * @description Your tasks in the order you added them, each with its steps (`subtasks`).
+         * @description Your tasks in the order you added them, each with its steps.
          */
         get: operations["list_tasks_api_tasks_get"];
         put?: never;
@@ -420,7 +420,7 @@ export interface paths {
         patch: operations["update_task_api_tasks__task_id__patch"];
         trace?: never;
     };
-    "/api/tasks/{task_id}/subtasks": {
+    "/api/tasks/{task_id}/steps": {
         parameters: {
             query?: never;
             header?: never;
@@ -432,7 +432,7 @@ export interface paths {
          * Replace a task's steps
          * @description Set a task's steps, for example from a CalmSense breakdown. The new steps start open.
          */
-        put: operations["replace_subtasks_api_tasks__task_id__subtasks_put"];
+        put: operations["replace_steps_api_tasks__task_id__steps_put"];
         post?: never;
         delete?: never;
         options?: never;
@@ -440,7 +440,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/tasks/{task_id}/subtasks/{subtask_id}": {
+    "/api/tasks/{task_id}/steps/{step_id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -457,7 +457,7 @@ export interface paths {
          * Tick a step on or off
          * @description Finishing the last open step also finishes the task. Unticking a step never reopens it.
          */
-        patch: operations["update_subtask_api_tasks__task_id__subtasks__subtask_id__patch"];
+        patch: operations["update_step_api_tasks__task_id__steps__step_id__patch"];
         trace?: never;
     };
 }
@@ -522,11 +522,6 @@ export interface components {
         };
         /** ChatRequest */
         ChatRequest: {
-            /**
-             * Chunksize
-             * @default medium
-             */
-            chunkSize: string;
             /** Message */
             message: string;
             /**
@@ -544,6 +539,11 @@ export interface components {
              * @default []
              */
             recentTaskTitles: string[];
+            /**
+             * Stepsize
+             * @default medium
+             */
+            stepSize: string;
             /**
              * Taskscompleted
              * @default 0
@@ -575,11 +575,6 @@ export interface components {
             /** Response */
             response: string;
         };
-        /**
-         * ChunkSize
-         * @enum {string}
-         */
-        ChunkSize: "small" | "medium" | "large";
         /** DayOut */
         DayOut: {
             /**
@@ -597,10 +592,10 @@ export interface components {
         /** DecomposeRequest */
         DecomposeRequest: {
             /**
-             * Chunksize
+             * Stepsize
              * @default medium
              */
-            chunkSize: string;
+            stepSize: string;
             /** Tasktitle */
             taskTitle: string;
             /**
@@ -611,8 +606,8 @@ export interface components {
         };
         /** DecomposeResponse */
         DecomposeResponse: {
-            /** Subtasks */
-            subtasks: components["schemas"]["SubtaskResult"][];
+            /** Steps */
+            steps: components["schemas"]["StepResult"][];
             /** Whyexplanation */
             whyExplanation: string;
         };
@@ -745,7 +740,6 @@ export interface components {
         PreferencesOut: {
             /** Calmmode */
             calmMode: boolean;
-            chunkSize: components["schemas"]["ChunkSize"];
             pebbleColor: components["schemas"]["PebbleColor"];
             pebbleModel: components["schemas"]["PebbleModel"];
             pebblePersonality: components["schemas"]["PebblePersonality"];
@@ -753,6 +747,7 @@ export interface components {
             readingLevel: number;
             /** Reduceanimations */
             reduceAnimations: boolean;
+            stepSize: components["schemas"]["StepSize"];
         };
         /**
          * PreferencesUpdate
@@ -761,7 +756,6 @@ export interface components {
         PreferencesUpdate: {
             /** Calmmode */
             calmMode?: boolean | null;
-            chunkSize?: components["schemas"]["ChunkSize"] | null;
             pebbleColor?: components["schemas"]["PebbleColor"] | null;
             pebbleModel?: components["schemas"]["PebbleModel"] | null;
             pebblePersonality?: components["schemas"]["PebblePersonality"] | null;
@@ -769,6 +763,7 @@ export interface components {
             readingLevel?: number | null;
             /** Reduceanimations */
             reduceAnimations?: boolean | null;
+            stepSize?: components["schemas"]["StepSize"] | null;
         };
         /** ReaderTokenResponse */
         ReaderTokenResponse: {
@@ -822,8 +817,8 @@ export interface components {
             start: string;
             totals: components["schemas"]["TotalsOut"];
         };
-        /** SubtaskIn */
-        SubtaskIn: {
+        /** StepIn */
+        StepIn: {
             /**
              * Completed
              * @default false
@@ -837,8 +832,8 @@ export interface components {
             /** Title */
             title: string;
         };
-        /** SubtaskOut */
-        SubtaskOut: {
+        /** StepOut */
+        StepOut: {
             /** Completed */
             completed: boolean;
             /** Id */
@@ -848,22 +843,27 @@ export interface components {
             /** Title */
             title: string;
         };
-        /** SubtaskResult */
-        SubtaskResult: {
+        /** StepResult */
+        StepResult: {
             /** Timeestimate */
             timeEstimate: string;
             /** Title */
             title: string;
         };
-        /** SubtaskUpdate */
-        SubtaskUpdate: {
+        /**
+         * StepSize
+         * @enum {string}
+         */
+        StepSize: "small" | "medium" | "large";
+        /** StepUpdate */
+        StepUpdate: {
             /** Completed */
             completed: boolean;
         };
-        /** SubtasksReplace */
-        SubtasksReplace: {
-            /** Subtasks */
-            subtasks: components["schemas"]["SubtaskIn"][];
+        /** StepsReplace */
+        StepsReplace: {
+            /** Steps */
+            steps: components["schemas"]["StepIn"][];
         };
         /** TaskCreate */
         TaskCreate: {
@@ -874,8 +874,8 @@ export interface components {
             completed: boolean;
             /** @default medium */
             priority: components["schemas"]["TaskPriority"];
-            /** Subtasks */
-            subtasks?: components["schemas"]["SubtaskIn"][];
+            /** Steps */
+            steps?: components["schemas"]["StepIn"][];
             /** @default project */
             tag: components["schemas"]["TaskTag"];
             /**
@@ -898,8 +898,8 @@ export interface components {
             /** Id */
             id: string;
             priority: components["schemas"]["TaskPriority"];
-            /** Subtasks */
-            subtasks: components["schemas"]["SubtaskOut"][];
+            /** Steps */
+            steps: components["schemas"]["StepOut"][];
             tag: components["schemas"]["TaskTag"];
             /** Timeestimate */
             timeEstimate: string;
@@ -1121,7 +1121,7 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Time-boxed subtasks with an explanation of why they were split this way */
+            /** @description Time-boxed steps with an explanation of why they were split this way */
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -1599,7 +1599,7 @@ export interface operations {
             };
         };
     };
-    replace_subtasks_api_tasks__task_id__subtasks_put: {
+    replace_steps_api_tasks__task_id__steps_put: {
         parameters: {
             query?: never;
             header?: never;
@@ -1610,7 +1610,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SubtasksReplace"];
+                "application/json": components["schemas"]["StepsReplace"];
             };
         };
         responses: {
@@ -1634,19 +1634,19 @@ export interface operations {
             };
         };
     };
-    update_subtask_api_tasks__task_id__subtasks__subtask_id__patch: {
+    update_step_api_tasks__task_id__steps__step_id__patch: {
         parameters: {
             query?: never;
             header?: never;
             path: {
                 task_id: string;
-                subtask_id: string;
+                step_id: string;
             };
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["SubtaskUpdate"];
+                "application/json": components["schemas"]["StepUpdate"];
             };
         };
         responses: {

@@ -7,7 +7,7 @@ from app.api.errors import UNAVAILABLE
 from app.application.ports.llm import LLMTimeoutError
 
 URL = "/api/agents/decompose"
-REPLY = {"subtasks": [{"title": "Open the file", "timeEstimate": "~5 min"}], "whyExplanation": "Small first."}
+REPLY = {"steps": [{"title": "Open the file", "timeEstimate": "~5 min"}], "whyExplanation": "Small first."}
 
 
 @pytest.fixture(autouse=True)
@@ -18,11 +18,11 @@ def signed_in(app):
 async def test_returns_the_steps(client, llm):
     llm.script("CalmSense", REPLY)
 
-    resp = await client.post(URL, json={"taskTitle": "Write essay", "chunkSize": "small"})
+    resp = await client.post(URL, json={"taskTitle": "Write essay", "stepSize": "small"})
 
     assert resp.status_code == 200
     assert resp.json() == REPLY
-    assert "User's preferred chunk size: small" in llm.calls[0].user_message
+    assert "User's preferred step size: small" in llm.calls[0].user_message
 
 
 async def test_input_is_screened_and_redacted(client, llm, safety):
