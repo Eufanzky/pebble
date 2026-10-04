@@ -128,8 +128,8 @@ Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Foun
 | A-022 | Fixed after phase 3: the activity log starts empty and holds only what agents really did. The E2E flow checks a new user's log has exactly its own 4 entries. |
 | A-023 | **Open**, for 8.1 (guilt audit). |
 | A-024 | **Open**, for 7.1 (its prompt change runs the evals). |
-| A-025 | **Open**, a follow-up fix right after 6.3. |
+| A-025 | Fixed after 6.3: knip is on 6 and no longer pulls in `braces` or `micromatch`. The same chain through `eslint-config-next` stays until Next.js updates its ESLint plugin (npm's only fix is a downgrade to 14); it's dev-only. |
 | A-026 | **Open**, cosmetic: revert the file after running the script until then. |
 | A-021 | Fixed in 3.4: the note says what each entry shows (since 4.5 the log is saved to the account). Test in `ActivityView.test.tsx`. |
 
-Open: 5 (A-002, A-023, A-024, A-025, A-026), each linked to the phase that fixes it or the reason it waits. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
+Open: 4 (A-002, A-023, A-024, A-026), each linked to the phase that fixes it or the reason it waits. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.

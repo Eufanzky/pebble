@@ -1,6 +1,6 @@
-export type DocumentType = 'academic' | 'technical' | 'meeting';
+type DocumentType = 'academic' | 'technical' | 'meeting';
 
-export interface ExtractedTask {
+interface ExtractedTask {
   title: string;
   timeEstimate: string;
   tag: string;
