@@ -12,7 +12,7 @@ describe('PebbleCharacter', () => {
   it("draws the user's chosen model in the given mood and size", () => {
     const { container } = renderWithProviders(<PebbleCharacter mood="happy" size="small" />);
 
-    expect(container.firstChild).toHaveClass('pb-model', 'pb-mochi', 'size-small', 'mood-happy');
+    expect(container.firstChild).toHaveClass('pebble-model', 'pebble-mochi', 'size-small', 'mood-happy');
     expect(container.firstChild).not.toHaveClass('no-motion');
   });
 
@@ -21,7 +21,7 @@ describe('PebbleCharacter', () => {
     (model) => {
       const { container } = renderWithProviders(<PebbleCharacter model={model} />);
 
-      expect(container.firstChild).toHaveClass(`pb-${model}`);
+      expect(container.firstChild).toHaveClass(`pebble-${model}`);
       expect(container.querySelector('svg, img')).toBeNull();
     },
   );

@@ -3,7 +3,7 @@
 import { PebbleCharacter, PebbleSpeechBubble, usePebble } from '@/features/companion';
 import { Screen, ScreenHeader } from '@/shared/ui';
 import { useActivityLog } from '../context/ActivityLogContext';
-import { activitySummary } from '../lib/stats';
+import { activitySummary } from '../lib/summary';
 import ActivityFeed from './ActivityFeed';
 
 /** The activity screen: every agent decision, with its reasoning and safety status. */

@@ -4,7 +4,7 @@ import { usePebble } from '@/features/companion';
 import { chatHandlers, chatReply } from '@/test/msw/handlers';
 import { server } from '@/test/msw/server';
 import { act, renderHookWithProviders, waitFor } from '@/test/render';
-import { CHAT_ERROR_TEXT } from '../lib/chat';
+import { CHAT_ERROR_TEXT } from '../lib/messages';
 import { useChat } from './useChat';
 
 function renderChat() {

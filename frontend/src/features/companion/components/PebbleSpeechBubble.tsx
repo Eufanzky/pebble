@@ -1,6 +1,6 @@
 'use client';
 
-import './PebbleMoods.css';
+import './PebbleSpeechBubble.css';
 
 interface PebbleSpeechBubbleProps {
   message: string;

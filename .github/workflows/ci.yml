@@ -107,7 +107,7 @@ jobs:
 
 
   e2e:
-    name: E2E demo flow
+    name: E2E
     runs-on: ubuntu-latest
     timeout-minutes: 20
     defaults:

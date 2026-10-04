@@ -12,7 +12,7 @@ export default function ReadingLevelSetting() {
   const fill = (level - 1) * 11.1;
 
   return (
-    <div className="glass-card" style={{ padding: '18px 20px' }}>
+    <div className="ui-card" style={{ padding: '18px 20px' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 10 }}>
         <label htmlFor="settings-reading-level" style={{ fontFamily: 'var(--font-nunito)', fontSize: 14, fontWeight: 600, color: 'var(--color-text)' }}>Default reading level</label>
         <span aria-hidden="true" style={{ fontVariantNumeric: 'tabular-nums', fontSize: 12, color: 'var(--color-accent)' }}>Level {level}</span>

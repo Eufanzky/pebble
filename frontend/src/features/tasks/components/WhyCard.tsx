@@ -2,35 +2,11 @@
 
 import { useState } from 'react';
 import { usePreferences } from '@/shared/preferences';
+import { PebbleFace } from '@/features/companion';
 
 interface WhyCardProps {
   explanation: string;
   onOpen?: () => void;
-}
-
-function MiniPebbleFace() {
-  return (
-    <div style={{
-      width: 24, height: 24, borderRadius: '50%',
-      background: 'var(--pebble-color)', position: 'relative',
-      flexShrink: 0,
-    }}>
-      {/* Eyes */}
-      <div style={{ position: 'absolute', width: 4, height: 4, background: '#2A2A2E', borderRadius: '50%', top: 9, left: 6 }}>
-        <div style={{ position: 'absolute', width: 1.5, height: 1.5, background: 'white', borderRadius: '50%', top: 0.5, right: 0.5 }} />
-      </div>
-      <div style={{ position: 'absolute', width: 4, height: 4, background: '#2A2A2E', borderRadius: '50%', top: 9, right: 6 }}>
-        <div style={{ position: 'absolute', width: 1.5, height: 1.5, background: 'white', borderRadius: '50%', top: 0.5, right: 0.5 }} />
-      </div>
-      {/* Nose */}
-      <div style={{
-        position: 'absolute', top: 14, left: '50%', transform: 'translateX(-50%)',
-        width: 0, height: 0,
-        borderLeft: '1.5px solid transparent', borderRight: '1.5px solid transparent',
-        borderTop: '2px solid #E8A0BF',
-      }} />
-    </div>
-  );
 }
 
 export default function WhyCard({ explanation, onOpen }: WhyCardProps) {
@@ -80,7 +56,7 @@ export default function WhyCard({ explanation, onOpen }: WhyCardProps) {
           gap: 10,
           alignItems: 'flex-start',
         }}>
-          <MiniPebbleFace />
+          <PebbleFace />
           <div style={{ flex: 1, minWidth: 0 }}>
             <div style={{
               fontSize: 11, fontWeight: 700, color: 'var(--color-text-3)', marginBottom: 4,

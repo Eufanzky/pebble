@@ -7,7 +7,8 @@ from typing import Protocol
 @dataclass(frozen=True)
 class LLMRequest:
     agent: str
-    """Who is asking (``orchestrator``, ``decompose``, ``simplify``, ``motivate``). Used for logs and by the fake."""
+    """Who is asking: ``orchestrator``, or an agent's name (``CalmSense``, ``SimplifyCore``, ``PebbleVoice``).
+    Used for logs and by the fake LLM, which tests script per agent."""
     system_prompt: str
     user_message: str
     temperature: float = 0.7

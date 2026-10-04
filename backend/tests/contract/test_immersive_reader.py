@@ -6,7 +6,7 @@ import respx
 
 from app.application.ports.reader import ReaderToken, ReaderUnavailableError
 from app.infrastructure.config import Settings
-from app.infrastructure.immersive_reader import AzureImmersiveReader, UnconfiguredReader, build_reader
+from app.infrastructure.reader.azure_immersive_reader import AzureImmersiveReader, UnconfiguredReader, build_reader
 
 TOKEN_URL = "https://login.microsoftonline.com/tenant/oauth2/token"
 

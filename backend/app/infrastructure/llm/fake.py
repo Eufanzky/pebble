@@ -10,6 +10,7 @@ import re
 from dataclasses import dataclass, field
 
 from app.application.ports.llm import LLMRequest
+from app.domain.agents import AgentName
 
 DISTRESS_WORDS = ("overwhelm", "can't do this", "cant do this", "too much", "give up", "can't cope", "struggling")
 
@@ -53,11 +54,11 @@ def _default_reply(request: LLMRequest) -> dict:
     text = request.user_message
     if request.agent == "orchestrator":
         return _classify(text)
-    if request.agent == "decompose":
+    if request.agent == AgentName.CALM_SENSE:
         return _decompose(text)
-    if request.agent == "simplify":
+    if request.agent == AgentName.SIMPLIFY_CORE:
         return _simplify(text)
-    if request.agent == "motivate":
+    if request.agent == AgentName.PEBBLE_VOICE:
         return _motivate(text)
     return {"response": "I'm here."}
 

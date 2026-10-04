@@ -49,3 +49,4 @@ One folder per change: what was asked and decided (`requirements.md`), how it wa
 | 2026-10-04 | 6.2 | [A clearer structure](2026-10-04-clearer-structure/requirements.md) |
 | 2026-10-04 | 6.3 | [Docs up to date](2026-10-04-docs-up-to-date/requirements.md) |
 | 2026-10-04 | 6.4 | [Clear names](2026-10-04-clear-names/requirements.md) |
+| 2026-10-04 | 6.5 | [Names in the code](2026-10-04-names-in-code/requirements.md) |

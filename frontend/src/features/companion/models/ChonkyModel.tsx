@@ -5,9 +5,9 @@ export default function ChonkyModel({ mood }: { mood: PebbleMood }) {
   return (
     <>
       <Sparkles /><Zzz />
-      <div className="pb-body" style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: 120, height: 70, background: 'var(--pebble-color)', borderRadius: '55% 55% 45% 45%', boxShadow: '0 6px 18px rgba(0,0,0,0.22)' }} />
+      <div className="pebble-body" style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: 120, height: 70, background: 'var(--pebble-color)', borderRadius: '55% 55% 45% 45%', boxShadow: '0 6px 18px rgba(0,0,0,0.22)' }} />
       <div style={{ position: 'absolute', top: 0, left: '50%', transform: 'translateX(-50%)', width: 100, height: 100, background: 'var(--pebble-color)', borderRadius: '50%', zIndex: 2 }}>
-        <TriangleEar side="l" top={-2} offset={10} w={14} h={26} className="pb-ear-l" />
+        <TriangleEar side="l" top={-2} offset={10} w={14} h={26} className="pebble-ear-l" />
         <TriangleEar side="r" top={-2} offset={10} w={14} h={26} />
         <InnerEar side="l" top={5} offset={17} />
         <InnerEar side="r" top={5} offset={17} />

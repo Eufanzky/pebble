@@ -78,7 +78,7 @@ TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test 
 - Warnings fail the run (`filterwarnings = error`).
 - The `client` fixture (`tests/conftest.py`) runs the app in-process through `httpx.ASGITransport`, so the lifespan never runs.
 - Every test gets a container of fakes (autouse `container`):
-  - `llm`: the scripted `FakeLLM` (`app/infrastructure/llm/fake.py`). Use `llm.script("orchestrator", {...})`; `llm.calls` are `LLMRequest`s.
+  - `llm`: the scripted `FakeLLM` (`app/infrastructure/llm/fake.py`). Script it per agent with `llm.script("orchestrator", {...})` or an agent's name (`"CalmSense"`, `"SimplifyCore"`, `"PebbleVoice"`); `llm.calls` are `LLMRequest`s.
   - `safety`: `ScriptedSafety` (`tests/fakes.py`), with `flag(text, category, severity)`, `attack_on(text)`, `analyzed` and `shielded`.
   - In-memory stores from `tests/fakes.py`: `task_repository`, `preferences_repository`, `activity_repository` (`entries[user_id]` shows what the agents logged).
 - Auth: the autouse `auth_secret` fixture sets `AUTH_TOKEN_SECRET`, so a request without a token is a 401. Sign in with `app.dependency_overrides[get_current_user] = lambda: "user-1"`; `tests/api/test_auth.py` signs real tokens.
@@ -112,10 +112,10 @@ TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test 
 
 ### End to end
 
-- `frontend/e2e/demo-flow.spec.ts` (Playwright, Chromium) runs:
-  - the demo flow: dev login, chat to CalmSense through the real backend with `LLM_PROVIDER=fake`, break a task down and finish a step, reload, simplify a document, the activity log;
-  - axe and no horizontal overflow on every page at 360, 768 and 1280px, and no pictures loaded;
-  - editing, reordering and filtering; the stats adding up; importing a browser's old data once; downloading data and deleting the account; installability over the DevTools protocol and the offline page; the phone tab bar; the sign-in redirect, 401 when signed out, and signing out.
+- `frontend/e2e/` (Playwright, Chromium) has one spec per area, with shared sign-in in `helpers.ts` (`signInEachTest()`):
+  - `demo-flow.spec.ts`, the demo flow: dev login, chat to CalmSense through the real backend with `LLM_PROVIDER=fake`, break a task down and finish a step, reload, simplify a document, the activity log;
+  - `layout.spec.ts`: axe and no horizontal overflow on every page at 360, 768 and 1280px, no pictures loaded, and the phone tab bar;
+  - `tasks.spec.ts` (editing, reordering, filtering), `stats.spec.ts` (the stats adding up), `account.spec.ts` (the one-time import, the download, deleting the account), `installable.spec.ts` (installability over the DevTools protocol, the offline page) and `sign-in.spec.ts` (the redirect, 401 when signed out, signing out).
 - Its `webServer` migrates and starts uvicorn against `E2E_DATABASE_URL` (default `pebble_e2e`) and runs `next build && next start`, with test-only secrets and the dev login.
 - Each test signs in as a new dev user and turns animations off.
 - Locally it reuses servers already on ports 3000 and 8000, so stop old ones first. First run: `npx playwright install chromium`.
@@ -164,11 +164,11 @@ TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test 
 - **Shell** (`_shell/shell.css`): one `Sidebar` nav laid out three ways. From 1100px it's a sidebar that can collapse to a rail (`pebble-nav-collapsed`). From 768 to 1099px it's the rail. On phones it's a bottom tab bar with safe-area insets. Labels stay in the accessibility tree. `--app-bottom-inset` keeps fixed things (the chat button) clear of the tab bar.
 - **Screens** lay themselves out with `Screen` and `ScreenHeader` (a sentence-case title, one lead line, and a small Pebble whose bubble hides on phones).
 - **Tokens** (`shared/ui/tokens.css`): every colour, type size, space, radius, elevation and motion token (`--color-*`, `--text-*`, `--space-1..8`, `--radius-*`, `--ease-settle`, `--duration-*`, `--tap`). Durations drop to 0 under reduced motion. `app/globals.css` keeps only app-wide rules and the Pebble colour defaults.
-- **Primitives** (`@/shared/ui`, styled in `primitives.css`): `Button` (`primary` for the one main action, `quiet`, `ghost`; `busy`), `IconButton` (required `label`), `Card` (`as`, `tone`, `padding`; the older `glass-card` class is the same surface), `Field` (`hint`, `note`, `multiline`, wired with `aria-describedby`), `Chip` and `Dialog` (focus trap, Escape, outside click, `variant="sheet"` on phones). Render a `Dialog` only while it's open; it portals to `<body>`. A modal opened over another passes `active: false` to the one below.
+- **Primitives** (`@/shared/ui`, styled in `primitives.css`): `Button` (`primary` for the one main action, `quiet`, `ghost`; `busy`), `IconButton` (required `label`), `Card` (`as`, `tone`, `padding`; markup that can't use the component takes its `ui-card` class), `Field` (`hint`, `note`, `multiline`, wired with `aria-describedby`), `Chip` and `Dialog` (focus trap, Escape, outside click, `variant="sheet"` on phones). Render a `Dialog` only while it's open; it portals to `<body>`. A modal opened over another passes `active: false` to the one below.
 - **Style rules:** no colour literals outside `tokens.css`, no monospace or all-caps labels (numbers use `tabular-nums`), surfaces separated by tone and a hairline rather than shadows. `/design-system` shows everything in development and is a 404 in production.
 - **Backgrounds** are drawn in CSS, never photos: `AmbientBackground` (`shared/ui/ambient.css`) has one `mood` per screen. It's still under reduce motion or calm mode, and must render inside a `PreferencesProvider`.
 - **Installable:** `app/manifest.ts`. The icons are drawn by `app/icons/[name]/route.tsx` (`next/og`); the browser tab icon is `app/icon.svg`. `public/sw.js` only shows `public/offline.html` when a page can't load and caches nothing else. `useServiceWorker` registers it in production builds.
-- **Pebble's 7 models** (`features/companion/models/`) are only CSS and divs (`border-radius` shapes), with no SVG or images. They share `SharedParts.tsx`; styles are in `PebbleModels.css` and `PebbleMoods.css`. Keep new character work in that style.
+- **Pebble's 7 models** (`features/companion/models/`) are only CSS and divs (`border-radius` shapes), with no SVG or images. They share `SharedParts.tsx`; styles are in `PebbleModels.css`, with `pebble-` class names. `PebbleFace` is the small face alone, for notes and explanations. Keep new character work in that style.
 
 ## Backend
 

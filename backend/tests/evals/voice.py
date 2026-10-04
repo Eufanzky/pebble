@@ -1,6 +1,6 @@
 """Deterministic checks for Pebble's voice rules (``PEBBLE_VOICE_RULES`` in ``application/prompts.py``).
 
-Used by the evals on real replies; unit-tested in ``tests/unit/test_voice_rules.py``.
+Used by the evals on real replies; unit-tested in ``tests/unit/application/test_voice_rules.py``.
 """
 
 import re

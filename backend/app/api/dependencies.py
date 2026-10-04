@@ -36,10 +36,10 @@ from app.infrastructure.db.engine import build_engine, build_sessions
 from app.infrastructure.db.preferences import SqlPreferencesRepository, UnconfiguredPreferencesRepository
 from app.infrastructure.db.progress import SqlProgressRepository, UnconfiguredProgressRepository
 from app.infrastructure.db.tasks import SqlTaskRepository, UnconfiguredTaskRepository
-from app.infrastructure.immersive_reader import UnconfiguredReader, build_reader
 from app.infrastructure.llm.factory import build_llm_provider
-from app.infrastructure.parsing.local_parser import LocalDocumentParser
+from app.infrastructure.parsing.local_document_parser import LocalDocumentParser
 from app.infrastructure.pii.regex_redactor import RegexPIIRedactor
+from app.infrastructure.reader.azure_immersive_reader import UnconfiguredReader, build_reader
 from app.infrastructure.safety.factory import build_safety_checker
 
 

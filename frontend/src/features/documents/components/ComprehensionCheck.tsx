@@ -4,7 +4,7 @@ import type { CSSProperties } from 'react';
 import { usePreferences } from '@/shared/preferences';
 import { useComprehensionCheck } from '../hooks/useComprehensionCheck';
 import type { ComprehensionQuestion } from '../types';
-import MiniPebble from './MiniPebble';
+import { PebbleFace } from '@/features/companion';
 
 interface Props {
   question: ComprehensionQuestion;
@@ -33,7 +33,7 @@ export default function ComprehensionCheck({ question, docTitle }: Props) {
   return (
     <div style={{ padding: '16px 18px', background: 'rgba(255,248,235,0.05)', borderRadius: 12, marginTop: 16 }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-        <MiniPebble />
+        <PebbleFace />
         <span style={{ fontFamily: 'var(--font-nunito)', fontSize: 14, color: 'var(--color-text-2)' }}>
           Let&apos;s see how that landed:
         </span>
@@ -53,7 +53,7 @@ export default function ComprehensionCheck({ question, docTitle }: Props) {
 
       {feedback !== null && (
         <div role="status" style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginTop: 12 }}>
-          <MiniPebble />
+          <PebbleFace />
           <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 13, color: 'var(--color-text-2)', lineHeight: 1.6 }}>
             {feedback}
           </div>

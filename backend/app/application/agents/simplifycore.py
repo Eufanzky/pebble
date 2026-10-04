@@ -4,7 +4,7 @@ from app.application.activity import ActivityLog, note, quote, watch
 from app.application.errors import AgentReplyError
 from app.application.llm_json import ask_json
 from app.application.ports.llm import LLMProvider, LLMRequest
-from app.application.prompts import DOCUMENT_SIMPLIFICATION_PROMPT
+from app.application.prompts import SIMPLIFYCORE_PROMPT
 from app.application.safety import SafetyGate
 from app.domain.agents import AgentName
 from app.domain.documents import ExtractedTask, Simplification
@@ -40,8 +40,8 @@ class SimplifyDocument:
         reply = await ask_json(
             self.llm,
             LLMRequest(
-                agent="simplify",
-                system_prompt=DOCUMENT_SIMPLIFICATION_PROMPT,
+                agent=AgentName.SIMPLIFY_CORE,
+                system_prompt=SIMPLIFYCORE_PROMPT,
                 user_message=f"Target reading level: {reading_level}/10\n\nDocument text:\n{text}",
                 temperature=0.5,
                 max_tokens=2048,

@@ -9,7 +9,7 @@ import {
   replyMessage,
   replyMood,
   userMessage,
-} from './chat';
+} from './messages';
 
 const preferences: UserPreferences = {
   readingLevel: 3,

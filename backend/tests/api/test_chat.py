@@ -68,7 +68,7 @@ async def post_chat(client: AsyncClient, message: str = "Help me with my essay",
                 "mood": "happy",
                 "agentName": "CalmSense",
                 "data": DECOMPOSE_REPLY,
-                "agents_called": ["orchestrator", "decompose"],
+                "agents_called": ["orchestrator", "CalmSense"],
             },
         ),
         (
@@ -78,7 +78,7 @@ async def post_chat(client: AsyncClient, message: str = "Help me with my essay",
                 "mood": "normal",
                 "agentName": "SimplifyCore",
                 "data": {**SIMPLIFY_REPLY, "groundedness": {"grounded": True, "ungroundedPercentage": 0.0}},
-                "agents_called": ["orchestrator", "simplify"],
+                "agents_called": ["orchestrator", "SimplifyCore"],
             },
         ),
         (
@@ -88,7 +88,7 @@ async def post_chat(client: AsyncClient, message: str = "Help me with my essay",
                 "mood": "excited",
                 "agentName": "PebbleVoice",
                 "data": None,
-                "agents_called": ["orchestrator", "motivate"],
+                "agents_called": ["orchestrator", "PebbleVoice"],
             },
         ),
         (
@@ -116,7 +116,7 @@ async def post_chat(client: AsyncClient, message: str = "Help me with my essay",
 async def test_each_intent_routes_to_its_agent(client, llm: FakeLLM, intent, expected):
     llm.script("orchestrator", classification(intent))
     if intent in SUB_AGENT_REPLIES:
-        llm.script(intent, SUB_AGENT_REPLIES[intent])
+        llm.script(AGENT_NAMES[intent], SUB_AGENT_REPLIES[intent])
 
     resp = await post_chat(client)
 
@@ -174,7 +174,7 @@ async def test_unknown_or_missing_intent_falls_back_to_chat(client, llm: FakeLLM
 async def test_missing_classifier_response_uses_a_default(client, llm: FakeLLM, intent, expected_response):
     llm.script("orchestrator", {"intent": intent})
     if intent in SUB_AGENT_REPLIES:
-        llm.script(intent, SUB_AGENT_REPLIES[intent])
+        llm.script(AGENT_NAMES[intent], SUB_AGENT_REPLIES[intent])
 
     resp = await post_chat(client)
 
@@ -194,7 +194,7 @@ async def test_distress_never_calls_a_sub_agent(client, llm: FakeLLM):
 
 async def test_motivate_gets_the_progress_from_the_request(client, llm: FakeLLM):
     llm.script("orchestrator", classification("motivate"))
-    llm.script("motivate", MOTIVATE_REPLY)
+    llm.script("PebbleVoice", MOTIVATE_REPLY)
     await post_chat(
         client,
         "Cheer me on",
@@ -211,7 +211,7 @@ async def test_motivate_gets_the_progress_from_the_request(client, llm: FakeLLM)
 
 async def test_decompose_and_simplify_get_the_chat_message_and_preferences(client, llm: FakeLLM):
     llm.script("orchestrator", classification("decompose"))
-    llm.script("decompose", DECOMPOSE_REPLY)
+    llm.script("CalmSense", DECOMPOSE_REPLY)
     await post_chat(client, "Clean my room", chunkSize="small", timeOfDay="night")
     decompose = llm.calls[1].user_message
     assert decompose.startswith("Task: Clean my room\n")
@@ -220,7 +220,7 @@ async def test_decompose_and_simplify_get_the_chat_message_and_preferences(clien
 
     llm.calls.clear()
     llm.script("orchestrator", classification("simplify"))
-    llm.script("simplify", SIMPLIFY_REPLY)
+    llm.script("SimplifyCore", SIMPLIFY_REPLY)
     await post_chat(client, "Complicated text", readingLevel=3)
     simplify = llm.calls[1].user_message
     assert simplify == "Target reading level: 3/10\n\nDocument text:\nComplicated text"
@@ -289,7 +289,7 @@ async def test_unsafe_sub_agent_output_is_replaced_with_a_safe_reply(
 ):
     """2.4 (A-013): was a 422."""
     llm.script("orchestrator", classification(intent))
-    llm.script(intent, {**SUB_AGENT_REPLIES[intent], "whyExplanation": "harmful", "message": "harmful"})
+    llm.script(AGENT_NAMES[intent], {**SUB_AGENT_REPLIES[intent], "whyExplanation": "harmful", "message": "harmful"})
     safety.flag("harmful")
 
     resp = await post_chat(client)
@@ -378,7 +378,7 @@ async def test_pii_in_classifier_output_is_redacted(client, llm: FakeLLM):
 async def test_sub_agents_never_receive_raw_pii(client, llm: FakeLLM, intent):
     """2.4 (A-012): decompose and simplify used to get the raw message."""
     llm.script("orchestrator", classification(intent))
-    llm.script(intent, SUB_AGENT_REPLIES[intent])
+    llm.script(AGENT_NAMES[intent], SUB_AGENT_REPLIES[intent])
 
     await post_chat(client, "Email my tutor at sam@example.com", recentTaskTitles=["Call 555-123-4567"])
 
@@ -398,7 +398,7 @@ async def test_sub_agents_never_receive_raw_pii(client, llm: FakeLLM, intent):
 async def test_sub_agent_output_is_pii_redacted(client, llm: FakeLLM, intent, reply, path):
     """2.4 (A-012): sub-agent output used to reach the user unredacted."""
     llm.script("orchestrator", classification(intent))
-    llm.script(intent, reply)
+    llm.script(AGENT_NAMES[intent], reply)
 
     body = (await post_chat(client)).json()
     for key in path:
@@ -441,7 +441,7 @@ async def test_invalid_json_rejected_by_the_host_falls_back_to_chat(client, llm:
 @pytest.mark.parametrize("intent", ["decompose", "simplify", "motivate"])
 async def test_invalid_sub_agent_json_rejected_by_the_host_is_a_gentle_reply(client, llm: FakeLLM, intent):
     llm.script("orchestrator", classification(intent))
-    llm.script(intent, LLMResponseError(f"{intent}: the LLM's reply wasn't valid JSON"))
+    llm.script(AGENT_NAMES[intent], LLMResponseError(f"{intent}: the LLM's reply wasn't valid JSON"))
 
     resp = await post_chat(client)
 
@@ -462,7 +462,7 @@ async def test_code_fenced_classifier_json_is_understood(client, llm: FakeLLM):
 async def test_malformed_sub_agent_json_is_a_gentle_reply(client, llm: FakeLLM, intent):
     """2.4 (A-013): was a 422."""
     llm.script("orchestrator", classification(intent))
-    llm.script(intent, "Here are some steps!")
+    llm.script(AGENT_NAMES[intent], "Here are some steps!")
 
     resp = await post_chat(client)
 

@@ -46,7 +46,7 @@ describe('SignInView', () => {
   it('wakes Pebble while a way to sign in has focus', async () => {
     const user = userEvent.setup();
     const { container } = render(<SignInView providers={['github']} callbackUrl="/today" />);
-    const pebble = () => container.querySelector('.pb-model')!;
+    const pebble = () => container.querySelector('.pebble-model')!;
     expect(pebble()).toHaveClass('mood-sleepy');
 
     await user.tab();

@@ -5,10 +5,10 @@ export default function MochiPlusModel({ mood }: { mood: PebbleMood }) {
   return (
     <>
       <Sparkles /><Zzz />
-      <div className="pb-blob" style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: 122, height: 122, background: 'var(--pebble-color)', borderRadius: '50% 50% 46% 46%', boxShadow: '0 8px 24px rgba(0,0,0,0.2), inset 0 -15px 30px rgba(0,0,0,0.04)' }}>
+      <div className="pebble-blob" style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: 122, height: 122, background: 'var(--pebble-color)', borderRadius: '50% 50% 46% 46%', boxShadow: '0 8px 24px rgba(0,0,0,0.2), inset 0 -15px 30px rgba(0,0,0,0.04)' }}>
         {/* Pear-shaped bottom */}
         <div style={{ position: 'absolute', bottom: -1, left: '50%', transform: 'translateX(-50%)', width: 128, height: 42, background: 'var(--pebble-color)', borderRadius: '50%', zIndex: -1 }} />
-        <TriangleEar side="l" top={4} offset={14} w={14} h={25} className="pb-ear-l" />
+        <TriangleEar side="l" top={4} offset={14} w={14} h={25} className="pebble-ear-l" />
         <TriangleEar side="r" top={4} offset={14} w={14} h={25} />
         <InnerEar side="l" top={10} offset={20} w={8} h={15} />
         <InnerEar side="r" top={10} offset={20} w={8} h={15} />

@@ -6,7 +6,7 @@ from app.application.activity import ActivityLog, note, watch
 from app.application.errors import AgentReplyError
 from app.application.llm_json import ask_json
 from app.application.ports.llm import LLMProvider, LLMRequest
-from app.application.prompts import MOTIVATION_PROMPT
+from app.application.prompts import PEBBLEVOICE_PROMPT
 from app.application.safety import SafetyGate
 from app.domain.agents import AgentName, Mood
 from app.domain.chat import ChatContext, Encouragement
@@ -40,8 +40,8 @@ class Encourage:
         data = await ask_json(
             self.llm,
             LLMRequest(
-                agent="motivate",
-                system_prompt=MOTIVATION_PROMPT,
+                agent=AgentName.PEBBLE_VOICE,
+                system_prompt=PEBBLEVOICE_PROMPT,
                 user_message=(
                     f"Tasks completed today: {context.tasks_completed}/{context.tasks_total}\n"
                     f"Time of day: {context.time_of_day}\n"

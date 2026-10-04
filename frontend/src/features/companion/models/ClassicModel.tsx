@@ -5,7 +5,7 @@ export default function ClassicModel({ mood }: { mood: PebbleMood }) {
   return (
     <>
       <Sparkles /><Zzz />
-      <div className="pb-body-group" style={{ position: 'absolute', inset: 0 }}>
+      <div className="pebble-body-group" style={{ position: 'absolute', inset: 0 }}>
         <Tail bottom={16} right={-2} w={50} h={14} />
         <div style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: 120, height: 80, background: 'var(--pebble-color)', borderRadius: '50% 50% 45% 45%', zIndex: 1, boxShadow: '0 6px 20px rgba(0,0,0,0.25)' }} />
         <div style={{ position: 'absolute', top: 4, left: '50%', transform: 'translateX(-50%)', width: 90, height: 90, background: 'var(--pebble-color)', borderRadius: '50%', zIndex: 2 }}>

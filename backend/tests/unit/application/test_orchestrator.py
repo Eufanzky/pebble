@@ -128,12 +128,12 @@ async def test_safety_order_for_a_chat_turn(handle_chat, llm, recorder):
 
 async def test_safety_order_through_a_sub_agent(handle_chat, llm, recorder):
     classify(llm, "decompose")
-    llm.script("decompose", {"subtasks": [{"title": "Open it", "timeEstimate": "~5 min"}], "whyExplanation": "Small."})
+    llm.script("CalmSense", {"subtasks": [{"title": "Open it", "timeEstimate": "~5 min"}], "whyExplanation": "Small."})
 
     await handle_chat("Plan my trip, call 555-123-4567", ChatContext())
 
     kinds = [kind for kind, _ in recorder.events]
-    assert kinds == ["shield", "analyze", "llm:orchestrator", "analyze", "llm:decompose", "analyze"]
+    assert kinds == ["shield", "analyze", "llm:orchestrator", "analyze", "llm:CalmSense", "analyze"]
     assert "555-123-4567" not in recorder.events[4][1]
     assert recorder.events[5][1] == "Open it\nSmall."
 
@@ -164,9 +164,9 @@ async def test_unsafe_input_never_reaches_the_llm(handle_chat, safety, llm):
     [
         (Intent.CHAT, AgentName.PEBBLE_VOICE, Mood.HAPPY, []),
         (Intent.DISTRESS, AgentName.PEBBLE_VOICE, Mood.NORMAL, []),
-        (Intent.DECOMPOSE, AgentName.CALM_SENSE, Mood.HAPPY, ["decompose"]),
-        (Intent.SIMPLIFY, AgentName.SIMPLIFY_CORE, Mood.NORMAL, ["simplify"]),
-        (Intent.MOTIVATE, AgentName.PEBBLE_VOICE, Mood.EXCITED, ["motivate"]),
+        (Intent.DECOMPOSE, AgentName.CALM_SENSE, Mood.HAPPY, ["CalmSense"]),
+        (Intent.SIMPLIFY, AgentName.SIMPLIFY_CORE, Mood.NORMAL, ["SimplifyCore"]),
+        (Intent.MOTIVATE, AgentName.PEBBLE_VOICE, Mood.EXCITED, ["PebbleVoice"]),
     ],
 )
 async def test_routing_table(handle_chat, llm, simplifier, motivator, intent, agent, mood, sub_agent_calls):
@@ -176,7 +176,7 @@ async def test_routing_table(handle_chat, llm, simplifier, motivator, intent, ag
 
     assert (reply.intent, reply.agent, reply.mood) == (intent, agent, mood)
     called = [a for a in llm.agents_called() if a != "orchestrator"]
-    called += ["simplify"] * len(simplifier.calls) + ["motivate"] * len(motivator.contexts)
+    called += ["SimplifyCore"] * len(simplifier.calls) + ["PebbleVoice"] * len(motivator.contexts)
     assert called == sub_agent_calls
 
 

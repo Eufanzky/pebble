@@ -5,11 +5,11 @@ const PARTICLE_ANGLES = [0, 45, 90, 135, 180, 225, 270, 315];
 
 function MoodParticles() {
   return (
-    <div className="pb-particles">
+    <div className="pebble-particles">
       {PARTICLE_ANGLES.map((angle, i) => (
         <span
           key={angle}
-          className="pb-particle"
+          className="pebble-particle"
           style={{ '--angle': `${angle}deg`, '--delay': `${i * 0.1}s` } as React.CSSProperties}
         >
           &#9670;
@@ -27,10 +27,10 @@ export function Sparkles() {
 /* ========== Zzz (3 staggered z letters) ========== */
 export function Zzz() {
   return (
-    <div className="pb-zzz-group">
-      <span className="pb-zzz-letter pb-zzz-1">z</span>
-      <span className="pb-zzz-letter pb-zzz-2">z</span>
-      <span className="pb-zzz-letter pb-zzz-3">z</span>
+    <div className="pebble-zzz-group">
+      <span className="pebble-zzz-letter pebble-zzz-1">z</span>
+      <span className="pebble-zzz-letter pebble-zzz-2">z</span>
+      <span className="pebble-zzz-letter pebble-zzz-3">z</span>
     </div>
   );
 }
@@ -47,7 +47,7 @@ export function Eye({ side, mood, size = 12, top = 34, offset = 26, shine = 4, s
     const starClip = 'polygon(50% 0%, 65% 35%, 100% 50%, 65% 65%, 50% 100%, 35% 65%, 0% 50%, 35% 35%)';
     return (
       <div
-        className={`pb-eye pb-star-eye ${side === 'l' ? 'eye-l' : 'eye-r'}`}
+        className={`pebble-eye pebble-star-eye ${side === 'l' ? 'eye-l' : 'eye-r'}`}
         style={{
           position: 'absolute', width: starSize, height: starSize,
           top: top - (starSize - size) / 2, zIndex: 5, ...pos,
@@ -82,14 +82,14 @@ export function Eye({ side, mood, size = 12, top = 34, offset = 26, shine = 4, s
 
   return (
     <div
-      className={`pb-eye ${side === 'l' ? 'eye-l' : 'eye-r'} ${mood === 'sleepy' ? 'sleepy' : ''}`}
+      className={`pebble-eye ${side === 'l' ? 'eye-l' : 'eye-r'} ${mood === 'sleepy' ? 'sleepy' : ''}`}
       style={{
         position: 'absolute', width: eyeSize, height: eyeSize,
         background: '#2A2A2E', borderRadius: '50%',
         top: top - (eyeSize - size) / 2, zIndex: 5, ...pos,
       }}
     >
-      <div className="pb-shine" style={{
+      <div className="pebble-shine" style={{
         position: 'absolute', width: shine, height: shine,
         background: 'white', borderRadius: '50%', top: 2, right: 2,
       }} />
@@ -109,7 +109,7 @@ export function TriangleEar({ side, top = -2, offset = 10, w = 14, h = 26, class
 }) {
   const pos = side === 'l' ? { left: offset } : { right: offset };
   return (
-    <div className={`${side === 'l' ? 'pb-ear-l' : 'pb-ear-r'} ${className}`} style={{
+    <div className={`${side === 'l' ? 'pebble-ear-l' : 'pebble-ear-r'} ${className}`} style={{
       position: 'absolute', top, ...pos, zIndex: 3, width: 0, height: 0,
       borderLeft: `${w}px solid transparent`, borderRight: `${w}px solid transparent`,
       borderBottom: `${h}px solid var(--pebble-color)`,
@@ -153,7 +153,7 @@ export function Mouth({ top = 57, mood }: { top?: number; mood?: PebbleMood }) {
   const half = width / 2;
 
   return (
-    <div className="pb-mouth" style={{ position: 'absolute', top, left: '50%', transform: 'translateX(-50%)', width, height, zIndex: 5 }}>
+    <div className="pebble-mouth" style={{ position: 'absolute', top, left: '50%', transform: 'translateX(-50%)', width, height, zIndex: 5 }}>
       <div style={{ position: 'absolute', left: 0, top: 0, width: half, height: height - 1, borderBottom: '1.5px solid rgba(42,42,46,0.3)', borderRadius: '0 0 0 50%' }} />
       <div style={{ position: 'absolute', right: 0, top: 0, width: half, height: height - 1, borderBottom: '1.5px solid rgba(42,42,46,0.3)', borderRadius: '0 0 50% 0' }} />
     </div>
@@ -166,7 +166,7 @@ export function Blush({ top = 50, left, right, w = 12, h = 12, opacity }: {
 }) {
   const pos = left !== undefined ? { left } : { right };
   return (
-    <div className="pb-blush" style={{
+    <div className="pebble-blush" style={{
       position: 'absolute', width: w, height: h,
       background: 'radial-gradient(circle, #F0A0C0 0%, transparent 70%)',
       borderRadius: '50%', top, zIndex: 5,
@@ -181,7 +181,7 @@ export function Tail({ bottom = 16, right = -8, w = 50, h = 14 }: {
   bottom?: number; right?: number; w?: number; h?: number;
 }) {
   return (
-    <div className="pb-tail" style={{
+    <div className="pebble-tail" style={{
       position: 'absolute', bottom, right, width: w, height: h,
       background: 'var(--pebble-color)', borderRadius: '0 50px 50px 0',
     }} />

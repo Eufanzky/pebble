@@ -73,15 +73,3 @@ export const messages: MessagesByTime = {
     ],
   },
 };
-
-/**
- * Replace template variables in a message string.
- */
-export function interpolateMessage(
-  message: string,
-  vars: { taskCount: number; completedCount: number }
-): string {
-  return message
-    .replace(/\{taskCount\}/g, String(vars.taskCount))
-    .replace(/\{completedCount\}/g, String(vars.completedCount));
-}

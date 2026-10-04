@@ -16,7 +16,7 @@ def signed_in(app):
 
 
 async def test_returns_the_steps(client, llm):
-    llm.script("decompose", REPLY)
+    llm.script("CalmSense", REPLY)
 
     resp = await client.post(URL, json={"taskTitle": "Write essay", "chunkSize": "small"})
 
@@ -26,7 +26,7 @@ async def test_returns_the_steps(client, llm):
 
 
 async def test_input_is_screened_and_redacted(client, llm, safety):
-    llm.script("decompose", REPLY)
+    llm.script("CalmSense", REPLY)
 
     await client.post(URL, json={"taskTitle": "Email sam@example.com"})
 
@@ -44,7 +44,7 @@ async def test_unsafe_input_is_a_422(client, llm, safety):
 
 
 async def test_unsafe_output_is_a_422(client, llm, safety):
-    llm.script("decompose", REPLY)
+    llm.script("CalmSense", REPLY)
     safety.flag("Open the file")
 
     resp = await client.post(URL, json={"taskTitle": "Essay"})
@@ -55,7 +55,7 @@ async def test_unsafe_output_is_a_422(client, llm, safety):
 
 @pytest.mark.parametrize("reply", [LLMTimeoutError("slow"), "not json"], ids=["timeout", "malformed"])
 async def test_llm_problems_are_a_gentle_503(client, llm, reply):
-    llm.script("decompose", reply)
+    llm.script("CalmSense", reply)
 
     resp = await client.post(URL, json={"taskTitle": "Essay"})
 

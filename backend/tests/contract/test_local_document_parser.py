@@ -5,7 +5,7 @@ from pathlib import Path
 import pytest
 
 from app.application.ports.documents import UnreadableDocumentError, UnsupportedDocumentError
-from app.infrastructure.parsing.local_parser import LocalDocumentParser
+from app.infrastructure.parsing.local_document_parser import LocalDocumentParser
 
 FIXTURES = Path(__file__).parents[1] / "fixtures" / "documents"
 parse = LocalDocumentParser().parse

@@ -25,17 +25,17 @@ async def test_scripted_dict_is_sent_as_json_and_the_call_is_recorded():
 
 async def test_scripted_string_is_sent_as_is():
     llm = FakeLLM()
-    llm.script("decompose", "not json")
+    llm.script("CalmSense", "not json")
 
-    assert await llm.complete(request("decompose", "x")) == "not json"
+    assert await llm.complete(request("CalmSense", "x")) == "not json"
 
 
 async def test_scripted_exception_is_raised():
     llm = FakeLLM()
-    llm.script("motivate", LLMUnavailableError("down"))
+    llm.script("PebbleVoice", LLMUnavailableError("down"))
 
     with pytest.raises(LLMUnavailableError):
-        await llm.complete(request("motivate", "x"))
+        await llm.complete(request("PebbleVoice", "x"))
 
 
 @pytest.mark.parametrize(
@@ -60,7 +60,7 @@ async def test_default_classifier_picks_an_intent_by_keyword(message, intent):
 async def test_default_decompose_uses_the_task_and_chunk_size():
     message = "Task: Clean my room\nUser's preferred chunk size: small\nCurrent time of day: day"
 
-    reply = json.loads(await FakeLLM().complete(request("decompose", message)))
+    reply = json.loads(await FakeLLM().complete(request("CalmSense", message)))
 
     assert len(reply["subtasks"]) == 3
     assert "Clean my room" in reply["subtasks"][0]["title"]
@@ -71,7 +71,7 @@ async def test_default_decompose_uses_the_task_and_chunk_size():
 async def test_default_simplify_keeps_the_first_two_sentences():
     message = "Target reading level: 3/10\n\nDocument text:\nOne. Two! Three?"
 
-    reply = json.loads(await FakeLLM().complete(request("simplify", message)))
+    reply = json.loads(await FakeLLM().complete(request("SimplifyCore", message)))
 
     assert reply["simplified"] == "One. Two!"
     assert set(reply) == {"simplified", "extractedTasks", "tags", "whyExplanation"}
@@ -82,7 +82,7 @@ async def test_default_simplify_keeps_the_first_two_sentences():
     [(0, "Starting small is still starting."), (1, "You finished 1 thing today."), (3, "You finished 3 things")],
 )
 async def test_default_motivate_is_specific(done, expected):
-    reply = json.loads(await FakeLLM().complete(request("motivate", f"Tasks completed today: {done}/5")))
+    reply = json.loads(await FakeLLM().complete(request("PebbleVoice", f"Tasks completed today: {done}/5")))
 
     assert expected in reply["message"]
 

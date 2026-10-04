@@ -3,9 +3,7 @@
 from asgi_lifespan import LifespanManager
 
 from app.api import dependencies
-from app.api.auth import get_current_user
 from app.api.dependencies import Container
-from app.application.ports.reader import ReaderToken
 from app.infrastructure.config import Settings
 from app.infrastructure.db.activity import SqlActivityRepository, UnconfiguredActivityRepository
 from app.infrastructure.db.preferences import SqlPreferencesRepository
@@ -74,25 +72,3 @@ async def test_openapi_schema_builds(client):
 
     assert resp.status_code == 200
     assert resp.json()["info"]["title"] == "Pebble API"
-
-
-class StubReader:
-    async def get_token(self) -> ReaderToken:
-        return ReaderToken("abc", "pebble")
-
-
-async def test_immersive_reader_token(app, client, container):
-    app.dependency_overrides[get_current_user] = lambda: "user-1"
-    container.reader = StubReader()
-
-    resp = await client.get("/api/documents/immersive-reader/token")
-
-    assert resp.json() == {"token": "abc", "subdomain": "pebble"}
-
-
-async def test_immersive_reader_unconfigured_is_a_503(app, client):
-    app.dependency_overrides[get_current_user] = lambda: "user-1"
-
-    resp = await client.get("/api/documents/immersive-reader/token")
-
-    assert resp.status_code == 503

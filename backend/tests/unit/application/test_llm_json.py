@@ -20,12 +20,12 @@ def test_rejects_anything_else(text):
         parse_json_object(text)
 
 
-REQUEST = LLMRequest(agent="decompose", system_prompt="s", user_message="u")
+REQUEST = LLMRequest(agent="CalmSense", system_prompt="s", user_message="u")
 
 
 async def test_ask_json_returns_the_object():
     llm = FakeLLM()
-    llm.script("decompose", {"a": 1})
+    llm.script("CalmSense", {"a": 1})
 
     assert await ask_json(llm, REQUEST) == {"a": 1}
 
@@ -33,7 +33,7 @@ async def test_ask_json_returns_the_object():
 @pytest.mark.parametrize("reply", ["not json", LLMResponseError("the LLM's reply wasn't valid JSON")])
 async def test_ask_json_unusable_replies_are_agent_reply_errors(reply):
     llm = FakeLLM()
-    llm.script("decompose", reply)
+    llm.script("CalmSense", reply)
 
     with pytest.raises(AgentReplyError):
         await ask_json(llm, REQUEST)
@@ -41,7 +41,7 @@ async def test_ask_json_unusable_replies_are_agent_reply_errors(reply):
 
 async def test_ask_json_lets_outages_through():
     llm = FakeLLM()
-    llm.script("decompose", LLMUnavailableError("down"))
+    llm.script("CalmSense", LLMUnavailableError("down"))
 
     with pytest.raises(LLMUnavailableError):
         await ask_json(llm, REQUEST)

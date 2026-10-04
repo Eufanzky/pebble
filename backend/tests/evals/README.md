@@ -26,6 +26,7 @@ Requests are spaced out (`EVAL_REQUEST_INTERVAL`, default 6.5 s) to stay under f
 
 | Date | Provider / model | JSON | Intent | Distress | Voice | Notes |
 |:--|:--|:--|:--|:--|:--|:--|
+| 2026-10-04 | Groq, openai/gpt-oss-120b (reasoning effort low) | 1.00 | 1.00 | 1.00 | 0.90 | After 6.5 named each agent in its own prompt ("You are CalmSense, …"). 45 calls. Every intent right; three PebbleVoice replies averaged 22–23 words a sentence (`motivate-encouragement`, `motivate-two-done`, `motivate-nothing-done`). |
 | 2026-10-04 | Groq, openai/gpt-oss-120b (reasoning effort low) | 1.00 | 0.97 | 1.00 | 0.90 | After 6.4 renamed "Focusbuddy" to Pebble in the prompts. 46 calls. Same intent miss as the baseline (`chat-thanks` as motivate); three replies averaged 24–29 words a sentence (`simplify-photosynthesis`, `simplify-syllabus`, `chat-thanks`), two of them in SimplifyCore's one-sentence reasoning. No miss involves the name. |
 | 2026-09-27 | **Groq, openai/gpt-oss-120b** (reasoning effort low) | **1.00** | **0.97** | **1.00** | **0.93** | Baseline. 46 calls, about 5 minutes. Misses: `chat-thanks` was classified as motivate; two replies averaged 21–22 words a sentence (`decompose-apartment`, `chat-thanks`). |
 | 2026-09-27 | Groq, openai/gpt-oss-120b (no reasoning effort set) | 0.97 | 0.93 | 1.00 | 0.90 | First run. One classifier reply failed Groq's JSON validation (HTTP 400), which used to become a 503; it now falls back to a gentle chat reply. |
