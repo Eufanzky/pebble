@@ -28,7 +28,8 @@ How Pebble is tested. The goal: the app can be restructured and extended without
 
 ```
 backend/tests/
-  unit/          domain/ (entity rules), application/ (use cases with fakes), and the architecture rule
+  unit/          domain/ (entity rules), application/ (use cases with fakes), infrastructure/ (adapters with no
+                 outside service), and the architecture rule
   api/           routers over HTTP: auth, validation, response shape, the activity pipeline
   integration/   repositories, migrations, export and deletion against real Postgres
   contract/      adapters against recorded provider responses
@@ -84,14 +85,14 @@ The fake LLM lives in `backend/app/infrastructure/llm/fake.py`, not only in test
 
 ### End to end (Playwright)
 
-`frontend/e2e/demo-flow.spec.ts`, kept short and stable. The demo flow:
+`frontend/e2e/`, one spec per area. `demo-flow.spec.ts` is kept short and stable:
 1. Dev login.
 2. Break a task into steps.
 3. Finish a step, and reload to see it saved.
 4. Simplify a document.
 5. Open the activity log and see the agent name and its reasoning.
 
-Beside it: editing, reordering and filtering; stats that add up; the one-time import; export and account deletion; installability and the offline page; the phone tab bar; signing out and the 401 when signed out. Every page gets an axe scan and an overflow check at 360, 768 and 1280px. It runs on every PR against the local stack (real Postgres, fake LLM), and after deploy against production (roadmap 11.3).
+Beside it: `tasks` (editing, reordering, filtering), `stats` (progress adds up), `account` (the one-time import, export, deletion), `installable` (install and the offline page), `sign-in` (signing out, the 401 when signed out) and `layout` (every page at 360, 768 and 1280px with axe and an overflow check, and the phone tab bar). It runs on every PR against the local stack (real Postgres, fake LLM), and after deploy against production (roadmap 11.3).
 
 ### Principle checks
 

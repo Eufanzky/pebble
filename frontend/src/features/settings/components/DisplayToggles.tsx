@@ -26,7 +26,7 @@ export default function DisplayToggles() {
   const { toggleReduceAnimations, toggleCalmMode } = usePreferenceActions();
 
   return (
-    <div className="glass-card" style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: 18 }}>
+    <div className="ui-card" style={{ padding: '18px 20px', display: 'flex', flexDirection: 'column', gap: 18 }}>
       <ToggleRow
         title="Reduce animations"
         toggle={<ToggleSwitch on={preferences.reduceAnimations} onChange={toggleReduceAnimations} label="Reduce animations" />}

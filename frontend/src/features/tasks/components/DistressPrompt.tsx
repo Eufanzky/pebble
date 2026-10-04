@@ -9,7 +9,7 @@ interface DistressPromptProps {
 export default function DistressPrompt({ onStartFresh, onKeepGoing }: DistressPromptProps) {
   return (
     <div
-      className="glass-card"
+      className="ui-card"
       role="alert"
       aria-live="assertive"
       style={{ marginTop: 16, padding: '20px 24px', borderLeft: '3px solid var(--color-tag-wellbeing)' }}

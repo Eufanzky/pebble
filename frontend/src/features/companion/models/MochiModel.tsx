@@ -5,7 +5,7 @@ export default function MochiModel({ mood }: { mood: PebbleMood }) {
   return (
     <>
       <Sparkles /><Zzz />
-      <div className="pb-blob" style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: 120, height: 120, background: 'var(--pebble-color)', borderRadius: '50% 50% 48% 48%', boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
+      <div className="pebble-blob" style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: 120, height: 120, background: 'var(--pebble-color)', borderRadius: '50% 50% 48% 48%', boxShadow: '0 8px 24px rgba(0,0,0,0.2)' }}>
         <TriangleEar side="l" top={4} offset={14} w={13} h={24} />
         <TriangleEar side="r" top={4} offset={14} w={13} h={24} />
         <InnerEar side="l" top={10} offset={20} />

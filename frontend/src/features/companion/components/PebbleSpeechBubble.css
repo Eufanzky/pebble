@@ -1,0 +1,13 @@
+/* The speech bubble beside Pebble: it rises in, and stays still with reduced motion. */
+@keyframes bubble-enter {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.pebble-speech-bubble {
+  animation: bubble-enter 0.35s ease-out;
+}
+
+.reduce-animations .pebble-speech-bubble {
+  animation: none !important;
+}

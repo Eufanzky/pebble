@@ -114,7 +114,7 @@ function NodeCard({ task, done, isActive, tagColor, tagLabel, tagEmoji, calm, no
   return (
     <button
       onClick={onToggle}
-      className="glass-card"
+      className="ui-card"
       aria-label={`${done ? 'Undo' : 'Complete'} task: ${task.title}`}
       style={{
         maxWidth: 280,

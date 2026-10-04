@@ -4,7 +4,7 @@ import pytest
 
 from app.application.agents.calmsense import DecomposeTask
 from app.application.errors import AgentReplyError, UnsafeContentError, UnsafeOutputError
-from app.application.prompts import TASK_DECOMPOSITION_PROMPT
+from app.application.prompts import CALMSENSE_PROMPT
 from app.application.safety import SafetyGate
 from app.domain.tasks import Step, TaskBreakdown
 from app.infrastructure.llm.fake import FakeLLM
@@ -33,7 +33,7 @@ def calmsense(llm, safety):
 
 
 async def test_builds_the_request_and_reads_the_steps(calmsense, llm):
-    llm.script("decompose", REPLY)
+    llm.script("CalmSense", REPLY)
 
     breakdown = await calmsense.run("Write essay", "small", "evening")
 
@@ -41,7 +41,7 @@ async def test_builds_the_request_and_reads_the_steps(calmsense, llm):
         steps=(Step("Open the file", "~5 min"), Step("Write one line", "")), why="Smallest step first."
     )
     [call] = llm.calls
-    assert call.system_prompt == TASK_DECOMPOSITION_PROMPT
+    assert call.system_prompt == CALMSENSE_PROMPT
     assert call.user_message == (
         "Task: Write essay\nUser's preferred chunk size: small\nCurrent time of day: evening\n\n"
         "Break this task into achievable subtasks."
@@ -50,7 +50,7 @@ async def test_builds_the_request_and_reads_the_steps(calmsense, llm):
 
 
 async def test_direct_call_screens_and_redacts_the_input(calmsense, llm, safety):
-    llm.script("decompose", REPLY)
+    llm.script("CalmSense", REPLY)
 
     await calmsense("Email sam@example.com")
 
@@ -68,7 +68,7 @@ async def test_direct_call_rejects_unsafe_input(calmsense, llm, safety):
 
 
 async def test_output_is_checked_once_and_redacted(calmsense, llm, safety):
-    llm.script("decompose", {**REPLY, "whyExplanation": "Mail sam@example.com first."})
+    llm.script("CalmSense", {**REPLY, "whyExplanation": "Mail sam@example.com first."})
 
     breakdown = await calmsense.run("Essay", "medium", "day")
 
@@ -77,7 +77,7 @@ async def test_output_is_checked_once_and_redacted(calmsense, llm, safety):
 
 
 async def test_unsafe_output_raises(calmsense, llm, safety):
-    llm.script("decompose", REPLY)
+    llm.script("CalmSense", REPLY)
     safety.flag("Write one line")
 
     with pytest.raises(UnsafeOutputError):
@@ -90,13 +90,13 @@ async def test_unsafe_output_raises(calmsense, llm, safety):
     ids=["prose", "not-a-list", "no-title", "not-objects"],
 )
 async def test_unusable_reply_is_an_agent_reply_error(calmsense, llm, reply):
-    llm.script("decompose", reply)
+    llm.script("CalmSense", reply)
 
     with pytest.raises(AgentReplyError):
         await calmsense.run("Essay", "medium", "day")
 
 
 async def test_missing_fields_are_empty(calmsense, llm):
-    llm.script("decompose", {})
+    llm.script("CalmSense", {})
 
     assert await calmsense.run("Essay", "medium", "day") == TaskBreakdown(steps=(), why="")

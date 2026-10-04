@@ -13,7 +13,7 @@ import {
   replyMessage,
   replyMood,
   userMessage,
-} from '../lib/chat';
+} from '../lib/messages';
 import type { ChatMessage } from '../types';
 
 const MOOD_FLASH_MS = 3000;

@@ -9,7 +9,7 @@ export default function ChunkSizeSetting() {
   const { setChunkSize } = usePreferenceActions();
 
   return (
-    <div className="glass-card" style={{ padding: '18px 20px' }}>
+    <div className="ui-card" style={{ padding: '18px 20px' }}>
       <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 14, fontWeight: 600, color: 'var(--color-text)', marginBottom: 10 }}>
         Task chunk size
       </div>

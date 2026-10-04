@@ -4,7 +4,7 @@ from app.application.activity import ActivityLog, note, quote, watch
 from app.application.errors import AgentReplyError
 from app.application.llm_json import ask_json
 from app.application.ports.llm import LLMProvider, LLMRequest
-from app.application.prompts import TASK_DECOMPOSITION_PROMPT
+from app.application.prompts import CALMSENSE_PROMPT
 from app.application.safety import SafetyGate
 from app.domain.agents import AgentName
 from app.domain.tasks import Step, TaskBreakdown
@@ -40,8 +40,8 @@ class DecomposeTask:
         reply = await ask_json(
             self.llm,
             LLMRequest(
-                agent="decompose",
-                system_prompt=TASK_DECOMPOSITION_PROMPT,
+                agent=AgentName.CALM_SENSE,
+                system_prompt=CALMSENSE_PROMPT,
                 user_message=(
                     f"Task: {task_title}\n"
                     f"User's preferred chunk size: {chunk_size}\n"

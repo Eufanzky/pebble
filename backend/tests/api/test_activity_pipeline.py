@@ -18,7 +18,7 @@ CALLS = [
         "chat-decompose",
         "CalmSense",
         ("/api/agents/chat", {"message": "Help me start my essay"}),
-        {"orchestrator": classification("decompose"), "decompose": SUB_AGENT_REPLIES["decompose"]},
+        {"orchestrator": classification("decompose"), "CalmSense": SUB_AGENT_REPLIES["decompose"]},
         'Chat: decompose — "Help me start my essay"',
         "Routed to CalmSense. Mood: happy.",
     ),
@@ -26,7 +26,7 @@ CALLS = [
         "chat-simplify",
         "SimplifyCore",
         ("/api/agents/chat", {"message": "Make this simpler please"}),
-        {"orchestrator": classification("simplify"), "simplify": SUB_AGENT_REPLIES["simplify"]},
+        {"orchestrator": classification("simplify"), "SimplifyCore": SUB_AGENT_REPLIES["simplify"]},
         'Chat: simplify — "Make this simpler please"',
         "Routed to SimplifyCore. Mood: normal.",
     ),
@@ -34,7 +34,7 @@ CALLS = [
         "chat-motivate",
         "PebbleVoice",
         ("/api/agents/chat", {"message": "Cheer me on"}),
-        {"orchestrator": classification("motivate"), "motivate": SUB_AGENT_REPLIES["motivate"]},
+        {"orchestrator": classification("motivate"), "PebbleVoice": SUB_AGENT_REPLIES["motivate"]},
         'Chat: motivate — "Cheer me on"',
         "Routed to PebbleVoice. Mood: excited.",
     ),
@@ -58,7 +58,7 @@ CALLS = [
         "decompose",
         "CalmSense",
         ("/api/agents/decompose", {"taskTitle": "Write the essay"}),
-        {"decompose": SUB_AGENT_REPLIES["decompose"]},
+        {"CalmSense": SUB_AGENT_REPLIES["decompose"]},
         'Broke "Write the essay" into 2 steps',
         "I started with the smallest step.",
     ),
@@ -66,7 +66,7 @@ CALLS = [
         "simplify",
         "SimplifyCore",
         ("/api/agents/simplify", {"text": "Hand in the form by Friday.", "readingLevel": 3}),
-        {"simplify": SUB_AGENT_REPLIES["simplify"]},
+        {"SimplifyCore": SUB_AGENT_REPLIES["simplify"]},
         'Simplified "Hand in the form by Friday." to reading level 3',
         "I kept only the action.",
     ),
@@ -74,7 +74,7 @@ CALLS = [
         "motivate",
         "PebbleVoice",
         ("/api/agents/motivate", {"tasksCompleted": 2, "tasksTotal": 5}),
-        {"motivate": SUB_AGENT_REPLIES["motivate"]},
+        {"PebbleVoice": SUB_AGENT_REPLIES["motivate"]},
         "Shared some encouragement",
         "Based on 2 of 5 tasks done today.",
     ),
@@ -140,8 +140,8 @@ async def test_a_prompt_attack_is_logged_as_flagged(client, llm, safety, activit
 @pytest.mark.parametrize(
     ("url", "body", "agent", "reply"),
     [
-        ("/api/agents/decompose", {"taskTitle": "Essay"}, "decompose", SUB_AGENT_REPLIES["decompose"]),
-        ("/api/agents/motivate", {}, "motivate", SUB_AGENT_REPLIES["motivate"]),
+        ("/api/agents/decompose", {"taskTitle": "Essay"}, "CalmSense", SUB_AGENT_REPLIES["decompose"]),
+        ("/api/agents/motivate", {}, "PebbleVoice", SUB_AGENT_REPLIES["motivate"]),
     ],
     ids=["decompose", "motivate"],
 )
@@ -149,7 +149,7 @@ async def test_a_held_back_reply_on_a_direct_endpoint_is_logged(
     client, llm, safety, activity_repository, url, body, agent, reply
 ):
     llm.script(agent, reply)
-    safety.flag(next(v for v in reply.values() if isinstance(v, str)) if agent == "motivate" else "Open the essay")
+    safety.flag(next(v for v in reply.values() if isinstance(v, str)) if agent == "PebbleVoice" else "Open the essay")
 
     assert (await client.post(url, json=body)).status_code == 422
 
@@ -159,7 +159,7 @@ async def test_a_held_back_reply_on_a_direct_endpoint_is_logged(
 
 async def test_a_replaced_chat_reply_is_logged_as_flagged(client, llm, safety, activity_repository):
     llm.script("orchestrator", classification("decompose"))
-    llm.script("decompose", SUB_AGENT_REPLIES["decompose"])
+    llm.script("CalmSense", SUB_AGENT_REPLIES["decompose"])
     safety.flag("Open the essay")
 
     assert (await client.post("/api/agents/chat", json={"message": "Help me"})).status_code == 200

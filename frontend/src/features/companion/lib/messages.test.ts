@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { interpolateMessage, messages } from '../data/pebbleMessages';
-import { pebbleMessage } from './messages';
+import { messages } from '../data/pebbleMessages';
+import { interpolateMessage, pebbleMessage } from './messages';
 
 describe('interpolateMessage', () => {
   it('fills in the task counts', () => {

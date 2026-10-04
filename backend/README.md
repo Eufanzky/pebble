@@ -48,8 +48,10 @@ TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test 
 Tests run the app in-process with `httpx.ASGITransport`, so they need no network and no external service. Every test runs with fakes behind the ports: `tests/conftest.py` installs a container with the scripted `FakeLLM` (`llm` fixture) and `ScriptedSafety` from `tests/fakes.py` (`safety` fixture). The test layers:
 
 - `tests/unit/domain/`: domain rules
-- `tests/unit/application/`: use cases, with fakes
-- `tests/contract/`: adapters, against recorded response shapes with respx
+- `tests/unit/application/`: use cases, the safety gate and the voice rules, with fakes
+- `tests/unit/infrastructure/`: adapters that need no outside service (the fake LLM, the LLM factory, a database outage)
+- `tests/unit/test_architecture.py`: the dependency rule
+- `tests/contract/`: adapters for outside services, against recorded response shapes with respx
 - `tests/api/`: HTTP behaviour (the stores are the in-memory fakes from `tests/fakes.py`: fixtures `task_repository`, `preferences_repository`, `activity_repository`)
 - `tests/integration/`: real Postgres: the migrations, the task, preferences, activity and progress store contracts (each run against both the Postgres repository and its in-memory fake), and export and deletion for every table. Without `TEST_DATABASE_URL` they skip; CI sets `REQUIRE_TEST_DATABASE=true`, so there they fail instead.
 
@@ -188,7 +190,7 @@ backend/
 │   │   ├── pii/                # regex PII redactor
 │   │   ├── parsing/            # pypdf + python-docx parser
 │   │   ├── db/                 # SQLAlchemy models, engine, Sql{Task,Preferences,Activity,Progress}Repository, SqlAccountDataStore
-│   │   └── immersive_reader.py # optional Azure Immersive Reader token
+│   │   └── reader/             # optional Azure Immersive Reader token
 │   └── api/
 │       ├── dependencies.py     # wiring: adapters into use cases (set_container() for tests)
 │       ├── errors.py           # use-case errors to HTTP

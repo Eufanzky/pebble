@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { ActivityEntry } from '../types';
-import { activitySummary } from './stats';
+import { activitySummary } from './summary';
 
 function entry(agent: ActivityEntry['agent'], safetyStatus: ActivityEntry['safetyStatus']): ActivityEntry {
   return { id: Math.random().toString(), timestamp: new Date(), agent, action: 'x', reasoning: 'y', safetyStatus };

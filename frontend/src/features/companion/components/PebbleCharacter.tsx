@@ -41,8 +41,8 @@ export default function PebbleCharacter({
   const ModelComponent = modelComponents[activeModel];
 
   return (
-    <div className={`pb-model pb-${activeModel} size-${size} mood-${mood} ${noMotion ? 'no-motion' : ''} ${className}`}>
-      <div className="pb-float-wrapper">
+    <div className={`pebble-model pebble-${activeModel} size-${size} mood-${mood} ${noMotion ? 'no-motion' : ''} ${className}`}>
+      <div className="pebble-float-wrapper">
         <ModelComponent mood={mood} />
       </div>
     </div>

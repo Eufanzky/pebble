@@ -22,7 +22,7 @@ export function AccountSection({ name, userId }: AccountSectionProps) {
   const { busy, error, download, deleteAccount } = useAccountData();
 
   return (
-    <section aria-labelledby="account-title" className="glass-card mt-8" style={{ padding: '18px 20px' }}>
+    <section aria-labelledby="account-title" className="ui-card mt-8" style={{ padding: '18px 20px' }}>
       <h2 id="account-title" style={headingStyle}>
         Your account
       </h2>

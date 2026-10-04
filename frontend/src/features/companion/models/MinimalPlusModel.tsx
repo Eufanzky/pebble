@@ -5,7 +5,7 @@ export default function MinimalPlusModel({ mood }: { mood: PebbleMood }) {
   return (
     <>
       <Sparkles /><Zzz />
-      <div className="pb-blob" style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: 104, height: 90, background: 'var(--pebble-color)', borderRadius: '50% 50% 44% 44%', boxShadow: '0 2px 4px rgba(0,0,0,0.1), 0 5px 16px rgba(0,0,0,0.15), 0 12px 32px rgba(0,0,0,0.08)' }}>
+      <div className="pebble-blob" style={{ position: 'absolute', bottom: 0, left: '50%', transform: 'translateX(-50%)', width: 104, height: 90, background: 'var(--pebble-color)', borderRadius: '50% 50% 44% 44%', boxShadow: '0 2px 4px rgba(0,0,0,0.1), 0 5px 16px rgba(0,0,0,0.15), 0 12px 32px rgba(0,0,0,0.08)' }}>
         <TriangleEar side="l" top={4} offset={10} w={10} h={18} />
         <TriangleEar side="r" top={4} offset={10} w={10} h={18} />
         {/* Ear inners */}

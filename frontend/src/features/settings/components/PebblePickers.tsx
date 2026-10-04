@@ -24,7 +24,7 @@ export default function PebblePickers() {
                 key={m.id}
                 onClick={() => selectModel(m.id)}
                 aria-pressed={active}
-                className="glass-card"
+                className="ui-card"
                 style={{
                   padding: '14px 8px 10px', cursor: 'pointer', textAlign: 'center',
                   border: active ? '2px solid var(--color-accent)' : '1px solid var(--color-line)',
@@ -79,7 +79,7 @@ export default function PebblePickers() {
                 key={p.id}
                 onClick={() => selectPersonality(p.id)}
                 aria-pressed={active}
-                className="glass-card"
+                className="ui-card"
                 style={{
                   padding: 16, textAlign: 'left', cursor: 'pointer',
                   border: active ? '1px solid var(--color-accent)' : '1px solid var(--color-line)',
