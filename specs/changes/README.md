@@ -47,3 +47,4 @@ One folder per change: what was asked and decided (`requirements.md`), how it wa
 | 2026-10-03 | 5.8 | [Installable app](2026-10-03-installable-app/requirements.md) |
 | 2026-10-04 | 6.1 | [Remove what isn't used](2026-10-04-remove-unused/requirements.md) |
 | 2026-10-04 | 6.2 | [A clearer structure](2026-10-04-clearer-structure/requirements.md) |
+| 2026-10-04 | 6.3 | [Docs up to date](2026-10-04-docs-up-to-date/requirements.md) |

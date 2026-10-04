@@ -2,134 +2,218 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Repository layout
+## What this is
 
-Pebble (called "Focusbuddy" in some older code and docs) is an AI assistant for neurodivergent users, with an animated CSS cat companion. It has two parts:
+Pebble is an AI assistant for neurodivergent users, with an animated CSS cat companion. Some older names say "Focusbuddy" (the backend package, the prompts; see `specs/audit.md`). Two parts:
 
-- `pebble/`: the real frontend. Next.js 16 App Router, React 19, TypeScript, Tailwind 4.
-- `backend/`: FastAPI (Python 3.12+) in a clean architecture. It needs only an LLM: Groq's free tier by default (`LLM_PROVIDER=groq`, `openai/gpt-oss-120b`), any OpenAI-compatible API by config, or an offline fake. Azure Content Safety and Immersive Reader are optional.
+- `pebble/`: the frontend. Next.js 16 App Router, React 19, TypeScript, Tailwind 4, TanStack Query, Auth.js v5.
+- `backend/`: FastAPI (Python 3.12+, `uv`) in a clean architecture, with Postgres. It needs only an LLM: Groq's free tier by default (`LLM_PROVIDER=groq`, `openai/gpt-oss-120b`), any OpenAI-compatible API, or an offline fake. Azure Content Safety and Immersive Reader are optional.
 
-`specs/` is the project constitution: `mission.md` (product scope and principles), `tech-stack.md` (the target stack and code-structure rules), `testing.md` (test rules, layers, and CI gates; no roadmap item is done without tests), and `roadmap.md` (small, ordered phases, each one PR). Each change gets a folder in `specs/changes/<date>-<slug>/` (`requirements.md`, `plan.md`, `validation.md`) and a row in `specs/changes/README.md`. The rest of this file describes the code as it is today; the specs describe where it is going. Read them before planning any feature or refactor, and tick off roadmap items as they land.
+Docs: the root `README.md` (features, diagram, setup) and `backend/README.md` (every endpoint, the agents, safety, the database). The tag and release `v0.1.0-hackathon` hold the original hackathon submission, with its prototype and slides.
 
-The docs are the root `README.md` and `backend/README.md`, which has the full endpoint table. The hackathon's prototype (`demo/`), slides and diagram were removed in 6.1 and live in the `v0.1.0-hackathon` tag. `.claude/`, `.cursor/` and similar files are gitignored; `CLAUDE.md` is committed.
+## Specs and workflow
 
-The tag `v0.1.0-hackathon` (with a GitHub Release) marks the original hackathon submission. Everything after it is the rework described in `specs/`.
+`specs/` is the project constitution; read it before planning a feature or refactor:
 
-## Workflow: work by feature
+- `mission.md`: product scope and principles.
+- `tech-stack.md`: the stack and the code-structure rules.
+- `testing.md`: test rules, layers and CI gates. No roadmap item is done without tests.
+- `roadmap.md`: small, ordered phases, each item one PR. Tick items off as they land.
+- `audit.md`: known problems and where they're fixed. Note anything you find outside the current item here.
+- `changes/<date>-<slug>/`: one folder per change (`requirements.md`, `plan.md`, `validation.md`), with a row in `changes/README.md`.
 
-- **One roadmap item = one branch = one PR.** Never commit straight to `main`. Name branches `<type>/<roadmap-id>-<slug>`, e.g. `feat/4.4-tasks-from-api`, `refactor/2.4-orchestrator-use-case`, `test/1.3-backend-characterization`, `docs/...`, `fix/...`.
-- **Stay inside the item.** Don't mix unrelated changes into a PR. If you find something else, note it in `specs/audit.md` or as a new roadmap item.
-- **Before opening the PR:**
-  - the item's tests are written (see `specs/testing.md`) and lint, typecheck and tests pass locally
-  - the roadmap checkbox is ticked in the same PR
-  - this file and the README are updated if structure, commands or features changed
-- **Commits** use Conventional Commit prefixes (`feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`). PRs are squash-merged; GitHub deletes the branch on merge.
-- **Code is organised by feature too.** New frontend code goes in `src/features/<feature>/` with a public `index.ts`, and shared pieces go in `src/shared/`. New backend code follows the clean-architecture layers. Both are described in `specs/tech-stack.md`. Code still in the old layout moves over during roadmap phases 2 and 3; don't add new code to the old layout. ESLint (`no-restricted-imports` in `eslint.config.mjs`) enforces the frontend import boundaries: code outside a feature imports it only through `@/features/<name>`, a feature never reaches into another with `../../`, and `src/shared/` never imports a feature.
+Working rules:
+
+- **One roadmap item = one branch = one PR.** Never commit to `main`. Branches are `<type>/<roadmap-id>-<slug>`, e.g. `feat/4.4-tasks-from-api`, `docs/6.3-docs-up-to-date`.
+- **Stay inside the item.** Anything else goes in `specs/audit.md` or the roadmap.
+- **Before the PR:** the item's tests are written; lint, typecheck and tests pass locally; the roadmap box is ticked; this file and the READMEs are updated if structure, commands or features changed.
+- **Commits** use Conventional Commit prefixes (`feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`). PRs are squash-merged once CI is green; GitHub deletes the branch.
 
 ## Commands
 
-Frontend (run from `pebble/`):
+Frontend (from `pebble/`):
+
 ```bash
 npm install
 cp .env.example .env.local   # AUTH_SECRET, AUTH_TOKEN_SECRET (same as the backend's), AUTH_DEV_LOGIN=true locally
-npm run dev      # http://localhost:3000, sign in at /signin
-npm run build    # production build; also the TypeScript type check
-npm run lint     # ESLint (next core-web-vitals + typescript configs)
-npm run lint:dead  # knip: unused files, exports and dependencies (knip.json lists the exceptions)
-npm test         # Vitest (jsdom); `npm test -- <path>` for one file or folder
-npm run test:coverage  # the same, with the 80% floor on src/features/*/lib and hooks (what CI runs)
-npm run test:e2e # Playwright demo flow + axe per page; starts the backend (fake LLM) and a production build itself
-npm run api:generate   # after changing a backend schema: export OpenAPI, regenerate src/shared/api/schema.d.ts (needs uv)
+npm run dev            # http://localhost:3000, sign in at /signin
+npm run build          # production build; also the type check
+npm run lint           # ESLint (next core-web-vitals, typescript, feature import boundaries)
+npm run lint:dead      # knip: unused files, exports and dependencies (exceptions in knip.json)
+npm test               # Vitest; `npm test -- <path>` for one file or folder
+npm run test:coverage  # with the 80% floor on src/features/*/lib and hooks (what CI runs)
+npm run test:e2e       # Playwright; starts the backend (fake LLM, Postgres) and a production build itself
+npm run api:generate   # after a backend schema change: regenerate src/shared/api/ (needs uv)
 ```
 
-Backend (run from `backend/`, managed by `uv`; dependencies and tool config live in `pyproject.toml`, versions in `uv.lock`):
+Backend (from `backend/`; dependencies and tool config in `pyproject.toml`, versions in `uv.lock`; add with `uv add` or edit and `uv lock`):
+
 ```bash
-uv sync                           # create .venv with app + dev dependencies
-cp .env.example .env              # set LLM_API_KEY (free Groq key), or LLM_PROVIDER=fake; AUTH_TOKEN_SECRET (same as the frontend's)
+uv sync
+cp .env.example .env               # LLM_API_KEY (free Groq key) or LLM_PROVIDER=fake; AUTH_TOKEN_SECRET; DATABASE_URL
+docker compose up -d db            # from the repo root: Postgres 17 with pebble, pebble_test and pebble_e2e
+uv run alembic upgrade head        # `uv run alembic revision --autogenerate -m "..."` after a model change
 uv run uvicorn app.main:app --port 8000 --reload   # Swagger at http://localhost:8000/docs
-uv run pytest                     # tests (evals excluded; `-m eval` runs them)
-uv run ruff check                 # lint
-uv run vulture                    # dead code ([tool.vulture] in pyproject.toml lists what frameworks use)
-docker compose up -d db           # from the repo root: Postgres 17 (DATABASE_URL in .env.example matches it)
-uv run alembic upgrade head       # apply migrations; `uv run alembic revision --autogenerate -m "..."` after a model change
+uv run pytest                      # evals excluded; `-m eval` runs them against a real LLM
+uv run ruff check
+uv run vulture                     # dead code ([tool.vulture] skips what FastAPI, Pydantic and enums use)
 TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test uv run pytest   # plus tests/integration
 ```
 
-Add dependencies to `pyproject.toml` and run `uv lock` (or `uv add`). Warnings fail the backend tests (`filterwarnings = error`). Backend tests use the `app` and `client` fixtures in `backend/tests/conftest.py`; the client runs the app in-process through `httpx.ASGITransport`, so the lifespan never runs. Every test runs with a container of fakes (autouse `container` fixture): `llm` is the scripted `FakeLLM` from `app/infrastructure/llm/fake.py` (`llm.script("orchestrator", {...})`, inspect `llm.calls`, which are `LLMRequest`s), and `safety` is `ScriptedSafety` from `tests/fakes.py` (`safety.flag(text, category, severity)`, `safety.attack_on(text)`, `safety.analyzed`, `safety.shielded`). Adapters are tested separately with respx in `tests/contract/`. The stores in the container are in-memory fakes from `tests/fakes.py` (fixtures `task_repository`, `preferences_repository`, and `activity_repository`, whose `entries[user_id]` shows what the agents logged). `tests/integration/` runs against real Postgres at `TEST_DATABASE_URL` (it drops and re-migrates that database's `public` schema, and truncates every table before each test): the migrations (upgrade from empty, downgrade, `alembic check` for model drift) and the task, preferences and activity store contracts, each parametrized over the Postgres repository and its in-memory fake so the fakes can't drift. Without the variable they skip; with `REQUIRE_TEST_DATABASE=true` (CI) they fail instead. Frontend tests are colocated `*.test.ts(x)` files run by Vitest (`vitest.config.mts`, jsdom); server code (`features/auth/lib`) opts into `// @vitest-environment node`, and `setup.ts` skips its DOM stubs there. Components that call `next-auth/react` mock it with `vi.mock`. Backend tests: the autouse `auth_secret` fixture sets `AUTH_TOKEN_SECRET`, so a request without a token is a 401; tests sign in by overriding `get_current_user` (`app.dependency_overrides[get_current_user] = lambda: "user-1"`), and `tests/api/test_auth.py` signs real tokens. `src/test/setup.ts` loads the jest-dom and vitest-axe matchers and starts an MSW server that fails any request without a handler; add per-test handlers with `server.use(...)` from `src/test/msw/server.ts`. `src/test/msw/tasks.ts` is a stateful fake `/api/tasks` with the backend's rules (a default handler): `taskStore` (`all()`, `set()`, `replace()`, reset after each test) and `taskHandlers` (`status(n)` for every task request, `saveStatus(n)` for changes only). `seed()` from `features/tasks/testing.ts` puts tasks on it; views load the list asynchronously, so find tasks with `findBy*` or wait for `isLoading` to be false. `setup.ts` makes TanStack Query notify synchronously (`notifyManager.setScheduler`), so an optimistic change is visible right after the `act` that made it; `renderWithProviders` gives each render its own query cache without retries. Tests may import a feature's `testing` module (ESLint allows it in `*.test.*` files only). `src/test/msw/handlers.ts` has `chatHandlers` (`reply`, `status`, `networkError`) for `POST /api/agents/chat`, with bodies typed from the generated API types; a successful reply is a default handler. `src/test/render.tsx` has `renderWithProviders` (returns a `user` from user-event) and `renderHookWithProviders`, which wrap the same provider tree as `AppShell`. `useLocalStorage` caches values at module level, so state set in one test can leak into the next test in the same file; set the state each test depends on. `src/test/msw/account.ts` fakes `/api/preferences`, `/api/activity` and `/api/import` (`accountStore`: `preferences()`, `setPreferences()`, `activity()`, `setActivity()`, `imports()`; `accountHandlers.status(n)`). Set preferences with `setTestPreferences()` (`src/test/preferences.ts`, sets the fake account and the device copy), read the device copy with `devicePreferences()`, and check the log with `expectLogged()` (`src/test/activity.ts`). `renderLoadedHook()` (`src/test/render.tsx`) renders a hook once tasks and the log have loaded. `setup.ts` waits for in-flight requests to finish before resetting the fakes after each test, so a late save can't leak into the next one. End to end: `pebble/e2e/demo-flow.spec.ts` (Playwright, `playwright.config.ts`) runs the demo flow (dev login, chat to CalmSense through the real backend with `LLM_PROVIDER=fake`, break a task down and finish a step, simplify a document, the agent and its reasoning in the activity log) an axe scan of every page in Chromium, the sign-in redirect and 401 when signed out, and signing out. It passes test-only `AUTH_SECRET`/`AUTH_TOKEN_SECRET` to both servers and turns on the dev login. Its `webServer` migrates and starts uvicorn against Postgres (`E2E_DATABASE_URL`, default the `pebble_e2e` database that docker compose creates; CI's E2E job has a service container), and runs `next build && next start`. Each test signs in as a new dev user (`e2e-<time>`) and turns animations off through `PATCH /api/preferences`; the flow adds the example tasks, and reloads to check a finished step was saved; locally it reuses servers already on ports 3000 and 8000, so stop old ones first or it tests a stale build. First run: `npx playwright install chromium`. Accessibility: `src/test/a11y.test.tsx` runs axe on every feature's main view and on the open states (chat panel, document modal, reader, expanded cards); `app/(app)/_shell/AppShell.test.tsx` covers the skip link, `aria-current` and focus on navigation; `DocumentKeyboard.test.tsx` covers the modal focus traps. Add a new view or modal to them. Verify frontend changes with `npm test`, `npm run build` and `npm run lint`. `src/test/tokens.test.ts` fails if a colour token is defined outside `shared/ui/tokens.css` or a `var(--…)` is used that nothing defines; `src/test/docs-links.test.ts` fails on a broken relative link in the repo's Markdown docs. `src/test/guilt-scan.test.ts` runs in `npm test` and fails on principle-1 patterns (streaks, "overdue", missed days or time away, loss framing, red or alarm styling) in `pebble/src` and `backend/app`. A justified match goes in its `EXCEPTIONS` list with a written reason. `.github/workflows/ci.yml` runs on every PR and push to `main`: a frontend job (`npm ci`, lint, knip, `tsc --noEmit`, `npm run test:coverage` with an 80% floor on `src/features/*/lib` + `hooks`, build) a backend job (a Postgres 17 service container, `uv sync --locked`, `ruff check`, `vulture`, `pytest --cov` including `tests/integration` with an 80% overall floor, and a 90% floor on `app/domain` + `app/application`), an API contract job (`npm run api:generate`, then `git diff --exit-code` on `pebble/src/shared/api`), and an E2E job (`npm run test:e2e`). Merge only when it's green. `.github/workflows/evals.yml` runs the real-LLM evals (`backend/tests/evals/`, `uv run pytest -m eval`) weekly and on demand, with Groq via the `LLM_API_KEY` repository secret (and the optional `LLM_PROVIDER`, `LLM_BASE_URL` and `LLM_MODEL` variables); without the secret they skip. Run them after any prompt change, and record baselines in `backend/tests/evals/README.md`. `specs/testing.md` has the planned commands.
+## CI
 
-## Architecture
+`.github/workflows/ci.yml` runs on every PR and push to `main`. Merge only when it's green.
 
-### Sign-in, and the frontend's state
-Every page needs a signed-in user: `src/proxy.ts` (Next 16's middleware) sends anyone else to `/signin?callbackUrl=...`. Auth.js v5 (`next-auth@5.0.0-beta.32`, pinned; `features/auth/config.ts`) offers GitHub and Google when `AUTH_GITHUB_ID`/`_SECRET` and `AUTH_GOOGLE_ID`/`_SECRET` are set, and a dev login (any name, user `dev:<name>`) only with `AUTH_DEV_LOGIN=true`, never in production. The session is a JWT cookie with `session.user.id = provider:accountId`. There is no `/api` rewrite: `app/api/[...path]/route.ts` answers every `/api/*` call except Auth.js's own (`app/api/auth/[...nextauth]`). It returns 401 without a session, and otherwise `forwardToBackend` (`features/auth/lib/forward.ts`) sends the request to `BACKEND_URL` with a fresh HS256 token (`signBackendToken`: `sub` = user id, `iss` `pebble-web`, `aud` `pebble-api`, 5 minutes) signed with `AUTH_TOKEN_SECRET`, which the backend shares. Cookies never reach the backend, and an unreachable backend is a gentle 503. Server code imports `@/features/auth/server` (ESLint allows a feature's `server` entry); client code imports `@/features/auth` (`SignInView`, `AccountSection` in settings). Routes of the app live in the `app/(app)/` group, whose layout renders `AppShell`; `/signin` has no shell.
+- **Frontend:** `npm ci`, lint, knip, `tsc --noEmit`, `npm run test:coverage`, build.
+- **Backend:** a Postgres 17 service, `uv sync --locked`, ruff, vulture, `pytest --cov` with `tests/integration` (80% overall, 90% on `app/domain` + `app/application`).
+- **API contract:** `npm run api:generate`, then `git diff --exit-code` on `pebble/src/shared/api`.
+- **E2E:** `npm run test:e2e` against a Postgres service.
 
-Tasks come from the backend (`/api/tasks`, Postgres) through TanStack Query: `QueryProvider` (`shared/lib/query.tsx`) wraps `AppShell`, and `TasksProvider` (`features/tasks/context/TasksContext.tsx`) reads the list with `useQuery(['tasks'])` and keeps the same `useTasks()` API as before. Every change is optimistic (written into the query cache at once) and saved in the background, one save after another in the order the user made them, through `features/tasks/api/tasks.ts`. New tasks and steps carry a `temp-` id until the server answers, and later saves resolve it to the server's id. A failed save sets `saveFailed` and reloads the list from the server; a failed load sets `loadFailed` with `retry()`. `TodayView` shows these states (`TasksStatus.tsx`). A new account starts with an empty list and an "Add example tasks" button (`addExampleTasks`, from `data/sampleTasks.ts`). Which tasks show their steps is UI state (`showSubtasks`), not saved. Preferences come from `/api/preferences` too: `PreferencesProvider` (`shared/preferences/`) keeps a copy on the device (`useLocalStorage`, key `pebble-preferences-cache`) so colour and motion apply on the first paint, applies the account's copy when it arrives (except settings changed on this device since mount, which win), and saves each change as a PATCH of only the changed fields; a failed save puts those settings back to the account's values. `<PreferencesProvider offline>` (the sign-in page) never calls the API. The activity log comes from `/api/activity` (`ActivityLogProvider`, newest first, optimistic `addEntry`); the backend logs every agent result itself, so `useChat` only calls `refresh()` after a turn. Before its first load, a task or log change is saved and then reloaded rather than shown at once, so the first load can't overwrite it. On sign-in, `useImportLocalData` (`app/(app)/_shell/`) moves what the browser kept before accounts (`pebble-tasks`, `pebble-preferences`, `pebble-activity`) into the account once with `POST /api/import` (damaged entries dropped, preferences only if the account has none), then deletes those keys; `pebble-import-started` stops a second tab sending it twice. Settings also has "Your data" (`AccountSection` in `features/auth`, logic in `useAccountData`): "Download my data" saves `GET /api/account/export` as `pebble-data-<date>.json`, and "Delete my account" asks first, calls `DELETE /api/account`, then signs out. The settings reset puts the preferences back to their defaults (saved like any change); it no longer clears the log. Besides the task, preferences, activity and import endpoints, the frontend calls:
-- `POST /api/agents/chat` in `src/features/chat/api/sendChatMessage.ts`, used by the `useChat` hook behind `PebbleChat` (`src/features/chat/`). Requests go through `postJson` in `src/shared/lib/api.ts`, which throws `ApiError`.
-- `POST /api/documents/parse` in `src/features/documents/api/parseDocument.ts` (through `postForm`), for PDF and Word uploads; text files are read in the browser
-- `GET /api/documents/immersive-reader/token` in `src/features/documents/api/immersiveReader.ts` (through `getJson`), used by `ImmersiveReader`
+`.github/workflows/evals.yml` runs the real-LLM evals (`backend/tests/evals/`) weekly and on demand, with the `LLM_API_KEY` secret (and optional `LLM_PROVIDER`, `LLM_BASE_URL`, `LLM_MODEL` variables); without the secret they skip. Run them after any prompt change and record baselines in `backend/tests/evals/README.md`.
 
-Frontend code calls relative `/api/...` paths and never sees a token; keep it that way (backend CORS only allows `settings.frontend_url`). Imports use the `@/*` alias for `src/*`.
+## Testing
 
-If the backend is down, chat surfaces an error and `ImmersiveReader` falls back to `BuiltInReader`. MSW answers the token endpoint with a 503 by default (`readerHandlers.unavailable`); use `readerHandlers.token()` for the Azure path. `documentHandlers` (`parsed`, `status`) fake the parse endpoint; reading a multipart body hangs under jsdom, so handlers check the `Content-Type` instead. Modals use `useFocusTrap` (`src/shared/hooks/`); a modal opened on top of another passes `active: false` to the one below.
+### Backend
 
-### Provider tree and cross-context coupling
-### Frontend layout
-`src/app/` holds routes only: every `page.tsx` renders an `AmbientBackground` (one `mood` per screen) and one feature view, with no padding of its own; views lay themselves out with `Screen` and `ScreenHeader` from `@/shared/ui` (5.7: a sentence-case title, one lead line, a small Pebble beside it whose speech bubble hides on phones via `ui-screen-header__bubble`). `app/(app)/_shell/AppShell.tsx` (a client component rendered from `app/(app)/layout.tsx`; `_shell` is a private folder, not a route) nests the providers: Preferences, then Pebble, then Tasks, then ActivityLog, then Toast. It also mounts the `Sidebar`, the page transition and the global `PebbleChat`. The shell (roadmap 5.3, `_shell/shell.css`) lays the one `Sidebar` nav out three ways: a sidebar from 1100px that the user can collapse to an icon rail (`pebble-nav-collapsed`, per device), always the rail from 768 to 1099px, and a bottom tab bar on phones (under 768px) with safe-area insets. Labels stay in the accessibility tree in every layout. `--app-bottom-inset` is the tab bar's height on phones (0 elsewhere); fixed things such as the chat button keep clear of it. Page changes fade with the motion tokens and swap at once with reduced motion. The E2E checks every page at 360, 768 and 1280px: nothing runs past the right edge, and axe passes at each width.
+- Warnings fail the run (`filterwarnings = error`).
+- The `client` fixture (`tests/conftest.py`) runs the app in-process through `httpx.ASGITransport`, so the lifespan never runs.
+- Every test gets a container of fakes (autouse `container`):
+  - `llm`: the scripted `FakeLLM` (`app/infrastructure/llm/fake.py`). Use `llm.script("orchestrator", {...})`; `llm.calls` are `LLMRequest`s.
+  - `safety`: `ScriptedSafety` (`tests/fakes.py`), with `flag(text, category, severity)`, `attack_on(text)`, `analyzed` and `shielded`.
+  - In-memory stores from `tests/fakes.py`: `task_repository`, `preferences_repository`, `activity_repository` (`entries[user_id]` shows what the agents logged).
+- Auth: the autouse `auth_secret` fixture sets `AUTH_TOKEN_SECRET`, so a request without a token is a 401. Sign in with `app.dependency_overrides[get_current_user] = lambda: "user-1"`; `tests/api/test_auth.py` signs real tokens.
+- Adapters are tested with respx in `tests/contract/`.
+- `tests/integration/` uses real Postgres at `TEST_DATABASE_URL`. It drops and re-migrates the `public` schema and truncates every table before each test. It covers the migrations (upgrade, downgrade, `alembic check`), every store's contract (parametrized over the Postgres repository and its fake, so the fakes can't drift), and export and deletion for every table. Without the variable these tests skip; with `REQUIRE_TEST_DATABASE=true` (CI) they fail.
+- `tests/unit/test_architecture.py` enforces the layer rule.
 
-Features live in `src/features/<name>/` (`components/`, `hooks/`, `lib/`, `api/`, `data/`, `context/`, `types.ts`, and a public `index.ts`):
-- `tasks`: `TasksProvider`/`useTasks` and `TodayView` (redesigned in 5.4, `components/Today.css` and `TaskCard.css`: Pebble beside the greeting, its own column from 1240px; an "Up next" card whose primary action is "Mark as done"; `TaskList` groups "To do" and "Done today" as labelled regions with counts, with the add field between them; each task is an `article` named by its title, with a 44px check, a tag `Chip` and the priority as screen-reader text; "Break it down" sits under the meta). Edit and organise (5.5): each open card has a move handle and an edit button at the end of its meta row; `EditTaskDialog` (a `Dialog` sheet) changes title, estimate, tag and priority, and deletes after asking. `TaskFilters` searches titles and shows one tag (`lib/organise.ts`: `filterTasks`, `moveTo`, `moveBy`, `dropIndex`); a filtered list can't be reordered. `useReorder` reorders by keyboard on the handle (arrows, Home, End, announced in a live region) or by dragging it; a drag follows the pointer on the window, because moving the card in the DOM drops pointer capture. `TasksContext` has `editTask`, `deleteTask` and `reorderTasks` (the whole list's ids, saved with `PUT /api/tasks/order`). Logic in `lib/` (greeting, nudge, distress phrases, tags), handlers and timers in hooks (`useTaskActions`, `useAddTask`, `useBreakDown`, ...). Tests use `seed()` from `features/tasks/testing.ts`.
-- `documents`: `DocumentsView`, the document modal and the reader, with the text logic (reading level, syllables, parts of speech, simulated translation, uploads) in `lib/`.
-- `chat`: `PebbleChat` and `useChat`.
-- `companion`: `PebbleProvider`/`usePebble` (mood and rotating messages), `PebbleCharacter` and `PebbleSpeechBubble`.
+### Frontend
+
+- Colocated `*.test.ts(x)` files, run by Vitest (`vitest.config.mts`, jsdom). Server code (`features/auth/lib`) opts into `// @vitest-environment node`.
+- `src/test/setup.ts`:
+  - Loads the jest-dom and vitest-axe matchers.
+  - Starts an MSW server that fails any request without a handler; add handlers with `server.use(...)` (`src/test/msw/server.ts`).
+  - Makes TanStack Query notify synchronously, so an optimistic change is visible right after its `act`.
+  - Waits for in-flight requests before resetting the fakes, so a late save can't leak into the next test.
+- Render with `renderWithProviders` (returns a `user` from user-event), `renderHookWithProviders` or `renderLoadedHook` (`src/test/render.tsx`). They wrap the same providers as `AppShell`, each with its own query cache and no retries.
+- MSW fakes with the backend's rules (`src/test/msw/`):
+  - `tasks.ts`: `taskStore` (`all()`, `set()`, `replace()`) and `taskHandlers` (`status(n)`, `saveStatus(n)`). Put tasks on it with `seed()` from `features/tasks/testing.ts`. Views load asynchronously, so use `findBy*`.
+  - `account.ts`: preferences, activity and import (`accountStore`, `accountHandlers.status(n)`). Use `setTestPreferences()` and `devicePreferences()` (`src/test/preferences.ts`) and `expectLogged()` (`src/test/activity.ts`).
+  - `stats.ts`: `statsStore.set()`, `focusSessions()`.
+  - `handlers.ts`: `chatHandlers` (`reply`, `status`, `networkError`), `documentHandlers` (`parsed`, `status`; they check the `Content-Type`, because reading a multipart body hangs under jsdom), and `readerHandlers` (`unavailable` by default, `token()`).
+- Tests may import a feature's `testing` module (ESLint allows it only in `*.test.*`). Components that use `next-auth/react` mock it with `vi.mock`.
+- `useLocalStorage` caches at module level, so set the state each test depends on.
+- Repo-wide checks that run in `npm test`:
+  - `src/test/guilt-scan.test.ts`: principle-1 patterns (streaks, "overdue", missed days or time away, loss framing, red or alarm styling) in `pebble/src` and `backend/app`. Justified matches go in `EXCEPTIONS`, with a reason.
+  - `src/test/tokens.test.ts`: colour tokens are defined only in `shared/ui/tokens.css`, and every `var(--…)` used is defined.
+  - `src/test/docs-links.test.ts`: relative links in the Markdown docs resolve.
+  - `shared/ui/primitives.test.tsx`: no colour literals in redesigned screens.
+- Accessibility: `src/test/a11y.test.tsx` runs axe on every main view and open state; `AppShell.test.tsx` covers the skip link, `aria-current` and focus on navigation; `DocumentKeyboard.test.tsx` covers the focus traps. Add new views and modals to them.
+
+### End to end
+
+- `pebble/e2e/demo-flow.spec.ts` (Playwright, Chromium) runs:
+  - the demo flow: dev login, chat to CalmSense through the real backend with `LLM_PROVIDER=fake`, break a task down and finish a step, reload, simplify a document, the activity log;
+  - axe and no horizontal overflow on every page at 360, 768 and 1280px, and no pictures loaded;
+  - editing, reordering and filtering; the stats adding up; importing a browser's old data once; downloading data and deleting the account; installability over the DevTools protocol and the offline page; the phone tab bar; the sign-in redirect, 401 when signed out, and signing out.
+- Its `webServer` migrates and starts uvicorn against `E2E_DATABASE_URL` (default `pebble_e2e`) and runs `next build && next start`, with test-only secrets and the dev login.
+- Each test signs in as a new dev user and turns animations off.
+- Locally it reuses servers already on ports 3000 and 8000, so stop old ones first. First run: `npx playwright install chromium`.
+
+## Frontend
+
+### Structure
+
+- `src/app/`: routes only. Each `page.tsx` renders an `AmbientBackground` (one `mood` per screen) and one feature view. App pages are in the `app/(app)/` group, whose layout renders `AppShell`; `/signin` has no shell. `app/api/` holds the proxy and Auth.js; `app/icons/` and `app/manifest.ts` make the app installable.
+- `src/features/<name>/`: `components/`, `hooks/`, `lib/` (pure logic), `api/`, `data/`, `context/`, `types.ts`, and a public `index.ts`.
+- `src/shared/`: what features share; it never imports a feature. That's `lib/` (`api.ts` with `getJson`, `postJson`, `postForm` and `ApiError`; `query.tsx`; `audio.ts`), `hooks/` (`useLocalStorage`, `useTimeOfDay`, `useFocusOnNavigation`, `useFocusTrap`, `useFadeIn`), `ui/` (the design system), `preferences/` and `api/` (generated types).
+- ESLint (`no-restricted-imports`) enforces the boundaries: outside a feature, import it only through `@/features/<name>` (or `@/features/<name>/server` from server code); a feature never reaches into another with `../../`.
+- Imports use `@/*` for `src/*`.
+
+### Features
+
+- `tasks`: `TasksProvider`/`useTasks` and `TodayView`. Today has Pebble beside the greeting, an "Up next" card ("Mark as done"), and `TaskList` with "To do" and "Done today" regions. Each task is an `article` with a 44px check, a tag `Chip`, a "Why?" card, "Break it down" (CalmSense), a move handle and an edit button. `EditTaskDialog` edits and deletes. `TaskFilters` searches and filters by tag (a filtered list can't be reordered). `useReorder` reorders by keyboard (arrows, Home, End, announced) or drag; a drag follows the pointer on the window, because moving the card in the DOM drops pointer capture. There is also `RoadmapView`. Logic is in `lib/` (greeting, nudge, distress phrases, tags, `organise.ts`).
+- `documents`: `DocumentsView`, the document modal, `BuiltInReader` and `ImmersiveReader`. The text logic (reading level, syllables, parts of speech, uploads) is in `lib/`. PDF and Word go to `POST /api/documents/parse`; text files are read in the browser.
+- `chat`: `PebbleChat` and `useChat` (`POST /api/agents/chat`). It refreshes the activity log after each turn.
+- `companion`: `PebbleProvider`/`usePebble` (mood, rotating messages), `PebbleCharacter`, `PebbleSpeechBubble`, and the 7 models.
 - `activity`: `ActivityLogProvider`/`useActivityLog` and `ActivityView`.
-- `settings`: `SettingsView`: Pebble's look and personality, reading level, chunk size, reduce animations, calm mode, and a reset.
-- `focus`: `FocusView` and the 25-minute timer (`useFocusTimer`). There are no rooms or other people (9.1); 9.2 ties a session to a task step.
-- `stats` (5.6): `StatsView` at `/stats` (a nav item): the range as a sentence, a one-hue column chart per day for steps, tasks or focus minutes (arrow keys read a day; a table view below), and tasks per tag as one-hue bars named on each row (the tag colours fail the dataviz palette checks, so colour never tells them apart). `lib/summary.ts` has the copy and the axis maths. `postFocusSession` is called by `FocusView` when a session ends. The MSW fake is `src/test/msw/stats.ts` (`statsStore.set()`, `focusSessions()`).
-- `auth`: `SignInView`, `AccountSection`, and (server-only, `server.ts`) the Auth.js config, `forwardToBackend` and `signBackendToken`.
+- `settings`: `SettingsView`: Pebble's look and personality, reading level, chunk size, reduce animations, calm mode, a reset to defaults, and "Your data".
+- `focus`: `FocusView` and the 25-minute timer (`useFocusTimer`). A finished session calls `postFocusSession`. There are no rooms or other people (9.1).
+- `stats`: `StatsView` at `/stats`. The range is a sentence, with a one-hue column chart per day (arrow keys read a day, plus a table view) and tasks per tag as one-hue bars named on each row (the tag colours fail the dataviz checks, so colour never tells them apart). `lib/summary.ts` has the copy and the axis maths.
+- `auth`: `SignInView`, `AccountSection` (download my data, delete my account; `useAccountData`), and, server-only in `server.ts`, the Auth.js config, `forwardToBackend` and `signBackendToken`.
 
-`src/shared/` holds what features share and never imports a feature: `lib/` (`api.ts`, `audio.ts`), `hooks/` (`useLocalStorage`, `useTimeOfDay`, `useFocusOnNavigation`, `useFocusTrap`, `useFadeIn`), `ui/` (the design system, `AmbientBackground` and `ToastContext`), and `preferences/`. Preferences live in `shared/` because every feature reads them and the settings screen shows a Pebble preview, so putting them in a feature would create an import cycle.
+### Sign-in and the API proxy
 
-Some contexts depend on each other. For example, `TasksContext` calls `usePebble()` to derive Pebble's mood from task completion percentage and to flash an "excited" mood when a task is completed. `PreferencesContext` applies preferences to the DOM: it toggles the `reduce-animations` class on `<html>`, sets the `--pebble-color`/`--pebble-dark` CSS variables, and exposes `stripEmoji` for calm mode. It also exposes `reduceMotion`, which is true when the user turned reduce animations on or the OS asks for reduced motion. Components use `reduceMotion` for motion; only the settings toggle reads `preferences.reduceAnimations`. Saved preferences are merged over the defaults, so a missing key never breaks the app.
+- `src/proxy.ts` (Next 16's middleware) sends anyone not signed in to `/signin?callbackUrl=...`. Paths with a dot (icons, the manifest) are let through.
+- Auth.js (`next-auth@5.0.0-beta.32`, pinned; `features/auth/config.ts`) offers GitHub and Google when their `AUTH_*_ID`/`_SECRET` are set, and a dev login (any name, user `dev:<name>`) only with `AUTH_DEV_LOGIN=true`, never in production. The session is a JWT cookie; `session.user.id` is `provider:accountId`.
+- `app/api/[...path]/route.ts` answers every `/api/*` call except Auth.js's own. Without a session it returns 401; otherwise `forwardToBackend` sends the call to `BACKEND_URL` with a fresh HS256 token (`sub` = the user id, `iss` `pebble-web`, `aud` `pebble-api`, 5 minutes, `AUTH_TOKEN_SECRET`). Cookies never reach the backend, and an unreachable backend is a gentle 503.
+- Frontend code calls relative `/api/...` paths and never sees a token; keep it that way.
 
-### Design system (roadmap 5.1)
-`shared/ui/tokens.css` defines every colour, type size, space, radius, elevation and motion token (`--color-*`, `--text-*`, `--space-1..8`, `--radius-*`, `--ease-settle`, `--duration-*`, `--tap`); motion durations drop to 0 under `prefers-reduced-motion` and the `reduce-animations` class. `shared/ui/primitives.css` styles the primitives exported from `@/shared/ui`: `Button` (`primary` for the one main action, `quiet`, `ghost`; `busy`), `IconButton` (required `label`), `Card` (`as`, `tone`, `padding`), `Field` (label, `hint`, `note`, `multiline`, all wired with `aria-describedby`), `Chip` (a tag label with a colour dot, or a toggle with `onClick`/`pressed`) and `Dialog` (focus trap, Escape, outside click; `variant="sheet"` rises from the bottom on phones; render it only while open; it renders in a portal on `<body>` so it sits above the tab bar whatever the page's stacking). Both CSS files are imported by `app/globals.css`. Redesigned screens use only these: no colour literals outside `tokens.css` (`shared/ui/primitives.test.tsx` scans for them), no monospace or all-caps labels, surfaces separated by tone and a hairline rather than shadows. `/design-system` shows every token and primitive in development and is a 404 in production. The older `glass-card` class is the same surface as `Card`. Monospace (JetBrains Mono) is gone: numbers use `font-variant-numeric: tabular-nums`. Backgrounds are drawn in CSS, never photos (5.2): `AmbientBackground` (`shared/ui/ambient.css`) blurs three slow-drifting colour fields mixed from the Pebble colour and the tag tokens, one `mood` per screen (`today`, `documents`, `activity`, `focus`, `settings`, `welcome`); it is still (`data-still`) under reduce motion or calm mode, and must render inside a `PreferencesProvider` (the sign-in page renders it inside `SignInView`). The E2E checks no page loads a picture.
+### State
 
-### Installable app (roadmap 5.8)
-`app/manifest.ts` serves `/manifest.webmanifest` (standalone, starts on `/today`, the app's colours). The icons are Pebble's face drawn with rounded shapes and rendered to PNG at build time by `app/icons/[name]/route.tsx` (`next/og`), so there are no image files; their names carry a dot, which keeps them out of `src/proxy.ts`. `public/sw.js` only shows `public/offline.html` (self-contained, calm copy) when a page can't load; it caches nothing else, so the app never shows stale data. `useServiceWorker` (`app/(app)/_shell/`) registers it in production builds only. The E2E asks Chromium for installability errors over the DevTools protocol and goes offline to check the page.
+- **Providers** (`app/(app)/_shell/AppShell.tsx`): Query, then Preferences, Pebble, Tasks, ActivityLog and Toast. The shell also mounts the `Sidebar`, the page transition and `PebbleChat`.
+- **Tasks** (`TasksContext`): `useQuery(['tasks'])`. Every change is optimistic and saved in the background, one save after another in order. New tasks and steps carry a `temp-` id until the server answers. A failed save sets `saveFailed` and reloads; a failed load sets `loadFailed` with `retry()` (`TasksStatus.tsx`). A new account gets an "Add example tasks" button. Which tasks show their steps is UI state, not saved. `reorderTasks` sends every id (`PUT /api/tasks/order`). `TasksContext` calls `usePebble()` to set Pebble's mood from progress.
+- **Preferences** (`shared/preferences/`): a device copy (`pebble-preferences-cache`) so colour and motion apply on the first paint. The account's copy is applied when it arrives, except settings changed on this device since mount. Each change is saved as a PATCH of the changed fields only; a failed save puts them back. `<PreferencesProvider offline>` (sign-in) never calls the API. The provider sets the `reduce-animations` class and `--pebble-color`/`--pebble-dark`, and exposes `stripEmoji` (calm mode) and `reduceMotion` (the setting or the OS). Components use `reduceMotion`; only the settings toggle reads `preferences.reduceAnimations`.
+- **Activity log**: `/api/activity`, newest first, optimistic `addEntry`. The backend logs agent results itself.
+- **Before the first load**, a task or log change is saved and then reloaded, so the first load can't overwrite it.
+- **Import:** `useImportLocalData` moves what a browser kept before accounts (`pebble-tasks`, `pebble-preferences`, `pebble-activity`) into the account once (`POST /api/import`), then deletes those keys. `pebble-import-started` stops a second tab from sending it twice.
+- **Fallbacks:** if the backend is down, chat shows a gentle error, and `ImmersiveReader` falls back to `BuiltInReader`.
 
-### Pebble character
-The 7 models in `features/companion/models/` are built only from CSS and divs (`border-radius` shapes), with no SVG or images. They share pieces through `models/SharedParts.tsx`. Model styles live in `components/PebbleModels.css` and mood animations in `components/PebbleMoods.css`. Keep new character work in that style.
+### Layout, design system and the app
 
-### Backend request flow
-The backend follows the clean architecture in `specs/tech-stack.md`: `app/domain`, `app/application` (use cases, ports, prompts), `app/infrastructure` (adapters, `config.py`) and `app/api` (routers, schemas, `auth.py`, wiring). `tests/unit/test_architecture.py` enforces the dependency rule (domain pure; application → domain only; infrastructure never imports api) and that only these four packages exist.
+- **Shell** (`_shell/shell.css`): one `Sidebar` nav laid out three ways. From 1100px it's a sidebar that can collapse to a rail (`pebble-nav-collapsed`). From 768 to 1099px it's the rail. On phones it's a bottom tab bar with safe-area insets. Labels stay in the accessibility tree. `--app-bottom-inset` keeps fixed things (the chat button) clear of the tab bar.
+- **Screens** lay themselves out with `Screen` and `ScreenHeader` (a sentence-case title, one lead line, and a small Pebble whose bubble hides on phones).
+- **Tokens** (`shared/ui/tokens.css`): every colour, type size, space, radius, elevation and motion token (`--color-*`, `--text-*`, `--space-1..8`, `--radius-*`, `--ease-settle`, `--duration-*`, `--tap`). Durations drop to 0 under reduced motion. `app/globals.css` keeps only app-wide rules and the Pebble colour defaults.
+- **Primitives** (`@/shared/ui`, styled in `primitives.css`): `Button` (`primary` for the one main action, `quiet`, `ghost`; `busy`), `IconButton` (required `label`), `Card` (`as`, `tone`, `padding`; the older `glass-card` class is the same surface), `Field` (`hint`, `note`, `multiline`, wired with `aria-describedby`), `Chip` and `Dialog` (focus trap, Escape, outside click, `variant="sheet"` on phones). Render a `Dialog` only while it's open; it portals to `<body>`. A modal opened over another passes `active: false` to the one below.
+- **Style rules:** no colour literals outside `tokens.css`, no monospace or all-caps labels (numbers use `tabular-nums`), surfaces separated by tone and a hairline rather than shadows. `/design-system` shows everything in development and is a 404 in production.
+- **Backgrounds** are drawn in CSS, never photos: `AmbientBackground` (`shared/ui/ambient.css`) has one `mood` per screen. It's still under reduce motion or calm mode, and must render inside a `PreferencesProvider`.
+- **Installable:** `app/manifest.ts`. The icons are drawn by `app/icons/[name]/route.tsx` (`next/og`); the browser tab icon is `app/icon.svg`. `public/sw.js` only shows `public/offline.html` when a page can't load and caches nothing else. `useServiceWorker` registers it in production builds.
+- **Pebble's 7 models** (`features/companion/models/`) are only CSS and divs (`border-radius` shapes), with no SVG or images. They share `SharedParts.tsx`; styles are in `PebbleModels.css` and `PebbleMoods.css`. Keep new character work in that style.
 
-`app/main.py` registers routers under `/api/<name>`. Routes get the user id through `Depends(get_current_user)` (`api/auth.py`), which verifies the Next.js server's HS256 token with `AUTH_TOKEN_SECRET` (issuer, audience, `exp`, `iat` and `sub` required). A missing, invalid or expired token is a 401; with no secret configured every signed-in endpoint is a 503. There is no dev bypass: local use signs in with the dev login.
+## Backend
 
-A missing optional service disables its feature cleanly. The adapters are chosen in `api/dependencies.py` from the settings:
-- No LLM key gives `UnconfiguredLLM`, and agents answer 503.
-- No Content Safety gives `NoOpSafetyChecker`; PII redaction still runs.
-- No Immersive Reader gives a 503 on the token endpoint, and the frontend uses its built-in reader.
+### Layers
 
-### Agent pipeline (`backend/app/application/agents/`)
-`HandleChat` (`orchestrator.py`) is the chat use case. `POST /api/agents/chat` builds a `ChatContext` and calls it through `api/dependencies.py`, which wires adapters into use cases (`get_container()`; tests install fakes with `set_container()`).
-1. Input: `SafetyGate.screen_input` (`application/safety.py`) runs Prompt Shields, then Content Safety (severity ≥ 2 in any category is rejected with a 422), then PII redaction. Everything after this sees only the redacted message.
-2. Classification: one `LLMProvider` call with `ORCHESTRATOR_PROMPT`. The JSON reply is parsed with `parse_json_object` (code fences are tolerated). Unparseable JSON falls back to a chat reply. Unknown intents become `chat`, and unknown moods become `normal`. The classifier's `response` goes through `screen_output`, and if it's unsafe it's replaced with `SAFE_REPLY`.
-3. Routing: `distress` answers at once and never calls a sub-agent; `decompose` goes to CalmSense (`DecomposeTask`, `calmsense.py`), `simplify` to SimplifyCore, `motivate` to PebbleVoice, and anything else is chat. Sub-agents check and redact their own output. A flagged or unusable sub-agent reply becomes a gentle reply with `data: null` (`SAFE_REPLY`, `AGENT_FAILED`). Adding an intent means updating `ORCHESTRATOR_PROMPT`, `Intent` (`domain/agents.py`) and the route table in `HandleChat`.
-4. Errors: `api/errors.py` maps them. LLM problems, safety outages and unusable replies from direct endpoints give 503 with a gentle message; a provider 429 gives 503 "Pebble is resting" with `Retry-After`.
+- `app/domain` (pure Python), `app/application` (use cases, ports, prompts), `app/infrastructure` (adapters, `config.py`, `db/`), `app/api` (routers, schemas, `auth.py`, `dependencies.py`, `errors.py`, `presenters.py`).
+- `tests/unit/test_architecture.py` enforces the dependency rule: the domain is pure, application imports only the domain, and infrastructure never imports api.
+- `api/dependencies.py` wires adapters into use cases (`get_container()`; tests use `set_container()`). A missing optional service disables its feature cleanly:
+  - No LLM key: `UnconfiguredLLM`, and the agents answer 503.
+  - No Content Safety: `NoOpSafetyChecker`; PII redaction still runs.
+  - No Immersive Reader: a 503 on the token endpoint.
+  - No `DATABASE_URL`: the `Unconfigured*` stores, and the store endpoints answer 503, as they do during a database outage (`PersistenceError`).
+- Routers live under `/api/<name>` (`app/main.py`). Every route except `/api/health` takes the user through `Depends(get_current_user)`. It verifies the Next.js token (issuer, audience, `exp`, `iat`, `sub`). Problems are a 401, or a 503 with no secret set. There is no dev bypass.
 
-Each agent is a use case in `application/agents/`: `DecomposeTask` (CalmSense), `SimplifyDocument` (SimplifyCore: output is also checked for groundedness against the source text, and unknown task tags become `project`), and `Encourage` (PebbleVoice: task titles are redacted before the LLM). Each has `run()` for already-screened input and `__call__` for direct endpoints, which screens first. `api/presenters.py` turns results into the camelCase JSON. Tasks: `Tasks` (`application/tasks.py`) holds the task use cases over the `TaskRepository` port; `SqlTaskRepository` (`infrastructure/db/tasks.py`, SQLAlchemy 2 async + asyncpg) implements it, one transaction per call, and every query is scoped to the user, so another user's task is a 404 like a missing one. `Task.with_step_completed` (`domain/tasks.py`) finishes a task when its last open step is ticked and never reopens it. Tasks have a `position` (migration 0003, backfilled from `seq`); new tasks go last, and `PUT /api/tasks/order` takes every task id exactly once (otherwise 409, `TaskOrderError`, and nothing moves). Progress (5.6, `domain/progress.py`, `application/progress.py`): `Tasks` notes a `ProgressEvent` the first time each task or step is finished (`ProgressLog.finished`, steps before the task), and `POST /api/stats/focus` notes a focus session. Events are only ever added (unique per user, kind and item; unticking or deleting takes nothing back), so every count only grows. `GET /api/stats?days=&tz=` sums them per local day and per tag (`summarize`), with all-time totals. Export and account deletion (`application/account.py`, `SqlAccountDataStore` in `infrastructure/db/account.py`) walk the table metadata: every table must have a `user_id` column or a foreign key to a table that does, and `tests/integration/test_account_data.py` checks export and deletion for each table. With no `DATABASE_URL` the container uses the `Unconfigured*` stand-ins, and the store endpoints (like a database outage, `PersistenceError` from `application/ports/persistence.py`) answer 503. Preferences are one JSONB row per user holding only what was saved; `Preferences.from_saved` (`domain/preferences.py`) fills the gaps with defaults and drops damaged values. Activity: every agent use case takes an optional `ActivityLog` and, called with a `user_id`, writes one entry per result (`note()`), and `watch()` logs held-back input or flagged replies as `flagged` entries without their text. Entries hold only redacted text. A log that can't be written never breaks chat (`ActivityLog.note` swallows `PersistenceError`). `tests/api/test_activity_pipeline.py` is parametrized over every agent. Tables live in `infrastructure/db/models.py`; migrations in `backend/migrations/` (`alembic.ini`). The API calls steps `subtasks`, as the frontend does. `POST /api/documents/parse` reads PDF, .docx and text uploads in memory through the `DocumentParser` port (`LocalDocumentParser`: pypdf + python-docx) and never stores them. The response shape is `{intent, response, mood, agentName, data}`. Frontend API types are generated, never hand-written: `backend/scripts/export_openapi.py` writes `pebble/src/shared/api/openapi.json`, `openapi-typescript` turns it into `schema.d.ts`, and code uses `ApiSchema<'ChatResponse'>` from `@/shared/api`. Request bodies use the camelCase aliases (`tasksCompleted`). After changing a backend schema, run `npm run api:generate` in `pebble/` and commit both files; the CI `API contract` job fails if they drift, and a renamed field breaks the frontend typecheck. The sub-agents can also be called directly through `/api/agents/decompose`, `/simplify` and `/motivate`, which the frontend doesn't use.
+### Agents (`application/agents/`)
 
-## Product constraints (apply to UI copy and prompts)
-- Pebble voice rules (`PEBBLE_VOICE_RULES` in `application/prompts.py`), which also apply to frontend copy:
-  - Never shame, rush, or pressure the user, and never compare them to others.
-  - Be specific, not generic ("you finished 3 things" rather than "great job!").
-  - Use short, plain sentences.
-- Structure without guilt (principle 1 in `specs/mission.md`):
-  - Allowed: neutral visible time, progress that only adds up, user-set reminders, and offers to make a task smaller.
-  - Banned: streaks, counts of missed days or time away, red or alarm styling, and loss framing.
-  - Late tasks are "still open", never "overdue".
-- The app is dark mode only (background `#0F0D0A`) and has no light theme.
-- Accessibility:
-  - Respect reduced motion (`reduceMotion` from `usePreferences`) and `calmMode` (use `stripEmoji` for user-facing text).
-  - Keep keyboard navigation and ARIA working (`useFocusOnNavigation`, `useFocusTrap`, skip link).
-- Every AI action should be explainable. The activity log records the agent name, reasoning, and safety status. Tasks have "Why?" cards (`WhyCard`).
-- The named agents shown in the UI are CalmSense, SimplifyCore, PebbleVoice, AdaptLens, WhyBot, and BridgeBot. Only the first three plus the orchestrator have agent code. The other three appear only as names in `domain/agents.py` and the frontend (roadmap phase 7 makes them real).
+`HandleChat` (`orchestrator.py`) is the chat use case:
+
+1. `SafetyGate.screen_input` (`application/safety.py`) runs Prompt Shields, then Content Safety (severity ≥ 2 is a 422), then PII redaction. Everything after sees only the redacted text.
+2. Classification: one LLM call with `ORCHESTRATOR_PROMPT`, parsed with `parse_json_object`. Bad JSON falls back to chat; unknown intents become `chat` and unknown moods `normal`. The reply goes through `screen_output`, and `SAFE_REPLY` replaces it if it's unsafe.
+3. Routing: `distress` answers at once; `decompose` goes to CalmSense (`DecomposeTask`), `simplify` to SimplifyCore (`SimplifyDocument`, also checked for groundedness), and `motivate` to PebbleVoice (`Encourage`; task titles are redacted first). A flagged or unusable sub-agent reply becomes a gentle reply with `data: null`. A new intent means updating `ORCHESTRATOR_PROMPT`, `Intent` (`domain/agents.py`) and the route table.
+4. Errors (`api/errors.py`): LLM or safety outages are a 503 with a gentle message; a provider 429 is a 503 "Pebble is resting" with `Retry-After`.
+
+Each agent has `run()` for screened input and `__call__` for the direct endpoints (`/api/agents/decompose`, `/simplify`, `/motivate`; the frontend doesn't use them), which screens first. Chat responses are `{intent, response, mood, agentName, data}`.
+
+### Data
+
+- **Tasks** (`application/tasks.py` over `TaskRepository`; `SqlTaskRepository`): one transaction per call, every query scoped to the user, so another user's task is a 404. `Task.with_step_completed` finishes a task when its last open step is ticked and never reopens it. New tasks go last; `PUT /api/tasks/order` takes every id exactly once, or it's a 409 and nothing moves. The API calls steps `subtasks`.
+- **Progress** (`domain/progress.py`, `application/progress.py`): `ProgressLog` notes an event the first time a task or step is finished, and `POST /api/stats/focus` notes a focus session. Events are only ever added (unique per user, kind and item), so counts only grow. `GET /api/stats?days=&tz=` sums them per local day and per tag.
+- **Preferences:** one JSONB row per user holding what was saved; `Preferences.from_saved` fills the gaps with defaults and drops damaged values.
+- **Activity:** each agent use case takes an optional `ActivityLog`, and writes one entry per result (`note()`). `watch()` logs held-back input or flagged replies as `flagged`, without their text. Entries hold only redacted text. A failed write never breaks chat. `tests/api/test_activity_pipeline.py` covers every agent.
+- **Export and deletion** (`application/account.py`, `SqlAccountDataStore`) walk the table metadata. Every table needs a `user_id` column or a foreign key to a table that has one; `tests/integration/test_account_data.py` checks each table.
+- **Documents:** `POST /api/documents/parse` reads PDF, .docx and text in memory (`LocalDocumentParser`: pypdf + python-docx) and never stores them.
+- Tables are in `infrastructure/db/models.py`; migrations in `backend/migrations/`.
+
+### API types
+
+Frontend API types are generated, never hand-written. `backend/scripts/export_openapi.py` writes `pebble/src/shared/api/openapi.json`, `openapi-typescript` makes `schema.d.ts`, and code uses `ApiSchema<'ChatResponse'>` from `@/shared/api`. Request bodies use camelCase aliases. After a schema change, run `npm run api:generate` and commit both files.
+
+## Product constraints (UI copy and prompts)
+
+- **Pebble's voice** (`PEBBLE_VOICE_RULES` in `application/prompts.py`; frontend copy too): never shame, rush, pressure or compare; be specific ("you finished 3 things", not "great job!"); use short, plain sentences.
+- **Structure without guilt** (principle 1 in `specs/mission.md`):
+  - Allowed: neutral visible time, progress that only adds up, user-set reminders, offers to make a task smaller.
+  - Banned: streaks, counts of missed days or time away, red or alarm styling, loss framing. Late tasks are "still open", never "overdue".
+- **Dark mode only** (background `#0F0D0A`).
+- **Accessibility:** respect `reduceMotion` and `calmMode` (`stripEmoji` for user-facing text); keep keyboard navigation and ARIA working (`useFocusOnNavigation`, `useFocusTrap`, the skip link).
+- **Explainable AI:** the activity log records the agent, its reasoning and the safety status, and tasks have "Why?" cards (`WhyCard`).
+- **Agents:** the UI names CalmSense, SimplifyCore, PebbleVoice, AdaptLens, WhyBot and BridgeBot. Only the first three, plus the orchestrator, have code; phase 7 makes the others real.

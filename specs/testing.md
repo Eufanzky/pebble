@@ -28,16 +28,19 @@ How Pebble is tested. The goal: the app can be restructured and extended without
 
 ```
 backend/tests/
-  unit/          domain rules and use cases, with fakes
-  api/           routers over HTTP: auth, validation, response shape
-  integration/   repositories and migrations against real Postgres
+  domain/        entity rules
+  unit/          use cases with fakes, and the architecture rule
+  api/           routers over HTTP: auth, validation, response shape, the activity pipeline
+  integration/   repositories, migrations, export and deletion against real Postgres
   contract/      adapters against recorded provider responses
   evals/         real-LLM prompt checks (marker: eval, not run on PRs)
-  conftest.py    app factory, fakes, test DB session
+  fixtures/      sample documents (and the script that makes them)
+  fakes.py       in-memory stores and ScriptedSafety
+  conftest.py    app, client, the container of fakes
 
 pebble/
   src/**/*.test.ts(x)   colocated unit and component tests
-  src/test/             setup, MSW handlers, render helpers
+  src/test/             setup, stateful MSW fakes of the API, render helpers, repo-wide checks
   e2e/                  Playwright specs
 ```
 
@@ -52,7 +55,7 @@ The fake LLM lives in `backend/app/infrastructure/llm/fake.py`, not only in test
   - Unsafe input is rejected before the LLM is called.
   - The fake LLM receives PII-redacted text, never the raw input.
   - Unsafe output is replaced with a safe reply.
-  - Every agent result writes an activity entry with the agent name, reasoning, WhyBot explanation, and safety status (parametrized over all agents).
+  - Every agent result writes an activity entry with the agent name, reasoning and safety status (parametrized over all agents); the WhyBot explanation joins it in 7.1.
 - **Routing:** a table test mapping each intent to its agent. Unknown intent falls back to chat. Malformed classifier JSON falls back gracefully. Distress never calls a sub-agent.
 - **API:**
   - Missing, invalid, or expired tokens get a 401.
@@ -68,28 +71,28 @@ The fake LLM lives in `backend/app/infrastructure/llm/fake.py`, not only in test
   - `stripEmoji`.
   - Mood derived from completion percentage.
   - Time-of-day greeting.
-  - Progress counters.
-  - Deadline bar maths with a fixed clock.
+  - Progress counters and the stats summary.
+  - Deadline bar maths with a fixed clock (8.3).
 - **Components:**
   - Toggling a task step.
   - `WhyCard` showing the reasoning.
   - Chat showing a gentle error when the backend fails.
   - Calm mode stripping emoji from rendered text.
   - Reduce-animations toggling the `<html>` class.
-  - The three-choice "still open" flow.
+  - The three-choice "still open" flow (8.4).
 - **Accessibility:** axe finds no violations on key components. Keyboard paths work (skip link, focus on navigation, modal focus trap).
 - **API layer:** MSW handlers for success, 401, 429 ("Pebble is resting"), and 5xx.
 
 ### End to end (Playwright)
 
-One demo-flow spec, kept short and stable:
+`pebble/e2e/demo-flow.spec.ts`, kept short and stable. The demo flow:
 1. Dev login.
 2. Break a task into steps.
-3. Finish a step.
+3. Finish a step, and reload to see it saved.
 4. Simplify a document.
-5. Open the activity log and see the agent name and its "why".
+5. Open the activity log and see the agent name and its reasoning.
 
-It runs on every PR against the local stack with the fake LLM, and after deploy against production (roadmap 11.3). Each page also gets an axe scan.
+Beside it: editing, reordering and filtering; stats that add up; the one-time import; export and account deletion; installability and the offline page; the phone tab bar; signing out and the 401 when signed out. Every page gets an axe scan and an overflow check at 360, 768 and 1280px. It runs on every PR against the local stack (real Postgres, fake LLM), and after deploy against production (roadmap 11.3).
 
 ### Principle checks
 
@@ -98,7 +101,10 @@ These enforce `mission.md` automatically:
 - **Guilt scan:** a test fails if UI copy, sample data, or prompts contain banned patterns (streaks, "overdue", missed-day wording, red or alarm classes, loss framing). New exceptions need a written reason next to them.
 - **No silent AI:** covered by the parametrized activity-entry test above.
 - **Privacy:** covered by the export and deletion tests above.
-- **Honest claims:** the E2E demo flow exercises every feature the README claims.
+- **Honest claims:** the E2E exercises every feature the README claims.
+- **One source of style:** `tokens.test.ts` fails if a colour token is defined outside `shared/ui/tokens.css` or a `var(--…)` is used that nothing defines.
+- **Docs stay true:** `docs-links.test.ts` fails on a broken relative link in the Markdown docs.
+- **No dead code:** knip and vulture fail CI on unused files, exports, dependencies or functions.
 
 ### LLM evals (opt-in)
 
@@ -125,23 +131,26 @@ Coverage is a floor, not a goal, and it can only go up.
 
 | When | Runs |
 |:--|:--|
-| Every PR | Lint, typecheck, backend unit/api/contract/integration, frontend unit/component, guilt scan, OpenAPI drift check, coverage floors, E2E demo flow (fake LLM) |
+| Every PR | Lint, dead code (knip, vulture), typecheck, backend unit/api/contract/integration, frontend unit/component, guilt scan, token and link checks, OpenAPI drift check, coverage floors, E2E (fake LLM) |
 | Weekly (scheduled) + manual | LLM evals |
-| After deploy | E2E demo flow against production |
+| After deploy (11.3) | E2E demo flow against production |
 
 ## Commands
-
-These come into effect as the roadmap adds them.
 
 ```bash
 # backend (from backend/)
 uv run pytest                          # everything except evals
 uv run pytest tests/unit               # one layer
 uv run pytest -k routing               # by name
+uv run pytest --cov                    # with the 80% floor
+TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test uv run pytest   # plus integration
 uv run pytest -m eval                  # real-LLM evals (needs `LLM_API_KEY`, a free Groq key)
+uv run ruff check && uv run vulture    # lint, dead code
 
 # frontend (from pebble/)
 npm test                               # Vitest, all
 npm test -- src/features/tasks         # one folder or file
-npm run test:e2e                       # Playwright (needs the local stack)
+npm run test:coverage                  # with the 80% floor on lib and hooks
+npm run lint && npm run lint:dead      # ESLint, knip
+npm run test:e2e                       # Playwright; starts the backend (fake LLM) and a production build
 ```

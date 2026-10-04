@@ -2,7 +2,7 @@
 
 FastAPI backend for Pebble. It runs the AI agents (the orchestrator, CalmSense, SimplifyCore and PebbleVoice) behind a safety pipeline, and reads uploaded documents in memory. The only thing it needs is an LLM: Groq's free tier by default, any OpenAI-compatible API by config, or `LLM_PROVIDER=fake` to run with no model at all.
 
-Tasks, preferences and the activity log are saved per user in Postgres (SQLAlchemy 2 async, Alembic). Every agent result, and every message the safety checks hold back, is written to the activity log server-side. The frontend reads and saves all three through the API, and `POST /api/import` moves what a browser kept before sign-in into the account once.
+Tasks, preferences, the activity log and progress are saved per user in Postgres (SQLAlchemy 2 async, Alembic). Every agent result, and every message the safety checks hold back, is written to the activity log server-side. The frontend reads and saves all three through the API, and `POST /api/import` moves what a browser kept before sign-in into the account once.
 
 ## Setup
 
@@ -39,6 +39,7 @@ uv run pytest            # all tests except the real-LLM evals
 uv run pytest --cov      # with coverage; fails below 80% overall
 uv run coverage report --include="app/domain/*,app/application/*" --fail-under=90   # the layer floor
 uv run ruff check        # lint (add --fix for the safe autofixes)
+uv run vulture           # dead code; [tool.vulture] in pyproject.toml skips what FastAPI, Pydantic and enums use
 
 # integration tests: a database they may wipe (docker compose creates pebble_test)
 TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test uv run pytest
@@ -50,7 +51,7 @@ Tests run the app in-process with `httpx.ASGITransport`, so they need no network
 - `tests/unit/application/`: use cases, with fakes
 - `tests/contract/`: adapters, against recorded response shapes with respx
 - `tests/api/`: HTTP behaviour (the stores are the in-memory fakes from `tests/fakes.py`: fixtures `task_repository`, `preferences_repository`, `activity_repository`)
-- `tests/integration/`: real Postgres: the migrations, and the task, preferences and activity store contracts, each run against both the Postgres repository and its in-memory fake. Without `TEST_DATABASE_URL` they skip; CI sets `REQUIRE_TEST_DATABASE=true`, so there they fail instead.
+- `tests/integration/`: real Postgres: the migrations, the task, preferences, activity and progress store contracts (each run against both the Postgres repository and its in-memory fake), and export and deletion for every table. Without `TEST_DATABASE_URL` they skip; CI sets `REQUIRE_TEST_DATABASE=true`, so there they fail instead.
 
 Warnings fail the run.
 
@@ -97,6 +98,10 @@ Errors:
 ## Your data: export and deletion
 
 `ExportAccountData` and `DeleteAccount` (`app/application/account.py`) go through the `AccountDataStore` port. `SqlAccountDataStore` (`infrastructure/db/account.py`) reads the table list from the SQLAlchemy metadata: a table belongs to a user through a `user_id` column, or through a foreign key to a table that has one (`task_steps` → `tasks`). A table with neither is refused. `tests/integration/test_account_data.py` is parametrized over every table, so a new table that export or deletion would miss fails the build.
+
+## Progress and stats
+
+The first time a task or step is finished, `Tasks` notes a `ProgressEvent` through `ProgressLog` (`app/application/progress.py`); `POST /api/stats/focus` notes a focus session. Events are only ever added: one per user, kind and item, so finishing something twice counts once, and unticking or deleting takes nothing back. `ProgressStats` sums them per local day (the `tz` the browser sends) and per tag with `summarize` (`app/domain/progress.py`). The store is the `ProgressRepository` port (`SqlProgressRepository`, table `progress_events`).
 
 ## Activity log
 
@@ -161,15 +166,18 @@ infrastructure
 backend/
 ├── app/
 │   ├── main.py                 # composition root: app, middleware, routers
-│   ├── domain/                 # agents/intents/moods, chat, tasks and steps, preferences, activity, documents, safety (pure Python)
+│   ├── domain/                 # agents/intents/moods, chat, tasks and steps, preferences, activity, progress, documents, safety (pure Python)
 │   ├── application/
 │   │   ├── agents/             # use cases: orchestrator (HandleChat), calmsense, simplifycore, pebblevoice
-│   │   ├── ports/              # LLMProvider, SafetyChecker, PIIRedactor, DocumentParser, ReaderTokenProvider, TaskRepository, PreferencesRepository, ActivityRepository
+│   │   ├── ports/              # LLMProvider, SafetyChecker, PIIRedactor, DocumentParser, ReaderTokenProvider, TaskRepository, PreferencesRepository, ActivityRepository, ProgressRepository, AccountDataStore, PersistenceError
 │   │   ├── safety.py           # SafetyGate: the input/output pipeline
 │   │   ├── documents.py        # ParseDocument
 │   │   ├── tasks.py            # Tasks: the task list use cases
 │   │   ├── preferences.py      # UserPreferences
 │   │   ├── activity.py         # ActivityLog, and the pipeline's note()/watch() helpers
+│   │   ├── progress.py         # ProgressLog (notes events), ProgressStats (the stats)
+│   │   ├── llm_json.py         # parse_json_object: the agents' JSON replies
+│   │   ├── errors.py           # errors shared by the use cases
 │   │   ├── importing.py        # ImportLocalData
 │   │   ├── account.py          # ExportAccountData, DeleteAccount
 │   │   └── prompts.py          # system prompts and the Pebble voice rules
@@ -179,7 +187,7 @@ backend/
 │   │   ├── safety/             # Azure Content Safety (REST), no-op adapter, factory
 │   │   ├── pii/                # regex PII redactor
 │   │   ├── parsing/            # pypdf + python-docx parser
-│   │   ├── db/                 # SQLAlchemy models, engine, Sql{Task,Preferences,Activity}Repository, SqlAccountDataStore
+│   │   ├── db/                 # SQLAlchemy models, engine, Sql{Task,Preferences,Activity,Progress}Repository, SqlAccountDataStore
 │   │   └── immersive_reader.py # optional Azure Immersive Reader token
 │   └── api/
 │       ├── dependencies.py     # wiring: adapters into use cases (set_container() for tests)
@@ -187,11 +195,11 @@ backend/
 │       ├── presenters.py       # results to camelCase JSON
 │       ├── middleware.py       # request logging
 │       ├── auth.py             # get_current_user: verifies the Next.js server's short-lived token
-│       ├── routers/            # agents, documents, tasks, preferences, activity, importing, account
+│       ├── routers/            # agents, documents, tasks, preferences, activity, stats, importing, account
 │       └── schemas/            # request/response models
 ├── migrations/                 # Alembic (env.py, versions/); config in alembic.ini
-├── tests/                      # domain/, unit/, contract/, api/, integration/, fixtures/
-├── pyproject.toml              # dependencies, pytest and ruff config
+├── tests/                      # domain/, unit/, contract/, api/, integration/, evals/, fixtures/
+├── pyproject.toml              # dependencies, pytest, ruff and vulture config
 ├── uv.lock
 └── .env.example
 ```

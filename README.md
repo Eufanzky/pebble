@@ -2,291 +2,164 @@
 
 # 🐾 Pebble
 
-**An AI-powered cognitive load reduction assistant with an animated CSS cat companion**
+**A calm assistant for neurodivergent people, with an animated CSS cat beside you**
 
-Pebble helps neurodivergent users (ADHD, autism, dyslexia) manage tasks, simplify documents, and stay focused through a calm, supportive interface.
+Pebble helps people with ADHD, autism or dyslexia break tasks into small steps, read documents at a level that suits them, and focus, without guilt, streaks or pressure.
 
 [![CI](https://github.com/Eufanzky/pebble/actions/workflows/ci.yml/badge.svg)](https://github.com/Eufanzky/pebble/actions/workflows/ci.yml)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev/)
-[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
-[![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python&logoColor=white)](https://python.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?logo=typescript&logoColor=white)](https://typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)](https://tailwindcss.com/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-Python_3.12+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-17-4169E1?logo=postgresql&logoColor=white)](https://www.postgresql.org/)
 
 </div>
 
----
-
-<div align="center">
-
-> The original hackathon submission, with its slides and architecture diagram, is the [`v0.1.0-hackathon` release](https://github.com/Eufanzky/pebble/releases/tag/v0.1.0-hackathon).
-
-</div>
+> The original hackathon submission, with its slides and prototype, is the [`v0.1.0-hackathon` release](https://github.com/Eufanzky/pebble/releases/tag/v0.1.0-hackathon). Everything since is the rework planned in [`specs/`](specs/roadmap.md).
 
 ---
 
-## ✨ Features
+## ✨ What it does
 
-<table>
-<tr>
-<td width="50%">
+**Today.** Your list, with what's up next and a "Mark as done" button. Tasks have a tag, an estimate and a priority. You can edit, delete, reorder (drag or keyboard), search and filter them. CalmSense breaks a big task into small, time-boxed steps, and a "Why?" card explains its reasoning. A roadmap view shows the same list as a path. Typing something like "I'm overwhelmed" gets gentle support instead of a new task.
 
-### 🐱 Pebble Companion
-- Animated CSS cat that reacts to your progress with **4 mood states** (sleepy, normal, happy, excited)
-- **7 hand-crafted character models** — all pure CSS, no images
-- 5 color themes and 3 personality modes
-- Time-aware greetings and rotating motivational messages
+**Chat with Pebble.** An orchestrator works out what you need and routes it: a breakdown (CalmSense), a simpler version of a text (SimplifyCore), or specific encouragement (PebbleVoice). Distress is answered at once, without a sub-agent.
 
-</td>
-<td width="50%">
+**Documents.** Upload a PDF, Word or text file (read in memory, never stored), choose a reading level from 1 to 10, compare the original and Pebble's version side by side, check your understanding, and turn action items into tasks or a study plan. A built-in reader (read aloud, syllables, line focus) works without any setup; Azure Immersive Reader is used when it's configured.
 
-### 📋 Task Management
-- Color-coded tasks by category (study, communication, project, wellbeing)
-- AI-powered **task decomposition** — breaks large tasks into time-boxed subtasks
-- Explainability cards ("Why?") for every AI decision
-- **Edit, delete, reorder** (drag or keyboard), **search and filter by tag**; saved to your account
-- Roadmap view as an alternative vertical timeline
-- **Distress detection** — responds to phrases like "I'm overwhelmed" with gentle support
+**Focus.** A 25-minute timer with Pebble beside you. Pause or stop whenever you need to; the minutes count towards your stats.
 
-</td>
-</tr>
-<tr>
-<td width="50%">
+**Stats.** Steps, tasks and focus minutes over the last 7 or 30 days, per day and per tag, and since you started. Progress only adds up: there are no streaks, no "missed" days and no comparisons, and unticking a task never takes anything back.
 
-### 📄 Document Simplification
-- Upload PDFs, Word documents, or text files
-- **Reading level slider** (1–10) based on Flesch-Kincaid readability grades
-- Side-by-side original vs. simplified view
-- Comprehension checks with supportive feedback
-- Extract action items as tasks or multi-day study plans
-- **Immersive Reader** integration (text-to-speech, syllable highlighting, line focus)
+**Activity log.** Every agent result, with the agent's name, its reasoning and whether the safety checks passed. A message the checks hold back is logged too, without its text.
 
-</td>
-<td width="50%">
+**Pebble.** Seven cat models built only from CSS shapes, five colours, three personalities, and moods that follow your day.
 
-### 🎯 Focus
-- A 25-minute **Pomodoro timer** with a circular progress ring, and Pebble beside you
-- Pause and resume any time; stopping early is fine
-- Audio chime on session completion; the minutes count towards your stats
+**Your account.** Sign in with GitHub or Google. Your list, settings, log and progress are saved to your account. You can download everything as JSON or delete your account in Settings.
 
-</td>
-</tr>
-<tr>
-<td width="50%">
-
-### 📊 Activity Log & Explainability
-- Tracks every AI agent decision with full reasoning
-- **6 named agents**: CalmSense, AdaptLens, SimplifyCore, PebbleVoice, WhyBot, BridgeBot
-- Safety status on every action (passed/flagged)
-- Filterable by agent
-
-### 📈 Stats
-- **Progress that only adds up**: steps, tasks and focus minutes over 7 or 30 days, per day and per tag, and since you started
-- No streaks, no "missed" days, no comparisons; unticking a task never takes progress back
-
-</td>
-<td width="50%">
-
-### ♿ Accessibility
-- **Reduce animations** toggle (WCAG 2.2 compliant)
-- **Calm mode** — strips all emoji and decorative symbols
-- Reading level preference for document simplification
-- Configurable task chunk sizes (small/medium/large)
-- Keyboard navigation with focus management
-- Skip-to-content link and full ARIA support
-- **Works on any screen**: a bottom tab bar on phones, a collapsible sidebar on wider screens; **installable** as an app, with a calm offline page
-
-</td>
-</tr>
-</table>
+**For everyone.** Reduce motion (it also follows your system setting), calm mode (no emoji), a reading level and step size that suit you, full keyboard use, and axe checks on every page. It works on any screen: a bottom tab bar on phones and a sidebar on wider screens. You can install it as an app, and it shows a calm page when you're offline.
 
 ---
 
-## 🏗️ Architecture
+## 🏗️ How it fits together
 
-The project has two main components:
+```mermaid
+flowchart LR
+  browser["Browser"] --> next
 
-| Layer | Stack | Directory |
-|:------|:------|:----------|
-| **🖥️ Frontend** | Next.js 16, React 19, TypeScript, Tailwind CSS 4 | `pebble/` |
-| **⚙️ Backend** | FastAPI, Python 3.12+, clean architecture, Groq free tier (any OpenAI-compatible LLM) | `backend/` |
+  subgraph next["Next.js (pebble/)"]
+    pages["Pages and features"]
+    authjs["Auth.js: GitHub, Google, dev login"]
+    proxy["/api proxy: signs a 5-minute token per call"]
+  end
 
-### 🤖 Multi-Agent System
+  proxy -- "Bearer token" --> api
 
-Each agent is a use case behind small interfaces (ports), so the LLM and the safety service can be swapped. The default LLM is `openai/gpt-oss-120b` on **Groq's free tier** (no credit card, no prompts kept by default). Any OpenAI-compatible API works by config, and `LLM_PROVIDER=fake` runs everything offline.
+  subgraph fastapi["FastAPI (backend/)"]
+    api["api: routers, auth, wiring"] --> app["application: use cases, agents, safety gate"]
+    app --> domain["domain: rules, pure Python"]
+    app --> ports["ports"]
+  end
 
-| Agent | Role | Status |
-|:------|:-----|:-------|
-| **🧠 Pebble Orchestrator** | Classifies user intent and routes to the right agent | Working |
-| **🧩 CalmSense** | Task decomposition with time-boxed subtasks | Working |
-| **📖 SimplifyCore** | Document simplification at target reading levels | Working |
-| **💬 PebbleVoice** | Specific encouragement (never generic platitudes) | Working |
-| **🔄 AdaptLens** | Suggests preference changes from how you use Pebble | Planned (roadmap 7.3) |
-| **❓ WhyBot** | A plain-language "why" for every AI decision | Planned (roadmap 7.1) |
-| **🔗 BridgeBot** | Calendar export and integrations | Planned (roadmap 7.4) |
+  ports --> db[("PostgreSQL")]
+  ports --> llm["LLM: Groq free tier, any OpenAI-compatible API, or a fake"]
+  ports --> safety["Azure Content Safety (optional)"]
+  ports --> reader["Azure Immersive Reader (optional)"]
+```
 
-### 🛡️ Safety and privacy
+- **Frontend** (`pebble/`): Next.js 16, React 19, TypeScript, Tailwind 4, TanStack Query. Code is organised by feature (`src/features/<name>/`), with shared pieces and the design system in `src/shared/`.
+- **Backend** (`backend/`): FastAPI on Python 3.12+, in a clean architecture (domain, application, infrastructure, api). Every external service sits behind a port, so it can be swapped or faked.
+- **Sign-in:** Auth.js runs in Next.js. The browser never talks to FastAPI directly. The Next.js server forwards each `/api` call with a short-lived token that FastAPI checks.
+- **Safety:** every message goes through Prompt Shields and Content Safety (when configured) and PII redaction before any model sees it, and every reply is checked again. Redaction always runs.
 
-Every message goes through Prompt Shields, Content Safety (severity ≥ 2 is rejected) and PII redaction before any model sees it, and every reply is checked again. Documents are parsed in memory and never stored.
+### Agents
 
-### ☁️ External services
+| Agent | Does | Status |
+|:--|:--|:--|
+| 🧠 Orchestrator | Works out the intent and routes the message | Working |
+| 🧩 CalmSense | Breaks a task into small, time-boxed steps | Working |
+| 📖 SimplifyCore | Rewrites text at your reading level, pulls out action items | Working |
+| 💬 PebbleVoice | Specific encouragement, never generic praise | Working |
+| ❓ WhyBot | A plain-language "why" for every agent result | Planned ([roadmap 7.1](specs/roadmap.md)) |
+| 🔄 AdaptLens | Suggests preference changes from how you use Pebble | Planned ([7.3](specs/roadmap.md)) |
+| 🔗 BridgeBot | Calendar export and integrations | Planned ([7.4](specs/roadmap.md)) |
 
-| Service | Purpose | Needed? |
-|:--------|:--------|:--------|
-| **Groq** (free tier; or any OpenAI-compatible API) | The LLM behind every agent | Yes (a free key), or `LLM_PROVIDER=fake` |
-| **Azure AI Content Safety** (free F0 tier) | Content Safety and Prompt Shields | Optional; PII redaction always runs |
-| **Azure Immersive Reader** | Microsoft's reader for documents | Optional; the built-in reader is the fallback |
-| **GitHub / Google OAuth apps** | Sign-in (Auth.js) | Optional; the dev login works locally without them |
+The default model is `openai/gpt-oss-120b` on Groq's free tier: no card, and no prompts kept by default. `LLM_PROVIDER=fake` runs everything offline with scripted replies.
 
 ---
 
-## 🚀 Getting Started
+## 🚀 Run it locally
 
-### Prerequisites
-
-| Requirement | Version |
-|:------------|:--------|
-| **Node.js** | 22.13+ (Vitest and jsdom need it) |
-| **Python** | 3.12+ |
-| **uv** | [Install guide](https://docs.astral.sh/uv/getting-started/installation/) |
-| **Docker** | Optional: runs Postgres with `docker compose` (saved tasks) |
-
-### 🖥️ Frontend
+You need Node.js 22.13+, [uv](https://docs.astral.sh/uv/getting-started/installation/) (it installs Python 3.12 for you), and Docker for Postgres (or any Postgres 17 with the same role and databases).
 
 ```bash
-cd pebble
-npm install
-cp .env.example .env.local   # set AUTH_SECRET and AUTH_TOKEN_SECRET (openssl rand -base64 32)
-npm run dev
+docker compose up -d db                                    # Postgres
+cd backend && uv sync && cp .env.example .env              # then set LLM_API_KEY (or LLM_PROVIDER=fake) and AUTH_TOKEN_SECRET
+uv run alembic upgrade head && uv run uvicorn app.main:app --port 8000 --reload
+cd ../pebble && npm install && cp .env.example .env.local   # then set AUTH_SECRET and the same AUTH_TOKEN_SECRET
+npm run dev                                                 # http://localhost:3000, sign in with the dev login
 ```
 
-The frontend runs at **http://localhost:3000** and asks you to sign in. Locally, `AUTH_DEV_LOGIN=true` gives a dev login under any name; GitHub and Google appear once their OAuth apps are set in `.env.local`. `AUTH_TOKEN_SECRET` must match the backend's: the Next.js server signs a short-lived token with it for every `/api` call.
+Make the two secrets with `openssl rand -base64 32`. `AUTH_TOKEN_SECRET` must be the same in both `.env` files, because the Next.js server signs every API call with it. GitHub and Google sign-in appear once their OAuth apps are set in `pebble/.env.local`; the dev login (`AUTH_DEV_LOGIN=true`) works without them. Swagger is at http://localhost:8000/docs.
 
-| Command | Description |
-|:--------|:------------|
-| `npm run dev` | Development server with hot reload |
-| `npm run build` | Production build (catches TypeScript errors) |
-| `npm run lint` | ESLint check |
-| `npm test` | Vitest unit and component tests, plus the guilt scan (`npm run test:watch` to watch) |
-| `npm run test:coverage` | The tests with the 80% coverage floor on feature `lib/` and `hooks/` |
-| `npm run test:e2e` | Playwright demo flow and an axe scan per page, against the backend with the fake LLM (first run: `npx playwright install chromium`) |
-| `npm run api:generate` | Regenerate the API types from the backend's OpenAPI schema (needs `uv`) |
-| `npm start` | Serve production build |
-
-### ⚙️ Backend
-
-```bash
-# 1. Install dependencies (creates .venv from uv.lock)
-cd backend
-uv sync
-
-# 2. Configure: set LLM_API_KEY to a free Groq key (console.groq.com/keys), or LLM_PROVIDER=fake
-cp .env.example .env
-
-# 3. Optional: Postgres for saved tasks (from the repo root), then the migrations
-docker compose up -d db
-uv run alembic upgrade head
-
-# 4. Start the server
-uv run uvicorn app.main:app --port 8000 --reload
-```
-
-Without Postgres the app still runs; only the task, preferences and activity endpoints answer 503. Run the backend tests with `uv run pytest` and the linter with `uv run ruff check`. The integration tests need a database they can wipe: `TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test uv run pytest` (without it they skip).
-
-CI (`.github/workflows/ci.yml`) runs the same checks on every pull request and on `main`: frontend lint, `tsc --noEmit`, tests and build; backend `ruff check`, and `pytest` against a Postgres service container with coverage floors (80% overall, 90% on the domain and application layers).
-
-The API runs at **http://localhost:8000**. Swagger docs at **http://localhost:8000/docs**.
-
-> The server starts gracefully even without all Azure credentials configured — unconfigured services are skipped.
-
-### 🔗 Running Both Together
-
-In two terminals:
-
-```bash
-# Terminal 1 — Backend
-cd backend
-uv run uvicorn app.main:app --port 8000 --reload
-
-# Terminal 2 — Frontend
-cd pebble
-npm run dev
-```
-
-| | URL |
-|:--|:----|
-| **Frontend** | http://localhost:3000 |
-| **Backend API** | http://localhost:8000 |
-| **Swagger Docs** | http://localhost:8000/docs |
+Without a database the backend still starts, and the endpoints that save things answer 503. Without an LLM key, the agents answer 503.
 
 ---
 
-## 📁 Project Structure
+## 🧪 Tests and checks
 
-```
-Focusbuddy/
-├── 🖥️ pebble/                      # Frontend (Next.js)
-│   ├── src/
-│   │   ├── app/                     # Routes only (/today, /documents, /activity, /focus, /settings) and the app shell
-│   │   ├── features/                # tasks, documents, chat, companion, activity, settings, focus; each with a public index.ts
-│   │   ├── shared/                  # API client, hooks, UI pieces and preferences shared by features
-│   │   └── test/                    # Vitest setup, MSW server, render helpers
-│   └── public/                      # Static assets (backgrounds, icons)
-├── ⚙️ backend/                      # Backend API (FastAPI)
-│   ├── app/
-│   │   ├── main.py                  # Composition root: app, middleware, router registration
-│   │   ├── domain/                  # Entities and rules (pure Python)
-│   │   ├── application/             # Use cases, ports, prompts
-│   │   ├── infrastructure/          # Adapters for the ports, settings (config.py)
-│   │   └── api/                     # Routers, schemas, auth, wiring
-│   ├── migrations/                  # Alembic migrations (alembic.ini next to it)
-│   ├── tests/                       # pytest suite
-│   ├── pyproject.toml               # Dependencies (uv), pytest and ruff config
-│   ├── uv.lock
-│   └── .env.example
-├── docker-compose.yml               # Local Postgres
-├── specs/                           # Mission, stack, testing rules, roadmap, and a spec per change
-└── README.md
-```
+Every change ships with tests ([`specs/testing.md`](specs/testing.md)), and CI runs all of these on every pull request.
+
+| Where | Command | What |
+|:--|:--|:--|
+| `pebble/` | `npm test` | Vitest: units, components, axe, the guilt scan, design-token and docs-link checks |
+| `pebble/` | `npm run test:coverage` | The same, with an 80% floor on feature logic and hooks |
+| `pebble/` | `npm run lint` · `npm run lint:dead` | ESLint (with feature import boundaries) · knip (unused files, exports and dependencies) |
+| `pebble/` | `npm run test:e2e` | Playwright against the real backend (fake LLM) and Postgres: the demo flow, every page at three widths with axe, installability, offline |
+| `backend/` | `uv run pytest` | Domain, use cases, API, adapter contracts; add `TEST_DATABASE_URL` for the Postgres integration tests |
+| `backend/` | `uv run ruff check` · `uv run vulture` | Lint · dead code |
+| `backend/` | `uv run pytest -m eval` | Real-LLM evals (weekly in CI; needs `LLM_API_KEY`) |
+
+The guilt scan fails on streaks, "overdue", missed days, loss framing or alarm colours anywhere in the app's copy and prompts.
 
 ---
 
-## 📡 API Reference
+## 📁 Where things are
 
-See [**backend/README.md**](backend/README.md) for full API endpoint documentation.
+```
+pebble/                  Frontend (Next.js)
+  src/app/               Routes only, plus the app shell, the /api proxy, icons and manifest
+  src/features/          tasks, documents, chat, companion, activity, settings, focus, stats, auth
+  src/shared/            Design system (ui/), API client, hooks, preferences
+  src/test/              Test setup, MSW fakes of the API, render helpers
+  e2e/                   Playwright
+backend/                 Backend (FastAPI)
+  app/domain/            Rules, pure Python
+  app/application/       Use cases, agents, ports, prompts
+  app/infrastructure/    Adapters: LLM, safety, parsing, Postgres
+  app/api/               Routers, schemas, auth, wiring
+  migrations/            Alembic
+  tests/                 unit, api, contract, integration, evals
+specs/                   Mission, tech stack, testing rules, roadmap, audit
+  changes/               One folder per change: requirements, plan, validation
+docker-compose.yml       Local Postgres
+```
 
-| Endpoint | Description |
-|:---------|:------------|
-| `POST /api/agents/chat` | Talk to Pebble: the orchestrator routes to the right agent |
-| `POST /api/agents/{decompose,simplify,motivate}` | Call CalmSense, SimplifyCore or PebbleVoice directly |
-| `POST /api/documents/parse` | Read a PDF, Word or text file's text (in memory, never stored) |
-| `GET /api/documents/immersive-reader/token` | Optional Immersive Reader token |
-| `GET/POST/DELETE /api/tasks`, `PATCH/DELETE /api/tasks/{id}` | Your saved tasks (Postgres) |
-| `PUT /api/tasks/{id}/subtasks`, `PATCH /api/tasks/{id}/subtasks/{subtaskId}` | Set a task's steps, tick one off |
-| `PUT /api/tasks/order` | Reorder your list |
-| `GET /api/stats`, `POST /api/stats/focus` | Your progress, which only adds up; note a focus session |
-| `GET/PATCH /api/preferences` | Your saved preferences |
-| `GET/POST /api/activity` | Your activity log; the agents write their own entries |
-| `POST /api/import` | Move what a browser kept before sign-in into your account, once |
-| `GET /api/account/export`, `DELETE /api/account` | Download all your data as JSON; delete your account and everything in it |
-
-The frontend loads and saves tasks, preferences and the activity log through the API (TanStack Query, optimistic updates). Anything a browser kept before accounts existed is moved into the account once, on sign-in.
+More detail: [`backend/README.md`](backend/README.md) (every endpoint, the agents, safety, the database) and [`CLAUDE.md`](CLAUDE.md) (how the code is put together, for contributors and coding agents).
 
 ---
 
-## 🎨 Design Principles
+## 🎨 Principles
 
-| Principle | Details |
-|:----------|:--------|
-| **🌙 Dark mode only** | Background `#0F0D0A`, no light theme |
-| **🧘 No anxiety-inducing patterns** | No streaks, no "days missed", no red badges, no shame language |
-| **🤖 Responsible AI** | Every AI decision has an explainability card; Content Safety filtering on all agent I/O |
-| **♿ Accessibility first** | Reduce animations, calm mode, reading level slider, keyboard navigation |
-| **🎨 Pure CSS character** | All 7 Pebble models use divs with `border-radius`, no SVGs or images |
+From [`specs/mission.md`](specs/mission.md):
+
+- **Structure without guilt.** Visible time, progress that only adds up, offers to make a task smaller. Never streaks, missed-day counts, red alarms or "overdue".
+- **Every AI action is explainable.** The activity log names the agent, its reasoning and the safety result.
+- **Privacy first.** PII is redacted before any model call; documents aren't stored; you can export or delete everything.
+- **Calm by design.** Dark only, soft motion that stops when you ask, and Pebble drawn in CSS.
+- **Honest.** No fake people, numbers or features: what the README claims, the tests check.
 
 ---
 
 ## 📄 License
 
-See [LICENSE](LICENSE) for details.
+[MIT](LICENSE)
