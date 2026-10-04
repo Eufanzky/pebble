@@ -1,4 +1,4 @@
-export type AgentName = 'CalmSense' | 'AdaptLens' | 'SimplifyCore' | 'PebbleVoice' | 'WhyBot' | 'BridgeBot';
+type AgentName = 'CalmSense' | 'AdaptLens' | 'SimplifyCore' | 'PebbleVoice' | 'WhyBot' | 'BridgeBot';
 
 export interface ActivityEntry {
   id: string;
