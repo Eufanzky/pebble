@@ -68,6 +68,9 @@ Found by the first unit tests (1.2 onwards), not by the static checks above.
 | A-021 | minor | The activity page said "In production, this feed maps to Microsoft Foundry Control Plane tracing", which the app doesn't use (principle 6). Found during 3.4. | /activity, the note under the log | 3.4 |
 | A-022 | minor | A new user's activity log starts with 16 made-up entries ("Session started. Good morning detected." at 9:01, and so on), stamped at fixed times today. They describe things that never happened (principle 6), and before 9 AM they show times still to come and sort above real entries. Found during 3.7, where they pushed the flow's own entries off the first page in CI (00:29 UTC). | Open /activity before 9 AM with a fresh browser | same decision as A-020 |
 | A-023 | minor | Pebble's rotating message "You finished {completedCount} things already. That's really good." also shows with 0 finished ("You finished 0 things already"), which is generic praise for nothing (voice rule: be specific) and reads oddly. Found during 5.4. | `features/companion/data/pebbleMessages.ts`; a new account on Today | 8.1 |
+| A-024 | cosmetic | The agents' prompts still call the app "Focusbuddy" ("You are the Task Decomposition Agent for Focusbuddy"), and so does the backend package (`focusbuddy-backend` in `pyproject.toml`). The UI and docs say Pebble. Changing the prompts needs an eval run. Found during 6.3. | `grep -rn Focusbuddy backend/app backend/pyproject.toml` | 7.1 |
+| A-025 | minor | `knip@5`, added as a dev dependency in 6.1, pulls in `fast-glob` → `micromatch` → `braces` with high advisories (ReDoS, stack exhaustion). Dev and CI only, never shipped. `knip@6` fixes it. `eslint-config-next` is also flagged through `fast-glob`; npm's only fix is a downgrade to 14, so it waits for an upstream release. Found during 6.3. | `npm audit` | after 6.3 |
+| A-026 | cosmetic | `tests/fixtures/documents/make_fixtures.py` says regenerating gives the same file, but `meeting-notes.docx` comes out with new zip entry timestamps (the content is identical), so it shows as changed in git. Found during 6.3. | run the script, then `git status` | when the fixtures next change |
 
 ## Backend behaviour
 
@@ -96,14 +99,14 @@ Found by the characterization tests (1.3 onwards), not by the static checks abov
 
 ## Summary
 
-Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011). Found during 1.3: 1 major, 1 minor (A-012, A-013). Found during 1.4: 1 major (A-014). Found during 1.5: 1 minor (A-015). Found during 1.7: 1 major, 1 cosmetic (A-016, A-017). Found during 2.8: 1 major (A-018). Found during 3.3: 2 major (A-019, A-020). Found during 3.4: 1 minor (A-021). Found during 3.7: 1 minor (A-022). Found during 5.4: 1 minor (A-023).
+Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011). Found during 1.3: 1 major, 1 minor (A-012, A-013). Found during 1.4: 1 major (A-014). Found during 1.5: 1 minor (A-015). Found during 1.7: 1 major, 1 cosmetic (A-016, A-017). Found during 2.8: 1 major (A-018). Found during 3.3: 2 major (A-019, A-020). Found during 3.4: 1 minor (A-021). Found during 3.7: 1 minor (A-022). Found during 5.4: 1 minor (A-023). Found during 6.3: 1 minor, 2 cosmetic (A-024, A-025, A-026).
 
 ## Status
 
 | ID | Status |
 |:--|:--|
 | A-001 | Fixed in 0.2: `next` and `eslint-config-next` bumped to 16.3.6. |
-| A-002 | **Deferred to 3.3.** npm's only fix is a downgrade of a runtime SDK. 3.3 makes the Azure reader optional behind the built-in reader. The remaining `npm audit` findings (`minimatch`, `decode-uri-component`) all come through this package. |
+| A-002 | **Open.** npm's only fix is a downgrade of a runtime SDK. Since 3.3 the Azure reader is optional and loads only when it's configured; the built-in reader is the default. `minimatch` and `decode-uri-component` still come through this package. |
 | A-003 | Fixed in 0.2: `npm audit fix`. |
 | A-004 | Fixed in 0.2: `useSyncExternalStore` in `useLocalStorage`, `useReduceMotion` and `useTimeOfDay`; render-time state adjustment in `PageTransition` and `DocumentModal`; `key` remount in `PebbleSpeechBubble`. |
 | A-005 | Fixed in 0.2: lazy `useState` in `ComprehensionCheck`, `useRef(0)` in `ToastContext`. |
@@ -121,8 +124,12 @@ Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Foun
 | A-017 | Fixed after 3.1: the mouth uses `translateX(-50%)`. Regression test in `features/chat/components/ChatLauncher.test.tsx`. |
 | A-018 | Fixed in 2.8: the default is now Groq's free tier (`openai/gpt-oss-120b`); the `github` provider is removed; the evals run on Groq with a recorded baseline. |
 | A-019 | Fixed after 3.3: PDF and Word uploads are read by `POST /api/documents/parse` (errors show the backend's gentle explanation, or a general message when it's down); the built-in reader credits only itself and the browser's voice, and calls its translation a rough preview. Regression tests in `DocumentsView.test.tsx`, `ImmersiveReader.test.tsx`, `useDocumentUpload.test.tsx`. |
-| A-020 | Fixed after phase 3: removed. The connected apps, the voice-input demo, the "Pebble has adapted" cards, the "This week" numbers and the generic "You're doing amazing" bubble are gone, and so is the `voiceInput` preference. The "Adapted for you" badge on two sample tasks (an AdaptLens claim) is gone too. 5.3 (AdaptLens), 5.4/5.5 (calendar) and 6.2 (progress counts) bring the real versions. |
+| A-020 | Fixed after phase 3: removed. The connected apps, the voice-input demo, the "Pebble has adapted" cards, the "This week" numbers and the generic "You're doing amazing" bubble are gone, and so is the `voiceInput` preference. The "Adapted for you" badge on two sample tasks (an AdaptLens claim) is gone too. 7.3 (AdaptLens), 7.4/7.5 (calendar) and 8.2 (progress counts) bring the real versions. |
 | A-022 | Fixed after phase 3: the activity log starts empty and holds only what agents really did. The E2E flow checks a new user's log has exactly its own 4 entries. |
-| A-021 | Fixed in 3.4: the note now says the log stays in the browser and what each entry shows. Test in `ActivityView.test.tsx`. |
+| A-023 | **Open**, for 8.1 (guilt audit). |
+| A-024 | **Open**, for 7.1 (its prompt change runs the evals). |
+| A-025 | **Open**, a follow-up fix right after 6.3. |
+| A-026 | **Open**, cosmetic: revert the file after running the script until then. |
+| A-021 | Fixed in 3.4: the note says what each entry shows (since 4.5 the log is saved to the account). Test in `ActivityView.test.tsx`. |
 
-Open: 1 (A-002), each linked to the phase that fixes or removes it. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
+Open: 5 (A-002, A-023, A-024, A-025, A-026), each linked to the phase that fixes it or the reason it waits. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.

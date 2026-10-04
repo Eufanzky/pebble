@@ -134,7 +134,7 @@ The repo still carries the hackathon's leftovers, and the docs grew item by item
   *Done:* the dead-code scans report nothing (or only listed, justified exceptions); build, lint, tests and E2E pass.
 - [x] **6.2 A clearer structure.** The dated spec folders move under `specs/changes/`, with an index; leftover old-layout code and styles (`globals.css` pieces that belong to a feature, the old `--accent-*` tokens) move into their features or onto the design tokens; the repo root holds only what a newcomer needs.
   *Done:* a test fails on colour tokens outside `tokens.css` across `src/`; links in the docs resolve (a link check); build, lint, tests and E2E pass.
-- [ ] **6.3 Docs up to date.** Rewrite the root README for the app as it is today (features, a Mermaid architecture diagram, setup in a few commands, structure, tests), update `backend/README.md`, restructure `CLAUDE.md` into short sections, and bring `tech-stack.md`, `testing.md` and `audit.md` in line with the code.
+- [x] **6.3 Docs up to date.** Rewrite the root README for the app as it is today (features, a Mermaid architecture diagram, setup in a few commands, structure, tests), update `backend/README.md`, restructure `CLAUDE.md` into short sections, and bring `tech-stack.md`, `testing.md` and `audit.md` in line with the code.
   *Done:* every command in the README and `CLAUDE.md` is run as part of the check; the link check passes; every claimed feature is covered by a test.
 
 ## Phase 7: Make the named agents real
@@ -182,7 +182,7 @@ See principle 1 in `mission.md`.
   *Done:* `docker compose up` runs the backend and Postgres locally, and CI runs E2E against the built image.
 - [ ] **10.2 Neon and Render.** Deploy the database and backend, running migrations on deploy.
   *Done:* the public health endpoint responds.
-- [ ] **10.3 Vercel.** Deploy the frontend with the rewrite target from an env var and the Auth.js callback URLs.
+- [ ] **10.3 Vercel.** Deploy the frontend with `BACKEND_URL` (the `/api` proxy's target), the shared `AUTH_TOKEN_SECRET`, and the Auth.js callback URLs.
   *Done:* sign-in and chat work on the live URL.
 - [ ] **10.4 Rate limits.** Add a per-user limit on agent calls so one account can't use up the shared Groq free-tier rate limits. Over the limit, the API answers 429 with `Retry-After`. The backend already turns a provider 429 into a 503 "Pebble is resting"; the frontend shows that gentle "resting" message in both cases instead of its generic error.
   *Done:* an API test covers the limit, an MSW component test covers the message, and the message passes the guilt scan.
