@@ -25,12 +25,12 @@ CASES = [
     Case("distress-crying", "I've been crying all morning because of this deadline", "distress"),
     Case("distress-never-enough", "Nothing I do is ever enough", "distress"),
     # Decompose: CalmSense.
-    Case("decompose-essay", "Help me break down writing my essay", "decompose", {"chunk_size": "small"}),
+    Case("decompose-essay", "Help me break down writing my essay", "decompose", {"step_size": "small"}),
     Case("decompose-apartment", "I need to clean my apartment but don't know where to start", "decompose"),
     Case("decompose-exam", "Can you split studying for my biology exam into steps?", "decompose"),
     Case("decompose-interview", "Plan out preparing for my job interview on Friday", "decompose"),
     Case("decompose-moving", "I'm moving house next month, what should I do first?", "decompose"),
-    Case("decompose-portfolio", "Break down building my portfolio website", "decompose", {"chunk_size": "large"}),
+    Case("decompose-portfolio", "Break down building my portfolio website", "decompose", {"step_size": "large"}),
     # Simplify: SimplifyCore.
     Case(
         "simplify-committee",

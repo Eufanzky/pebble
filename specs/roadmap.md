@@ -140,7 +140,7 @@ The repo still carries the hackathon's leftovers, and the docs grew item by item
   *Done:* nothing outside the dated records says "Focusbuddy" or uses an old path (a test checks every repo path the docs name); CI, E2E and the evals pass.
 - [x] **6.5 Names in the code.** Every file, module, class and test says what it holds, and an agent has one name. The prompts and the fake LLM use the agents' names (CalmSense, SimplifyCore, PebbleVoice), not their intents; adapters and tests sit where their layer is; each test file tests one thing; a module named after another feature (`activity/lib/stats.ts`) or a vague one (`chat/lib/chat.ts`) is renamed; the two small Pebble faces become one; the `pb-` and `glass-` CSS names say what they style; the E2E is split by area.
   *Done:* a reader can find any piece from its name; CI, E2E and the evals pass.
-- [ ] **6.6 One word for steps.** The UI says "steps"; the API, the frontend types and the prompts say `subtasks`, and settings says "Task chunk size". Use "steps" (and "step size") everywhere, keeping old browser data and saved preferences readable.
+- [x] **6.6 One word for steps.** The UI says "steps"; the API, the frontend types and the prompts say `subtasks`, and settings says "Task chunk size". Use "steps" (and "step size") everywhere, keeping old browser data and saved preferences readable.
   *Done:* no `subtask` or `chunk` in the code outside the readers of old data; CI, E2E and the evals pass.
 
 ## Phase 7: Make the named agents real

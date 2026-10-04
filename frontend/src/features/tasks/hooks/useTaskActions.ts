@@ -11,7 +11,7 @@ import { useTasks } from '../context/TasksContext';
  * activity log, so every change Pebble reacts to can be explained.
  */
 export function useTaskActions() {
-  const { tasks, toggleTask, toggleSubtask } = useTasks();
+  const { tasks, toggleTask, toggleStep } = useTasks();
   const { addEntry } = useActivityLog();
   const { preferences } = usePreferences();
 
@@ -41,15 +41,15 @@ export function useTaskActions() {
   const breakDown = useCallback(
     (id: string) => {
       const task = tasks.find((t) => t.id === id);
-      if (task?.subtasks) {
+      if (task?.steps) {
         addEntry(
           'SimplifyCore',
-          `Broke down "${task.title}" into ${task.subtasks.length} steps (${preferences.chunkSize} chunks, your preference).`,
-          `Task decomposed based on user chunk size preference: ${preferences.chunkSize}.`
+          `Broke down "${task.title}" into ${task.steps.length} steps (${preferences.stepSize} steps, your preference).`,
+          `Task decomposed based on user step size preference: ${preferences.stepSize}.`
         );
       }
     },
-    [tasks, preferences.chunkSize, addEntry],
+    [tasks, preferences.stepSize, addEntry],
   );
 
   const openWhy = useCallback(
@@ -66,5 +66,5 @@ export function useTaskActions() {
     [tasks, addEntry],
   );
 
-  return { toggle, toggleSubtask, breakDown, openWhy };
+  return { toggle, toggleStep, breakDown, openWhy };
 }

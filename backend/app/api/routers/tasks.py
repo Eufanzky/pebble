@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Response, status
 from app.api.auth import get_current_user
 from app.api.dependencies import get_tasks
 from app.api.presenters import task_data
-from app.api.schemas.tasks import SubtasksReplace, SubtaskUpdate, TaskCreate, TaskOut, TasksOrder, TaskUpdate
+from app.api.schemas.tasks import StepsReplace, StepUpdate, TaskCreate, TaskOut, TasksOrder, TaskUpdate
 from app.application.tasks import Tasks
 from app.domain.tasks import Step, Task, TaskStep
 
@@ -20,7 +20,7 @@ def task_from(body: TaskCreate) -> Task:
         priority=body.priority,
         completed=body.completed,
         why=body.why_explanation,
-        steps=tuple(TaskStep("", s.title, s.time_estimate, s.completed) for s in body.subtasks),
+        steps=tuple(TaskStep("", s.title, s.time_estimate, s.completed) for s in body.steps),
     )
 
 # API field names to domain field names, for partial updates.
@@ -36,7 +36,7 @@ FIELDS = {
 
 @router.get("", response_model=list[TaskOut], summary="List your tasks")
 async def list_tasks(user_id: str = Depends(get_current_user), tasks: Tasks = Depends(get_tasks)):
-    """Your tasks in the order you added them, each with its steps (`subtasks`)."""
+    """Your tasks in the order you added them, each with its steps."""
     return [task_data(task) for task in await tasks.list(user_id)]
 
 
@@ -82,25 +82,25 @@ async def clear_tasks(user_id: str = Depends(get_current_user), tasks: Tasks = D
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.put("/{task_id}/subtasks", response_model=TaskOut, summary="Replace a task's steps")
-async def replace_subtasks(
+@router.put("/{task_id}/steps", response_model=TaskOut, summary="Replace a task's steps")
+async def replace_steps(
     task_id: str,
-    body: SubtasksReplace,
+    body: StepsReplace,
     user_id: str = Depends(get_current_user),
     tasks: Tasks = Depends(get_tasks),
 ):
     """Set a task's steps, for example from a CalmSense breakdown. The new steps start open."""
-    steps = [Step(s.title, s.time_estimate) for s in body.subtasks]
+    steps = [Step(s.title, s.time_estimate) for s in body.steps]
     return task_data(await tasks.set_steps(user_id, task_id, steps))
 
 
-@router.patch("/{task_id}/subtasks/{subtask_id}", response_model=TaskOut, summary="Tick a step on or off")
-async def update_subtask(
+@router.patch("/{task_id}/steps/{step_id}", response_model=TaskOut, summary="Tick a step on or off")
+async def update_step(
     task_id: str,
-    subtask_id: str,
-    body: SubtaskUpdate,
+    step_id: str,
+    body: StepUpdate,
     user_id: str = Depends(get_current_user),
     tasks: Tasks = Depends(get_tasks),
 ):
     """Finishing the last open step also finishes the task. Unticking a step never reopens it."""
-    return task_data(await tasks.set_step_completed(user_id, task_id, subtask_id, body.completed))
+    return task_data(await tasks.set_step_completed(user_id, task_id, step_id, body.completed))

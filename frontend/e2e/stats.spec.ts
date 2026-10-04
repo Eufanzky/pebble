@@ -8,7 +8,7 @@ signInEachTest();
 test('what you finish adds up on the stats page (5.6)', async ({ page }) => {
   await page.getByRole('button', { name: 'Add example tasks' }).click();
   await page.getByRole('button', { name: /Break down "Read Chapter 4/ }).click();
-  await page.locator('.subtask-item', { hasText: 'Skim the chapter headings first' }).getByRole('button', { name: 'Check subtask' }).click();
+  await page.locator('.step-item', { hasText: 'Skim the chapter headings first' }).getByRole('button', { name: 'Check step' }).click();
   await page.getByRole('button', { name: 'Mark "Read Chapter 4 of the design textbook" as done' }).click();
   // Unticking takes nothing back
   await page.getByRole('region', { name: /Done today/ }).getByRole('button', { name: 'Mark as incomplete' }).click();

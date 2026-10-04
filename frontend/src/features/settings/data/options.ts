@@ -1,4 +1,4 @@
-import type { ChunkSize, PebbleColor, PebbleModel, PebblePersonality } from '@/shared/preferences';
+import type { StepSize, PebbleColor, PebbleModel, PebblePersonality } from '@/shared/preferences';
 
 // The choices on the settings screen.
 export const models: { id: PebbleModel; name: string; desc: string }[] = [
@@ -25,7 +25,7 @@ export const personalities: { id: PebblePersonality; name: string; desc: string;
   { id: 'calm', name: 'Calm & minimal', desc: 'Brief, no-pressure, minimal', quote: 'Ready when you are.' },
 ];
 
-export const chunkSizes: { id: ChunkSize; label: string; desc: string }[] = [
+export const stepSizes: { id: StepSize; label: string; desc: string }[] = [
   { id: 'small', label: 'Small (5-10 min)', desc: 'Short focus bursts' },
   { id: 'medium', label: 'Medium (15-20 min)', desc: 'Balanced' },
   { id: 'large', label: 'Large (30+ min)', desc: 'Deep work sessions' },

@@ -105,7 +105,7 @@ export default function TodayView() {
                   open={shown.open}
                   done={shown.done}
                   onToggle={actions.toggle}
-                  onToggleSubtask={actions.toggleSubtask}
+                  onToggleStep={actions.toggleStep}
                   onBreakDown={actions.breakDown}
                   onWhyOpen={actions.openWhy}
                   onEdit={setEditingId}

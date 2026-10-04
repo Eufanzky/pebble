@@ -72,6 +72,7 @@ Found by the first unit tests (1.2 onwards), not by the static checks above.
 | A-025 | minor | `knip@5`, added as a dev dependency in 6.1, pulls in `fast-glob` → `micromatch` → `braces` with high advisories (ReDoS, stack exhaustion). Dev and CI only, never shipped. `knip@6` fixes it. `eslint-config-next` is also flagged through `fast-glob`; npm's only fix is a downgrade to 14, so it waits for an upstream release. Found during 6.3. | `npm audit` | after 6.3 |
 | A-026 | cosmetic | `tests/fixtures/documents/make_fixtures.py` says regenerating gives the same file, but `meeting-notes.docx` comes out with new zip entry timestamps (the content is identical), so it shows as changed in git. Found during 6.3. | run the script, then `git status` | when the fixtures next change |
 | A-027 | cosmetic | One thing has two names: the UI and the domain say "steps" (`Step`, `TaskStep`), while the API and the frontend types say `subtasks` (`/api/tasks/{id}/subtasks`, `Subtask`, `showSubtasks`). Renaming it changes the API contract and the saved data's JSON, so it wasn't part of 6.4's folder and package renames. Found during 6.4. | `grep -rn subtask backend/app frontend/src` | needs a decision |
+| A-028 | minor | The voice eval sits at its 0.9 target: five runs on 2026-10-04 scored 0.83, 0.87, 0.90, 0.90 and 0.90, so it passes or fails by one reply. Nearly every miss is a reply whose sentences average 21–35 words (the rule is 20), in every agent, mostly in the `whyExplanation` and chat replies. The prompts ask for "short, plain sentences" but give no length. Found during 6.6. | `uv run pytest -m eval` a few times | 8.1 (prompt work), or a prompt item of its own |
 
 ## Backend behaviour
 
@@ -100,7 +101,7 @@ Found by the characterization tests (1.3 onwards), not by the static checks abov
 
 ## Summary
 
-Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011). Found during 1.3: 1 major, 1 minor (A-012, A-013). Found during 1.4: 1 major (A-014). Found during 1.5: 1 minor (A-015). Found during 1.7: 1 major, 1 cosmetic (A-016, A-017). Found during 2.8: 1 major (A-018). Found during 3.3: 2 major (A-019, A-020). Found during 3.4: 1 minor (A-021). Found during 3.7: 1 minor (A-022). Found during 5.4: 1 minor (A-023). Found during 6.3: 1 minor, 2 cosmetic (A-024, A-025, A-026). Found during 6.4: 1 cosmetic (A-027).
+Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011). Found during 1.3: 1 major, 1 minor (A-012, A-013). Found during 1.4: 1 major (A-014). Found during 1.5: 1 minor (A-015). Found during 1.7: 1 major, 1 cosmetic (A-016, A-017). Found during 2.8: 1 major (A-018). Found during 3.3: 2 major (A-019, A-020). Found during 3.4: 1 minor (A-021). Found during 3.7: 1 minor (A-022). Found during 5.4: 1 minor (A-023). Found during 6.3: 1 minor, 2 cosmetic (A-024, A-025, A-026). Found during 6.4: 1 cosmetic (A-027). Found during 6.6: 1 minor (A-028).
 
 ## Status
 
@@ -131,7 +132,8 @@ Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Foun
 | A-024 | Fixed in 6.4: the prompts and the backend package say Pebble; the evals were run (baseline row of 2026-10-04). |
 | A-025 | Fixed after 6.3: knip is on 6 and no longer pulls in `braces` or `micromatch`. The same chain through `eslint-config-next` stays until Next.js updates its ESLint plugin (npm's only fix is a downgrade to 14); it's dev-only. |
 | A-026 | **Open**, cosmetic: revert the file after running the script until then. |
-| A-027 | **Open**: waits for a decision on renaming the API's `subtasks` to `steps`. |
+| A-028 | **Open**: the prompts need a firmer sentence length; until then the voice eval passes or fails by one reply. |
+| A-027 | Fixed in 6.6: "steps" everywhere (API routes and fields, frontend types, prompts), and "step size" for "chunk size"; migration 0005 renames saved preferences, and the browser import still reads the old names. |
 | A-021 | Fixed in 3.4: the note says what each entry shows (since 4.5 the log is saved to the account). Test in `ActivityView.test.tsx`. |
 
-Open: 4 (A-002, A-023, A-026, A-027), each linked to the phase that fixes it or the reason it waits. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
+Open: 4 (A-002, A-023, A-026, A-028), each linked to the phase that fixes it or the reason it waits. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.

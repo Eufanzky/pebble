@@ -5,7 +5,7 @@ import { devicePreferences } from '@/test/preferences';
 import { setPreferences } from '../testing';
 import SettingsView from './SettingsView';
 
-beforeEach(() => setPreferences({ readingLevel: 5, chunkSize: 'medium', pebbleColor: 'lavender', pebbleModel: 'classic', pebblePersonality: 'gentle' }));
+beforeEach(() => setPreferences({ readingLevel: 5, stepSize: 'medium', pebbleColor: 'lavender', pebbleModel: 'classic', pebblePersonality: 'gentle' }));
 afterEach(() => vi.useRealTimers());
 
 const stored = devicePreferences;
@@ -34,15 +34,15 @@ describe('SettingsView', () => {
     expect(document.documentElement.style.getPropertyValue('--pebble-color')).toBe('#8FAF8A');
   });
 
-  it('sets the default reading level and chunk size', async () => {
+  it('sets the default reading level and step size', async () => {
     const { user } = renderWithProviders(<SettingsView />);
 
     fireEvent.change(screen.getByRole('slider', { name: 'Default reading level' }), { target: { value: '3' } });
     await user.click(screen.getByRole('button', { name: 'Small (5-10 min)' }));
 
-    expect(stored()).toMatchObject({ readingLevel: 3, chunkSize: 'small' });
+    expect(stored()).toMatchObject({ readingLevel: 3, stepSize: 'small' });
     expect(screen.getByRole('slider', { name: 'Default reading level' })).toHaveAttribute('aria-valuetext', 'Reading level 3 of 10');
-    await expectLogged({ action: 'Chunk size changed to small' });
+    await expectLogged({ action: 'Step size changed to small' });
   });
 
   it('resets preferences only after asking', async () => {

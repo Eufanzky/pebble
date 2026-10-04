@@ -128,7 +128,7 @@ async def test_safety_order_for_a_chat_turn(handle_chat, llm, recorder):
 
 async def test_safety_order_through_a_sub_agent(handle_chat, llm, recorder):
     classify(llm, "decompose")
-    llm.script("CalmSense", {"subtasks": [{"title": "Open it", "timeEstimate": "~5 min"}], "whyExplanation": "Small."})
+    llm.script("CalmSense", {"steps": [{"title": "Open it", "timeEstimate": "~5 min"}], "whyExplanation": "Small."})
 
     await handle_chat("Plan my trip, call 555-123-4567", ChatContext())
 
@@ -183,7 +183,7 @@ async def test_routing_table(handle_chat, llm, simplifier, motivator, intent, ag
 async def test_decompose_returns_the_breakdown(handle_chat, llm):
     classify(llm, "decompose")
 
-    reply = await handle_chat("Break down: clean my room", ChatContext(chunk_size="small"))
+    reply = await handle_chat("Break down: clean my room", ChatContext(step_size="small"))
 
     assert isinstance(reply.data, TaskBreakdown)
     assert len(reply.data.steps) == 3  # the fake's default breakdown

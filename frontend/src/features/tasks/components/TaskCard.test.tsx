@@ -13,7 +13,7 @@ function task(overrides: Partial<Task> = {}): Task {
     priority: 'medium',
     completed: false,
     whyExplanation: 'One step per section.',
-    subtasks: [
+    steps: [
       { id: 'a', title: 'Skim the headings', timeEstimate: '~5 min', completed: true },
       { id: 'b', title: 'Write a summary', timeEstimate: '~5 min', completed: false },
     ],
@@ -22,7 +22,7 @@ function task(overrides: Partial<Task> = {}): Task {
 }
 
 function renderCard(t: Task) {
-  const handlers = { onToggle: vi.fn(), onToggleSubtask: vi.fn(), onBreakDown: vi.fn(), onWhyOpen: vi.fn() };
+  const handlers = { onToggle: vi.fn(), onToggleStep: vi.fn(), onBreakDown: vi.fn(), onWhyOpen: vi.fn() };
   const view = renderWithProviders(<TaskCard task={t} {...handlers} />);
   return { ...view, ...handlers };
 }
@@ -56,7 +56,7 @@ describe('TaskCard', () => {
   });
 
   it('shows a finished task as done, without the break-down button or the why card', () => {
-    renderCard(task({ completed: true, subtasks: undefined }));
+    renderCard(task({ completed: true, steps: undefined }));
 
     expect(screen.getByRole('button', { name: 'Mark as incomplete' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Break down/ })).not.toBeInTheDocument();
@@ -64,20 +64,20 @@ describe('TaskCard', () => {
   });
 
   it('breaks the task down into its steps, then shows why', async () => {
-    const { user, onBreakDown, onToggleSubtask } = renderCard(task());
+    const { user, onBreakDown, onToggleStep } = renderCard(task());
     expect(screen.queryByText('Skim the headings')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Why did Pebble/ })).not.toBeInTheDocument();
 
-    await user.click(screen.getByRole('button', { name: 'Break down "Read Chapter 4" into subtasks' }));
+    await user.click(screen.getByRole('button', { name: 'Break down "Read Chapter 4" into steps' }));
 
     expect(onBreakDown).toHaveBeenCalledWith('task-x');
-    const row = screen.getByText('Write a summary').closest('.subtask-item') as HTMLElement;
-    expect(within(screen.getByText('Skim the headings').closest('.subtask-item') as HTMLElement)
-      .getByRole('button', { name: 'Uncheck subtask' })).toBeInTheDocument();
+    const row = screen.getByText('Write a summary').closest('.step-item') as HTMLElement;
+    expect(within(screen.getByText('Skim the headings').closest('.step-item') as HTMLElement)
+      .getByRole('button', { name: 'Uncheck step' })).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Break down/ })).not.toBeInTheDocument();
 
-    await user.click(within(row).getByRole('button', { name: 'Check subtask' }));
-    expect(onToggleSubtask).toHaveBeenCalledWith('task-x', 'b');
+    await user.click(within(row).getByRole('button', { name: 'Check step' }));
+    expect(onToggleStep).toHaveBeenCalledWith('task-x', 'b');
 
     expect(screen.getByRole('button', { name: /Why did Pebble/ })).toBeInTheDocument();
   });
@@ -95,7 +95,7 @@ describe('TaskCard', () => {
   });
 
   it('shows why right away for a task without steps, and reports opening it', async () => {
-    const { user, onWhyOpen } = renderCard(task({ subtasks: undefined }));
+    const { user, onWhyOpen } = renderCard(task({ steps: undefined }));
 
     await user.click(screen.getByRole('button', { name: /Why did Pebble do this\?/ }));
 
@@ -104,7 +104,7 @@ describe('TaskCard', () => {
   });
 
   it('shows stored steps without a break-down', () => {
-    renderCard(task({ showSubtasks: true }));
+    renderCard(task({ showSteps: true }));
 
     expect(screen.getByText('Skim the headings')).toBeInTheDocument();
   });

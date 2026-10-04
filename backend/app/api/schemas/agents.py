@@ -5,13 +5,13 @@ from pydantic import BaseModel, Field
 
 class DecomposeRequest(BaseModel):
     task_title: str = Field(alias="taskTitle", min_length=1)
-    chunk_size: str = Field(alias="chunkSize", default="medium")
+    step_size: str = Field(alias="stepSize", default="medium")
     time_of_day: str = Field(alias="timeOfDay", default="day")
 
     model_config = {"populate_by_name": True}
 
 
-class SubtaskResult(BaseModel):
+class StepResult(BaseModel):
     title: str
     time_estimate: str = Field(alias="timeEstimate")
 
@@ -19,7 +19,7 @@ class SubtaskResult(BaseModel):
 
 
 class DecomposeResponse(BaseModel):
-    subtasks: list[SubtaskResult]
+    steps: list[StepResult]
     why_explanation: str = Field(alias="whyExplanation")
 
     model_config = {"populate_by_name": True, "by_alias": True}
@@ -85,7 +85,7 @@ class ChatRequest(BaseModel):
     tasks_completed: int = Field(alias="tasksCompleted", default=0)
     tasks_total: int = Field(alias="tasksTotal", default=0)
     recent_task_titles: list[str] = Field(alias="recentTaskTitles", default=[])
-    chunk_size: str = Field(alias="chunkSize", default="medium")
+    step_size: str = Field(alias="stepSize", default="medium")
     reading_level: int = Field(alias="readingLevel", default=5, ge=1, le=10)
     time_of_day: str = Field(alias="timeOfDay", default="day")
     personality: str = "gentle"

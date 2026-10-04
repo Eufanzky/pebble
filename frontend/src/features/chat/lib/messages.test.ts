@@ -13,7 +13,7 @@ import {
 
 const preferences: UserPreferences = {
   readingLevel: 3,
-  chunkSize: 'small',
+  stepSize: 'small',
   reduceAnimations: false,
   calmMode: false,
   pebbleColor: 'sage',
@@ -38,7 +38,7 @@ describe('buildChatRequest', () => {
       tasksCompleted: 4,
       tasksTotal: 5,
       recentTaskTitles: ['c', 'd', 'e'],
-      chunkSize: 'small',
+      stepSize: 'small',
       readingLevel: 3,
       timeOfDay: 'evening',
       personality: 'calm',

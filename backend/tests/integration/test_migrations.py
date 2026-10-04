@@ -66,3 +66,33 @@ def test_positions_keep_the_order_existing_lists_had(database_url):
     command.upgrade(config, "head")
 
     assert asyncio.run(read()) == [("a", "First", 1), ("b", "Theirs", 1), ("a", "Second", 2), ("a", "Third", 3)]
+
+
+def test_saved_preferences_keep_their_step_size(database_url):
+    """0005 renames the saved `chunk_size` to `step_size`, and back on downgrade; other values stay."""
+    config = alembic_config(database_url)
+    reset_schema(database_url)
+    command.upgrade(config, "0004")
+
+    async def run(sql: str) -> list[tuple]:
+        engine = create_async_engine(database_url)
+        async with engine.begin() as connection:
+            result = await connection.execute(text(sql))
+            rows = [tuple(row) for row in result.all()] if result.returns_rows else []
+        await engine.dispose()
+        return rows
+
+    read = 'SELECT user_id, "values" FROM preferences ORDER BY user_id'
+    asyncio.run(
+        run(
+            """INSERT INTO preferences (user_id, "values") VALUES
+            ('a', '{"chunk_size": "small", "calm_mode": true}'), ('b', '{"reading_level": 3}')"""
+        )
+    )
+
+    command.upgrade(config, "head")
+    assert asyncio.run(run(read)) == [("a", {"step_size": "small", "calm_mode": True}), ("b", {"reading_level": 3})]
+
+    command.downgrade(config, "0004")
+    assert asyncio.run(run(read)) == [("a", {"chunk_size": "small", "calm_mode": True}), ("b", {"reading_level": 3})]
+    command.upgrade(config, "head")

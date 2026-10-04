@@ -13,7 +13,7 @@ BODY = {
             "priority": "high",
             "completed": False,
             "whyExplanation": "One step per section.",
-            "subtasks": [{"title": "Skim", "timeEstimate": "~5 min", "completed": True}, {"title": "Read"}],
+            "steps": [{"title": "Skim", "timeEstimate": "~5 min", "completed": True}, {"title": "Read"}],
         }
     ],
     "preferences": {"calmMode": True, "readingLevel": 3},
@@ -42,7 +42,7 @@ async def test_imports_tasks_preferences_and_the_log(client):
 
     [task] = (await client.get("/api/tasks")).json()
     assert task["title"] == "Read Chapter 4"
-    assert [(s["title"], s["completed"]) for s in task["subtasks"]] == [("Skim", True), ("Read", False)]
+    assert [(s["title"], s["completed"]) for s in task["steps"]] == [("Skim", True), ("Read", False)]
     assert (await client.get("/api/preferences")).json()["calmMode"] is True
     [entry] = (await client.get("/api/activity")).json()
     assert entry["action"] == "Reading level adjusted to 3"

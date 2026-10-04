@@ -1,7 +1,7 @@
 'use client';
 
 import { useActivityLog } from '@/features/activity';
-import { usePreferences, type ChunkSize, type PebbleColor, type PebbleModel, type PebblePersonality } from '@/shared/preferences';
+import { usePreferences, type StepSize, type PebbleColor, type PebbleModel, type PebblePersonality } from '@/shared/preferences';
 import { useToast } from '@/shared/ui/ToastContext';
 
 /**
@@ -34,9 +34,9 @@ export function usePreferenceActions() {
       setPreferences((prev) => ({ ...prev, readingLevel: level }));
       addEntry('AdaptLens', `Default reading level changed to ${level}`, `User adjusted reading level slider to ${level}.`);
     },
-    setChunkSize: (size: ChunkSize) => {
-      setPreferences((prev) => ({ ...prev, chunkSize: size }));
-      addEntry('AdaptLens', `Chunk size changed to ${size}`, `User selected ${size} chunk size.`);
+    setStepSize: (size: StepSize) => {
+      setPreferences((prev) => ({ ...prev, stepSize: size }));
+      addEntry('AdaptLens', `Step size changed to ${size}`, `User selected ${size} step size.`);
     },
     toggleReduceAnimations: () => toggle('reduceAnimations', 'Reduce animations'),
     toggleCalmMode: () => toggle('calmMode', 'Calm mode'),

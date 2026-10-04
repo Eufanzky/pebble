@@ -126,7 +126,7 @@ class HandleChat:
 
     async def _decompose(self, c: Classification, message: str, context: ChatContext) -> ChatReply:
         try:
-            breakdown = await self.calmsense.run(message, context.chunk_size, context.time_of_day)
+            breakdown = await self.calmsense.run(message, context.step_size, context.time_of_day)
         except (UnsafeOutputError, AgentReplyError) as e:
             return self._failed(Intent.DECOMPOSE, AgentName.CALM_SENSE, e)
         return ChatReply(Intent.DECOMPOSE, c.response, Mood.HAPPY, AgentName.CALM_SENSE, breakdown)

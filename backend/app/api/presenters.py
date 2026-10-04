@@ -10,7 +10,7 @@ from app.domain.tasks import Task, TaskBreakdown
 
 def breakdown_data(breakdown: TaskBreakdown) -> dict:
     return {
-        "subtasks": [{"title": s.title, "timeEstimate": s.time_estimate} for s in breakdown.steps],
+        "steps": [{"title": s.title, "timeEstimate": s.time_estimate} for s in breakdown.steps],
         "whyExplanation": breakdown.why,
     }
 
@@ -56,7 +56,7 @@ def task_data(task: Task) -> dict:
         "priority": str(task.priority),
         "completed": task.completed,
         "whyExplanation": task.why,
-        "subtasks": [
+        "steps": [
             {"id": s.id, "title": s.title, "timeEstimate": s.time_estimate, "completed": s.completed}
             for s in task.steps
         ],
@@ -66,7 +66,7 @@ def task_data(task: Task) -> dict:
 def preferences_data(preferences: Preferences) -> dict:
     return {
         "readingLevel": preferences.reading_level,
-        "chunkSize": str(preferences.chunk_size),
+        "stepSize": str(preferences.step_size),
         "reduceAnimations": preferences.reduce_animations,
         "calmMode": preferences.calm_mode,
         "pebbleColor": str(preferences.pebble_color),

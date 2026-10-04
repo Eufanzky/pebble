@@ -32,11 +32,11 @@ async def test_a_new_account_has_quiet_days_and_zero_totals(client, signed_in):
 async def test_finished_tasks_steps_and_focus_add_up(client, signed_in):
     task = (
         await client.post(
-            "/api/tasks", json={"title": "Read", "tag": "study", "subtasks": [{"title": "Skim"}, {"title": "Read"}]}
+            "/api/tasks", json={"title": "Read", "tag": "study", "steps": [{"title": "Skim"}, {"title": "Read"}]}
         )
     ).json()
-    for step in task["subtasks"]:
-        await client.patch(f"/api/tasks/{task['id']}/subtasks/{step['id']}", json={"completed": True})
+    for step in task["steps"]:
+        await client.patch(f"/api/tasks/{task['id']}/steps/{step['id']}", json={"completed": True})
     walk = (await client.post("/api/tasks", json={"title": "Walk", "tag": "wellbeing"})).json()
     await client.patch(f"/api/tasks/{walk['id']}", json={"completed": True})
     assert (await client.post(f"{URL}/focus", json={"minutes": 25})).status_code == 204

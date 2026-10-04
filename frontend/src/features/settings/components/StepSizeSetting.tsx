@@ -1,25 +1,25 @@
 'use client';
 
 import { usePreferences } from '@/shared/preferences';
-import { chunkSizes } from '../data/options';
+import { stepSizes } from '../data/options';
 import { usePreferenceActions } from '../hooks/usePreferenceActions';
 
-export default function ChunkSizeSetting() {
+export default function StepSizeSetting() {
   const { preferences } = usePreferences();
-  const { setChunkSize } = usePreferenceActions();
+  const { setStepSize } = usePreferenceActions();
 
   return (
     <div className="ui-card" style={{ padding: '18px 20px' }}>
       <div style={{ fontFamily: 'var(--font-nunito)', fontSize: 14, fontWeight: 600, color: 'var(--color-text)', marginBottom: 10 }}>
-        Task chunk size
+        Step size
       </div>
       <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-        {chunkSizes.map((cs) => {
-          const active = preferences.chunkSize === cs.id;
+        {stepSizes.map((cs) => {
+          const active = preferences.stepSize === cs.id;
           return (
             <button
               key={cs.id}
-              onClick={() => setChunkSize(cs.id)}
+              onClick={() => setStepSize(cs.id)}
               aria-pressed={active}
               style={{
                 padding: '7px 16px', borderRadius: 20, cursor: 'pointer',

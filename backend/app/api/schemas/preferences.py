@@ -1,11 +1,11 @@
 from pydantic import BaseModel, Field
 
-from app.domain.preferences import ChunkSize, PebbleColor, PebbleModel, PebblePersonality
+from app.domain.preferences import PebbleColor, PebbleModel, PebblePersonality, StepSize
 
 
 class PreferencesOut(BaseModel):
     reading_level: int = Field(alias="readingLevel")
-    chunk_size: ChunkSize = Field(alias="chunkSize")
+    step_size: StepSize = Field(alias="stepSize")
     reduce_animations: bool = Field(alias="reduceAnimations")
     calm_mode: bool = Field(alias="calmMode")
     pebble_color: PebbleColor = Field(alias="pebbleColor")
@@ -19,7 +19,7 @@ class PreferencesUpdate(BaseModel):
     """Only the fields sent are changed."""
 
     reading_level: int | None = Field(alias="readingLevel", default=None, ge=1, le=10)
-    chunk_size: ChunkSize | None = Field(alias="chunkSize", default=None)
+    step_size: StepSize | None = Field(alias="stepSize", default=None)
     reduce_animations: bool | None = Field(alias="reduceAnimations", default=None)
     calm_mode: bool | None = Field(alias="calmMode", default=None)
     pebble_color: PebbleColor | None = Field(alias="pebbleColor", default=None)

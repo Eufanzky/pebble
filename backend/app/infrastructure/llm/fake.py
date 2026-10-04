@@ -84,9 +84,9 @@ def _field(text: str, label: str, default: str) -> str:
 
 def _decompose(text: str) -> dict:
     task = _field(text, "Task", text.strip().splitlines()[0] if text.strip() else "this task")
-    minutes = STEP_MINUTES.get(_field(text, "User's preferred chunk size", "medium"), 15)
+    minutes = STEP_MINUTES.get(_field(text, "User's preferred step size", "medium"), 15)
     return {
-        "subtasks": [
+        "steps": [
             {"title": f"Get what you need for: {task}", "timeEstimate": "~5 min"},
             {"title": f"Do the first small part of: {task}", "timeEstimate": f"~{minutes} min"},
             {"title": "Look at what's left and pick the next part", "timeEstimate": "~5 min"},

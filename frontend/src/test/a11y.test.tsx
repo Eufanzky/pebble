@@ -63,7 +63,7 @@ describe('axe: interactive states', () => {
     seed([
       newTask('Read Chapter 4', {
         whyExplanation: 'One step per section.',
-        subtasks: [{ id: 's', title: 'Skim the headings', timeEstimate: '~5 min', completed: false }],
+        steps: [{ id: 's', title: 'Skim the headings', timeEstimate: '~5 min', completed: false }],
       }),
     ]);
     const { container, user } = renderWithProviders(<TodayView />);

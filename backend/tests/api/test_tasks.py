@@ -34,7 +34,7 @@ async def test_a_new_list_is_empty(client, signed_in):
 
 
 async def test_add_returns_the_task_with_defaults_and_ids(client, signed_in):
-    task = await add(client, subtasks=[{"title": "Open the doc", "timeEstimate": "~5 min"}])
+    task = await add(client, steps=[{"title": "Open the doc", "timeEstimate": "~5 min"}])
 
     assert task == {
         "id": task["id"],
@@ -44,8 +44,8 @@ async def test_add_returns_the_task_with_defaults_and_ids(client, signed_in):
         "priority": "medium",
         "completed": False,
         "whyExplanation": "",
-        "subtasks": [
-            {"id": task["subtasks"][0]["id"], "title": "Open the doc", "timeEstimate": "~5 min", "completed": False}
+        "steps": [
+            {"id": task["steps"][0]["id"], "title": "Open the doc", "timeEstimate": "~5 min", "completed": False}
         ],
     }
     assert (await client.get(URL)).json() == [task]
@@ -66,9 +66,9 @@ async def test_tasks_are_listed_in_the_order_they_were_added(client, signed_in):
         {"title": "x", "tag": "homework"},
         {"title": "x", "priority": "urgent"},
         {"title": "x" * 501},
-        {"title": "x", "subtasks": [{"title": ""}]},
+        {"title": "x", "steps": [{"title": ""}]},
     ],
-    ids=["no-title", "empty-title", "unknown-tag", "unknown-priority", "long-title", "empty-subtask"],
+    ids=["no-title", "empty-title", "unknown-tag", "unknown-priority", "long-title", "empty-step"],
 )
 async def test_add_validates_the_body(client, signed_in, body):
     assert (await client.post(URL, json=body)).status_code == 422
@@ -91,21 +91,21 @@ async def test_patch_ignores_null_fields(client, signed_in):
     assert resp.json() == task
 
 
-async def test_replace_subtasks_then_finish_them(client, signed_in):
+async def test_replace_steps_then_finish_them(client, signed_in):
     task = await add(client)
     resp = await client.put(
-        f"{URL}/{task['id']}/subtasks", json={"subtasks": [{"title": "Outline"}, {"title": "Draft"}]}
+        f"{URL}/{task['id']}/steps", json={"steps": [{"title": "Outline"}, {"title": "Draft"}]}
     )
-    steps = resp.json()["subtasks"]
+    steps = resp.json()["steps"]
     assert [s["title"] for s in steps] == ["Outline", "Draft"]
 
-    first = await client.patch(f"{URL}/{task['id']}/subtasks/{steps[0]['id']}", json={"completed": True})
+    first = await client.patch(f"{URL}/{task['id']}/steps/{steps[0]['id']}", json={"completed": True})
     assert first.json()["completed"] is False
 
-    last = await client.patch(f"{URL}/{task['id']}/subtasks/{steps[1]['id']}", json={"completed": True})
+    last = await client.patch(f"{URL}/{task['id']}/steps/{steps[1]['id']}", json={"completed": True})
     assert last.status_code == 200
     assert last.json()["completed"] is True
-    assert [s["completed"] for s in last.json()["subtasks"]] == [True, True]
+    assert [s["completed"] for s in last.json()["steps"]] == [True, True]
 
 
 async def test_delete_one_then_clear_all(client, signed_in):
@@ -122,18 +122,18 @@ async def test_delete_one_then_clear_all(client, signed_in):
 def other_users_requests(task: dict) -> list[tuple[str, str, dict | None]]:
     """Every request that names a task, aimed at ``task``."""
     task_url = f"{URL}/{task['id']}"
-    step_url = f"{task_url}/subtasks/{task['subtasks'][0]['id']}"
+    step_url = f"{task_url}/steps/{task['steps'][0]['id']}"
     return [
         ("PATCH", task_url, {"completed": True}),
-        ("PUT", f"{task_url}/subtasks", {"subtasks": []}),
+        ("PUT", f"{task_url}/steps", {"steps": []}),
         ("PATCH", step_url, {"completed": True}),
         ("DELETE", task_url, None),
     ]
 
 
-@pytest.mark.parametrize("index", range(4), ids=["patch-task", "put-subtasks", "patch-subtask", "delete-task"])
+@pytest.mark.parametrize("index", range(4), ids=["patch-task", "put-steps", "patch-step", "delete-task"])
 async def test_another_user_can_never_see_or_change_a_task(client, signed_in, index):
-    task = await add(client, subtasks=[{"title": "Step"}])
+    task = await add(client, steps=[{"title": "Step"}])
 
     signed_in.user = "user-b"
     method, url, body = other_users_requests(task)[index]
@@ -152,10 +152,10 @@ async def test_an_unknown_task_is_a_404(client, signed_in, task_id):
     assert (await client.patch(f"{URL}/{task_id}", json={"completed": True})).status_code == 404
 
 
-async def test_an_unknown_subtask_is_a_404(client, signed_in):
+async def test_an_unknown_step_is_a_404(client, signed_in):
     task = await add(client)
 
-    resp = await client.patch(f"{URL}/{task['id']}/subtasks/missing", json={"completed": True})
+    resp = await client.patch(f"{URL}/{task['id']}/steps/missing", json={"completed": True})
 
     assert resp.status_code == 404
 

@@ -26,7 +26,7 @@ router = APIRouter()
     "/decompose",
     response_model=DecomposeResponse,
     summary="Break down a task",
-    response_description="Time-boxed subtasks with an explanation of why they were split this way",
+    response_description="Time-boxed steps with an explanation of why they were split this way",
 )
 async def decompose(
     body: DecomposeRequest,
@@ -34,9 +34,9 @@ async def decompose(
     decompose_task: DecomposeTask = Depends(get_decompose_task),
 ):
     """
-    **Agent: CalmSense** — Takes a task title and breaks it into smaller, achievable subtasks.
+    **Agent: CalmSense** — Takes a task title and breaks it into smaller, achievable steps.
 
-    Respects the user's preferred chunk size:
+    Respects the user's preferred step size:
     - `small`: 5-10 minute steps
     - `medium`: 15-20 minute steps
     - `large`: 30+ minute steps
@@ -46,7 +46,7 @@ async def decompose(
 
     Input and output go through the safety gate (Content Safety and PII redaction).
     """
-    breakdown = await decompose_task(body.task_title, body.chunk_size, body.time_of_day, user_id=user_id)
+    breakdown = await decompose_task(body.task_title, body.step_size, body.time_of_day, user_id=user_id)
     return breakdown_data(breakdown)
 
 
@@ -139,14 +139,14 @@ async def chat(
     If the user expresses distress (*"I'm overwhelmed"*, *"I can't do this"*),
     Pebble responds with empathy and offers to simplify their day.
 
-    The `data` field contains structured output from the sub-agent (e.g., subtasks
+    The `data` field contains structured output from the sub-agent (e.g., steps
     for decompose, simplified text for simplify), or `null` for chat/distress.
     """
     context = ChatContext(
         tasks_completed=body.tasks_completed,
         tasks_total=body.tasks_total,
         recent_task_titles=tuple(body.recent_task_titles),
-        chunk_size=body.chunk_size,
+        step_size=body.step_size,
         reading_level=body.reading_level,
         time_of_day=body.time_of_day,
         personality=body.personality,

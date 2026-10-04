@@ -22,9 +22,9 @@ async function renderActions() {
 
 beforeEach(() => {
   seed([
-    newTask('Read', { subtasks: [{ id: 's1', title: 'Skim', timeEstimate: '~5 min', completed: false }] }),
+    newTask('Read', { steps: [{ id: 's1', title: 'Skim', timeEstimate: '~5 min', completed: false }] }),
     newTask('Walk', { completed: true }),
-  ], { chunkSize: 'small' });
+  ], { stepSize: 'small' });
 });
 
 describe('useTaskActions', () => {
@@ -51,14 +51,14 @@ describe('useTaskActions', () => {
     expect(result.current.entries[0]).toMatchObject({ action: 'Unchecked "Walk". No worries — take your time.' });
   });
 
-  it('logs a break-down with the chunk-size preference', async () => {
+  it('logs a break-down with the step-size preference', async () => {
     const { result, idOf } = await renderActions();
 
     act(() => result.current.breakDown(idOf('Read')));
 
     expect(result.current.entries[0]).toMatchObject({
       agent: 'SimplifyCore',
-      action: 'Broke down "Read" into 1 steps (small chunks, your preference).',
+      action: 'Broke down "Read" into 1 steps (small steps, your preference).',
     });
   });
 
@@ -84,9 +84,9 @@ describe('useTaskActions', () => {
 
     const read = () => result.current.tasks.find((t) => t.title === 'Read')!;
 
-    act(() => result.current.toggleSubtask(idOf('Read'), read().subtasks![0].id));
+    act(() => result.current.toggleStep(idOf('Read'), read().steps![0].id));
 
-    expect(read().subtasks![0].completed).toBe(true);
+    expect(read().steps![0].completed).toBe(true);
   });
 
   it('ignores an unknown task id', async () => {

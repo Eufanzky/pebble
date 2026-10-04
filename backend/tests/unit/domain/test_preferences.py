@@ -1,6 +1,6 @@
 import pytest
 
-from app.domain.preferences import ChunkSize, PebbleColor, PebbleModel, Preferences
+from app.domain.preferences import PebbleColor, PebbleModel, Preferences, StepSize
 
 
 def test_nothing_saved_is_the_defaults():
@@ -8,12 +8,12 @@ def test_nothing_saved_is_the_defaults():
 
 
 def test_saved_values_override_the_defaults():
-    saved = {"reading_level": 3, "chunk_size": "small", "calm_mode": True, "pebble_model": "mochi-plus"}
+    saved = {"reading_level": 3, "step_size": "small", "calm_mode": True, "pebble_model": "mochi-plus"}
 
     prefs = Preferences.from_saved(saved)
 
     assert prefs == Preferences(
-        reading_level=3, chunk_size=ChunkSize.SMALL, calm_mode=True, pebble_model=PebbleModel.MOCHI_PLUS
+        reading_level=3, step_size=StepSize.SMALL, calm_mode=True, pebble_model=PebbleModel.MOCHI_PLUS
     )
 
 
@@ -24,7 +24,7 @@ def test_saved_values_override_the_defaults():
         {"reading_level": 11},
         {"reading_level": "5"},
         {"reading_level": True},
-        {"chunk_size": "huge"},
+        {"step_size": "huge"},
         {"pebble_color": None},
         {"calm_mode": "yes"},
         {"retired_setting": 1},

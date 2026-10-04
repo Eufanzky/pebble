@@ -2,13 +2,13 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, renderHookWithProviders, waitFor } from '@/test/render';
 import { server } from '@/test/msw/server';
 import { taskHandlers, taskStore } from '@/test/msw/tasks';
-import type { Subtask } from '../types';
+import type { Step } from '../types';
 import { usePebble } from '@/features/companion';
 import { newTask as task, seed } from '../testing';
 import { sampleTasks } from '../data/sampleTasks';
 import { useTasks } from './TasksContext';
 
-function step(title: string, completed = false): Subtask {
+function step(title: string, completed = false): Step {
   return { id: `step-${title}`, title, timeEstimate: '~5 min', completed };
 }
 
@@ -30,7 +30,7 @@ function find(result: Result, title: string) {
 
 const idOf = (result: Result, title: string) => find(result, title).id;
 const stepId = (result: Result, title: string, stepTitle: string) =>
-  find(result, title).subtasks!.find((s) => s.title === stepTitle)!.id;
+  find(result, title).steps!.find((s) => s.title === stepTitle)!.id;
 
 function toggle(result: Result, title: string) {
   act(() => result.current.toggleTask(idOf(result, title)));
@@ -42,11 +42,11 @@ afterEach(() => {
 
 describe('loading the list', () => {
   it('loads the tasks the server has, in order', async () => {
-    const result = await renderTasks([task('Read'), task('Write', { subtasks: [step('Outline')] })]);
+    const result = await renderTasks([task('Read'), task('Write', { steps: [step('Outline')] })]);
 
     expect(result.current.tasks.map((t) => t.title)).toEqual(['Read', 'Write']);
-    expect(result.current.tasks[1].subtasks!.map((s) => s.title)).toEqual(['Outline']);
-    expect(result.current.tasks[0].subtasks).toBeUndefined();
+    expect(result.current.tasks[1].steps!.map((s) => s.title)).toEqual(['Outline']);
+    expect(result.current.tasks[0].steps).toBeUndefined();
   });
 
   it('says so when the list could not be loaded, and tries again on request', async () => {
@@ -144,25 +144,25 @@ describe('toggling a task step', () => {
   const steps = () => [step('Skim'), step('Read'), step('Summarise')];
 
   it('checks and unchecks one step without touching the others', async () => {
-    const result = await renderTasks([task('Chapter 4', { subtasks: steps() })]);
+    const result = await renderTasks([task('Chapter 4', { steps: steps() })]);
     const id = idOf(result, 'Chapter 4');
     const read = stepId(result, 'Chapter 4', 'Read');
 
-    act(() => result.current.toggleSubtask(id, read));
-    expect(result.current.tasks[0].subtasks!.map((s) => s.completed)).toEqual([false, true, false]);
+    act(() => result.current.toggleStep(id, read));
+    expect(result.current.tasks[0].steps!.map((s) => s.completed)).toEqual([false, true, false]);
     expect(result.current.tasks[0].completed).toBe(false);
 
-    act(() => result.current.toggleSubtask(id, read));
-    expect(result.current.tasks[0].subtasks!.map((s) => s.completed)).toEqual([false, false, false]);
+    act(() => result.current.toggleStep(id, read));
+    expect(result.current.tasks[0].steps!.map((s) => s.completed)).toEqual([false, false, false]);
   });
 
   it('completes the task when its last step is checked, without the excited flash', async () => {
     const result = await renderTasks([
-      task('Chapter 4', { subtasks: [step('Skim', true), step('Read', true), step('Summarise')] }),
+      task('Chapter 4', { steps: [step('Skim', true), step('Read', true), step('Summarise')] }),
       task('Walk'),
     ]);
 
-    act(() => result.current.toggleSubtask(idOf(result, 'Chapter 4'), stepId(result, 'Chapter 4', 'Summarise')));
+    act(() => result.current.toggleStep(idOf(result, 'Chapter 4'), stepId(result, 'Chapter 4', 'Summarise')));
 
     expect(result.current.tasks[0].completed).toBe(true);
     expect(result.current.completionPercentage).toBe(50);
@@ -171,21 +171,21 @@ describe('toggling a task step', () => {
 
   it('keeps the task complete when a step is unchecked again', async () => {
     const result = await renderTasks([
-      task('Chapter 4', { completed: true, subtasks: [step('Skim', true), step('Read', true)] }),
+      task('Chapter 4', { completed: true, steps: [step('Skim', true), step('Read', true)] }),
     ]);
 
-    act(() => result.current.toggleSubtask(idOf(result, 'Chapter 4'), stepId(result, 'Chapter 4', 'Read')));
+    act(() => result.current.toggleStep(idOf(result, 'Chapter 4'), stepId(result, 'Chapter 4', 'Read')));
 
-    expect(result.current.tasks[0].subtasks!.map((s) => s.completed)).toEqual([true, false]);
+    expect(result.current.tasks[0].steps!.map((s) => s.completed)).toEqual([true, false]);
     expect(result.current.tasks[0].completed).toBe(true);
   });
 
   it('saves the change on the server', async () => {
-    const result = await renderTasks([task('Chapter 4', { subtasks: steps() })]);
+    const result = await renderTasks([task('Chapter 4', { steps: steps() })]);
 
-    act(() => result.current.toggleSubtask(idOf(result, 'Chapter 4'), stepId(result, 'Chapter 4', 'Skim')));
+    act(() => result.current.toggleStep(idOf(result, 'Chapter 4'), stepId(result, 'Chapter 4', 'Skim')));
 
-    await waitFor(() => expect(taskStore.all()[0].subtasks[0].completed).toBe(true));
+    await waitFor(() => expect(taskStore.all()[0].steps[0].completed).toBe(true));
   });
 });
 
@@ -202,13 +202,13 @@ describe('saving changes', () => {
   it('saves changes to a task made before the server answered', async () => {
     const result = await renderTasks([]);
 
-    act(() => result.current.addTask(task('Email Sam', { subtasks: [step('Open mail'), step('Reply')] })));
+    act(() => result.current.addTask(task('Email Sam', { steps: [step('Open mail'), step('Reply')] })));
     const local = result.current.tasks[0];
-    act(() => result.current.toggleSubtask(local.id, local.subtasks![0].id));
+    act(() => result.current.toggleStep(local.id, local.steps![0].id));
     act(() => result.current.toggleTask(local.id));
 
     await waitFor(() => expect(taskStore.all()[0].completed).toBe(true));
-    expect(taskStore.all()[0].subtasks.map((s) => s.completed)).toEqual([true, false]);
+    expect(taskStore.all()[0].steps.map((s) => s.completed)).toEqual([true, false]);
     expect(result.current.tasks[0]).toMatchObject({ id: taskStore.all()[0].id, completed: true });
   });
 
@@ -234,10 +234,10 @@ describe('saving changes', () => {
       ]),
     );
 
-    expect(find(result, 'Essay').showSubtasks).toBe(true);
-    await waitFor(() => expect(taskStore.all()[0].subtasks.map((s) => s.title)).toEqual(['Outline', 'Draft']));
-    await waitFor(() => expect(find(result, 'Essay').subtasks![0].id).toBe(taskStore.all()[0].subtasks[0].id));
-    expect(find(result, 'Essay').showSubtasks).toBe(true);
+    expect(find(result, 'Essay').showSteps).toBe(true);
+    await waitFor(() => expect(taskStore.all()[0].steps.map((s) => s.title)).toEqual(['Outline', 'Draft']));
+    await waitFor(() => expect(find(result, 'Essay').steps![0].id).toBe(taskStore.all()[0].steps[0].id));
+    expect(find(result, 'Essay').showSteps).toBe(true);
   });
 
   it('adds a document action item as a study or communication task', async () => {
@@ -256,7 +256,7 @@ describe('saving changes', () => {
 
     await waitFor(() => expect(taskStore.all()).toHaveLength(sampleTasks.length));
     expect(taskStore.all()[0].title).toBe(sampleTasks[0].title);
-    expect(taskStore.all()[0].subtasks).toHaveLength(sampleTasks[0].subtasks!.length);
+    expect(taskStore.all()[0].steps).toHaveLength(sampleTasks[0].steps!.length);
   });
 
   it('goes back to what the server has when a save fails, and says so', async () => {

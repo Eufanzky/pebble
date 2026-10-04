@@ -9,7 +9,7 @@ interface TaskListProps {
   open: Task[];
   done: Task[];
   onToggle: (id: string) => void;
-  onToggleSubtask: (taskId: string, subtaskId: string) => void;
+  onToggleStep: (taskId: string, stepId: string) => void;
   onBreakDown: (id: string) => void;
   onWhyOpen: (id: string) => void;
   onEdit?: (id: string) => void;

@@ -60,7 +60,7 @@ describe('PebbleChat', () => {
       tasksCompleted: expect.any(Number),
       tasksTotal: expect.any(Number),
       recentTaskTitles: expect.any(Array),
-      chunkSize: expect.any(String),
+      stepSize: expect.any(String),
       readingLevel: expect.any(Number),
       timeOfDay: expect.stringMatching(/^(morning|day|evening)$/),
       personality: expect.any(String),
