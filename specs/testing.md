@@ -28,8 +28,7 @@ How Pebble is tested. The goal: the app can be restructured and extended without
 
 ```
 backend/tests/
-  domain/        entity rules
-  unit/          use cases with fakes, and the architecture rule
+  unit/          domain/ (entity rules), application/ (use cases with fakes), and the architecture rule
   api/           routers over HTTP: auth, validation, response shape, the activity pipeline
   integration/   repositories, migrations, export and deletion against real Postgres
   contract/      adapters against recorded provider responses
@@ -38,7 +37,7 @@ backend/tests/
   fakes.py       in-memory stores and ScriptedSafety
   conftest.py    app, client, the container of fakes
 
-pebble/
+frontend/
   src/**/*.test.ts(x)   colocated unit and component tests
   src/test/             setup, stateful MSW fakes of the API, render helpers, repo-wide checks
   e2e/                  Playwright specs
@@ -85,7 +84,7 @@ The fake LLM lives in `backend/app/infrastructure/llm/fake.py`, not only in test
 
 ### End to end (Playwright)
 
-`pebble/e2e/demo-flow.spec.ts`, kept short and stable. The demo flow:
+`frontend/e2e/demo-flow.spec.ts`, kept short and stable. The demo flow:
 1. Dev login.
 2. Break a task into steps.
 3. Finish a step, and reload to see it saved.
@@ -147,7 +146,7 @@ TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test 
 uv run pytest -m eval                  # real-LLM evals (needs `LLM_API_KEY`, a free Groq key)
 uv run ruff check && uv run vulture    # lint, dead code
 
-# frontend (from pebble/)
+# frontend (from frontend/)
 npm test                               # Vitest, all
 npm test -- src/features/tasks         # one folder or file
 npm run test:coverage                  # with the 80% floor on lib and hooks

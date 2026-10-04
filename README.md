@@ -6,7 +6,7 @@
 
 Pebble helps people with ADHD, autism or dyslexia break tasks into small steps, read documents at a level that suits them, and focus, without guilt, streaks or pressure.
 
-[![CI](https://github.com/Eufanzky/pebble/actions/workflows/ci.yml/badge.svg)](https://github.com/Eufanzky/pebble/actions/workflows/ci.yml)
+[![CI](https://github.com/Eufanzky/frontend/actions/workflows/ci.yml/badge.svg)](https://github.com/Eufanzky/frontend/actions/workflows/ci.yml)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-Python_3.12+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -14,7 +14,7 @@ Pebble helps people with ADHD, autism or dyslexia break tasks into small steps, 
 
 </div>
 
-> The original hackathon submission, with its slides and prototype, is the [`v0.1.0-hackathon` release](https://github.com/Eufanzky/pebble/releases/tag/v0.1.0-hackathon). Everything since is the rework planned in [`specs/`](specs/roadmap.md).
+> The original hackathon submission, with its slides and prototype, is the [`v0.1.0-hackathon` release](https://github.com/Eufanzky/frontend/releases/tag/v0.1.0-hackathon). Everything since is the rework planned in [`specs/`](specs/roadmap.md).
 
 ---
 
@@ -46,7 +46,7 @@ Pebble helps people with ADHD, autism or dyslexia break tasks into small steps, 
 flowchart LR
   browser["Browser"] --> next
 
-  subgraph next["Next.js (pebble/)"]
+  subgraph next["Next.js (frontend/)"]
     pages["Pages and features"]
     authjs["Auth.js: GitHub, Google, dev login"]
     proxy["/api proxy: signs a 5-minute token per call"]
@@ -66,7 +66,7 @@ flowchart LR
   ports --> reader["Azure Immersive Reader (optional)"]
 ```
 
-- **Frontend** (`pebble/`): Next.js 16, React 19, TypeScript, Tailwind 4, TanStack Query. Code is organised by feature (`src/features/<name>/`), with shared pieces and the design system in `src/shared/`.
+- **Frontend** (`frontend/`): Next.js 16, React 19, TypeScript, Tailwind 4, TanStack Query. Code is organised by feature (`src/features/<name>/`), with shared pieces and the design system in `src/shared/`.
 - **Backend** (`backend/`): FastAPI on Python 3.12+, in a clean architecture (domain, application, infrastructure, api). Every external service sits behind a port, so it can be swapped or faked.
 - **Sign-in:** Auth.js runs in Next.js. The browser never talks to FastAPI directly. The Next.js server forwards each `/api` call with a short-lived token that FastAPI checks.
 - **Safety:** every message goes through Prompt Shields and Content Safety (when configured) and PII redaction before any model sees it, and every reply is checked again. Redaction always runs.
@@ -99,7 +99,7 @@ cd ../pebble && npm install && cp .env.example .env.local   # then set AUTH_SECR
 npm run dev                                                 # http://localhost:3000, sign in with the dev login
 ```
 
-Make the two secrets with `openssl rand -base64 32`. `AUTH_TOKEN_SECRET` must be the same in both `.env` files, because the Next.js server signs every API call with it. GitHub and Google sign-in appear once their OAuth apps are set in `pebble/.env.local`; the dev login (`AUTH_DEV_LOGIN=true`) works without them. Swagger is at http://localhost:8000/docs.
+Make the two secrets with `openssl rand -base64 32`. `AUTH_TOKEN_SECRET` must be the same in both `.env` files, because the Next.js server signs every API call with it. GitHub and Google sign-in appear once their OAuth apps are set in `frontend/.env.local`; the dev login (`AUTH_DEV_LOGIN=true`) works without them. Swagger is at http://localhost:8000/docs.
 
 Without a database the backend still starts, and the endpoints that save things answer 503. Without an LLM key, the agents answer 503.
 
@@ -111,10 +111,10 @@ Every change ships with tests ([`specs/testing.md`](specs/testing.md)), and CI r
 
 | Where | Command | What |
 |:--|:--|:--|
-| `pebble/` | `npm test` | Vitest: units, components, axe, the guilt scan, design-token and docs-link checks |
-| `pebble/` | `npm run test:coverage` | The same, with an 80% floor on feature logic and hooks |
-| `pebble/` | `npm run lint` · `npm run lint:dead` | ESLint (with feature import boundaries) · knip (unused files, exports and dependencies) |
-| `pebble/` | `npm run test:e2e` | Playwright against the real backend (fake LLM) and Postgres: the demo flow, every page at three widths with axe, installability, offline |
+| `frontend/` | `npm test` | Vitest: units, components, axe, the guilt scan, design-token and docs-link checks |
+| `frontend/` | `npm run test:coverage` | The same, with an 80% floor on feature logic and hooks |
+| `frontend/` | `npm run lint` · `npm run lint:dead` | ESLint (with feature import boundaries) · knip (unused files, exports and dependencies) |
+| `frontend/` | `npm run test:e2e` | Playwright against the real backend (fake LLM) and Postgres: the demo flow, every page at three widths with axe, installability, offline |
 | `backend/` | `uv run pytest` | Domain, use cases, API, adapter contracts; add `TEST_DATABASE_URL` for the Postgres integration tests |
 | `backend/` | `uv run ruff check` · `uv run vulture` | Lint · dead code |
 | `backend/` | `uv run pytest -m eval` | Real-LLM evals (weekly in CI; needs `LLM_API_KEY`) |
@@ -126,7 +126,7 @@ The guilt scan fails on streaks, "overdue", missed days, loss framing or alarm c
 ## 📁 Where things are
 
 ```
-pebble/                  Frontend (Next.js)
+frontend/                Frontend (Next.js)
   src/app/               Routes only, plus the app shell, the /api proxy, icons and manifest
   src/features/          tasks, documents, chat, companion, activity, settings, focus, stats, auth
   src/shared/            Design system (ui/), API client, hooks, preferences
@@ -142,6 +142,7 @@ backend/                 Backend (FastAPI)
 specs/                   Mission, tech stack, testing rules, roadmap, audit
   changes/               One folder per change: requirements, plan, validation
 docker-compose.yml       Local Postgres
+docker/postgres-init/    Creates the test databases when that Postgres first starts
 ```
 
 More detail: [`backend/README.md`](backend/README.md) (every endpoint, the agents, safety, the database) and [`CLAUDE.md`](CLAUDE.md) (how the code is put together, for contributors and coding agents).

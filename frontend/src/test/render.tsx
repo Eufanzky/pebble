@@ -9,7 +9,7 @@ import { TasksProvider, useTasks } from '@/features/tasks';
 import { ActivityLogProvider, useActivityLog } from '@/features/activity';
 import { ToastProvider } from '@/shared/ui/ToastContext';
 
-// The same provider tree as app/(app)/_shell/AppShell, without the layout around it.
+// The same provider tree as app/(signed-in)/_shell/AppShell, without the layout around it.
 // Each render gets its own query cache (no retries), so it loads from the MSW fakes afresh.
 function AppProviders({ children }: { children: ReactNode }) {
   return (

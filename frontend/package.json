@@ -1,5 +1,5 @@
 {
-  "name": "pebble",
+  "name": "pebble-frontend",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,7 +9,7 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "api:schema": "cd ../backend && uv run --locked python scripts/export_openapi.py > ../pebble/src/shared/api/openapi.json",
+    "api:schema": "cd ../backend && uv run --locked python scripts/export_openapi.py > ../frontend/src/shared/api/openapi.json",
     "api:types": "openapi-typescript src/shared/api/openapi.json -o src/shared/api/schema.d.ts",
     "api:generate": "npm run api:schema && npm run api:types",
     "test:e2e": "playwright test",

@@ -20,14 +20,14 @@ jobs:
     timeout-minutes: 15
     defaults:
       run:
-        working-directory: pebble
+        working-directory: frontend
     steps:
       - uses: actions/checkout@v7
       - uses: actions/setup-node@v7
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: pebble/package-lock.json
+          cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - name: Lint
         run: npm run lint
@@ -96,14 +96,14 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: pebble/package-lock.json
+          cache-dependency-path: frontend/package-lock.json
       - run: npm ci
-        working-directory: pebble
+        working-directory: frontend
       - name: Regenerate the OpenAPI schema and the TS types
         run: npm run api:generate
-        working-directory: pebble
+        working-directory: frontend
       - name: Fail if they drifted from the committed copies
-        run: git diff --exit-code -- pebble/src/shared/api
+        run: git diff --exit-code -- frontend/src/shared/api
 
 
   e2e:
@@ -112,7 +112,7 @@ jobs:
     timeout-minutes: 20
     defaults:
       run:
-        working-directory: pebble
+        working-directory: frontend
     services:
       postgres:
         image: postgres:17
@@ -137,7 +137,7 @@ jobs:
         with:
           node-version: 22
           cache: npm
-          cache-dependency-path: pebble/package-lock.json
+          cache-dependency-path: frontend/package-lock.json
       - run: npm ci
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
@@ -148,5 +148,5 @@ jobs:
         uses: actions/upload-artifact@v7
         with:
           name: playwright-report
-          path: pebble/playwright-report
+          path: frontend/playwright-report
           retention-days: 7

@@ -47,7 +47,7 @@ TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test 
 
 Tests run the app in-process with `httpx.ASGITransport`, so they need no network and no external service. Every test runs with fakes behind the ports: `tests/conftest.py` installs a container with the scripted `FakeLLM` (`llm` fixture) and `ScriptedSafety` from `tests/fakes.py` (`safety` fixture). The test layers:
 
-- `tests/domain/`: domain rules
+- `tests/unit/domain/`: domain rules
 - `tests/unit/application/`: use cases, with fakes
 - `tests/contract/`: adapters, against recorded response shapes with respx
 - `tests/api/`: HTTP behaviour (the stores are the in-memory fakes from `tests/fakes.py`: fixtures `task_repository`, `preferences_repository`, `activity_repository`)

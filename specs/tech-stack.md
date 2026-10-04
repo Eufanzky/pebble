@@ -73,7 +73,7 @@ backend/app/
 ### Frontend: feature-based
 
 ```
-pebble/src/
+frontend/src/
   app/             routes only. Pages are thin and compose feature components.
   features/<name>/ components/, hooks/, api/, lib/, types.ts, index.ts (the public API)
                    features: tasks, documents, chat, focus, activity, settings, stats, auth, companion (the Pebble character)
@@ -82,7 +82,7 @@ pebble/src/
 ```
 
 - A feature imports from `shared/` and from other features only through their `index.ts`. ESLint enforces this, and `shared/` never imports a feature.
-- The app shell (providers, navigation, global chat) lives in `app/(app)/_shell/`, since it composes features. `app/(app)/` holds the signed-in pages; `/signin` sits outside it.
+- The app shell (providers, navigation, global chat) lives in `app/(signed-in)/_shell/`, since it composes features. `app/(signed-in)/` holds the signed-in pages; `/signin` sits outside it.
 - Soft limit of about 200 lines per component file. Past that, split it.
 - Logic goes in hooks and `lib/`, not in JSX. Components render.
 - The Pebble character stays pure CSS and divs, with no SVG or images.
