@@ -27,6 +27,7 @@ dev = [
     "pytest-cov>=6.0",
     "respx>=0.22",
     "ruff>=0.9",
+    "vulture>=2.16",
 ]
 
 # The backend is an application, not a library: uv installs the dependencies only.
@@ -72,3 +73,12 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 # Prompt text: rewrapping the lines would change what the model sees.
 "app/application/prompts.py" = ["E501"]
+
+# Dead code (roadmap 6.1): `uv run vulture`. Routes, Pydantic config and fields, enum members and the
+# middleware hook are used by the frameworks, not called directly, so they're not reported.
+[tool.vulture]
+paths = ["app", "tests"]
+min_confidence = 60
+exclude = ["app/api/schemas/"]
+ignore_decorators = ["@router.*", "@app.*", "@pytest.fixture"]
+ignore_names = ["model_config", "dispatch", "pytestmark", "created", "[A-Z][A-Z_]*"]

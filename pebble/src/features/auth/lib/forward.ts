@@ -7,7 +7,7 @@ const RESPONSE_HEADERS = ['content-type', 'retry-after'];
 
 export const UNREACHABLE = "Pebble couldn't answer just now. Try again in a little while.";
 
-export interface ForwardOptions {
+interface ForwardOptions {
   userId: string;
   backendUrl: string;
   secret: string;

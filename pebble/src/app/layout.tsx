@@ -21,8 +21,8 @@ export const metadata: Metadata = {
   title: 'pebble — your calm corner for getting things done',
   description:
     'An AI-powered assistant that reduces cognitive overload by transforming information into clear, personalized formats, guided by your companion Pebble.',
+  // The browser icon is app/icon.svg (linked by Next.js); this adds the home-screen one
   icons: {
-    icon: '/favicon.svg',
     apple: '/icons/pebble-180.png',
   },
   appleWebApp: { capable: true, title: 'Pebble', statusBarStyle: 'black-translucent' },

@@ -5,7 +5,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { listActivity, postActivity } from '../api/activity';
 import type { ActivityEntry } from '../types';
 
-export const ACTIVITY_KEY = ['activity'] as const;
+const ACTIVITY_KEY = ['activity'] as const;
 
 interface ActivityLogContextValue {
   entries: ActivityEntry[];

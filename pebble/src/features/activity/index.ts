@@ -2,4 +2,3 @@
 // Code outside `features/activity` imports only from here.
 export { ActivityLogProvider, useActivityLog } from './context/ActivityLogContext';
 export { default as ActivityView } from './components/ActivityView';
-export type { ActivityEntry, AgentName } from './types';

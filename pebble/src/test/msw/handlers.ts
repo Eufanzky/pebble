@@ -61,6 +61,3 @@ export const handlers: RequestHandler[] = [
   ...statsHandlers.api(),
 ];
 
-export { taskHandlers, taskStore } from './tasks';
-export { accountHandlers, accountStore } from './account';
-export { statsHandlers, statsStore } from './stats';

@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { launchImmersiveReader } from '../api/immersiveReader';
 
-export type ReaderStatus = 'loading' | 'azure' | 'built-in';
+type ReaderStatus = 'loading' | 'azure' | 'built-in';
 
 /**
  * Tries Azure Immersive Reader when mounted, and falls back to the built-in

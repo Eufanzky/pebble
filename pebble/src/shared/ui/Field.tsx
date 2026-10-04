@@ -12,7 +12,7 @@ interface FieldBase {
 
 type InputFieldProps = FieldBase & { multiline?: false } & InputHTMLAttributes<HTMLInputElement>;
 type TextareaFieldProps = FieldBase & { multiline: true } & TextareaHTMLAttributes<HTMLTextAreaElement>;
-export type FieldProps = InputFieldProps | TextareaFieldProps;
+type FieldProps = InputFieldProps | TextareaFieldProps;
 
 /** A labelled text input (or textarea) with its hint and note wired up. */
 export function Field(props: FieldProps) {

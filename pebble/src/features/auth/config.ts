@@ -28,7 +28,7 @@ function buildProviders(): Provider[] {
 }
 
 /** Auth.js: GitHub and Google sign-in (plus the dev login when enabled), in a JWT session cookie. */
-export const { handlers, auth, signIn, signOut } = NextAuth({
+export const { handlers, auth } = NextAuth({
   providers: buildProviders(),
   session: { strategy: 'jwt' },
   pages: { signIn: '/signin', error: '/signin' },

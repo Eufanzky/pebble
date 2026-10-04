@@ -10,7 +10,7 @@ export const EXPORT_FAILED = "Pebble couldn't get your data just now. Try again 
 export const DELETE_FAILED = "Pebble couldn't delete your account just now. Nothing was removed. Try again in a little while.";
 
 /** Saves `data` as a JSON file named `filename` (the browser's download). */
-export function saveJson(data: unknown, filename: string) {
+function saveJson(data: unknown, filename: string) {
   const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
   const link = document.createElement('a');
   link.href = url;

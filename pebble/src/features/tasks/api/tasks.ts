@@ -9,12 +9,12 @@ type TaskUpdate = ApiSchema<'TaskUpdate'>;
 const TASKS = '/api/tasks';
 
 /** A task as the UI holds it: a task with no steps has no `subtasks` (no "Break down" button). */
-export function fromApi(task: TaskOut): Task {
+function fromApi(task: TaskOut): Task {
   const { subtasks, ...rest } = task;
   return subtasks.length > 0 ? { ...rest, subtasks } : rest;
 }
 
-export function toCreate(task: NewTask): TaskCreate {
+function toCreate(task: NewTask): TaskCreate {
   return {
     title: task.title,
     timeEstimate: task.timeEstimate,

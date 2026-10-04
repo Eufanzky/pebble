@@ -1,6 +1,6 @@
 import type { HTMLAttributes, ReactNode } from 'react';
 
-export interface CardProps extends HTMLAttributes<HTMLElement> {
+interface CardProps extends HTMLAttributes<HTMLElement> {
   as?: 'div' | 'section' | 'article' | 'li';
   /** `raised` is one step lighter, for what sits on top of other cards. */
   tone?: 'flat' | 'raised';

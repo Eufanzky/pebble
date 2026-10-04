@@ -16,7 +16,7 @@ import {
 import { sampleTasks } from '../data/sampleTasks';
 import type { NewTask, Subtask, Task } from '../types';
 
-export const TASKS_KEY = ['tasks'] as const;
+const TASKS_KEY = ['tasks'] as const;
 
 interface TasksContextValue {
   tasks: Task[];

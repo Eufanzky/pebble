@@ -5,9 +5,9 @@ import type { ActivityEntry } from '../types';
 type ActivityEntryOut = ApiSchema<'ActivityEntryOut'>;
 
 /** How much of the log the activity page shows. */
-export const LOG_LIMIT = 200;
+const LOG_LIMIT = 200;
 
-export function fromApi(entry: ActivityEntryOut): ActivityEntry {
+function fromApi(entry: ActivityEntryOut): ActivityEntry {
   return { ...entry, timestamp: new Date(entry.timestamp) };
 }
 

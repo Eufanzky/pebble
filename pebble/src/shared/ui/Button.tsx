@@ -1,6 +1,6 @@
 import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   /** `primary` is the one main action on a screen; `quiet` sits beside it; `ghost` is for the rest. */
   variant?: 'primary' | 'quiet' | 'ghost';
   size?: 'md' | 'sm';
