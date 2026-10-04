@@ -1,7 +1,7 @@
 """Print the API's OpenAPI schema as stable JSON.
 
 The frontend generates its API types from this (``npm run api:generate`` in
-``pebble/``), and CI fails if the committed copy drifts from the code.
+``frontend/``), and CI fails if the committed copy drifts from the code.
 """
 
 import json

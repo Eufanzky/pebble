@@ -136,6 +136,8 @@ The repo still carries the hackathon's leftovers, and the docs grew item by item
   *Done:* a test fails on colour tokens outside `tokens.css` across `src/`; links in the docs resolve (a link check); build, lint, tests and E2E pass.
 - [x] **6.3 Docs up to date.** Rewrite the root README for the app as it is today (features, a Mermaid architecture diagram, setup in a few commands, structure, tests), update `backend/README.md`, restructure `CLAUDE.md` into short sections, and bring `tech-stack.md`, `testing.md` and `audit.md` in line with the code.
   *Done:* every command in the README and `CLAUDE.md` is run as part of the check; the link check passes; every claimed feature is covered by a test.
+- [x] **6.4 Clear names.** Each folder and package says what it is, and the app has one name: `pebble/` becomes `frontend/`; the packages are `pebble-frontend` and `pebble-backend`; the prompts say Pebble, not "Focusbuddy"; the route group `app/(app)/` becomes `app/(signed-in)/`; the backend's domain tests join `tests/unit/`; Docker Compose's init script moves from `backend/db/init/` to `docker/postgres-init/`.
+  *Done:* nothing outside the dated records says "Focusbuddy" or uses an old path (a test checks every repo path the docs name); CI, E2E and the evals pass.
 
 ## Phase 7: Make the named agents real
 

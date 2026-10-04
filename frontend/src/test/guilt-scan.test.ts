@@ -11,12 +11,12 @@ const repoRoot = resolve(dirname(fileURLToPath(import.meta.url)), '../../..');
 
 // What gets scanned: everything the user can read, as source files.
 const SCANNED = [
-  { dir: 'pebble/src', extensions: ['.ts', '.tsx', '.css'] }, // UI copy, styles, sample data
+  { dir: 'frontend/src', extensions: ['.ts', '.tsx', '.css'] }, // UI copy, styles, sample data
   { dir: 'backend/app', extensions: ['.py'] }, // prompts, fixed agent replies, the fake LLM's replies
 ];
 
 // Tests and test helpers quote banned words on purpose.
-const isSkipped = (path: string) => /\.test\.tsx?$/.test(path) || path.startsWith('pebble/src/test/');
+const isSkipped = (path: string) => /\.test\.tsx?$/.test(path) || path.startsWith('frontend/src/test/');
 
 // An apostrophe as it appears in source: ', ’, or an escaped \'.
 const APOS = "(?:'|’|\\\\')";
@@ -172,14 +172,14 @@ describe('guilt scan', () => {
   it('scans the UI source, sample data and agent prompts', () => {
     const files = SCANNED.flatMap(({ dir, extensions }) => listFiles(dir, extensions));
 
-    expect(files).toContain('pebble/src/features/tasks/data/sampleTasks.ts');
-    expect(files).toContain('pebble/src/features/companion/data/pebbleMessages.ts');
-    expect(files).toContain('pebble/src/features/tasks/components/TodayView.tsx');
-    expect(files).toContain('pebble/src/app/globals.css');
+    expect(files).toContain('frontend/src/features/tasks/data/sampleTasks.ts');
+    expect(files).toContain('frontend/src/features/companion/data/pebbleMessages.ts');
+    expect(files).toContain('frontend/src/features/tasks/components/TodayView.tsx');
+    expect(files).toContain('frontend/src/app/globals.css');
     expect(files).toContain('backend/app/application/prompts.py');
     expect(files).toContain('backend/app/application/agents/orchestrator.py');
     expect(files).toContain('backend/app/infrastructure/llm/fake.py');
-    expect(files).not.toContain('pebble/src/test/guilt-scan.test.ts');
+    expect(files).not.toContain('frontend/src/test/guilt-scan.test.ts');
   });
 
   it('finds no banned patterns', () => {

@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-Pebble is an AI assistant for neurodivergent users, with an animated CSS cat companion. Some older names say "Focusbuddy" (the backend package, the prompts; see `specs/audit.md`). Two parts:
+Pebble is an AI assistant for neurodivergent users, with an animated CSS cat companion. (It was called "Focusbuddy" during the hackathon; 6.4 removed that name.) Two parts:
 
-- `pebble/`: the frontend. Next.js 16 App Router, React 19, TypeScript, Tailwind 4, TanStack Query, Auth.js v5.
+- `frontend/`: the frontend. Next.js 16 App Router, React 19, TypeScript, Tailwind 4, TanStack Query, Auth.js v5.
 - `backend/`: FastAPI (Python 3.12+, `uv`) in a clean architecture, with Postgres. It needs only an LLM: Groq's free tier by default (`LLM_PROVIDER=groq`, `openai/gpt-oss-120b`), any OpenAI-compatible API, or an offline fake. Azure Content Safety and Immersive Reader are optional.
 
 Docs: the root `README.md` (features, diagram, setup) and `backend/README.md` (every endpoint, the agents, safety, the database). The tag and release `v0.1.0-hackathon` hold the original hackathon submission, with its prototype and slides.
@@ -31,7 +31,7 @@ Working rules:
 
 ## Commands
 
-Frontend (from `pebble/`):
+Frontend (from `frontend/`):
 
 ```bash
 npm install
@@ -66,7 +66,7 @@ TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test 
 
 - **Frontend:** `npm ci`, lint, knip, `tsc --noEmit`, `npm run test:coverage`, build.
 - **Backend:** a Postgres 17 service, `uv sync --locked`, ruff, vulture, `pytest --cov` with `tests/integration` (80% overall, 90% on `app/domain` + `app/application`).
-- **API contract:** `npm run api:generate`, then `git diff --exit-code` on `pebble/src/shared/api`.
+- **API contract:** `npm run api:generate`, then `git diff --exit-code` on `frontend/src/shared/api`.
 - **E2E:** `npm run test:e2e` against a Postgres service.
 
 `.github/workflows/evals.yml` runs the real-LLM evals (`backend/tests/evals/`) weekly and on demand, with the `LLM_API_KEY` secret (and optional `LLM_PROVIDER`, `LLM_BASE_URL`, `LLM_MODEL` variables); without the secret they skip. Run them after any prompt change and record baselines in `backend/tests/evals/README.md`.
@@ -103,15 +103,16 @@ TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test 
 - Tests may import a feature's `testing` module (ESLint allows it only in `*.test.*`). Components that use `next-auth/react` mock it with `vi.mock`.
 - `useLocalStorage` caches at module level, so set the state each test depends on.
 - Repo-wide checks that run in `npm test`:
-  - `src/test/guilt-scan.test.ts`: principle-1 patterns (streaks, "overdue", missed days or time away, loss framing, red or alarm styling) in `pebble/src` and `backend/app`. Justified matches go in `EXCEPTIONS`, with a reason.
+  - `src/test/guilt-scan.test.ts`: principle-1 patterns (streaks, "overdue", missed days or time away, loss framing, red or alarm styling) in `frontend/src` and `backend/app`. Justified matches go in `EXCEPTIONS`, with a reason.
   - `src/test/tokens.test.ts`: colour tokens are defined only in `shared/ui/tokens.css`, and every `var(--…)` used is defined.
-  - `src/test/docs-links.test.ts`: relative links in the Markdown docs resolve.
+  - `src/test/docs-links.test.ts`: relative links in the Markdown docs resolve, and every repo path the current docs name in backticks (`frontend/…`, `backend/…`, `specs/…`, `docker/…`) exists. The roadmap and the audit are exempt, since they record old paths.
+  - `src/test/names.test.ts`: the code calls the app Pebble; its hackathon name, Focusbuddy, appears only in docs that record history.
   - `shared/ui/primitives.test.tsx`: no colour literals in redesigned screens.
 - Accessibility: `src/test/a11y.test.tsx` runs axe on every main view and open state; `AppShell.test.tsx` covers the skip link, `aria-current` and focus on navigation; `DocumentKeyboard.test.tsx` covers the focus traps. Add new views and modals to them.
 
 ### End to end
 
-- `pebble/e2e/demo-flow.spec.ts` (Playwright, Chromium) runs:
+- `frontend/e2e/demo-flow.spec.ts` (Playwright, Chromium) runs:
   - the demo flow: dev login, chat to CalmSense through the real backend with `LLM_PROVIDER=fake`, break a task down and finish a step, reload, simplify a document, the activity log;
   - axe and no horizontal overflow on every page at 360, 768 and 1280px, and no pictures loaded;
   - editing, reordering and filtering; the stats adding up; importing a browser's old data once; downloading data and deleting the account; installability over the DevTools protocol and the offline page; the phone tab bar; the sign-in redirect, 401 when signed out, and signing out.
@@ -123,7 +124,7 @@ TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test 
 
 ### Structure
 
-- `src/app/`: routes only. Each `page.tsx` renders an `AmbientBackground` (one `mood` per screen) and one feature view. App pages are in the `app/(app)/` group, whose layout renders `AppShell`; `/signin` has no shell. `app/api/` holds the proxy and Auth.js; `app/icons/` and `app/manifest.ts` make the app installable.
+- `src/app/`: routes only. Each `page.tsx` renders an `AmbientBackground` (one `mood` per screen) and one feature view. App pages are in the `app/(signed-in)/` group, whose layout renders `AppShell`; `/signin` has no shell. `app/api/` holds the proxy and Auth.js; `app/icons/` and `app/manifest.ts` make the app installable.
 - `src/features/<name>/`: `components/`, `hooks/`, `lib/` (pure logic), `api/`, `data/`, `context/`, `types.ts`, and a public `index.ts`.
 - `src/shared/`: what features share; it never imports a feature. That's `lib/` (`api.ts` with `getJson`, `postJson`, `postForm` and `ApiError`; `query.tsx`; `audio.ts`), `hooks/` (`useLocalStorage`, `useTimeOfDay`, `useFocusOnNavigation`, `useFocusTrap`, `useFadeIn`), `ui/` (the design system), `preferences/` and `api/` (generated types).
 - ESLint (`no-restricted-imports`) enforces the boundaries: outside a feature, import it only through `@/features/<name>` (or `@/features/<name>/server` from server code); a feature never reaches into another with `../../`.
@@ -150,7 +151,7 @@ TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test 
 
 ### State
 
-- **Providers** (`app/(app)/_shell/AppShell.tsx`): Query, then Preferences, Pebble, Tasks, ActivityLog and Toast. The shell also mounts the `Sidebar`, the page transition and `PebbleChat`.
+- **Providers** (`app/(signed-in)/_shell/AppShell.tsx`): Query, then Preferences, Pebble, Tasks, ActivityLog and Toast. The shell also mounts the `Sidebar`, the page transition and `PebbleChat`.
 - **Tasks** (`TasksContext`): `useQuery(['tasks'])`. Every change is optimistic and saved in the background, one save after another in order. New tasks and steps carry a `temp-` id until the server answers. A failed save sets `saveFailed` and reloads; a failed load sets `loadFailed` with `retry()` (`TasksStatus.tsx`). A new account gets an "Add example tasks" button. Which tasks show their steps is UI state, not saved. `reorderTasks` sends every id (`PUT /api/tasks/order`). `TasksContext` calls `usePebble()` to set Pebble's mood from progress.
 - **Preferences** (`shared/preferences/`): a device copy (`pebble-preferences-cache`) so colour and motion apply on the first paint. The account's copy is applied when it arrives, except settings changed on this device since mount. Each change is saved as a PATCH of the changed fields only; a failed save puts them back. `<PreferencesProvider offline>` (sign-in) never calls the API. The provider sets the `reduce-animations` class and `--pebble-color`/`--pebble-dark`, and exposes `stripEmoji` (calm mode) and `reduceMotion` (the setting or the OS). Components use `reduceMotion`; only the settings toggle reads `preferences.reduceAnimations`.
 - **Activity log**: `/api/activity`, newest first, optimistic `addEntry`. The backend logs agent results itself.
@@ -205,7 +206,7 @@ Each agent has `run()` for screened input and `__call__` for the direct endpoint
 
 ### API types
 
-Frontend API types are generated, never hand-written. `backend/scripts/export_openapi.py` writes `pebble/src/shared/api/openapi.json`, `openapi-typescript` makes `schema.d.ts`, and code uses `ApiSchema<'ChatResponse'>` from `@/shared/api`. Request bodies use camelCase aliases. After a schema change, run `npm run api:generate` and commit both files.
+Frontend API types are generated, never hand-written. `backend/scripts/export_openapi.py` writes `frontend/src/shared/api/openapi.json`, `openapi-typescript` makes `schema.d.ts`, and code uses `ApiSchema<'ChatResponse'>` from `@/shared/api`. Request bodies use camelCase aliases. After a schema change, run `npm run api:generate` and commit both files.
 
 ## Product constraints (UI copy and prompts)
 

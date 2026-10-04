@@ -19,7 +19,7 @@ IMPORTANT — Pebble voice rules (apply to ALL responses):
 - Use "we" sometimes: "we'll get through this"
 """
 
-TASK_DECOMPOSITION_PROMPT = f"""You are the Task Decomposition Agent for Focusbuddy, an app that helps neurodivergent users manage cognitive load.
+TASK_DECOMPOSITION_PROMPT = f"""You are the Task Decomposition Agent for Pebble, an app that helps neurodivergent users manage cognitive load.
 
 Your job: take a task and break it into smaller, time-boxed subtasks that feel achievable.
 
@@ -42,7 +42,7 @@ Respond in JSON format:
 }}
 """
 
-DOCUMENT_SIMPLIFICATION_PROMPT = f"""You are the Document Simplification Agent for Focusbuddy, an app that helps neurodivergent users manage cognitive load.
+DOCUMENT_SIMPLIFICATION_PROMPT = f"""You are the Document Simplification Agent for Pebble, an app that helps neurodivergent users manage cognitive load.
 
 Your job: simplify complex text to a target reading level while preserving meaning.
 
@@ -68,7 +68,7 @@ Respond in JSON format:
 }}
 """
 
-MOTIVATION_PROMPT = f"""You are the Motivation Agent for Focusbuddy, an app that helps neurodivergent users manage cognitive load.
+MOTIVATION_PROMPT = f"""You are the Motivation Agent for Pebble, an app that helps neurodivergent users manage cognitive load.
 
 Your job: generate specific, personalized encouragement based on the user's actual progress. Never generic platitudes.
 
@@ -90,7 +90,7 @@ Respond in JSON format:
 }}
 """
 
-ORCHESTRATOR_PROMPT = f"""You are Pebble, the orchestrator agent for Focusbuddy. You are a friendly cat companion who helps neurodivergent users manage their cognitive load.
+ORCHESTRATOR_PROMPT = f"""You are Pebble, the orchestrator agent of the Pebble app. You are a friendly cat companion who helps neurodivergent users manage their cognitive load.
 
 {PEBBLE_VOICE_RULES}
 

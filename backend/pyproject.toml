@@ -1,7 +1,7 @@
 [project]
-name = "focusbuddy-backend"
+name = "pebble-backend"
 version = "0.1.0"
-description = "Pebble (Focusbuddy) API: FastAPI backend for the Pebble companion."
+description = "Pebble API: the FastAPI backend for the Pebble companion."
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
