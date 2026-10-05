@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, type HTMLAttributes } from 'react';
+import type { HTMLAttributes } from 'react';
 import { usePreferences } from '@/shared/preferences';
 import { Button, Chip, IconButton } from '@/shared/ui';
 import { useBreakDown } from '../hooks/useBreakDown';
@@ -15,7 +15,8 @@ interface TaskCardProps {
   task: Task;
   onToggle: (id: string) => void;
   onToggleStep: (taskId: string, stepId: string) => void;
-  onBreakDown: (id: string) => void;
+  /** Show or hide this task's steps. */
+  onShowSteps: (id: string, shown: boolean) => void;
   onWhyOpen?: (id: string) => void;
   /** Opens the edit dialog for this task. */
   onEdit?: (id: string) => void;
@@ -28,7 +29,7 @@ export default function TaskCard({
   task,
   onToggle,
   onToggleStep,
-  onBreakDown,
+  onShowSteps,
   onWhyOpen,
   onEdit,
   reorder,
@@ -36,15 +37,17 @@ export default function TaskCard({
   const { reduceMotion } = usePreferences();
   const noMotion = reduceMotion;
 
-  const onShown = useCallback(() => onBreakDown(task.id), [onBreakDown, task.id]);
-  const { showSteps, breaking, breakDown } = useBreakDown(task.showSteps ?? false, noMotion, onShown);
+  const breakdown = useBreakDown(task.id);
+  const working = breakdown.status === 'working';
+  const showSteps = task.showSteps ?? false;
   const { ripple, trigger: triggerRipple } = useRipple(noMotion);
 
   const tag = TAG_CONFIG[task.tag];
   const priority = PRIORITY_CONFIG[task.priority];
   const steps = task.steps ?? [];
   const hasSteps = steps.length > 0;
-  const canBreakDown = hasSteps && !showSteps && !breaking && !task.completed;
+  // Only a task without steps can be broken down: CalmSense does it, while the card says so
+  const canBreakDown = !hasSteps && !task.completed && !working;
   const showWhy = task.whyExplanation && (showSteps || !hasSteps);
   const stepsDone = steps.filter((s) => s.completed).length;
 
@@ -79,7 +82,7 @@ export default function TaskCard({
         <div className="task-card__meta">
           <Chip tone={tag.tone}>{tag.label}</Chip>
           {task.timeEstimate && <span className="task-card__estimate">{task.timeEstimate}</span>}
-          {hasSteps && showSteps && (
+          {hasSteps && (
             <span className="task-card__estimate">
               {stepsDone} of {steps.length} steps
             </span>
@@ -125,22 +128,45 @@ export default function TaskCard({
             size="sm"
             className="task-card__break"
             icon="✦"
-            onClick={breakDown}
+            onClick={breakdown.start}
             aria-label={`Break down "${task.title}" into steps`}
           >
             Break it down
           </Button>
         )}
 
-        {breaking && (
-          <div className="task-card__shimmer" role="status" aria-label="Breaking it down">
-            <div className="shimmer-bar" />
-            <div className="shimmer-bar" />
-            <div className="shimmer-bar" />
+        {working && (
+          <div className="task-card__shimmer" role="status">
+            <span className="task-card__working">CalmSense is breaking it down…</span>
+            {!noMotion && (
+              <div aria-hidden="true">
+                <div className="shimmer-bar" />
+                <div className="shimmer-bar" />
+                <div className="shimmer-bar" />
+              </div>
+            )}
           </div>
         )}
 
-        {showSteps && hasSteps && !breaking && (
+        {breakdown.status === 'failed' && (
+          <p className="task-card__note" role="status">
+            CalmSense couldn&apos;t break this down just now. Try again whenever you&apos;re ready.
+          </p>
+        )}
+
+        {hasSteps && !task.completed && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="task-card__steps-toggle"
+            aria-expanded={showSteps}
+            onClick={() => onShowSteps(task.id, !showSteps)}
+          >
+            {showSteps ? 'Hide steps' : 'Show steps'}
+          </Button>
+        )}
+
+        {showSteps && hasSteps && (
           <StepList
             steps={steps}
             noMotion={noMotion}

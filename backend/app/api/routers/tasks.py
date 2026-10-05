@@ -1,9 +1,18 @@
 from fastapi import APIRouter, Depends, Response, status
 
 from app.api.auth import get_current_user
-from app.api.dependencies import get_tasks
+from app.api.dependencies import get_break_down_task, get_tasks
 from app.api.presenters import task_data
-from app.api.schemas.tasks import StepsReplace, StepUpdate, TaskCreate, TaskOut, TasksOrder, TaskUpdate
+from app.api.schemas.tasks import (
+    BreakdownRequest,
+    StepsReplace,
+    StepUpdate,
+    TaskCreate,
+    TaskOut,
+    TasksOrder,
+    TaskUpdate,
+)
+from app.application.breakdown import BreakDownTask
 from app.application.tasks import Tasks
 from app.domain.tasks import Step, Task, TaskStep
 
@@ -80,6 +89,21 @@ async def clear_tasks(user_id: str = Depends(get_current_user), tasks: Tasks = D
     """Remove every task on your list."""
     await tasks.clear(user_id)
     return Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
+@router.post("/{task_id}/breakdown", response_model=TaskOut, summary="Break a task down with CalmSense")
+async def break_down(
+    task_id: str,
+    body: BreakdownRequest,
+    user_id: str = Depends(get_current_user),
+    break_down_task: BreakDownTask = Depends(get_break_down_task),
+):
+    """CalmSense splits the task into steps of your step size and says why; they replace its steps.
+
+    The title is safety-checked first (422 if it's held back). If CalmSense can't answer, it's a 503 and the
+    task stays as it was. The result goes in your activity log.
+    """
+    return task_data(await break_down_task(user_id, task_id, body.time_of_day))
 
 
 @router.put("/{task_id}/steps", response_model=TaskOut, summary="Replace a task's steps")

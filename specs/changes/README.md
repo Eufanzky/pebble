@@ -51,3 +51,4 @@ One folder per change: what was asked and decided (`requirements.md`), how it wa
 | 2026-10-04 | 6.4 | [Clear names](2026-10-04-clear-names/requirements.md) |
 | 2026-10-04 | 6.5 | [Names in the code](2026-10-04-names-in-code/requirements.md) |
 | 2026-10-04 | 6.6 | [One word for steps](2026-10-04-one-word-for-steps/requirements.md) |
+| 2026-10-05 | 7.1 | [CalmSense on Today](2026-10-05-calmsense-on-today/requirements.md) |

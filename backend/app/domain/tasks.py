@@ -30,15 +30,18 @@ class Step:
 class TaskBreakdown:
     steps: tuple[Step, ...]
     why: str = ""
+    title: str = ""
+    """A short name for the task, for a breakdown asked for in chat (where the message isn't a title)."""
 
     def texts(self) -> list[str]:
         """Every user-visible text, for safety checks."""
-        return [step.title for step in self.steps] + [self.why]
+        return [step.title for step in self.steps] + [self.why] + ([self.title] if self.title else [])
 
     def map_text(self, transform: Callable[[str], str]) -> "TaskBreakdown":
         return TaskBreakdown(
             steps=tuple(Step(transform(s.title), s.time_estimate) for s in self.steps),
             why=transform(self.why),
+            title=transform(self.title),
         )
 
 

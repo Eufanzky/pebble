@@ -9,6 +9,7 @@ type TaskCreate = ApiSchema<'TaskCreate'>;
 
 let tasks: TaskOut[] = [];
 let nextId = 1;
+let breakdowns: { taskId: string; timeOfDay: string }[] = [];
 const id = (prefix: string) => `${prefix}-${nextId++}`;
 
 function toTask(body: TaskCreate): TaskOut {
@@ -42,9 +43,12 @@ export const taskStore = {
   replace(list: TaskOut[]) {
     tasks = structuredClone(list);
   },
+  /** Every breakdown asked for, in order. */
+  breakdowns: () => [...breakdowns],
   reset() {
     tasks = [];
     nextId = 1;
+    breakdowns = [];
   },
 };
 
@@ -91,6 +95,19 @@ export const taskHandlers = {
       const set = Object.fromEntries(Object.entries(changes).filter(([, v]) => v !== null && v !== undefined));
       return update(String(params.taskId), (t) => ({ ...t, ...set }));
     }),
+    // CalmSense, as the backend's fake LLM answers: three steps named after the task
+    http.post('/api/tasks/:taskId/breakdown', async ({ params, request }) => {
+      const { timeOfDay = 'day' } = (await request.json()) as ApiSchema<'BreakdownRequest'>;
+      const taskId = String(params.taskId);
+      if (tasks.some((t) => t.id === taskId)) breakdowns.push({ taskId, timeOfDay });
+      return update(taskId, (t) => ({
+        ...t,
+        whyExplanation: 'I split this into 3 steps, starting with the easiest.',
+        steps: [`Get what you need for: ${t.title}`, `Do the first small part of: ${t.title}`, 'Pick the next part'].map(
+          (title) => ({ id: id('step'), title, timeEstimate: '~10 min', completed: false }),
+        ),
+      }));
+    }),
     http.put('/api/tasks/:taskId/steps', async ({ params, request }) => {
       const { steps } = (await request.json()) as ApiSchema<'StepsReplace'>;
       return update(String(params.taskId), (t) => ({
@@ -110,6 +127,9 @@ export const taskHandlers = {
   /** Every task request answers `status` (an outage, or signed out). */
   status: (status: number, detail = 'Pebble couldn\'t reach your saved tasks just now.') =>
     http.all('/api/tasks*', () => HttpResponse.json({ detail }, { status })),
+  /** Breakdowns answer `status` (CalmSense can't answer: 503). */
+  breakdownStatus: (status: number) =>
+    http.post('/api/tasks/:taskId/breakdown', () => HttpResponse.json({ detail: "Pebble couldn't answer just now." }, { status })),
   /** Loading works; every change answers `status`. */
   saveStatus: (status: number) => [
     http.post('/api/tasks', () => HttpResponse.json({ detail: 'down' }, { status })),

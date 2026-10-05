@@ -20,9 +20,9 @@ Pebble helps people with ADHD, autism or dyslexia break tasks into small steps, 
 
 ## ✨ What it does
 
-**Today.** Your list, with what's up next and a "Mark as done" button. Tasks have a tag, an estimate and a priority. You can edit, delete, reorder (drag or keyboard), search and filter them. The example tasks come broken into small, time-boxed steps, with a "Why?" card; breaking down your own tasks from Today is [roadmap 7.1](specs/roadmap.md) (CalmSense does it in chat today). A roadmap view shows the same list as a path. Typing something like "I'm overwhelmed" gets gentle support instead of a new task.
+**Today.** Your list, with what's up next and a "Mark as done" button. Tasks have a tag, an estimate and a priority. You can edit, delete, reorder (drag or keyboard), search and filter them. "Break it down" asks CalmSense to split any task into small, time-boxed steps of your step size, and a "Why?" card shows its reasoning. A roadmap view shows the same list as a path. Typing something like "I'm overwhelmed" gets gentle support instead of a new task.
 
-**Chat with Pebble.** An orchestrator works out what you need and routes it: a breakdown (CalmSense), a simpler version of a text (SimplifyCore), or specific encouragement (PebbleVoice). Distress is answered at once, without a sub-agent. Chat shows the agents' replies; adding their steps or tasks to Today comes with 7.1 and 7.2.
+**Chat with Pebble.** An orchestrator works out what you need and routes it: a breakdown (CalmSense), a simpler version of a text (SimplifyCore), or specific encouragement (PebbleVoice). Distress is answered at once, without a sub-agent. A breakdown in chat can go straight onto Today.
 
 **Documents.** Upload a PDF, Word or text file (read in memory, never stored) and read it in a calmer view. The sample documents show the rest: a reading level from 1 to 10, the original and a simpler version side by side, a comprehension check, and action items turned into tasks or a study plan. Doing that for your own uploads, with SimplifyCore, is [roadmap 7.2](specs/roadmap.md). A built-in reader (read aloud, syllables, line focus) works without any setup; Azure Immersive Reader is used when it's configured.
 

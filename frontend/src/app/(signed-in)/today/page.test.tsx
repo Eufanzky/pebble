@@ -1,11 +1,12 @@
+import { http } from 'msw';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { renderWithProviders, screen, within } from '@/test/render';
-import { expectLogged } from '@/test/activity';
+import { server } from '@/test/msw/server';
+import { taskHandlers, taskStore } from '@/test/msw/tasks';
 import { newTask, seed } from '@/features/tasks/testing';
 import TodayPage from './page';
 
-// Each test starts from a known task list on the fake server, with animations
-// off (the break-down shimmer waits 1.5s).
+// Each test starts from a known task list on the fake server: one task with steps, one without.
 beforeEach(() => {
   seed([
     newTask('Read Chapter 4', {
@@ -22,7 +23,7 @@ beforeEach(() => {
 
 async function renderAndShowSteps() {
   const view = renderWithProviders(<TodayPage />);
-  await view.user.click(await screen.findByRole('button', { name: 'Break down "Read Chapter 4" into steps' }));
+  await view.user.click(await screen.findByRole('button', { name: 'Show steps' }));
   return view;
 }
 
@@ -31,7 +32,7 @@ function stepRow(title: string) {
 }
 
 describe('Today: toggling a task step', () => {
-  it('shows the steps once the task is broken down', async () => {
+  it('shows a task\'s steps when asked', async () => {
     await renderAndShowSteps();
 
     expect(screen.getByText('Skim the headings')).toBeInTheDocument();
@@ -63,12 +64,43 @@ describe('Today: toggling a task step', () => {
     expect(within(card).getByRole('button', { name: 'Mark as incomplete' })).toBeInTheDocument();
   });
 
-  it('logs breaking a task down in the activity log', async () => {
-    await renderAndShowSteps();
+});
 
-    await expectLogged({
-      agent: 'SimplifyCore',
-      action: expect.stringContaining('Broke down "Read Chapter 4" into 2 steps'),
-    });
+describe('Today: breaking a task down with CalmSense', () => {
+  it('offers it only for an open task without steps', async () => {
+    renderWithProviders(<TodayPage />);
+
+    expect(await screen.findByRole('button', { name: 'Break down "Take a walk" into steps' })).toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Break down "Read Chapter 4" into steps' })).not.toBeInTheDocument();
+  });
+
+  it('asks CalmSense, says so while it works, then shows its steps and why', async () => {
+    // Hold the request until the card has been checked, then let the fake answer
+    let answer = () => {};
+    const answered = new Promise<void>((resolve) => (answer = resolve));
+    server.use(http.post('/api/tasks/:taskId/breakdown', () => answered.then(() => undefined)));
+    const { user } = renderWithProviders(<TodayPage />);
+
+    await user.click(await screen.findByRole('button', { name: 'Break down "Take a walk" into steps' }));
+
+    const card = screen.getByRole('article', { name: 'Take a walk' });
+    expect(within(card).getByRole('status')).toHaveTextContent('CalmSense is breaking it down…');
+    answer();
+    expect(await within(card).findByText('Get what you need for: Take a walk')).toBeInTheDocument();
+    expect(taskStore.breakdowns()).toHaveLength(1);
+    expect(within(card).getByText('0 of 3 steps')).toBeInTheDocument();
+    expect(within(card).getByRole('button', { name: /Why did Pebble do this/ })).toBeInTheDocument();
+    expect(within(card).queryByRole('button', { name: /Break down/ })).not.toBeInTheDocument();
+  });
+
+  it('says so gently, and changes nothing, when CalmSense can\'t answer', async () => {
+    server.use(taskHandlers.breakdownStatus(503));
+    const { user } = renderWithProviders(<TodayPage />);
+
+    await user.click(await screen.findByRole('button', { name: 'Break down "Take a walk" into steps' }));
+
+    expect(await screen.findByText(/CalmSense couldn.t break this down just now/)).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Break down "Take a walk" into steps' })).toBeInTheDocument();
+    expect(taskStore.all().find((t) => t.title === 'Take a walk')!.steps).toEqual([]);
   });
 });

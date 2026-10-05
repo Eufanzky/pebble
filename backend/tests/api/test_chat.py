@@ -24,6 +24,7 @@ CHAT_URL = "/api/agents/chat"
 RESPONSE_KEYS = {"intent", "response", "mood", "agentName", "data"}
 
 DECOMPOSE_REPLY = {
+    "title": "Start the essay",
     "steps": [
         {"title": "Open the essay file", "timeEstimate": "~5 min"},
         {"title": "Write the first paragraph", "timeEstimate": "~15 min"},

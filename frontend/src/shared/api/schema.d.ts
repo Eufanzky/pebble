@@ -420,6 +420,29 @@ export interface paths {
         patch: operations["update_task_api_tasks__task_id__patch"];
         trace?: never;
     };
+    "/api/tasks/{task_id}/breakdown": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Break a task down with CalmSense
+         * @description CalmSense splits the task into steps of your step size and says why; they replace its steps.
+         *
+         *     The title is safety-checked first (422 if it's held back). If CalmSense can't answer, it's a 503 and the
+         *     task stays as it was. The result goes in your activity log.
+         */
+        post: operations["break_down_api_tasks__task_id__breakdown_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tasks/{task_id}/steps": {
         parameters: {
             query?: never;
@@ -508,6 +531,14 @@ export interface components {
              * @description PDF, Word (.docx) or plain-text file. Max 10 MB.
              */
             file: string;
+        };
+        /** BreakdownRequest */
+        BreakdownRequest: {
+            /**
+             * Timeofday
+             * @default day
+             */
+            timeOfDay: string;
         };
         /** ByTagOut */
         ByTagOut: {
@@ -608,6 +639,11 @@ export interface components {
         DecomposeResponse: {
             /** Steps */
             steps: components["schemas"]["StepResult"][];
+            /**
+             * Title
+             * @default
+             */
+            title: string;
             /** Whyexplanation */
             whyExplanation: string;
         };
@@ -1576,6 +1612,41 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["TaskUpdate"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    break_down_api_tasks__task_id__breakdown_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["BreakdownRequest"];
             };
         };
         responses: {

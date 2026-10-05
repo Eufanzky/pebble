@@ -63,6 +63,16 @@ class Tasks:
         await self._save(user_id, task)
         return task
 
+    async def set_breakdown(self, user_id: str, task_id: str, steps: Sequence[Step], why: str) -> Task:
+        """A CalmSense breakdown: its steps replace the task's (all open), and its "why" becomes the task's."""
+        new_steps = tuple(TaskStep(self.make_id(), s.title, s.time_estimate) for s in steps)
+        task = replace((await self._get(user_id, task_id)).with_steps(new_steps), why=why)
+        await self._save(user_id, task)
+        return task
+
+    async def get(self, user_id: str, task_id: str) -> Task:
+        return await self._get(user_id, task_id)
+
     async def set_step_completed(self, user_id: str, task_id: str, step_id: str, completed: bool) -> Task:
         before = await self._get(user_id, task_id)
         try:

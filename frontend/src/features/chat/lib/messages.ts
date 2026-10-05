@@ -2,7 +2,7 @@ import type { Task } from '@/features/tasks';
 import type { PebbleMood } from '@/features/companion';
 import type { TimeOfDay } from '@/shared/hooks/useTimeOfDay';
 import type { UserPreferences } from '@/shared/preferences';
-import type { ChatMessage, ChatRequest, ChatResponse } from '../types';
+import type { ChatBreakdown, ChatMessage, ChatRequest, ChatResponse } from '../types';
 
 /** Shown instead of the raw error: a status code means nothing to the user. */
 export const CHAT_ERROR_TEXT = "Pebble couldn't answer just now. Try again whenever you're ready.";
@@ -33,7 +33,12 @@ export function userMessage(text: string, now = Date.now()): ChatMessage {
   return { id: `u-${now}`, role: 'user', text };
 }
 
-export function replyMessage(reply: ChatResponse, now = Date.now()): ChatMessage {
+/**
+ * The reply as a message. A CalmSense breakdown keeps its steps, named by CalmSense's title or, failing
+ * that, by what the user asked.
+ */
+export function replyMessage(reply: ChatResponse, now = Date.now(), asked = ''): ChatMessage {
+  const breakdown = breakdownOf(reply, asked);
   return {
     id: `a-${now}`,
     role: 'assistant',
@@ -41,6 +46,17 @@ export function replyMessage(reply: ChatResponse, now = Date.now()): ChatMessage
     agentName: reply.agentName,
     mood: reply.mood,
     intent: reply.intent,
+    ...(breakdown ? { breakdown } : {}),
+  };
+}
+
+function breakdownOf(reply: ChatResponse, asked: string): ChatBreakdown | undefined {
+  const data = reply.data as Partial<ChatBreakdown> | null | undefined;
+  if (reply.intent !== 'decompose' || !data || !Array.isArray(data.steps) || data.steps.length === 0) return undefined;
+  return {
+    title: (data.title?.trim() || asked.trim()).slice(0, 200),
+    steps: data.steps.map((s) => ({ title: s.title, timeEstimate: s.timeEstimate ?? '' })),
+    whyExplanation: data.whyExplanation ?? '',
   };
 }
 

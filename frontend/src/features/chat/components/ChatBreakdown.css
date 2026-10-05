@@ -1,0 +1,19 @@
+/* CalmSense's steps in a chat reply, with "Add to Today" (roadmap 7.1). */
+.chat-breakdown {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+.chat-breakdown ol {
+  margin: 0;
+  padding-left: var(--space-5);
+  display: grid;
+  gap: var(--space-1);
+}
+.chat-breakdown__time {
+  color: var(--color-text-3);
+  font-variant-numeric: tabular-nums;
+}
+.chat-breakdown .ui-button {
+  justify-self: start;
+}

@@ -1,48 +1,41 @@
-import { afterEach, describe, expect, it, vi } from 'vitest';
-import { act, renderHook } from '@testing-library/react';
-import { BREAK_DOWN_MS, useBreakDown } from './useBreakDown';
+import { describe, expect, it } from 'vitest';
+import { act, renderHookWithProviders, waitFor } from '@/test/render';
+import { server } from '@/test/msw/server';
+import { taskHandlers, taskStore } from '@/test/msw/tasks';
+import { useTasks } from '../context/TasksContext';
+import { newTask, seed } from '../testing';
+import { useBreakDown } from './useBreakDown';
 
-afterEach(() => vi.useRealTimers());
+async function renderFor(title: string) {
+  seed([newTask(title)]);
+  const tasks = renderHookWithProviders(() => useTasks());
+  await waitFor(() => expect(tasks.result.current.isLoading).toBe(false));
+  const id = tasks.result.current.tasks[0].id;
+  return renderHookWithProviders(() => useBreakDown(id));
+}
 
 describe('useBreakDown', () => {
-  it('starts with the steps shown or hidden as stored', () => {
-    expect(renderHook(() => useBreakDown(true, false, vi.fn())).result.current.showSteps).toBe(true);
-    expect(renderHook(() => useBreakDown(false, false, vi.fn())).result.current.showSteps).toBe(false);
+  it('is working only while CalmSense is asked, then idle again', async () => {
+    const { result } = await renderFor('Write the essay');
+    expect(result.current.status).toBe('idle');
+
+    let done: Promise<void> = Promise.resolve();
+    act(() => {
+      done = result.current.start();
+    });
+    expect(result.current.status).toBe('working');
+
+    await act(() => done);
+    expect(result.current.status).toBe('idle');
+    expect(taskStore.breakdowns()).toHaveLength(1);
   });
 
-  it('shows the steps at once with reduce-animations on', () => {
-    const onShown = vi.fn();
-    const { result } = renderHook(() => useBreakDown(false, true, onShown));
+  it('is failed when CalmSense can\'t answer', async () => {
+    server.use(taskHandlers.breakdownStatus(503));
+    const { result } = await renderFor('Write the essay');
 
-    act(() => result.current.breakDown());
+    await act(() => result.current.start());
 
-    expect(result.current).toMatchObject({ showSteps: true, breaking: false });
-    expect(onShown).toHaveBeenCalledOnce();
-  });
-
-  it('plays the shimmer first with animations on', () => {
-    vi.useFakeTimers();
-    const onShown = vi.fn();
-    const { result } = renderHook(() => useBreakDown(false, false, onShown));
-
-    act(() => result.current.breakDown());
-    expect(result.current).toMatchObject({ showSteps: false, breaking: true });
-    expect(onShown).not.toHaveBeenCalled();
-
-    act(() => vi.advanceTimersByTime(BREAK_DOWN_MS));
-    expect(result.current).toMatchObject({ showSteps: true, breaking: false });
-    expect(onShown).toHaveBeenCalledOnce();
-  });
-
-  it('does nothing after unmounting mid-shimmer', () => {
-    vi.useFakeTimers();
-    const onShown = vi.fn();
-    const { result, unmount } = renderHook(() => useBreakDown(false, false, onShown));
-
-    act(() => result.current.breakDown());
-    unmount();
-    vi.advanceTimersByTime(BREAK_DOWN_MS);
-
-    expect(onShown).not.toHaveBeenCalled();
+    expect(result.current.status).toBe('failed');
   });
 });

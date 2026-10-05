@@ -224,20 +224,45 @@ describe('saving changes', () => {
     await waitFor(() => expect(taskStore.all().map((t) => t.title)).toEqual(['Breathe']));
   });
 
-  it('replaces the steps of a task it breaks down, and shows them', async () => {
+  it('asks CalmSense to break a task down, keeps its steps and why, and shows them', async () => {
     const result = await renderTasks([task('Essay')]);
 
-    act(() =>
-      result.current.breakDownTask(idOf(result, 'Essay'), [
-        { title: 'Outline', timeEstimate: '~5 min', completed: false },
-        { title: 'Draft', timeEstimate: '~15 min', completed: false },
-      ]),
-    );
+    await act(() => result.current.breakDown(idOf(result, 'Essay')));
 
+    expect(taskStore.breakdowns()).toEqual([{ taskId: idOf(result, 'Essay'), timeOfDay: expect.any(String) }]);
+    expect(find(result, 'Essay').steps!.map((s) => s.title)).toEqual(taskStore.all()[0].steps.map((s) => s.title));
+    expect(find(result, 'Essay').whyExplanation).toBe('I split this into 3 steps, starting with the easiest.');
     expect(find(result, 'Essay').showSteps).toBe(true);
-    await waitFor(() => expect(taskStore.all()[0].steps.map((s) => s.title)).toEqual(['Outline', 'Draft']));
-    await waitFor(() => expect(find(result, 'Essay').steps![0].id).toBe(taskStore.all()[0].steps[0].id));
-    expect(find(result, 'Essay').showSteps).toBe(true);
+  });
+
+  it('breaks down a task added a moment ago, once the server has it', async () => {
+    const result = await renderTasks([]);
+
+    act(() => result.current.addTask(task('Essay')));
+    await act(() => result.current.breakDown(idOf(result, 'Essay')));
+
+    expect(taskStore.breakdowns()).toEqual([{ taskId: taskStore.all()[0].id, timeOfDay: expect.any(String) }]);
+    expect(find(result, 'Essay').steps).toHaveLength(3);
+  });
+
+  it('leaves the task as it was when CalmSense can\'t answer', async () => {
+    const result = await renderTasks([task('Essay')]);
+    server.use(taskHandlers.breakdownStatus(503));
+
+    await expect(act(() => result.current.breakDown(idOf(result, 'Essay')))).rejects.toThrow();
+
+    expect(find(result, 'Essay').steps).toBeUndefined();
+    expect(result.current.saveFailed).toBe(false);
+  });
+
+  it('shows and hides a task\'s steps', async () => {
+    const result = await renderTasks([task('Write', { steps: [step('Outline')] })]);
+
+    act(() => result.current.setStepsShown(idOf(result, 'Write'), true));
+    expect(find(result, 'Write').showSteps).toBe(true);
+
+    act(() => result.current.setStepsShown(idOf(result, 'Write'), false));
+    expect(find(result, 'Write').showSteps).toBeUndefined();
   });
 
   it('adds a document action item as a study or communication task', async () => {

@@ -64,4 +64,5 @@ def _parse(reply: dict) -> TaskBreakdown:
     return TaskBreakdown(
         steps=tuple(Step(str(s["title"]), str(s.get("timeEstimate", ""))) for s in steps),
         why=str(reply.get("whyExplanation", "")),
+        title=str(reply.get("title", "")).strip()[:200],
     )

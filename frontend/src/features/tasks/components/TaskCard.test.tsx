@@ -1,4 +1,7 @@
+import { http } from 'msw';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { server } from '@/test/msw/server';
+import { taskHandlers } from '@/test/msw/tasks';
 import { renderWithProviders, screen, within } from '@/test/render';
 import { seed } from '../testing';
 import type { Task } from '../types';
@@ -22,7 +25,7 @@ function task(overrides: Partial<Task> = {}): Task {
 }
 
 function renderCard(t: Task) {
-  const handlers = { onToggle: vi.fn(), onToggleStep: vi.fn(), onBreakDown: vi.fn(), onWhyOpen: vi.fn() };
+  const handlers = { onToggle: vi.fn(), onToggleStep: vi.fn(), onShowSteps: vi.fn(), onWhyOpen: vi.fn() };
   const view = renderWithProviders(<TaskCard task={t} {...handlers} />);
   return { ...view, ...handlers };
 }
@@ -63,35 +66,62 @@ describe('TaskCard', () => {
     expect(screen.queryByRole('button', { name: /Why did Pebble/ })).not.toBeInTheDocument();
   });
 
-  it('breaks the task down into its steps, then shows why', async () => {
-    const { user, onBreakDown, onToggleStep } = renderCard(task());
+  it('offers its steps when they are hidden, with no break-down', async () => {
+    const { user, onShowSteps } = renderCard(task());
+
     expect(screen.queryByText('Skim the headings')).not.toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Why did Pebble/ })).not.toBeInTheDocument();
-
-    await user.click(screen.getByRole('button', { name: 'Break down "Read Chapter 4" into steps' }));
-
-    expect(onBreakDown).toHaveBeenCalledWith('task-x');
-    const row = screen.getByText('Write a summary').closest('.step-item') as HTMLElement;
-    expect(within(screen.getByText('Skim the headings').closest('.step-item') as HTMLElement)
-      .getByRole('button', { name: 'Uncheck step' })).toBeInTheDocument();
+    expect(screen.getByText('1 of 2 steps')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: /Break down/ })).not.toBeInTheDocument();
 
+    await user.click(screen.getByRole('button', { name: 'Show steps' }));
+    expect(onShowSteps).toHaveBeenCalledWith('task-x', true);
+  });
+
+  it('shows its steps, ticks one, offers to hide them, and shows why', async () => {
+    const { user, onToggleStep, onShowSteps } = renderCard(task({ showSteps: true }));
+
+    const hide = screen.getByRole('button', { name: 'Hide steps' });
+    expect(hide).toHaveAttribute('aria-expanded', 'true');
+    await user.click(hide);
+    expect(onShowSteps).toHaveBeenCalledWith('task-x', false);
+    const row = screen.getByText('Write a summary').closest('.step-item') as HTMLElement;
     await user.click(within(row).getByRole('button', { name: 'Check step' }));
     expect(onToggleStep).toHaveBeenCalledWith('task-x', 'b');
-
     expect(screen.getByRole('button', { name: /Why did Pebble/ })).toBeInTheDocument();
   });
 
-  it('shows a shimmer while breaking down when animations are on', async () => {
+  it('says CalmSense is working, with moving bars only when animations are on', async () => {
+    let answer = () => {};
+    const answered = new Promise<void>((resolve) => (answer = resolve));
+    server.use(http.post('/api/tasks/:taskId/breakdown', () => answered.then(() => undefined)));
     seed([], { reduceAnimations: false });
-    const { user, onBreakDown } = renderCard(task());
+    const { user, container } = renderCard(task({ steps: undefined }));
 
-    await user.click(screen.getByRole('button', { name: /Break down/ }));
+    await user.click(screen.getByRole('button', { name: 'Break down "Read Chapter 4" into steps' }));
 
-    expect(screen.getByRole('status', { name: 'Breaking it down' })).toBeInTheDocument();
-    expect(onBreakDown).not.toHaveBeenCalled();
-    expect(await screen.findByText('Skim the headings', {}, { timeout: 3000 })).toBeInTheDocument();
-    expect(onBreakDown).toHaveBeenCalledWith('task-x');
+    expect(screen.getByRole('status')).toHaveTextContent('CalmSense is breaking it down…');
+    expect(container.querySelectorAll('.shimmer-bar')).toHaveLength(3);
+    expect(screen.queryByRole('button', { name: /Break down/ })).not.toBeInTheDocument();
+    answer();
+  });
+
+  it('says so gently when CalmSense can\'t break it down, and offers it again', async () => {
+    server.use(taskHandlers.breakdownStatus(503));
+    const { user } = renderCard(task({ steps: undefined }));
+
+    await user.click(screen.getByRole('button', { name: 'Break down "Read Chapter 4" into steps' }));
+
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      "CalmSense couldn't break this down just now. Try again whenever you're ready.",
+    );
+    expect(screen.getByRole('button', { name: 'Break down "Read Chapter 4" into steps' })).toBeInTheDocument();
+  });
+
+  it('offers no break-down for a finished task', () => {
+    renderCard(task({ steps: undefined, completed: true }));
+
+    expect(screen.queryByRole('button', { name: /Break down/ })).not.toBeInTheDocument();
   });
 
   it('shows why right away for a task without steps, and reports opening it', async () => {
@@ -103,7 +133,7 @@ describe('TaskCard', () => {
     expect(screen.getByText('One step per section.')).toBeVisible();
   });
 
-  it('shows stored steps without a break-down', () => {
+  it('shows its steps at once when they are marked as shown', () => {
     renderCard(task({ showSteps: true }));
 
     expect(screen.getByText('Skim the headings')).toBeInTheDocument();

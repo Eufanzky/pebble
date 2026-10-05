@@ -26,6 +26,7 @@ Requests are spaced out (`EVAL_REQUEST_INTERVAL`, default 6.5 s) to stay under f
 
 | Date | Provider / model | JSON | Intent | Distress | Voice | Notes |
 |:--|:--|:--|:--|:--|:--|:--|
+| 2026-10-05 | Groq, openai/gpt-oss-120b (reasoning effort low) | 1.00 | 0.97 | 1.00 | 0.90 | 7.1: CalmSense also returns a short `title`. 46 calls. Misses: `decompose-apartment`, `decompose-portfolio` (23 and 25 words a sentence), `motivate-pep-talk` (21), and `chat-thanks` classified as motivate, as in the first baseline. |
 | 2026-10-04 | Groq, openai/gpt-oss-120b (reasoning effort low) | 1.00 | 1.00 | 1.00 | 0.83 | 6.6 (CalmSense says "steps", "step size"), second run. 45 calls. Voice misses in five agents' replies, only one of them CalmSense's (`decompose-portfolio`); the rest are chat (`chat-colour`, `chat-cat`, 21 words), SimplifyCore and PebbleVoice, whose prompts 6.6 didn't change. See A-028. |
 | 2026-10-04 | Groq, openai/gpt-oss-120b (reasoning effort low) | 1.00 | 1.00 | 1.00 | 0.90 | `main` before 6.6, run for comparison. 44 calls. Misses: `decompose-portfolio`, `simplify-committee`, `simplify-photosynthesis`. |
 | 2026-10-04 | Groq, openai/gpt-oss-120b (reasoning effort low) | 1.00 | 1.00 | 1.00 | 0.87 | 6.6, first run. 45 calls. Misses: three CalmSense replies (`decompose-apartment`, `-moving`, `-portfolio`) and `motivate-nothing-done`. |

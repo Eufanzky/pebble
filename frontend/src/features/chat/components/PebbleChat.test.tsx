@@ -2,7 +2,9 @@ import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 import { chatHandlers, chatReply } from '@/test/msw/handlers';
 import { server } from '@/test/msw/server';
-import { renderWithProviders, screen } from '@/test/render';
+import { renderWithProviders, screen, waitFor } from '@/test/render';
+import { taskStore } from '@/test/msw/tasks';
+import { seed } from '@/features/tasks/testing';
 import { setTestPreferences } from '@/test/preferences';
 import { useActivityLog } from '@/features/activity';
 import { accountStore } from '@/test/msw/account';
@@ -164,5 +166,61 @@ describe('PebbleChat', () => {
     await user.type(screen.getByRole('textbox', { name: 'Message to Pebble' }), 'Try again{Enter}');
 
     expect(await screen.findByText('Back again.')).toBeInTheDocument();
+  });
+
+  describe('a CalmSense breakdown', () => {
+    const BREAKDOWN = {
+      title: 'Start the essay',
+      steps: [
+        { title: 'Open the doc', timeEstimate: '~5 min' },
+        { title: 'Write one line', timeEstimate: '~10 min' },
+      ],
+      whyExplanation: 'Small steps, easiest first.',
+    };
+
+    it('lists its steps and puts them on Today as a task, once', async () => {
+      seed([]);
+      server.use(
+        chatHandlers.reply({ response: 'Here are 2 small steps.', agentName: 'CalmSense', intent: 'decompose', data: BREAKDOWN }),
+      );
+      const { user } = await openAndSend('Help me with my essay');
+
+      const steps = await screen.findByRole('list', { name: 'Steps for "Start the essay"' });
+      expect(steps).toHaveTextContent('Open the doc');
+      await user.click(screen.getByRole('button', { name: 'Add "Start the essay" to Today' }));
+
+      expect(screen.getByRole('button', { name: '"Start the essay" is on Today' })).toBeDisabled();
+      await waitFor(() =>
+        expect(taskStore.all()).toEqual([
+          expect.objectContaining({
+            title: 'Start the essay',
+            whyExplanation: 'Small steps, easiest first.',
+            steps: [
+              expect.objectContaining({ title: 'Open the doc', timeEstimate: '~5 min', completed: false }),
+              expect.objectContaining({ title: 'Write one line', timeEstimate: '~10 min', completed: false }),
+            ],
+          }),
+        ]),
+      );
+    });
+
+    it('is named after the question when CalmSense gave no title', async () => {
+      server.use(
+        chatHandlers.reply({ response: 'Steps!', agentName: 'CalmSense', intent: 'decompose', data: { ...BREAKDOWN, title: '' } }),
+      );
+
+      await openAndSend('Help me with my essay');
+
+      expect(await screen.findByRole('button', { name: 'Add "Help me with my essay" to Today' })).toBeInTheDocument();
+    });
+
+    it('offers nothing to add for other replies', async () => {
+      server.use(chatHandlers.reply({ response: 'Hello there.', agentName: 'PebbleVoice', intent: 'chat', data: null }));
+
+      await openAndSend('Hi');
+
+      await screen.findByText('Hello there.');
+      expect(screen.queryByRole('button', { name: /to Today/ })).not.toBeInTheDocument();
+    });
   });
 });

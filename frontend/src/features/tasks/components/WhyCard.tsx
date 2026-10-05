@@ -34,7 +34,7 @@ export default function WhyCard({ explanation, onOpen }: WhyCardProps) {
         onMouseEnter={(e) => { e.currentTarget.style.opacity = '1'; }}
         onMouseLeave={(e) => { e.currentTarget.style.opacity = '0.8'; }}
       >
-        <span style={{ fontSize: 13 }}>?</span>
+        <span aria-hidden="true" style={{ fontSize: 13 }}>?</span>
         {expanded ? 'Hide explanation' : 'Why did Pebble do this?'}
       </button>
 

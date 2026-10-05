@@ -87,8 +87,8 @@ The fake LLM lives in `backend/app/infrastructure/llm/fake.py`, not only in test
 
 `frontend/e2e/`, one spec per area. `demo-flow.spec.ts` is kept short and stable:
 1. Dev login.
-2. Break a task into steps.
-3. Finish a step, and reload to see it saved.
+2. Ask CalmSense in chat, and add its steps to Today.
+3. Break a task of your own into steps on Today, finish one, and reload to see it saved.
 4. Simplify a document.
 5. Open the activity log and see the agent name and its reasoning.
 
