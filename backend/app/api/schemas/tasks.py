@@ -39,6 +39,13 @@ class TaskUpdate(BaseModel):
     model_config = {"populate_by_name": True}
 
 
+class BreakdownRequest(BaseModel):
+    time_of_day: str = Field(alias="timeOfDay", default="day", max_length=20)
+    """morning, afternoon, evening or night where the user is: CalmSense keeps late steps short."""
+
+    model_config = {"populate_by_name": True}
+
+
 class StepsReplace(BaseModel):
     steps: list[StepIn] = Field(max_length=50)
 

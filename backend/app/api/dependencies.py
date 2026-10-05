@@ -14,6 +14,7 @@ from app.application.agents.calmsense import DecomposeTask
 from app.application.agents.orchestrator import HandleChat
 from app.application.agents.pebblevoice import Encourage
 from app.application.agents.simplifycore import SimplifyDocument
+from app.application.breakdown import BreakDownTask
 from app.application.documents import ParseDocument
 from app.application.importing import ImportLocalData
 from app.application.ports.account import AccountDataStore
@@ -103,6 +104,10 @@ class Container:
         return Tasks(self.task_repository, progress=self.progress_log)
 
     @property
+    def break_down_task(self) -> BreakDownTask:
+        return BreakDownTask(self.tasks, self.decompose_task, self.preferences)
+
+    @property
     def progress_log(self) -> ProgressLog:
         return ProgressLog(self.progress_repository)
 
@@ -182,6 +187,10 @@ def get_reader() -> ReaderTokenProvider:
 
 def get_tasks() -> Tasks:
     return get_container().tasks
+
+
+def get_break_down_task() -> BreakDownTask:
+    return get_container().break_down_task
 
 
 def get_preferences() -> UserPreferences:

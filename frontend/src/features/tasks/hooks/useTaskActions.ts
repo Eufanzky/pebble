@@ -2,7 +2,6 @@
 
 import { useCallback } from 'react';
 import { useActivityLog } from '@/features/activity';
-import { usePreferences } from '@/shared/preferences';
 import { playTaskComplete } from '@/shared/lib/audio';
 import { useTasks } from '../context/TasksContext';
 
@@ -13,7 +12,6 @@ import { useTasks } from '../context/TasksContext';
 export function useTaskActions() {
   const { tasks, toggleTask, toggleStep } = useTasks();
   const { addEntry } = useActivityLog();
-  const { preferences } = usePreferences();
 
   const toggle = useCallback(
     (id: string) => {
@@ -38,20 +36,6 @@ export function useTaskActions() {
     [tasks, toggleTask, addEntry],
   );
 
-  const breakDown = useCallback(
-    (id: string) => {
-      const task = tasks.find((t) => t.id === id);
-      if (task?.steps) {
-        addEntry(
-          'SimplifyCore',
-          `Broke down "${task.title}" into ${task.steps.length} steps (${preferences.stepSize} steps, your preference).`,
-          `Task decomposed based on user step size preference: ${preferences.stepSize}.`
-        );
-      }
-    },
-    [tasks, preferences.stepSize, addEntry],
-  );
-
   const openWhy = useCallback(
     (id: string) => {
       const task = tasks.find((t) => t.id === id);
@@ -66,5 +50,5 @@ export function useTaskActions() {
     [tasks, addEntry],
   );
 
-  return { toggle, toggleStep, breakDown, openWhy };
+  return { toggle, toggleStep, openWhy };
 }

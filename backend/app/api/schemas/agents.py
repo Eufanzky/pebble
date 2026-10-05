@@ -19,6 +19,8 @@ class StepResult(BaseModel):
 
 
 class DecomposeResponse(BaseModel):
+    title: str = ""
+    """A short name for the task (CalmSense's own; may be empty)."""
     steps: list[StepResult]
     why_explanation: str = Field(alias="whyExplanation")
 

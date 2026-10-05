@@ -3,18 +3,19 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { usePebble } from '@/features/companion';
+import { useTimeOfDay } from '@/shared/hooks/useTimeOfDay';
 import {
   clearTasks,
   createTask,
   deleteTask as deleteTaskRequest,
   listTasks,
   reorderTasks as reorderRequest,
-  replaceSteps,
+  breakDownTask as breakDownRequest,
   updateStep,
   updateTask,
 } from '../api/tasks';
 import { sampleTasks } from '../data/sampleTasks';
-import type { NewTask, Step, Task } from '../types';
+import type { NewTask, Task } from '../types';
 
 const TASKS_KEY = ['tasks'] as const;
 
@@ -35,7 +36,10 @@ interface TasksContextValue {
   addTaskFromDocument: (title: string, docName: string, type: 'academic' | 'meeting') => void;
   /** Adds the example tasks, for a first look around. */
   addExampleTasks: () => void;
-  breakDownTask: (taskId: string, steps: Omit<Step, 'id'>[]) => void;
+  /** CalmSense breaks the task down; resolves once its steps are on the list, and rejects if it couldn't. */
+  breakDown: (taskId: string) => Promise<void>;
+  /** Show or hide a task's steps on this screen (not saved). */
+  setStepsShown: (taskId: string, shown: boolean) => void;
   /** Change what a task says: its title, estimate, tag or priority. */
   editTask: (id: string, changes: TaskEdit) => void;
   deleteTask: (id: string) => void;
@@ -62,6 +66,7 @@ export function TasksProvider({ children }: { children: ReactNode }) {
   const client = useQueryClient();
   const query = useQuery({ queryKey: TASKS_KEY, queryFn: listTasks, staleTime: Infinity });
   const { deriveMoodFromCompletion, flashMood } = usePebble();
+  const timeOfDay = useTimeOfDay();
   const [expanded, setExpanded] = useState<ReadonlySet<string>>(() => new Set());
   const [saveFailed, setSaveFailed] = useState(false);
   const queue = useRef<Promise<void>>(Promise.resolve());
@@ -200,15 +205,29 @@ export function TasksProvider({ children }: { children: ReactNode }) {
     sampleTasks.forEach((sample) => addTask({ ...sample, showSteps: false }));
   }, [addTask]);
 
-  const breakDownTask = useCallback(
-    (taskId: string, newSteps: Omit<Step, 'id'>[]) => {
-      const steps = newSteps.map((s) => ({ ...s, id: tempId(), completed: false }));
-      setTasks((prev) => prev.map((t) => (t.id === taskId ? { ...t, steps } : t)));
-      setExpanded((prev) => new Set(prev).add(taskId));
-      enqueue(async () => adoptIds(taskId, { steps }, await replaceSteps(idFor(taskId), newSteps)));
+  const breakDown = useCallback(
+    async (taskId: string) => {
+      // After every earlier save, so a task added a moment ago has its server id
+      const request = queue.current.then(() => breakDownRequest(idFor(taskId), timeOfDay));
+      queue.current = request.then(
+        () => undefined,
+        () => undefined,
+      );
+      const saved = await request;
+      setTasks((prev) => prev.map((t) => (t.id === taskId || t.id === saved.id ? saved : t)));
+      setExpanded((prev) => new Set(prev).add(saved.id));
     },
-    [setTasks, enqueue, adoptIds, idFor],
+    [setTasks, idFor, timeOfDay],
   );
+
+  const setStepsShown = useCallback((taskId: string, shown: boolean) => {
+    setExpanded((prev) => {
+      const next = new Set(prev);
+      if (shown) next.add(taskId);
+      else next.delete(taskId);
+      return next;
+    });
+  }, []);
 
   const editTask = useCallback(
     (id: string, changes: TaskEdit) => {
@@ -260,7 +279,8 @@ export function TasksProvider({ children }: { children: ReactNode }) {
     addTask,
     addTaskFromDocument,
     addExampleTasks,
-    breakDownTask,
+    breakDown,
+    setStepsShown,
     editTask,
     deleteTask,
     reorderTasks,

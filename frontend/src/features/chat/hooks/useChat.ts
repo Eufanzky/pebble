@@ -26,7 +26,7 @@ const MOOD_FLASH_MS = 3000;
 export function useChat() {
   const { preferences } = usePreferences();
   const { flashMood } = usePebble();
-  const { tasks } = useTasks();
+  const { tasks, addTask } = useTasks();
   const { refresh: refreshLog } = useActivityLog();
   const timeOfDay = useTimeOfDay();
 
@@ -43,7 +43,7 @@ export function useChat() {
 
       try {
         const reply = await sendChatMessage(buildChatRequest(text, tasks, preferences, timeOfDay));
-        setMessages((prev) => [...prev, replyMessage(reply)]);
+        setMessages((prev) => [...prev, replyMessage(reply, Date.now(), text)]);
 
         const mood = replyMood(reply);
         if (mood) flashMood(mood, MOOD_FLASH_MS);
@@ -59,5 +59,26 @@ export function useChat() {
     [isLoading, tasks, preferences, timeOfDay, flashMood, refreshLog],
   );
 
-  return { messages, isLoading, send };
+  /** Puts a CalmSense breakdown from the chat on Today, as a task with its steps and its "why". */
+  const addToToday = useCallback(
+    (messageId: string) => {
+      const message = messages.find((m) => m.id === messageId);
+      if (!message?.breakdown || message.added) return;
+      const { title, steps, whyExplanation } = message.breakdown;
+      addTask({
+        title,
+        timeEstimate: '',
+        tag: 'project',
+        priority: 'medium',
+        completed: false,
+        whyExplanation,
+        steps: steps.map((s) => ({ id: '', title: s.title, timeEstimate: s.timeEstimate, completed: false })),
+        showSteps: true,
+      });
+      setMessages((prev) => prev.map((m) => (m.id === messageId ? { ...m, added: true } : m)));
+    },
+    [messages, addTask],
+  );
+
+  return { messages, isLoading, send, addToToday };
 }

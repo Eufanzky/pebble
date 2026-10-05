@@ -51,26 +51,6 @@ describe('useTaskActions', () => {
     expect(result.current.entries[0]).toMatchObject({ action: 'Unchecked "Walk". No worries — take your time.' });
   });
 
-  it('logs a break-down with the step-size preference', async () => {
-    const { result, idOf } = await renderActions();
-
-    act(() => result.current.breakDown(idOf('Read')));
-
-    expect(result.current.entries[0]).toMatchObject({
-      agent: 'SimplifyCore',
-      action: 'Broke down "Read" into 1 steps (small steps, your preference).',
-    });
-  });
-
-  it('does not log a break-down for a task without steps', async () => {
-    const { result, idOf } = await renderActions();
-    const before = result.current.entries.length;
-
-    act(() => result.current.breakDown(idOf('Walk')));
-
-    expect(result.current.entries).toHaveLength(before);
-  });
-
   it('logs opening the explanation as WhyBot', async () => {
     const { result, idOf } = await renderActions();
 

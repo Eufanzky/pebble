@@ -86,6 +86,7 @@ def _decompose(text: str) -> dict:
     task = _field(text, "Task", text.strip().splitlines()[0] if text.strip() else "this task")
     minutes = STEP_MINUTES.get(_field(text, "User's preferred step size", "medium"), 15)
     return {
+        "title": task[:60],
         "steps": [
             {"title": f"Get what you need for: {task}", "timeEstimate": "~5 min"},
             {"title": f"Do the first small part of: {task}", "timeEstimate": f"~{minutes} min"},

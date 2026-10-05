@@ -9,7 +9,7 @@ import ChatPanel from './ChatPanel';
 /** The chat with Pebble, available on every page. */
 export default function PebbleChat() {
   const { reduceMotion, stripEmoji } = usePreferences();
-  const { messages, isLoading, send } = useChat();
+  const { messages, isLoading, send, addToToday } = useChat();
   const [isOpen, setIsOpen] = useState(false);
   const noMotion = reduceMotion;
 
@@ -21,6 +21,7 @@ export default function PebbleChat() {
           messages={messages}
           isLoading={isLoading}
           onSend={send}
+          onAddToToday={addToToday}
           onClose={() => setIsOpen(false)}
           noMotion={noMotion}
           stripEmoji={stripEmoji}

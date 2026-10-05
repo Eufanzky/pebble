@@ -15,6 +15,8 @@ import { renderWithProviders, screen } from './render';
 import { setTestPreferences } from './preferences';
 import { DesignSystemPreview } from '@/shared/ui';
 import { accountStore } from './msw/account';
+import { server } from './msw/server';
+import { taskHandlers } from './msw/tasks';
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }), usePathname: () => '/today' }));
 vi.mock('next-auth/react', () => ({ signIn: vi.fn(), signOut: vi.fn() }));
@@ -59,7 +61,7 @@ describe('axe: interactive states', () => {
     expect(await axe(container)).toHaveNoViolations();
   });
 
-  it('a task broken down, with its explanation open', async () => {
+  it('a task with its steps and explanation open', async () => {
     seed([
       newTask('Read Chapter 4', {
         whyExplanation: 'One step per section.',
@@ -67,8 +69,18 @@ describe('axe: interactive states', () => {
       }),
     ]);
     const { container, user } = renderWithProviders(<TodayView />);
-    await user.click((await screen.findAllByRole('button', { name: /Break down/ }))[0]);
+    await user.click(await screen.findByRole('button', { name: 'Show steps' }));
     await user.click(screen.getAllByRole('button', { name: /Why did Pebble do this\?/ })[0]);
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it('a task CalmSense couldn\'t break down', async () => {
+    seed([newTask('Write the essay')]);
+    server.use(taskHandlers.breakdownStatus(503));
+    const { container, user } = renderWithProviders(<TodayView />);
+    await user.click(await screen.findByRole('button', { name: 'Break down "Write the essay" into steps' }));
+    await screen.findByText(/CalmSense couldn.t break this down/);
 
     expect(await axe(container)).toHaveNoViolations();
   });

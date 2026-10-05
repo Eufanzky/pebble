@@ -1,4 +1,6 @@
 import type { CSSProperties } from 'react';
+import { Button } from '@/shared/ui';
+import './ChatBreakdown.css';
 import type { ChatMessage } from '../types';
 
 // Agent badge colors (matches ActivityFeed)
@@ -34,9 +36,10 @@ function bubbleStyle(message: ChatMessage): CSSProperties {
 interface ChatMessageItemProps {
   message: ChatMessage;
   stripEmoji: (text: string) => string;
+  onAddToToday?: (messageId: string) => void;
 }
 
-export default function ChatMessageItem({ message, stripEmoji }: ChatMessageItemProps) {
+export default function ChatMessageItem({ message, stripEmoji, onAddToToday }: ChatMessageItemProps) {
   return (
     <div style={{ alignSelf: message.role === 'user' ? 'flex-end' : 'flex-start', maxWidth: '85%' }}>
       {message.agentName && (
@@ -54,6 +57,29 @@ export default function ChatMessageItem({ message, stripEmoji }: ChatMessageItem
         ...bubbleStyle(message),
       }}>
         {message.role === 'assistant' ? stripEmoji(message.text) : message.text}
+        {message.breakdown && (
+          <div className="chat-breakdown">
+            <ol aria-label={`Steps for "${message.breakdown.title}"`}>
+              {message.breakdown.steps.map((step, i) => (
+                <li key={i}>
+                  {stripEmoji(step.title)}
+                  {step.timeEstimate && <span className="chat-breakdown__time"> {step.timeEstimate}</span>}
+                </li>
+              ))}
+            </ol>
+            {onAddToToday && (
+              <Button
+                variant="quiet"
+                size="sm"
+                disabled={message.added}
+                onClick={() => onAddToToday(message.id)}
+                aria-label={message.added ? `"${message.breakdown.title}" is on Today` : `Add "${message.breakdown.title}" to Today`}
+              >
+                {message.added ? 'On Today' : 'Add to Today'}
+              </Button>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

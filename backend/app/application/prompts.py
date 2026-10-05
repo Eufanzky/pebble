@@ -34,6 +34,7 @@ Rules:
 
 Respond in JSON format:
 {{
+  "title": "a short name for the task, 3 to 8 words",
   "steps": [
     {{"title": "step description", "timeEstimate": "~X min"}},
     ...

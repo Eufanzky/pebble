@@ -100,3 +100,20 @@ async def test_missing_fields_are_empty(calmsense, llm):
     llm.script("CalmSense", {})
 
     assert await calmsense.run("Essay", "medium", "day") == TaskBreakdown(steps=(), why="")
+
+
+async def test_reads_a_short_title_for_the_task(calmsense, llm):
+    llm.script("CalmSense", {**REPLY, "title": "  Write the essay  "})
+
+    breakdown = await calmsense.run("Help me get my essay going", "medium", "day")
+
+    assert breakdown.title == "Write the essay"
+
+
+async def test_the_title_is_checked_and_redacted_like_the_rest(calmsense, llm, safety):
+    llm.script("CalmSense", {**REPLY, "title": "Email sam@example.com"})
+
+    breakdown = await calmsense.run("Email Sam", "medium", "day")
+
+    assert "sam@example.com" not in breakdown.title
+    assert "Email sam@example.com" in safety.analyzed[0]

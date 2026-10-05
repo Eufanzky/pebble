@@ -206,6 +206,22 @@
   gap: var(--space-2);
   margin-top: var(--space-3);
 }
+.task-card__shimmer > div {
+  display: grid;
+  gap: var(--space-2);
+}
+.task-card__working,
+.task-card__note {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-2);
+}
+.task-card__note {
+  margin-top: var(--space-3);
+}
+.task-card__steps-toggle {
+  margin-top: var(--space-2);
+}
 .shimmer-bar {
   height: 12px;
   border-radius: var(--radius-sm);

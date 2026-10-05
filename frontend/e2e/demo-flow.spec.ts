@@ -1,43 +1,44 @@
 import { expect, test } from '@playwright/test';
 import { signInEachTest } from './helpers';
 
-// The demo flow (specs/testing.md): dev login, break a task into steps, finish
-// a step, simplify a document, and see the agent and its "why" in the activity log.
+// The demo flow (specs/testing.md): dev login, break tasks into steps with CalmSense (in chat and on
+// Today), finish a step, simplify a document, and see the agent and its "why" in the activity log.
 
 signInEachTest();
 
 test('the demo flow', async ({ page }) => {
-  await test.step('break a task into steps with CalmSense, through the real backend', async () => {
+  await test.step('ask CalmSense in chat, through the real backend, and put its steps on Today', async () => {
     await page.getByRole('button', { name: 'Chat with Pebble' }).click();
     const chat = page.getByRole('dialog', { name: 'Chat with Pebble' });
     await chat.getByRole('textbox', { name: 'Message to Pebble' }).fill('Help me break down writing my essay');
     await chat.getByRole('button', { name: 'Send message' }).click();
     await expect(chat.getByText('CalmSense')).toBeVisible();
-    await expect(chat.getByText("Let's do this together.")).toBeVisible();
+    await expect(chat.getByRole('list', { name: /^Steps for/ })).toContainText('Do the first small part of');
+    await chat.getByRole('button', { name: /^Add ".*" to Today$/ }).click();
+    await expect(chat.getByRole('button', { name: /is on Today$/ })).toBeDisabled();
     await page.getByRole('button', { name: 'Close chat', exact: true }).click();
+    await expect(page.getByRole('article', { name: 'Help me break down writing my essay' })).toBeVisible();
   });
 
-  await test.step('a new list is empty and offers example tasks', async () => {
-    await page.getByRole('button', { name: 'Add example tasks' }).click();
-    await expect(page.getByRole('button', { name: /Break down "Read Chapter 4/ })).toBeVisible();
-  });
-
-  await test.step('break a task on Today into steps, and finish one', async () => {
-    await page.getByRole('button', { name: /Break down "Read Chapter 4/ }).click();
-    const step = page.locator('.step-item', { hasText: 'Skim the chapter headings first' });
+  await test.step('break a task of your own into steps on Today, and finish one', async () => {
+    await page.getByRole('textbox', { name: 'Add a new task' }).fill('Email Sam about the project');
+    await page.getByRole('textbox', { name: 'Add a new task' }).press('Enter');
+    const card = page.getByRole('article', { name: 'Email Sam about the project' });
+    await card.getByRole('button', { name: 'Break down "Email Sam about the project" into steps' }).click();
+    const step = card.locator('.step-item', { hasText: 'Get what you need for: Email Sam about the project' });
     await step.getByRole('button', { name: 'Check step' }).click();
     await expect(step.getByRole('button', { name: 'Uncheck step' })).toBeVisible();
 
-    // Saved in the backend: a reload shows the same list, with the step still done
-    await expect
-      .poll(async () => (await (await page.request.get('/api/tasks')).json())[0].steps[0].completed)
-      .toBe(true);
+    // Saved in the backend: after a reload the step is still done
+    const saved = async () =>
+      ((await (await page.request.get('/api/tasks')).json()) as { title: string; steps: { completed: boolean }[] }[])
+        .find((t) => t.title === 'Email Sam about the project')
+        ?.steps[0]?.completed;
+    await expect.poll(saved).toBe(true);
     await page.reload();
-    await page.getByRole('button', { name: /Break down "Read Chapter 4/ }).click();
+    await card.getByRole('button', { name: 'Show steps' }).click();
     await expect(
-      page.locator('.step-item', { hasText: 'Skim the chapter headings first' }).getByRole('button', {
-        name: 'Uncheck step',
-      }),
+      card.locator('.step-item', { hasText: 'Get what you need for' }).getByRole('button', { name: 'Uncheck step' }),
     ).toBeVisible();
   });
 
@@ -51,17 +52,14 @@ test('the demo flow', async ({ page }) => {
     await doc.getByRole('button', { name: 'Close document' }).click();
   });
 
-  await test.step('see the agent and its "why" in the activity log', async () => {
+  await test.step('see CalmSense and its "why" in the activity log', async () => {
     await page.getByRole('link', { name: /Activity/ }).click();
-    // A new user's log holds only what really happened in this flow (A-022),
-    // including the second break-down after the reload
-    await expect(page.getByText('Showing 5 of 5 entries')).toBeVisible();
-    const entry = page.locator('.activity-entry', { hasText: 'Reading level adjusted to 2' });
-    await expect(entry.getByText('AdaptLens', { exact: true })).toBeVisible();
-    await entry.getByRole('button', { name: 'Show reasoning' }).click();
-    await expect(entry.getByText('User manually changed reading level from 5 to 2.')).toBeVisible();
-
     const chat = page.locator('.activity-entry', { hasText: 'Chat: decompose' });
     await expect(chat.getByText('CalmSense', { exact: true })).toBeVisible();
+
+    const breakdown = page.locator('.activity-entry', { hasText: 'Broke "Email Sam about the project" into 3 steps' });
+    await expect(breakdown.getByText('CalmSense', { exact: true })).toBeVisible();
+    await breakdown.getByRole('button', { name: 'Show reasoning' }).click();
+    await expect(breakdown.getByText(/I split this into 3 steps/)).toBeVisible();
   });
 });

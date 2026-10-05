@@ -1,37 +1,27 @@
 'use client';
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useState } from 'react';
+import { useTasks } from '../context/TasksContext';
 
-/** How long the "breaking it down" shimmer shows before the steps appear. */
-export const BREAK_DOWN_MS = 1500;
+export type BreakDownStatus = 'idle' | 'working' | 'failed';
 
 /**
- * Showing a task's steps. With animations on, a shimmer plays first; with
- * reduce-animations on, the steps appear at once.
+ * Asking CalmSense to break one task down. `working` lasts exactly as long as the request; if it fails,
+ * the task stays as it was and `failed` lets the card say so.
  */
-export function useBreakDown(initiallyShown: boolean, noMotion: boolean, onShown: () => void) {
-  const [showSteps, setShowSteps] = useState(initiallyShown);
-  const [breaking, setBreaking] = useState(false);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+export function useBreakDown(taskId: string) {
+  const { breakDown } = useTasks();
+  const [status, setStatus] = useState<BreakDownStatus>('idle');
 
-  useEffect(() => () => {
-    if (timer.current) clearTimeout(timer.current);
-  }, []);
-
-  const breakDown = useCallback(() => {
-    if (noMotion) {
-      setShowSteps(true);
-      onShown();
-      return;
+  const start = useCallback(async () => {
+    setStatus('working');
+    try {
+      await breakDown(taskId);
+      setStatus('idle');
+    } catch {
+      setStatus('failed');
     }
-    setBreaking(true);
-    timer.current = setTimeout(() => {
-      timer.current = null;
-      setBreaking(false);
-      setShowSteps(true);
-      onShown();
-    }, BREAK_DOWN_MS);
-  }, [noMotion, onShown]);
+  }, [breakDown, taskId]);
 
-  return { showSteps, breaking, breakDown };
+  return { status, start };
 }

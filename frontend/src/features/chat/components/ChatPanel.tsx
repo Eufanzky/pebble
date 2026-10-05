@@ -8,13 +8,23 @@ interface ChatPanelProps {
   messages: ChatMessage[];
   isLoading: boolean;
   onSend: (text: string) => Promise<boolean>;
+  /** Puts a CalmSense breakdown from the chat on Today. */
+  onAddToToday?: (messageId: string) => void;
   onClose: () => void;
   noMotion: boolean;
   stripEmoji: (text: string) => string;
 }
 
 /** The open chat: header, messages, and the input. */
-export default function ChatPanel({ messages, isLoading, onSend, onClose, noMotion, stripEmoji }: ChatPanelProps) {
+export default function ChatPanel({
+  messages,
+  isLoading,
+  onSend,
+  onAddToToday,
+  onClose,
+  noMotion,
+  stripEmoji,
+}: ChatPanelProps) {
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -101,7 +111,7 @@ export default function ChatPanel({ messages, isLoading, onSend, onClose, noMoti
         )}
 
         {messages.map((message) => (
-          <ChatMessageItem key={message.id} message={message} stripEmoji={stripEmoji} />
+          <ChatMessageItem key={message.id} message={message} stripEmoji={stripEmoji} onAddToToday={onAddToToday} />
         ))}
 
         {isLoading && <ChatThinking />}

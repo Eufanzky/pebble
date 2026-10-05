@@ -3,6 +3,7 @@
 import pytest
 
 from app.api.auth import get_current_user
+from app.application.ports.llm import LLMUnavailableError
 from app.application.ports.persistence import PersistenceError
 from app.infrastructure.db.tasks import UnconfiguredTaskRepository
 
@@ -93,9 +94,7 @@ async def test_patch_ignores_null_fields(client, signed_in):
 
 async def test_replace_steps_then_finish_them(client, signed_in):
     task = await add(client)
-    resp = await client.put(
-        f"{URL}/{task['id']}/steps", json={"steps": [{"title": "Outline"}, {"title": "Draft"}]}
-    )
+    resp = await client.put(f"{URL}/{task['id']}/steps", json={"steps": [{"title": "Outline"}, {"title": "Draft"}]})
     steps = resp.json()["steps"]
     assert [s["title"] for s in steps] == ["Outline", "Draft"]
 
@@ -160,9 +159,7 @@ async def test_an_unknown_step_is_a_404(client, signed_in):
     assert resp.status_code == 404
 
 
-@pytest.mark.parametrize(
-    ("method", "url"), [("GET", URL), ("POST", URL), ("PATCH", f"{URL}/x"), ("DELETE", URL)]
-)
+@pytest.mark.parametrize(("method", "url"), [("GET", URL), ("POST", URL), ("PATCH", f"{URL}/x"), ("DELETE", URL)])
 async def test_tasks_need_a_signed_in_user(client, method, url):
     resp = await client.request(method, url, json={"title": "x"})
 
@@ -227,3 +224,44 @@ async def test_another_users_task_cannot_be_put_in_an_order(client, signed_in):
     assert resp.status_code == 409
     signed_in.user = "user-a"
     assert [t["title"] for t in (await client.get(URL)).json()] == ["Theirs"]
+
+
+# --- Breaking a task down with CalmSense ----------------------------------------------------------------
+
+
+async def test_breakdown_saves_calmsenses_steps_and_why(client, signed_in, llm):
+    task = await add(client)
+    llm.script(
+        "CalmSense",
+        {"steps": [{"title": "Open the doc", "timeEstimate": "~5 min"}], "whyExplanation": "One small start."},
+    )
+
+    resp = await client.post(f"{URL}/{task['id']}/breakdown", json={"timeOfDay": "morning"})
+
+    assert resp.status_code == 200
+    body = resp.json()
+    assert [(s["title"], s["timeEstimate"], s["completed"]) for s in body["steps"]] == [
+        ("Open the doc", "~5 min", False)
+    ]
+    assert body["whyExplanation"] == "One small start."
+    assert (await client.get(URL)).json() == [body]
+
+
+async def test_breakdown_of_another_users_task_is_a_404(client, signed_in, llm):
+    task = await add(client)
+    signed_in.user = "user-b"
+
+    resp = await client.post(f"{URL}/{task['id']}/breakdown", json={})
+
+    assert resp.status_code == 404
+    assert llm.calls == []
+
+
+async def test_breakdown_when_calmsense_cant_answer_is_a_gentle_503_and_nothing_changes(client, signed_in, llm):
+    task = await add(client)
+    llm.script("CalmSense", LLMUnavailableError("down"))
+
+    resp = await client.post(f"{URL}/{task['id']}/breakdown", json={})
+
+    assert resp.status_code == 503
+    assert (await client.get(URL)).json() == [task]

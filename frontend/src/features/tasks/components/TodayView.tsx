@@ -43,6 +43,7 @@ export default function TodayView() {
     editTask,
     deleteTask,
     reorderTasks,
+    setStepsShown,
   } = useTasks();
   const { preferences, reduceMotion } = usePreferences();
   const timeOfDay = useTimeOfDay();
@@ -106,7 +107,7 @@ export default function TodayView() {
                   done={shown.done}
                   onToggle={actions.toggle}
                   onToggleStep={actions.toggleStep}
-                  onBreakDown={actions.breakDown}
+                  onShowSteps={setStepsShown}
                   onWhyOpen={actions.openWhy}
                   onEdit={setEditingId}
                   // Reordering a filtered list would be confusing: only the whole list moves

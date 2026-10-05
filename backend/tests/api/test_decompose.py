@@ -7,7 +7,11 @@ from app.api.errors import UNAVAILABLE
 from app.application.ports.llm import LLMTimeoutError
 
 URL = "/api/agents/decompose"
-REPLY = {"steps": [{"title": "Open the file", "timeEstimate": "~5 min"}], "whyExplanation": "Small first."}
+REPLY = {
+    "title": "Open the report",
+    "steps": [{"title": "Open the file", "timeEstimate": "~5 min"}],
+    "whyExplanation": "Small first.",
+}
 
 
 @pytest.fixture(autouse=True)

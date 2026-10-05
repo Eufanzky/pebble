@@ -10,6 +10,7 @@ from app.domain.tasks import Task, TaskBreakdown
 
 def breakdown_data(breakdown: TaskBreakdown) -> dict:
     return {
+        "title": breakdown.title,
         "steps": [{"title": s.title, "timeEstimate": s.time_estimate} for s in breakdown.steps],
         "whyExplanation": breakdown.why,
     }
