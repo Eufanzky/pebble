@@ -8,13 +8,12 @@ import { PebbleFace } from '@/features/companion';
 
 interface Props {
   question: ComprehensionQuestion;
-  docTitle: string;
 }
 
-export default function ComprehensionCheck({ question, docTitle }: Props) {
+export default function ComprehensionCheck({ question }: Props) {
   const { reduceMotion } = usePreferences();
   const noMotion = reduceMotion;
-  const { options, answered, answer, feedback } = useComprehensionCheck(question, docTitle);
+  const { options, answered, answer, feedback } = useComprehensionCheck(question);
 
   const optionStyle = (option: string): CSSProperties => {
     const isCorrect = option === question.correctAnswer;

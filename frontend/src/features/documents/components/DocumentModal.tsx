@@ -28,14 +28,11 @@ export default function DocumentModal({ document: doc, onClose }: Props) {
   const [readerOpen, setReaderOpen] = useState(false);
 
   const { level, setLevel, version, defaultLevel, simplified } = useReadingLevel(doc);
-  const { turnIntoTasks, makeStudyPlan, logReaderOpened } = useDocumentActions(doc, simplified.tasks, onClose);
+  const { turnIntoTasks, makeStudyPlan } = useDocumentActions(doc, simplified.tasks, onClose);
   // The reader has its own trap while it's open
   useFocusTrap(modalRef, !readerOpen, onClose);
 
-  const openReader = () => {
-    setReaderOpen(true);
-    logReaderOpened();
-  };
+  const openReader = () => setReaderOpen(true);
 
   const viewProps = { doc, simplified, textVersion: version, level, defaultLevel, calm: preferences.calmMode, noMotion };
   // The reader reads what's on screen; while SimplifyCore works (or couldn't), that's the original

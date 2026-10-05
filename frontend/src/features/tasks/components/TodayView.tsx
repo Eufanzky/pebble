@@ -108,7 +108,6 @@ export default function TodayView() {
                   onToggle={actions.toggle}
                   onToggleStep={actions.toggleStep}
                   onShowSteps={setStepsShown}
-                  onWhyOpen={actions.openWhy}
                   onEdit={setEditingId}
                   // Reordering a filtered list would be confusing: only the whole list moves
                   onReorderOpen={filtering ? undefined : (ids) => reorderTasks([...ids, ...done.map((t) => t.id)])}

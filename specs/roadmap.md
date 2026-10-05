@@ -151,7 +151,7 @@ The three working agents only answer in chat today: "Break it down" on Today sho
   *Done:* component and E2E tests break down a task the user typed; no "breaking it down" animation runs without a request behind it.
 - [x] **7.2 SimplifyCore on Documents.** An upload is simplified by SimplifyCore at the level the user picks (asked once per level, kept while the document is open), and its action items can be added to Today. The sample documents say they are examples.
   *Done:* component and E2E tests simplify an uploaded document; no level shows text SimplifyCore didn't write, except the original.
-- [ ] **7.3 An honest activity log.** Only what an agent did is logged in its name, and the backend writes it. The frontend stops writing entries for the user's own actions (ticking a task, changing a setting, opening a "Why?").
+- [x] **7.3 An honest activity log.** Only what an agent did is logged in its name, and the backend writes it. The frontend stops writing entries for the user's own actions (ticking a task, changing a setting, opening a "Why?").
   *Done:* no frontend code writes an entry in an agent's name; the activity tests show only agent results.
 - [ ] **7.4 WhyBot.** Generate a plain-language explanation in the pipeline for every agent result, store it with the activity entry, and have `WhyCard` show it.
   *Done:* the pipeline test asserts that every agent result has an explanation; no hard-coded "why" text remains.

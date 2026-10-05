@@ -19,11 +19,7 @@ describe('useDocumentUpload', () => {
     await act(() => result.current.upload(new File(['My notes'], 'notes.txt', { type: 'text/plain' })));
 
     expect(onAdded).toHaveBeenCalledWith(expect.objectContaining({ title: 'notes', original: 'My notes' }));
-    expect(result.current.log.entries[0]).toMatchObject({
-      agent: 'SimplifyCore',
-      action: 'User uploaded "notes.txt" (0 KB)',
-      reasoning: expect.stringContaining('read in the browser'),
-    });
+    expect(result.current.log.entries).toEqual([]);
   });
 
   it('has the backend read a PDF, without storing it', async () => {
@@ -33,7 +29,7 @@ describe('useDocumentUpload', () => {
     await act(() => result.current.upload(new File(['%PDF'], 'Minutes.pdf', { type: 'application/pdf' })));
 
     expect(onAdded).toHaveBeenCalledWith(expect.objectContaining({ title: 'Minutes', type: 'meeting', original: 'The PDF text.' }));
-    expect(result.current.log.entries[0]).toMatchObject({ reasoning: expect.stringContaining('the file was not stored') });
+    expect(result.current.log.entries).toEqual([]);
   });
 
   it.each([

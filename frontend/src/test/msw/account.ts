@@ -56,19 +56,6 @@ export const accountHandlers = {
       return HttpResponse.json<PreferencesOut>(preferences);
     }),
     http.get('/api/activity', () => HttpResponse.json<ActivityEntryOut[]>(entries)),
-    http.post('/api/activity', async ({ request }) => {
-      const body = (await request.json()) as ApiSchema<'ActivityEntryIn'>;
-      const entry: ActivityEntryOut = {
-        id: `entry-${nextId++}`,
-        timestamp: new Date().toISOString(),
-        agent: body.agent,
-        action: body.action,
-        reasoning: body.reasoning ?? '',
-        safetyStatus: body.safetyStatus ?? 'passed',
-      };
-      entries = [entry, ...entries];
-      return HttpResponse.json<ActivityEntryOut>(entry, { status: 201 });
-    }),
     http.get('/api/account/export', () =>
       HttpResponse.json({
         exportedAt: new Date().toISOString(),

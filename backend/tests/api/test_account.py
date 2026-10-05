@@ -3,6 +3,7 @@
 import pytest
 
 from app.api.auth import get_current_user
+from app.domain.agents import AgentName
 from app.infrastructure.db.account import UnconfiguredAccountDataStore
 
 
@@ -15,14 +16,15 @@ def signed_in(app):
     return SignedIn
 
 
-async def fill(client) -> None:
+async def fill(client, container, user: str = "user-a") -> None:
     await client.post("/api/tasks", json={"title": "Read Chapter 4", "steps": [{"title": "Skim"}]})
     await client.patch("/api/preferences", json={"calmMode": True})
-    await client.post("/api/activity", json={"agent": "PebbleVoice", "action": "Finished a task"})
+    # Only the agents write the log (7.3)
+    await container.activity.record(user, AgentName.PEBBLE_VOICE, "Finished a task", "")
 
 
-async def test_export_is_a_json_download_of_everything(client, signed_in):
-    await fill(client)
+async def test_export_is_a_json_download_of_everything(client, signed_in, container):
+    await fill(client, container)
 
     resp = await client.get("/api/account/export")
 
@@ -37,10 +39,10 @@ async def test_export_is_a_json_download_of_everything(client, signed_in):
     assert [e["action"] for e in body["data"]["activity_entries"]] == ["Finished a task"]
 
 
-async def test_deleting_the_account_removes_everything_and_only_for_that_user(client, signed_in):
-    await fill(client)
+async def test_deleting_the_account_removes_everything_and_only_for_that_user(client, signed_in, container):
+    await fill(client, container)
     signed_in.user = "user-b"
-    await fill(client)
+    await fill(client, container, "user-b")
     signed_in.user = "user-a"
 
     assert (await client.delete("/api/account")).status_code == 204

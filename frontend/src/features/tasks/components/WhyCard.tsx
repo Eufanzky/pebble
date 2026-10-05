@@ -6,18 +6,14 @@ import { PebbleFace } from '@/features/companion';
 
 interface WhyCardProps {
   explanation: string;
-  onOpen?: () => void;
 }
 
-export default function WhyCard({ explanation, onOpen }: WhyCardProps) {
+export default function WhyCard({ explanation }: WhyCardProps) {
   const [expanded, setExpanded] = useState(false);
   const { reduceMotion } = usePreferences();
   const noMotion = reduceMotion;
 
-  const toggle = () => {
-    if (!expanded && onOpen) onOpen();
-    setExpanded(!expanded);
-  };
+  const toggle = () => setExpanded(!expanded);
 
   return (
     <div style={{ marginTop: 10 }}>

@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { useActivityLog } from '@/features/activity';
 import { PebbleCharacter, PebbleSpeechBubble, usePebble } from '@/features/companion';
 import { Screen, ScreenHeader } from '@/shared/ui';
 import { sampleDocuments } from '../data/sampleDocuments';
@@ -14,7 +13,6 @@ import UploadZone from './UploadZone';
 /** The documents screen: uploads and sample readings, opened in a modal. */
 export default function DocumentsView() {
   const { mood } = usePebble();
-  const { addEntry } = useActivityLog();
   const [selectedDoc, setSelectedDoc] = useState<DocumentItem | null>(null);
   const [uploadedDocs, setUploadedDocs] = useState<DocumentItem[]>([]);
 
@@ -22,11 +20,6 @@ export default function DocumentsView() {
 
   const openDoc = (doc: DocumentItem) => {
     setSelectedDoc(doc);
-    addEntry(
-      'CalmSense',
-      `User opened "${doc.title}"`,
-      `Document type: ${doc.type}. Displaying at user's default reading level.`
-    );
   };
   const closeDoc = useCallback(() => setSelectedDoc(null), []);
 

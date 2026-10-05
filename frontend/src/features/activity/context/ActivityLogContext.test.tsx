@@ -19,6 +19,12 @@ async function renderLog() {
 }
 
 describe('ActivityLogProvider', () => {
+  it('only reads the log: nothing here writes an entry in an agent\'s name (7.3)', async () => {
+    const result = await renderLog();
+
+    expect(Object.keys(result.current).sort()).toEqual(['entries', 'isLoading', 'loadFailed', 'refresh']);
+  });
+
   it("loads the account's log, with real dates", async () => {
     accountStore.setActivity([ENTRY]);
 
@@ -26,16 +32,6 @@ describe('ActivityLogProvider', () => {
 
     expect(result.current.entries).toHaveLength(1);
     expect(result.current.entries[0].timestamp).toEqual(new Date(ENTRY.timestamp));
-  });
-
-  it('shows an entry at once and saves it to the account', async () => {
-    const result = await renderLog();
-
-    act(() => result.current.addEntry('PebbleVoice', 'You finished "Walk"', 'Task completed by user.'));
-
-    expect(result.current.entries[0]).toMatchObject({ agent: 'PebbleVoice', action: 'You finished "Walk"' });
-    await waitFor(() => expect(accountStore.activity()[0]).toMatchObject({ action: 'You finished "Walk"' }));
-    await waitFor(() => expect(result.current.entries[0].id).toBe(accountStore.activity()[0].id));
   });
 
   it('reloads to show what the backend logged itself', async () => {
@@ -53,15 +49,5 @@ describe('ActivityLogProvider', () => {
 
     await waitFor(() => expect(result.current.loadFailed).toBe(true));
     expect(result.current.entries).toEqual([]);
-  });
-
-  it('goes back to what the account has when an entry could not be saved', async () => {
-    const result = await renderLog();
-    server.use(...accountHandlers.status(503));
-
-    act(() => result.current.addEntry('PebbleVoice', 'Unsaved', 'x'));
-    expect(result.current.entries).toHaveLength(1);
-
-    await waitFor(() => expect(result.current.loadFailed).toBe(true));
   });
 });

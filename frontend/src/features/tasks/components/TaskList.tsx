@@ -11,7 +11,6 @@ interface TaskListProps {
   onToggle: (id: string) => void;
   onToggleStep: (taskId: string, stepId: string) => void;
   onShowSteps: (id: string, shown: boolean) => void;
-  onWhyOpen: (id: string) => void;
   onEdit?: (id: string) => void;
   /** With it, the open tasks can be reordered (by keyboard or drag); called with the new order of the open ones. */
   onReorderOpen?: (openIds: string[]) => void;

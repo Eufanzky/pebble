@@ -25,7 +25,7 @@ function task(overrides: Partial<Task> = {}): Task {
 }
 
 function renderCard(t: Task) {
-  const handlers = { onToggle: vi.fn(), onToggleStep: vi.fn(), onShowSteps: vi.fn(), onWhyOpen: vi.fn() };
+  const handlers = { onToggle: vi.fn(), onToggleStep: vi.fn(), onShowSteps: vi.fn() };
   const view = renderWithProviders(<TaskCard task={t} {...handlers} />);
   return { ...view, ...handlers };
 }
@@ -124,12 +124,11 @@ describe('TaskCard', () => {
     expect(screen.queryByRole('button', { name: /Break down/ })).not.toBeInTheDocument();
   });
 
-  it('shows why right away for a task without steps, and reports opening it', async () => {
-    const { user, onWhyOpen } = renderCard(task({ steps: undefined }));
+  it('shows why right away for a task without steps', async () => {
+    const { user } = renderCard(task({ steps: undefined }));
 
     await user.click(screen.getByRole('button', { name: /Why did Pebble do this\?/ }));
 
-    expect(onWhyOpen).toHaveBeenCalledWith('task-x');
     expect(screen.getByText('One step per section.')).toBeVisible();
   });
 

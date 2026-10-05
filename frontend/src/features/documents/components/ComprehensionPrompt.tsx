@@ -9,7 +9,7 @@ export default function ComprehensionPrompt({ doc, calm }: { doc: DocumentItem; 
   const [open, setOpen] = useState(false);
 
   if (!doc.comprehensionQuestion.question) return null;
-  if (open) return <ComprehensionCheck question={doc.comprehensionQuestion} docTitle={doc.title} />;
+  if (open) return <ComprehensionCheck question={doc.comprehensionQuestion} />;
 
   return (
     <button onClick={() => setOpen(true)} style={{
