@@ -81,7 +81,6 @@ Real-LLM evals live in `tests/evals/` (`uv run pytest -m eval`). They're exclude
 | GET | `/api/preferences` | Your preferences over the defaults (a new account gets the defaults) |
 | PATCH | `/api/preferences` | Change only the fields sent; returns all of them |
 | GET | `/api/activity?limit=50` | Your activity log, newest first (limit 1-200) |
-| POST | `/api/activity` | Log something you did that Pebble reacted to (201). The agents log their own results |
 | POST | `/api/import` | Move what a browser kept before sign-in into the account: tasks go after yours (with their steps), preferences apply only if you never saved any, log entries keep their times (none later than now) |
 | GET | `/api/account/export` | Download everything stored about you: every row of every table you own, as a JSON file |
 | DELETE | `/api/account` | Delete your account: every row you own, in every table, in one transaction (204) |
@@ -108,7 +107,7 @@ The first time a task or step is finished, `Tasks` notes a `ProgressEvent` throu
 
 ## Activity log
 
-Each agent use case takes an optional `ActivityLog` (`app/application/activity.py`). When called with a `user_id` (the routers always pass one), it writes one entry per result: the agent, what it did, its reasoning, and the safety status. `watch()` logs a message held back by Prompt Shields or Content Safety, or a flagged reply, as a `flagged` entry without the text, and lets the error through. Entries only ever hold redacted text, shortened to 50 characters. `tests/api/test_activity_pipeline.py` checks this for every agent, through chat and through the direct endpoints.
+Each agent use case takes an optional `ActivityLog` (`app/application/activity.py`). When called with a `user_id` (the routers always pass one), it writes one entry per result: the agent, what it did, its reasoning, and the safety status. `watch()` logs a message held back by Prompt Shields or Content Safety, or a flagged reply, as a `flagged` entry without the text, and lets the error through. Entries only ever hold redacted text, shortened to 50 characters. `tests/api/test_activity_pipeline.py` checks this for every agent, through chat and through the direct endpoints. Nothing else writes the log: the API only reads it (`GET /api/activity`), so no client can put an entry in an agent's name (7.3). Entries a browser kept from before accounts come in once, through `POST /api/import`.
 
 ## LLM provider
 

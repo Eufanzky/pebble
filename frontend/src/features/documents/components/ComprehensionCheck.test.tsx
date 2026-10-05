@@ -7,7 +7,7 @@ const { comprehensionQuestion: question } = testDocument();
 
 describe('ComprehensionCheck', () => {
   it('asks the question with both answers', () => {
-    renderWithProviders(<ComprehensionCheck question={question} docTitle="Doc" />);
+    renderWithProviders(<ComprehensionCheck question={question} />);
 
     expect(screen.getByText('What is the goal?')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: question.correctAnswer })).toBeInTheDocument();
@@ -15,7 +15,7 @@ describe('ComprehensionCheck', () => {
   });
 
   it("shows Pebble's reply to a correct answer", async () => {
-    const { user } = renderWithProviders(<ComprehensionCheck question={question} docTitle="Doc" />);
+    const { user } = renderWithProviders(<ComprehensionCheck question={question} />);
 
     await user.click(screen.getByRole('button', { name: question.correctAnswer }));
 
@@ -23,7 +23,7 @@ describe('ComprehensionCheck', () => {
   });
 
   it('offers to simplify after a wrong answer, and ignores a second click', async () => {
-    const { user } = renderWithProviders(<ComprehensionCheck question={question} docTitle="Doc" />);
+    const { user } = renderWithProviders(<ComprehensionCheck question={question} />);
 
     await user.click(screen.getByRole('button', { name: question.wrongAnswer }));
     await user.click(screen.getByRole('button', { name: question.correctAnswer }));

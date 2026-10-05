@@ -7,7 +7,7 @@ import { useComprehensionCheck } from './useComprehensionCheck';
 const { comprehensionQuestion: question } = testDocument();
 
 function renderCheck() {
-  return renderLoadedHook(() => ({ ...useComprehensionCheck(question, 'Doc'), log: useActivityLog() }));
+  return renderLoadedHook(() => ({ ...useComprehensionCheck(question), log: useActivityLog() }));
 }
 
 afterEach(() => vi.restoreAllMocks());
@@ -21,25 +21,21 @@ describe('useComprehensionCheck', () => {
     expect((await renderCheck()).result.current.options).toEqual([question.wrongAnswer, question.correctAnswer]);
   });
 
-  it('praises a correct answer and logs it', async () => {
+  it('praises a correct answer, and logs nothing in an agent\'s name', async () => {
     const { result } = await renderCheck();
 
     act(() => result.current.answer(question.correctAnswer));
 
     expect(result.current).toMatchObject({ answered: 'correct', feedback: 'Exactly!' });
-    expect(result.current.log.entries[0]).toMatchObject({ action: 'Comprehension check passed for "Doc"' });
+    expect(result.current.log.entries).toEqual([]);
   });
 
   it('offers to simplify after a wrong answer, and keeps the first answer', async () => {
     const { result } = await renderCheck();
-    const before = result.current.log.entries.length;
-
     act(() => result.current.answer(question.wrongAnswer));
     act(() => result.current.answer(question.correctAnswer));
 
     expect(result.current).toMatchObject({ answered: 'wrong', feedback: question.pebbleWrong });
-    expect(result.current.log.entries).toHaveLength(before + 1);
-    expect(result.current.log.entries[0].action).toBe('Comprehension check for "Doc" — offered to simplify further');
   });
 
   it('has no feedback before an answer', async () => {

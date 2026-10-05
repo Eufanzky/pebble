@@ -28,17 +28,14 @@ beforeEach(() => {
 });
 
 describe('useTaskActions', () => {
-  it('completes a task with a chime and a specific note in the log', async () => {
+  it('completes a task with a chime, and logs nothing in an agent\'s name', async () => {
     const { result, idOf } = await renderActions();
 
     act(() => result.current.toggle(idOf('Read')));
 
     expect(result.current.tasks.find((t) => t.title === 'Read')!.completed).toBe(true);
     expect(playTaskComplete).toHaveBeenCalledOnce();
-    expect(result.current.entries[0]).toMatchObject({
-      agent: 'PebbleVoice',
-      action: 'Nice work! You finished "Read". That\'s 2 of 2 done today.',
-    });
+    expect(result.current.entries).toEqual([]);
   });
 
   it('unchecks a task gently and without a chime', async () => {
@@ -48,15 +45,6 @@ describe('useTaskActions', () => {
 
     expect(result.current.tasks.find((t) => t.title === 'Walk')!.completed).toBe(false);
     expect(playTaskComplete).not.toHaveBeenCalled();
-    expect(result.current.entries[0]).toMatchObject({ action: 'Unchecked "Walk". No worries — take your time.' });
-  });
-
-  it('logs opening the explanation as WhyBot', async () => {
-    const { result, idOf } = await renderActions();
-
-    act(() => result.current.openWhy(idOf('Read')));
-
-    expect(result.current.entries[0]).toMatchObject({ agent: 'WhyBot', action: expect.stringContaining('"Read"') });
   });
 
   it('toggles a step', async () => {
@@ -75,7 +63,6 @@ describe('useTaskActions', () => {
 
     act(() => {
       result.current.toggle('nope');
-      result.current.openWhy('nope');
     });
 
     expect(result.current.entries).toHaveLength(before);

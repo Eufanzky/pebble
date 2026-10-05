@@ -30,7 +30,7 @@ Pebble helps people with ADHD, autism or dyslexia break tasks into small steps, 
 
 **Stats.** Steps, tasks and focus minutes over the last 7 or 30 days, per day and per tag, and since you started. Progress only adds up: there are no streaks, no "missed" days and no comparisons, and unticking a task never takes anything back.
 
-**Activity log.** Every agent result, with the agent's name, its reasoning and whether the safety checks passed. A message the checks hold back is logged too, without its text. (Some entries are still written by the screens in an agent's name for your own actions; [7.3](specs/roadmap.md) removes them.)
+**Activity log.** Every agent result, with the agent's name, its reasoning and whether the safety checks passed. A message the checks hold back is logged too, without its text. Only what an agent did is logged in its name, and only the backend writes it.
 
 **Pebble.** Seven cat models built only from CSS shapes, five colours, three personalities, and moods that follow your day.
 

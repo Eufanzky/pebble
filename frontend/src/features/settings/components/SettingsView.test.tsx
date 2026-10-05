@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, renderWithProviders, screen } from '@/test/render';
-import { expectLogged } from '@/test/activity';
 import { devicePreferences } from '@/test/preferences';
 import { setPreferences } from '../testing';
 import SettingsView from './SettingsView';
@@ -19,7 +18,6 @@ describe('SettingsView', () => {
 
     expect(screen.getByText('Your settings.')).toBeInTheDocument();
     expect(stored().pebblePersonality).toBe('calm');
-    await expectLogged({ action: 'Personality mode changed to calm' });
   });
 
   it('picks a model and a color', async () => {
@@ -42,7 +40,6 @@ describe('SettingsView', () => {
 
     expect(stored()).toMatchObject({ readingLevel: 3, stepSize: 'small' });
     expect(screen.getByRole('slider', { name: 'Default reading level' })).toHaveAttribute('aria-valuetext', 'Reading level 3 of 10');
-    await expectLogged({ action: 'Step size changed to small' });
   });
 
   it('resets preferences only after asking', async () => {

@@ -27,7 +27,6 @@ export function isTextFile(file: Pick<File, 'name' | 'type'>): boolean {
 }
 
 const titleOf = (fileName: string) => fileName.replace(/\.[^.]+$/, '');
-export const sizeInKb = (bytes: number) => (bytes / 1024).toFixed(0);
 
 /** A document from a file's text. SimplifyCore writes its levels when they're asked for (`useDocumentText`). */
 export function documentFromText(

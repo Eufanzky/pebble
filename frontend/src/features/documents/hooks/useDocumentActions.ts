@@ -2,7 +2,6 @@
 
 import { useCallback } from 'react';
 import { useRouter } from 'next/navigation';
-import { useActivityLog } from '@/features/activity';
 import { useToast } from '@/shared/ui/ToastContext';
 import { useTasks } from '@/features/tasks';
 import type { DocumentItem, ExtractedTask } from '../types';
@@ -11,7 +10,6 @@ import type { DocumentItem, ExtractedTask } from '../types';
 export function useDocumentActions(doc: DocumentItem, tasks: ExtractedTask[], onDone: () => void) {
   const router = useRouter();
   const { addTaskFromDocument } = useTasks();
-  const { addEntry } = useActivityLog();
   const { showToast } = useToast();
   const kind = doc.type === 'meeting' ? 'meeting' : 'academic';
   const count = tasks.length;
@@ -27,19 +25,13 @@ export function useDocumentActions(doc: DocumentItem, tasks: ExtractedTask[], on
 
   const turnIntoTasks = useCallback(() => {
     tasks.forEach((t) => addTaskFromDocument(t.title, doc.title, kind));
-    addEntry('SimplifyCore', `Extracted ${count} tasks from "${doc.title}" and added to Today`, `Document type: ${doc.type}. Tasks extracted based on action items.`);
     finish(`Added ${count} tasks from ${doc.title}`);
-  }, [doc, tasks, kind, count, addTaskFromDocument, addEntry, finish]);
+  }, [doc, tasks, kind, count, addTaskFromDocument, finish]);
 
   const makeStudyPlan = useCallback(() => {
     tasks.forEach((t, i) => addTaskFromDocument(`Day ${i + 1}: ${t.title}`, doc.title, kind));
-    addEntry('SimplifyCore', `Created study plan from "${doc.title}" — ${count} reading sessions`, `Sequential study plan generated from document.`);
     finish(`Created a study plan from ${doc.title}`);
-  }, [doc, tasks, kind, count, addTaskFromDocument, addEntry, finish]);
+  }, [doc, tasks, kind, addTaskFromDocument, finish]);
 
-  const logReaderOpened = useCallback(() => {
-    addEntry('PebbleVoice', `Opened the reader for "${doc.title}"`, 'Azure Immersive Reader when it is set up, otherwise the built-in reader.');
-  }, [addEntry, doc.title]);
-
-  return { turnIntoTasks, makeStudyPlan, logReaderOpened };
+  return { turnIntoTasks, makeStudyPlan };
 }

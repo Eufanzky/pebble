@@ -2,10 +2,9 @@
 
 import { useCallback } from 'react';
 import { usePebble } from '@/features/companion';
-import { useActivityLog } from '@/features/activity';
 import { useToast } from '@/shared/ui/ToastContext';
 import { parseDocument } from '../api/parseDocument';
-import { documentFromText, isTextFile, sizeInKb, toDocumentType, uploadErrorMessage } from '../lib/upload';
+import { documentFromText, isTextFile, toDocumentType, uploadErrorMessage } from '../lib/upload';
 import type { DocumentItem } from '../types';
 
 function readText(file: File): Promise<string> {
@@ -30,7 +29,6 @@ async function readDocument(file: File): Promise<DocumentItem> {
  */
 export function useDocumentUpload(onAdded: (doc: DocumentItem) => void) {
   const { flashMood } = usePebble();
-  const { addEntry } = useActivityLog();
   const { showToast } = useToast();
 
   return useCallback(
@@ -46,14 +44,7 @@ export function useDocumentUpload(onAdded: (doc: DocumentItem) => void) {
       onAdded(doc);
       flashMood('excited', 2000);
       showToast(`"${doc.title}" uploaded — tap to read it`);
-      addEntry(
-        'SimplifyCore',
-        `User uploaded "${file.name}" (${sizeInKb(file.size)} KB)`,
-        isTextFile(file)
-          ? 'Text file read in the browser. Ready for simplification at user\'s reading level.'
-          : 'Text read by the backend in memory; the file was not stored. Ready for simplification at user\'s reading level.',
-      );
     },
-    [onAdded, flashMood, showToast, addEntry],
+    [onAdded, flashMood, showToast],
   );
 }

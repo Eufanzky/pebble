@@ -1,5 +1,5 @@
 import type { ApiSchema } from '@/shared/api';
-import { getJson, postJson } from '@/shared/lib/api';
+import { getJson } from '@/shared/lib/api';
 import type { ActivityEntry } from '../types';
 
 type ActivityEntryOut = ApiSchema<'ActivityEntryOut'>;
@@ -13,8 +13,4 @@ function fromApi(entry: ActivityEntryOut): ActivityEntry {
 
 export async function listActivity(): Promise<ActivityEntry[]> {
   return (await getJson<ActivityEntryOut[]>(`/api/activity?limit=${LOG_LIMIT}`)).map(fromApi);
-}
-
-export async function postActivity(entry: Omit<ActivityEntry, 'id' | 'timestamp'>): Promise<ActivityEntry> {
-  return fromApi(await postJson<ActivityEntryOut>('/api/activity', entry));
 }

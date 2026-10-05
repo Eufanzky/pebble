@@ -29,7 +29,7 @@ describe('useDocumentActions', () => {
 
     expect(result.current.tasks.tasks.map((t) => t.title)).toEqual(['Read chapter 1', 'Summarise the goal']);
     expect(result.current.tasks.tasks[0].whyExplanation).toContain('"Clean Architecture"');
-    expect(result.current.log.entries[0]).toMatchObject({ agent: 'SimplifyCore', action: expect.stringContaining('Extracted 2 tasks') });
+    expect(result.current.log.entries).toEqual([]);
     expect(onDone).toHaveBeenCalledOnce();
     expect(push).toHaveBeenCalledWith('/today');
   });
@@ -40,7 +40,7 @@ describe('useDocumentActions', () => {
     act(() => result.current.makeStudyPlan());
 
     expect(result.current.tasks.tasks.map((t) => t.title)).toEqual(['Day 1: Read chapter 1', 'Day 2: Summarise the goal']);
-    expect(result.current.log.entries[0]).toMatchObject({ action: expect.stringContaining('study plan') });
+    expect(result.current.log.entries).toEqual([]);
   });
 
   it('tags tasks from a meeting as communication, others as study', async () => {
@@ -51,13 +51,5 @@ describe('useDocumentActions', () => {
     const reading = await renderActions(testDocument({ type: 'academic' }));
     act(() => reading.result.current.turnIntoTasks());
     expect(reading.result.current.tasks.tasks.at(-1)!.tag).toBe('study');
-  });
-
-  it('logs opening the reader', async () => {
-    const { result } = await renderActions();
-
-    act(() => result.current.logReaderOpened());
-
-    expect(result.current.log.entries[0]).toMatchObject({ agent: 'PebbleVoice', action: 'Opened the reader for "Clean Architecture"' });
   });
 });

@@ -1,6 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { renderWithProviders, screen } from '@/test/render';
-import { expectLogged } from '@/test/activity';
 import { setPreferences } from '../testing';
 import { usePreferences } from '@/shared/preferences';
 import SettingsView from './SettingsView';
@@ -25,13 +24,11 @@ describe('settings toggles', () => {
 
     expect(toggle).toHaveAttribute('aria-checked', 'true');
     expect(document.documentElement).toHaveClass('reduce-animations');
-    await expectLogged({ agent: 'AdaptLens', action: 'Reduce animations enabled' });
 
     await user.click(toggle);
 
     expect(toggle).toHaveAttribute('aria-checked', 'false');
     expect(document.documentElement).not.toHaveClass('reduce-animations');
-    await expectLogged({ action: 'Reduce animations disabled' });
   });
 
   it('turns calm mode on, which removes emoji from text across the app', async () => {
@@ -42,7 +39,6 @@ describe('settings toggles', () => {
 
     expect(screen.getByRole('switch', { name: 'Calm mode' })).toHaveAttribute('aria-checked', 'true');
     expect(screen.getByTestId('probe')).toHaveTextContent(/^Study$/);
-    await expectLogged({ agent: 'AdaptLens', action: 'Calm mode enabled' });
   });
 
 });

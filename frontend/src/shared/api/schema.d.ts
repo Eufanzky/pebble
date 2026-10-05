@@ -59,11 +59,7 @@ export interface paths {
          */
         get: operations["list_activity_api_activity_get"];
         put?: never;
-        /**
-         * Log an action
-         * @description Log something you did that Pebble reacted to, such as finishing a task. Pebble sets the time.
-         */
-        post: operations["add_activity_api_activity_post"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -487,22 +483,6 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
-        /**
-         * ActivityEntryIn
-         * @description Something the user did that Pebble reacted to (the agents log their own results).
-         */
-        ActivityEntryIn: {
-            /** Action */
-            action: string;
-            agent: components["schemas"]["AgentName"];
-            /**
-             * Reasoning
-             * @default
-             */
-            reasoning: string;
-            /** @default passed */
-            safetyStatus: components["schemas"]["SafetyStatus"];
-        };
         /** ActivityEntryOut */
         ActivityEntryOut: {
             /** Action */
@@ -1065,39 +1045,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["ActivityEntryOut"][];
-                };
-            };
-            /** @description Validation Error */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-        };
-    };
-    add_activity_api_activity_post: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ActivityEntryIn"];
-            };
-        };
-        responses: {
-            /** @description Successful Response */
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ActivityEntryOut"];
                 };
             };
             /** @description Validation Error */

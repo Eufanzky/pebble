@@ -1,36 +1,6 @@
 {
   "components": {
     "schemas": {
-      "ActivityEntryIn": {
-        "description": "Something the user did that Pebble reacted to (the agents log their own results).",
-        "properties": {
-          "action": {
-            "maxLength": 500,
-            "minLength": 1,
-            "title": "Action",
-            "type": "string"
-          },
-          "agent": {
-            "$ref": "#/components/schemas/AgentName"
-          },
-          "reasoning": {
-            "default": "",
-            "maxLength": 2000,
-            "title": "Reasoning",
-            "type": "string"
-          },
-          "safetyStatus": {
-            "$ref": "#/components/schemas/SafetyStatus",
-            "default": "passed"
-          }
-        },
-        "required": [
-          "agent",
-          "action"
-        ],
-        "title": "ActivityEntryIn",
-        "type": "object"
-      },
       "ActivityEntryOut": {
         "properties": {
           "action": {
@@ -1326,51 +1296,6 @@
           }
         ],
         "summary": "Your activity log",
-        "tags": [
-          "Activity"
-        ]
-      },
-      "post": {
-        "description": "Log something you did that Pebble reacted to, such as finishing a task. Pebble sets the time.",
-        "operationId": "add_activity_api_activity_post",
-        "requestBody": {
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/ActivityEntryIn"
-              }
-            }
-          },
-          "required": true
-        },
-        "responses": {
-          "201": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ActivityEntryOut"
-                }
-              }
-            },
-            "description": "Successful Response"
-          },
-          "422": {
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/HTTPValidationError"
-                }
-              }
-            },
-            "description": "Validation Error"
-          }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
-          }
-        ],
-        "summary": "Log an action",
         "tags": [
           "Activity"
         ]

@@ -1,7 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, renderWithProviders, screen, waitFor } from '@/test/render';
 import { statsStore } from '@/test/msw/stats';
-import { expectLogged } from '@/test/activity';
 import { playChime } from '@/shared/lib/audio';
 import { FOCUS_SECONDS } from '../lib/timer';
 import FocusView from './FocusView';
@@ -25,7 +24,7 @@ describe('FocusView', () => {
     expect(screen.getByRole('button', { name: 'Resume' })).toBeInTheDocument();
   });
 
-  it('chimes and logs a finished session', async () => {
+  it('chimes at the end of a session', async () => {
     vi.useFakeTimers();
     renderWithProviders(<FocusView />);
 
@@ -35,8 +34,7 @@ describe('FocusView', () => {
     expect(playChime).toHaveBeenCalledOnce();
     expect(screen.getByText('You focused for 25 minutes. Nice work.')).toBeInTheDocument();
     expect(timer()).toHaveTextContent('25:00');
-    vi.useRealTimers(); // the log is saved over the (fake) network
-    await expectLogged({ action: expect.stringContaining('Focus session completed') });
+    vi.useRealTimers(); // the minutes are saved over the (fake) network
     // The minutes count towards progress (5.6)
     await waitFor(() => expect(statsStore.focusSessions()).toEqual([25]));
   });

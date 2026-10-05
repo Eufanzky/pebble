@@ -21,14 +21,14 @@ describe('usePreferenceActions', () => {
     expect(result.current.log.entries).toHaveLength(before);
   });
 
-  it('logs each other change as AdaptLens', async () => {
+  it('logs no change in an agent\'s name', async () => {
     const result = await renderActions();
 
     act(() => result.current.setReadingLevel(7));
-    expect(result.current.log.entries[0]).toMatchObject({ agent: 'AdaptLens', action: 'Default reading level changed to 7' });
+    expect(result.current.log.entries).toEqual([]);
 
     act(() => result.current.toggleCalmMode());
     expect(result.current.preferences.calmMode).toBe(true);
-    expect(result.current.log.entries[0]).toMatchObject({ reasoning: 'User toggled calm mode to true.' });
+    expect(result.current.log.entries).toEqual([]);
   });
 });

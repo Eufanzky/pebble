@@ -1,6 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, renderWithProviders, screen, waitFor } from '@/test/render';
-import { expectLogged } from '@/test/activity';
 import { setTestPreferences } from '@/test/preferences';
 import { taskStore } from '@/test/msw/tasks';
 import { server } from '@/test/msw/server';
@@ -54,13 +53,6 @@ describe('DocumentModal', () => {
       expect(slider()).toHaveAttribute('aria-valuetext', `Reading level ${level} of 10`);
     });
 
-    it('logs the change for AdaptLens', async () => {
-      renderModal();
-
-      fireEvent.change(slider(), { target: { value: '3' } });
-
-      await expectLogged({ agent: 'AdaptLens', action: 'Reading level adjusted to 3 for "Clean Architecture"' });
-    });
   });
 
   it('shows the reader view with the original folded away', async () => {

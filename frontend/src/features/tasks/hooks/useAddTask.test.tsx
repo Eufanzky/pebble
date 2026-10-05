@@ -32,7 +32,7 @@ describe('useAddTask', () => {
     expect(result.current.tasks.map((t) => t.title)).toEqual(['Existing', 'Email Sam']);
     expect(result.current.tasks[1]).toMatchObject({ tag: 'project', timeEstimate: '~15 min', completed: false });
     expect(result.current.input).toBe('');
-    expect(result.current.entries[0]).toMatchObject({ agent: 'CalmSense', action: "New task added: 'Email Sam'" });
+    expect(result.current.entries).toEqual([]);
   });
 
   it('ignores a blank entry', async () => {
@@ -51,7 +51,7 @@ describe('useAddTask', () => {
     expect(result.current.showDistress).toBe(true);
     expect(result.current.tasks).toHaveLength(1);
     expect(result.current.input).toBe('');
-    expect(result.current.entries[0]).toMatchObject({ agent: 'CalmSense', action: expect.stringContaining('Distress') });
+    expect(result.current.entries).toEqual([]);
   });
 
   it('starts fresh with one breathing task', async () => {
@@ -73,6 +73,6 @@ describe('useAddTask', () => {
 
     expect(result.current.showDistress).toBe(false);
     expect(result.current.tasks.map((t) => t.title)).toEqual(['Existing']);
-    expect(result.current.entries[0]).toMatchObject({ action: expect.stringContaining('dismissed') });
+    expect(result.current.entries).toEqual([]);
   });
 });

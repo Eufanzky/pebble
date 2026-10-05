@@ -1,7 +1,6 @@
 'use client';
 
 import { useCallback, useState } from 'react';
-import { useActivityLog } from '@/features/activity';
 import { PebbleCharacter, PebbleSpeechBubble, usePebble } from '@/features/companion';
 import { postFocusSession, STATS_KEY } from '@/features/stats';
 import { useQueryClient } from '@tanstack/react-query';
@@ -16,7 +15,6 @@ import './focus.css';
 /** The focus screen: a 25-minute timer, with Pebble working beside you. */
 export default function FocusView() {
   const { mood, flashMood } = usePebble();
-  const { addEntry } = useActivityLog();
   const { reduceMotion: noMotion } = usePreferences();
   const [message, setMessage] = useState('Ready when you are.');
   const queryClient = useQueryClient();
@@ -25,12 +23,11 @@ export default function FocusView() {
     playChime();
     flashMood('excited', 3000);
     setMessage('You focused for 25 minutes. Nice work.');
-    addEntry('PebbleVoice', 'Focus session completed. 25 minutes of deep focus.', 'Pomodoro timer completed on the focus page.');
     // The minutes count towards progress (5.6); a stats page open elsewhere picks them up
     postFocusSession(25)
       .then(() => queryClient.invalidateQueries({ queryKey: STATS_KEY }))
       .catch(() => undefined);
-  }, [flashMood, addEntry, queryClient]);
+  }, [flashMood, queryClient]);
   const timer = useFocusTimer(onComplete);
 
   const start = () => {

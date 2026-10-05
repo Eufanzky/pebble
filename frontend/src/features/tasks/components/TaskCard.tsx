@@ -17,7 +17,6 @@ interface TaskCardProps {
   onToggleStep: (taskId: string, stepId: string) => void;
   /** Show or hide this task's steps. */
   onShowSteps: (id: string, shown: boolean) => void;
-  onWhyOpen?: (id: string) => void;
   /** Opens the edit dialog for this task. */
   onEdit?: (id: string) => void;
   /** Present when the list can be reordered: the move handle's events, and whether this card is being dragged. */
@@ -30,7 +29,6 @@ export default function TaskCard({
   onToggle,
   onToggleStep,
   onShowSteps,
-  onWhyOpen,
   onEdit,
   reorder,
 }: TaskCardProps) {
@@ -175,7 +173,7 @@ export default function TaskCard({
         )}
 
         {showWhy && !task.completed && (
-          <WhyCard explanation={task.whyExplanation!} onOpen={() => onWhyOpen?.(task.id)} />
+          <WhyCard explanation={task.whyExplanation!} />
         )}
       </div>
     </article>
