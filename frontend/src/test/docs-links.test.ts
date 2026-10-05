@@ -49,4 +49,13 @@ describe('docs links', () => {
 
     expect([...new Set(missing)]).toEqual([]);
   });
+
+  it.each(DOCS)('%s links to this repository by its real name on GitHub', (doc) => {
+    // A folder rename once rewrote these too (`github.com/Eufanzky/frontend`, A-030)
+    const elsewhere = [...readFileSync(join(REPO, doc), 'utf8').matchAll(/github\.com\/Eufanzky\/([\w.-]+)/g)]
+      .map((m) => m[1])
+      .filter((repo) => repo !== 'pebble');
+
+    expect(elsewhere).toEqual([]);
+  });
 });

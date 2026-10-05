@@ -12,7 +12,7 @@ Rules for every phase:
 
 ---
 
-Phases were renumbered twice: on 2026-10-03 the redesign became Phase 5 (old 5–9 became 6–10), and on 2026-10-04 "Tidy up and document" became Phase 6 (6–10 became 7–11). Spec folders use the numbers of their day.
+Phases were renumbered three times: on 2026-10-03 the redesign became Phase 5 (old 5–9 became 6–10), and on 2026-10-04 "Tidy up and document" became Phase 6 (6–10 became 7–11). On 2026-10-05 Phase 7 gained 7.1–7.3 (wiring the agents into the screens), so the old 7.1–7.6 are 7.4–7.9. Spec folders use the numbers of their day.
 
 ## Phase 0: Baseline
 
@@ -145,17 +145,25 @@ The repo still carries the hackathon's leftovers, and the docs grew item by item
 
 ## Phase 7: Make the named agents real
 
-- [ ] **7.1 WhyBot.** Generate a plain-language explanation in the pipeline for every agent result, store it with the activity entry, and have `WhyCard` show it.
+The three working agents only answer in chat today: "Break it down" on Today shows steps only for the example tasks, Documents shows reading levels only for the sample documents (an upload looks the same at every level), chat ignores the steps and tasks the agents return, and the frontend writes activity entries in the agents' names for things no agent did (A-029). First wire the agents into the screens that credit them, then add the new ones.
+
+- [ ] **7.1 CalmSense on Today.** "Break it down" on any open task asks CalmSense (with the step size and the time of day) and saves its steps and its "why"; a breakdown in chat can be added to Today. While it works, the card says so; if it can't, it says so gently and nothing changes.
+  *Done:* component and E2E tests break down a task the user typed; no "breaking it down" animation runs without a request behind it.
+- [ ] **7.2 SimplifyCore on Documents.** An upload is simplified by SimplifyCore at the level the user picks (asked once per level, kept while the document is open), and its action items can be added to Today. The sample documents say they are examples.
+  *Done:* component and E2E tests simplify an uploaded document; no level shows text SimplifyCore didn't write, except the original.
+- [ ] **7.3 An honest activity log.** Only what an agent did is logged in its name, and the backend writes it. The frontend stops writing entries for the user's own actions (ticking a task, changing a setting, opening a "Why?").
+  *Done:* no frontend code writes an entry in an agent's name; the activity tests show only agent results.
+- [ ] **7.4 WhyBot.** Generate a plain-language explanation in the pipeline for every agent result, store it with the activity entry, and have `WhyCard` show it.
   *Done:* the pipeline test asserts that every agent result has an explanation; no hard-coded "why" text remains.
-- [ ] **7.2 Undo and dismiss.** Every AI-created change (steps, tasks from documents) can be undone or dismissed.
+- [ ] **7.5 Undo and dismiss.** Every AI-created change (steps, tasks from documents) can be undone or dismissed.
   *Done:* API and component tests cover undo for each kind of AI change.
-- [ ] **7.3 AdaptLens.** Collect simple usage signals (skipped steps, reading-level changes, chunk-size edits) and suggest preference changes that the user approves.
+- [ ] **7.6 AdaptLens.** Collect simple usage signals (skipped steps, reading-level changes, step-size edits) and suggest preference changes that the user approves.
   *Done:* tests prove that a suggestion applies only when accepted, and that a dismissed one doesn't come back immediately.
-- [ ] **7.4 BridgeBot: calendar export.** Export a task plan as an `.ics` file.
+- [ ] **7.7 BridgeBot: calendar export.** Export a task plan as an `.ics` file.
   *Done:* tests validate the `.ics` output against a parser; a manual import into Google Calendar and Outlook works.
-- [ ] **7.5 BridgeBot: Google Calendar (optional).** Push steps to Google Calendar using the Google sign-in scope.
+- [ ] **7.8 BridgeBot: Google Calendar (optional).** Push steps to Google Calendar using the Google sign-in scope.
   *Done:* adapter contract tests (respx) pass, and steps appear in the user's calendar after consent.
-- [ ] **7.6 Evals for new agents.** Extend the eval set for WhyBot (explanations follow the voice rules) and AdaptLens (sensible suggestions).
+- [ ] **7.9 Evals for new agents.** Extend the eval set for WhyBot (explanations follow the voice rules) and AdaptLens (sensible suggestions).
   *Done:* the scores are recorded.
 
 ## Phase 8: Structure without guilt

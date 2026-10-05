@@ -67,7 +67,7 @@ backend/app/
 - **Dependency rule:** `api → application → domain`. `infrastructure` implements `application` ports. `domain` imports nothing from the project.
 - Routers stay thin: parse the request, call one use case, map the result. No business logic, no SDK calls.
 - Each agent is a use case that depends only on ports, so it can be tested with a fake LLM.
-- Every agent result flows through one pipeline: input safety → PII redaction → agent → output safety → activity log. A WhyBot explanation joins it after the agent in 7.1.
+- Every agent result flows through one pipeline: input safety → PII redaction → agent → output safety → activity log. A WhyBot explanation joins it after the agent in 7.4.
 - Configuration comes from `pydantic-settings`. A missing optional service disables its feature cleanly.
 
 ### Frontend: feature-based
