@@ -6,7 +6,7 @@
 
 Pebble helps people with ADHD, autism or dyslexia break tasks into small steps, read documents at a level that suits them, and focus, without guilt, streaks or pressure.
 
-[![CI](https://github.com/Eufanzky/frontend/actions/workflows/ci.yml/badge.svg)](https://github.com/Eufanzky/frontend/actions/workflows/ci.yml)
+[![CI](https://github.com/Eufanzky/pebble/actions/workflows/ci.yml/badge.svg)](https://github.com/Eufanzky/pebble/actions/workflows/ci.yml)
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js)](https://nextjs.org/)
 [![React](https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white)](https://react.dev/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-Python_3.12+-009688?logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
@@ -14,23 +14,23 @@ Pebble helps people with ADHD, autism or dyslexia break tasks into small steps, 
 
 </div>
 
-> The original hackathon submission, with its slides and prototype, is the [`v0.1.0-hackathon` release](https://github.com/Eufanzky/frontend/releases/tag/v0.1.0-hackathon). Everything since is the rework planned in [`specs/`](specs/roadmap.md).
+> The original hackathon submission, with its slides and prototype, is the [`v0.1.0-hackathon` release](https://github.com/Eufanzky/pebble/releases/tag/v0.1.0-hackathon). Everything since is the rework planned in [`specs/`](specs/roadmap.md).
 
 ---
 
 ## ✨ What it does
 
-**Today.** Your list, with what's up next and a "Mark as done" button. Tasks have a tag, an estimate and a priority. You can edit, delete, reorder (drag or keyboard), search and filter them. CalmSense breaks a big task into small, time-boxed steps, and a "Why?" card explains its reasoning. A roadmap view shows the same list as a path. Typing something like "I'm overwhelmed" gets gentle support instead of a new task.
+**Today.** Your list, with what's up next and a "Mark as done" button. Tasks have a tag, an estimate and a priority. You can edit, delete, reorder (drag or keyboard), search and filter them. The example tasks come broken into small, time-boxed steps, with a "Why?" card; breaking down your own tasks from Today is [roadmap 7.1](specs/roadmap.md) (CalmSense does it in chat today). A roadmap view shows the same list as a path. Typing something like "I'm overwhelmed" gets gentle support instead of a new task.
 
-**Chat with Pebble.** An orchestrator works out what you need and routes it: a breakdown (CalmSense), a simpler version of a text (SimplifyCore), or specific encouragement (PebbleVoice). Distress is answered at once, without a sub-agent.
+**Chat with Pebble.** An orchestrator works out what you need and routes it: a breakdown (CalmSense), a simpler version of a text (SimplifyCore), or specific encouragement (PebbleVoice). Distress is answered at once, without a sub-agent. Chat shows the agents' replies; adding their steps or tasks to Today comes with 7.1 and 7.2.
 
-**Documents.** Upload a PDF, Word or text file (read in memory, never stored), choose a reading level from 1 to 10, compare the original and Pebble's version side by side, check your understanding, and turn action items into tasks or a study plan. A built-in reader (read aloud, syllables, line focus) works without any setup; Azure Immersive Reader is used when it's configured.
+**Documents.** Upload a PDF, Word or text file (read in memory, never stored) and read it in a calmer view. The sample documents show the rest: a reading level from 1 to 10, the original and a simpler version side by side, a comprehension check, and action items turned into tasks or a study plan. Doing that for your own uploads, with SimplifyCore, is [roadmap 7.2](specs/roadmap.md). A built-in reader (read aloud, syllables, line focus) works without any setup; Azure Immersive Reader is used when it's configured.
 
 **Focus.** A 25-minute timer with Pebble beside you. Pause or stop whenever you need to; the minutes count towards your stats.
 
 **Stats.** Steps, tasks and focus minutes over the last 7 or 30 days, per day and per tag, and since you started. Progress only adds up: there are no streaks, no "missed" days and no comparisons, and unticking a task never takes anything back.
 
-**Activity log.** Every agent result, with the agent's name, its reasoning and whether the safety checks passed. A message the checks hold back is logged too, without its text.
+**Activity log.** Every agent result, with the agent's name, its reasoning and whether the safety checks passed. A message the checks hold back is logged too, without its text. (Some entries are still written by the screens in an agent's name for your own actions; [7.3](specs/roadmap.md) removes them.)
 
 **Pebble.** Seven cat models built only from CSS shapes, five colours, three personalities, and moods that follow your day.
 
@@ -79,9 +79,9 @@ flowchart LR
 | 🧩 CalmSense | Breaks a task into small, time-boxed steps | Working |
 | 📖 SimplifyCore | Rewrites text at your reading level, pulls out action items | Working |
 | 💬 PebbleVoice | Specific encouragement, never generic praise | Working |
-| ❓ WhyBot | A plain-language "why" for every agent result | Planned ([roadmap 7.1](specs/roadmap.md)) |
-| 🔄 AdaptLens | Suggests preference changes from how you use Pebble | Planned ([7.3](specs/roadmap.md)) |
-| 🔗 BridgeBot | Calendar export and integrations | Planned ([7.4](specs/roadmap.md)) |
+| ❓ WhyBot | A plain-language "why" for every agent result | Planned ([roadmap 7.4](specs/roadmap.md)) |
+| 🔄 AdaptLens | Suggests preference changes from how you use Pebble | Planned ([7.6](specs/roadmap.md)) |
+| 🔗 BridgeBot | Calendar export and integrations | Planned ([7.7](specs/roadmap.md)) |
 
 The default model is `openai/gpt-oss-120b` on Groq's free tier: no card, and no prompts kept by default. `LLM_PROVIDER=fake` runs everything offline with scripted replies.
 

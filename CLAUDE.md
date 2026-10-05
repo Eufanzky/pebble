@@ -105,7 +105,7 @@ TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test 
 - Repo-wide checks that run in `npm test`:
   - `src/test/guilt-scan.test.ts`: principle-1 patterns (streaks, "overdue", missed days or time away, loss framing, red or alarm styling) in `frontend/src` and `backend/app`. Justified matches go in `EXCEPTIONS`, with a reason.
   - `src/test/tokens.test.ts`: colour tokens are defined only in `shared/ui/tokens.css`, and every `var(--…)` used is defined.
-  - `src/test/docs-links.test.ts`: relative links in the Markdown docs resolve, and every repo path the current docs name in backticks (`frontend/…`, `backend/…`, `specs/…`, `docker/…`) exists. The roadmap and the audit are exempt, since they record old paths.
+  - `src/test/docs-links.test.ts`: relative links in the Markdown docs resolve, and every repo path the current docs name in backticks (`frontend/…`, `backend/…`, `specs/…`, `docker/…`) exists, and that GitHub links name this repository (`Eufanzky/pebble`). The roadmap and the audit are exempt from the path check, since they record old paths.
   - `src/test/names.test.ts`: one name for each thing. The code calls the app Pebble (its hackathon name, Focusbuddy, appears only in docs that record history), a part of a task a step and its size the step size (`subtask` and `chunk size` appear only where old data is read: the browser import and migration 0005).
   - `shared/ui/primitives.test.tsx`: no colour literals in redesigned screens.
 - Accessibility: `src/test/a11y.test.tsx` runs axe on every main view and open state; `AppShell.test.tsx` covers the skip link, `aria-current` and focus on navigation; `DocumentKeyboard.test.tsx` covers the focus traps. Add new views and modals to them.
