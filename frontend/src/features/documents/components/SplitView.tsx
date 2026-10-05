@@ -1,11 +1,13 @@
 import { levelNote } from '../lib/readingLevel';
+import type { DocumentText } from '../hooks/useDocumentText';
 import type { DocumentItem } from '../types';
 import ComprehensionPrompt from './ComprehensionPrompt';
 import LevelNote from './LevelNote';
+import SimplifiedText from './SimplifiedText';
 
 interface SplitViewProps {
   doc: DocumentItem;
-  text: string;
+  simplified: DocumentText;
   textVersion: number;
   level: number;
   defaultLevel: number;
@@ -21,7 +23,7 @@ const heading = {
 const scrollColumn = { overflowY: 'auto', scrollbarWidth: 'thin' } as const;
 
 /** The original on the left, Pebble's version on the right. */
-export default function SplitView({ doc, text, textVersion, level, defaultLevel, calm, noMotion }: SplitViewProps) {
+export default function SplitView({ doc, simplified, textVersion, level, defaultLevel, calm, noMotion }: SplitViewProps) {
   return (
     <div style={{ flex: 1, display: 'grid', gridTemplateColumns: '45% 55%', minHeight: 0 }}>
       <div style={{
@@ -38,17 +40,7 @@ export default function SplitView({ doc, text, textVersion, level, defaultLevel,
         <h3 style={{ ...heading, color: 'var(--color-accent)' }}>
           {calm ? "Pebble's version" : "Pebble's version ✦"} — Level {level}
         </h3>
-        <div
-          key={textVersion}
-          data-testid="simplified-text"
-          style={{
-            fontFamily: 'var(--font-nunito)', fontSize: 15, color: 'var(--color-text)',
-            lineHeight: 1.8, whiteSpace: 'pre-wrap',
-            animation: noMotion ? 'none' : 'docFadeIn 0.4s ease',
-          }}
-        >
-          {text}
-        </div>
+        <SimplifiedText simplified={simplified} level={level} textVersion={textVersion} noMotion={noMotion} />
 
         <LevelNote text={levelNote(level, defaultLevel, false)} compact />
 

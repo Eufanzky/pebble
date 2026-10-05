@@ -4,6 +4,7 @@ import type { DocumentItem } from './types';
 export function testDocument(overrides: Partial<DocumentItem> = {}): DocumentItem {
   return {
     id: 'doc-test',
+    source: 'example',
     title: 'Clean Architecture',
     type: 'technical',
     tags: ['Reading'],

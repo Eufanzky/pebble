@@ -10,7 +10,7 @@ vi.mock('next/navigation', () => ({ useRouter: () => ({ push }) }));
 
 async function renderActions(doc = testDocument(), onDone = vi.fn()) {
   const { result } = await renderLoadedHook(() => ({
-    ...useDocumentActions(doc, onDone),
+    ...useDocumentActions(doc, doc.extractedTasks, onDone),
     tasks: useTasks(),
     log: useActivityLog(),
   }));

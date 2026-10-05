@@ -99,9 +99,11 @@ def _decompose(text: str) -> dict:
 def _simplify(text: str) -> dict:
     document = text.split("Document text:", 1)[-1].strip()
     sentences = re.split(r"(?<=[.!?])\s+", document)
+    # An action item for each sentence that asks for something to be done
+    actions = [s.rstrip(".!?") for s in sentences if re.search(r"\b(must|need to|needs to|should)\b", s, re.I)]
     return {
         "simplified": " ".join(sentences[:2]),
-        "extractedTasks": [],
+        "extractedTasks": [{"title": a[:120], "timeEstimate": "~15 min", "tag": "project"} for a in actions[:5]],
         "tags": [],
         "whyExplanation": "I kept the first two sentences, which carry the main point.",
     }

@@ -13,7 +13,8 @@ describe('useReadingLevel', () => {
   it("starts at the user's default level", () => {
     const { result } = renderHookWithProviders(() => useReadingLevel(testDocument()));
 
-    expect(result.current).toMatchObject({ level: 5, defaultLevel: 5, text: 'Fairly simple text.', version: 0 });
+    expect(result.current).toMatchObject({ level: 5, defaultLevel: 5, version: 0 });
+    expect(result.current.simplified).toMatchObject({ status: 'ready', text: 'Fairly simple text.' });
   });
 
   it('changes the text and logs the change as AdaptLens', async () => {
@@ -21,7 +22,8 @@ describe('useReadingLevel', () => {
 
     act(() => result.current.setLevel(2));
 
-    expect(result.current).toMatchObject({ level: 2, text: 'Very simple text.', version: 1 });
+    expect(result.current).toMatchObject({ level: 2, version: 1 });
+    expect(result.current.simplified.text).toBe('Very simple text.');
     expect(result.current.log.entries[0]).toMatchObject({
       agent: 'AdaptLens',
       action: 'Reading level adjusted to 2 for "Clean Architecture"',

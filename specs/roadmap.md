@@ -149,7 +149,7 @@ The three working agents only answer in chat today: "Break it down" on Today sho
 
 - [x] **7.1 CalmSense on Today.** "Break it down" on any open task asks CalmSense (with the step size and the time of day) and saves its steps and its "why"; a breakdown in chat can be added to Today. While it works, the card says so; if it can't, it says so gently and nothing changes.
   *Done:* component and E2E tests break down a task the user typed; no "breaking it down" animation runs without a request behind it.
-- [ ] **7.2 SimplifyCore on Documents.** An upload is simplified by SimplifyCore at the level the user picks (asked once per level, kept while the document is open), and its action items can be added to Today. The sample documents say they are examples.
+- [x] **7.2 SimplifyCore on Documents.** An upload is simplified by SimplifyCore at the level the user picks (asked once per level, kept while the document is open), and its action items can be added to Today. The sample documents say they are examples.
   *Done:* component and E2E tests simplify an uploaded document; no level shows text SimplifyCore didn't write, except the original.
 - [ ] **7.3 An honest activity log.** Only what an agent did is logged in its name, and the backend writes it. The frontend stops writing entries for the user's own actions (ticking a task, changing a setting, opening a "Why?").
   *Done:* no frontend code writes an entry in an agent's name; the activity tests show only agent results.

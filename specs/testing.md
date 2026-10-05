@@ -89,7 +89,7 @@ The fake LLM lives in `backend/app/infrastructure/llm/fake.py`, not only in test
 1. Dev login.
 2. Ask CalmSense in chat, and add its steps to Today.
 3. Break a task of your own into steps on Today, finish one, and reload to see it saved.
-4. Simplify a document.
+4. Upload a document, have SimplifyCore simplify it, and add its action item to Today.
 5. Open the activity log and see the agent name and its reasoning.
 
 Beside it: `tasks` (editing, reordering, filtering), `stats` (progress adds up), `account` (the one-time import, export, deletion), `installable` (install and the offline page), `sign-in` (signing out, the 401 when signed out) and `layout` (every page at 360, 768 and 1280px with axe and an overflow check, and the phone tab bar). It runs on every PR against the local stack (real Postgres, fake LLM), and after deploy against production (roadmap 11.3).

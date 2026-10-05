@@ -29,11 +29,11 @@ describe('isTextFile', () => {
 });
 
 describe('documentFromText', () => {
-  it('uses the text at every level, titled after the file', () => {
+  it('is an upload titled after the file, with no levels until SimplifyCore writes them', () => {
     const doc = documentFromText('My notes.txt', 'Hello', undefined, 7);
 
-    expect(doc).toMatchObject({ id: 'upload-7', title: 'My notes', type: 'academic', tags: ['uploaded'], original: 'Hello' });
-    expect(Object.values(doc.levels)).toEqual(['Hello', 'Hello', 'Hello', 'Hello', 'Hello']);
+    expect(doc).toMatchObject({ id: 'upload-7', source: 'upload', title: 'My notes', type: 'academic', tags: ['uploaded'], original: 'Hello' });
+    expect(doc.levels).toEqual({});
     expect(doc.comprehensionQuestion.question).toBe('');
   });
 

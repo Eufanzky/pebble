@@ -1,6 +1,7 @@
 'use client';
 
 import { useCallback, useState } from 'react';
+import { useActivityLog } from '@/features/activity';
 import { useTasks } from '../context/TasksContext';
 
 export type BreakDownStatus = 'idle' | 'working' | 'failed';
@@ -11,6 +12,7 @@ export type BreakDownStatus = 'idle' | 'working' | 'failed';
  */
 export function useBreakDown(taskId: string) {
   const { breakDown } = useTasks();
+  const { refresh: refreshLog } = useActivityLog();
   const [status, setStatus] = useState<BreakDownStatus>('idle');
 
   const start = useCallback(async () => {
@@ -20,8 +22,11 @@ export function useBreakDown(taskId: string) {
       setStatus('idle');
     } catch {
       setStatus('failed');
+    } finally {
+      // The backend logs what CalmSense did (or held back): show it
+      refreshLog();
     }
-  }, [breakDown, taskId]);
+  }, [breakDown, taskId, refreshLog]);
 
   return { status, start };
 }

@@ -27,8 +27,8 @@ export default function DocumentModal({ document: doc, onClose }: Props) {
   const [view, setView] = useState<DocView>('split');
   const [readerOpen, setReaderOpen] = useState(false);
 
-  const { level, setLevel, version, defaultLevel, text } = useReadingLevel(doc);
-  const { turnIntoTasks, makeStudyPlan, logReaderOpened } = useDocumentActions(doc, onClose);
+  const { level, setLevel, version, defaultLevel, simplified } = useReadingLevel(doc);
+  const { turnIntoTasks, makeStudyPlan, logReaderOpened } = useDocumentActions(doc, simplified.tasks, onClose);
   // The reader has its own trap while it's open
   useFocusTrap(modalRef, !readerOpen, onClose);
 
@@ -37,7 +37,9 @@ export default function DocumentModal({ document: doc, onClose }: Props) {
     logReaderOpened();
   };
 
-  const viewProps = { doc, text, textVersion: version, level, defaultLevel, calm: preferences.calmMode, noMotion };
+  const viewProps = { doc, simplified, textVersion: version, level, defaultLevel, calm: preferences.calmMode, noMotion };
+  // The reader reads what's on screen; while SimplifyCore works (or couldn't), that's the original
+  const readerText = simplified.status === 'ready' ? simplified.text : doc.original;
 
   return (
     <>
@@ -83,6 +85,7 @@ export default function DocumentModal({ document: doc, onClose }: Props) {
               level={level}
               onLevelChange={setLevel}
               onTasks={turnIntoTasks}
+              tasksReady={simplified.tasks.length > 0}
               onStudyPlan={makeStudyPlan}
               onReader={openReader}
               view={view}
@@ -101,7 +104,7 @@ export default function DocumentModal({ document: doc, onClose }: Props) {
         </div>
       </div>
 
-      {readerOpen && <ImmersiveReader text={text} title={doc.title} onClose={() => setReaderOpen(false)} />}
+      {readerOpen && <ImmersiveReader text={readerText} title={doc.title} onClose={() => setReaderOpen(false)} />}
     </>
   );
 }

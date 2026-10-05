@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { signInEachTest } from './helpers';
 
 // The demo flow (specs/testing.md): dev login, break tasks into steps with CalmSense (in chat and on
-// Today), finish a step, simplify a document, and see the agent and its "why" in the activity log.
+// Today), finish a step, have SimplifyCore simplify an upload, and see the agents and their "why" in the log.
 
 signInEachTest();
 
@@ -42,17 +42,24 @@ test('the demo flow', async ({ page }) => {
     ).toBeVisible();
   });
 
-  await test.step('simplify a document', async () => {
+  await test.step('upload a document, have SimplifyCore simplify it, and put its action item on Today', async () => {
     await page.getByRole('link', { name: /Documents/ }).click();
-    await page.getByRole('button', { name: /Design Thinking Syllabus/ }).click();
-    const doc = page.getByRole('dialog', { name: 'Design Thinking Syllabus' });
-    await doc.getByRole('slider', { name: 'Complexity (FK)' }).fill('2');
-    await expect(doc.getByTestId('simplified-text')).toContainText("This class is about making things people actually want.");
-    await expect(doc.getByText('Showing level 2.')).toBeVisible();
-    await doc.getByRole('button', { name: 'Close document' }).click();
+    await page.getByLabel('Upload a document').setInputFiles({
+      name: 'Project notes.txt',
+      mimeType: 'text/plain',
+      buffer: Buffer.from('The project report is long and detailed. You must send the draft to Sam by Friday. Lunch is at noon.'),
+    });
+    await page.getByRole('button', { name: /Project notes/ }).click();
+    const doc = page.getByRole('dialog', { name: 'Project notes' });
+    await expect(doc.getByTestId('simplified-text')).toHaveText(
+      'The project report is long and detailed. You must send the draft to Sam by Friday.',
+    );
+    await doc.getByRole('button', { name: 'Tasks' }).click();
+    await expect(page).toHaveURL(/\/today$/);
+    await expect(page.getByRole('article', { name: 'You must send the draft to Sam by Friday' })).toBeVisible();
   });
 
-  await test.step('see CalmSense and its "why" in the activity log', async () => {
+  await test.step('see the agents and their "why" in the activity log', async () => {
     await page.getByRole('link', { name: /Activity/ }).click();
     const chat = page.locator('.activity-entry', { hasText: 'Chat: decompose' });
     await expect(chat.getByText('CalmSense', { exact: true })).toBeVisible();
@@ -61,5 +68,8 @@ test('the demo flow', async ({ page }) => {
     await expect(breakdown.getByText('CalmSense', { exact: true })).toBeVisible();
     await breakdown.getByRole('button', { name: 'Show reasoning' }).click();
     await expect(breakdown.getByText(/I split this into 3 steps/)).toBeVisible();
+
+    const simplified = page.locator('.activity-entry', { hasText: 'Simplified "The project report is long' });
+    await expect(simplified.getByText('SimplifyCore', { exact: true })).toBeVisible();
   });
 });

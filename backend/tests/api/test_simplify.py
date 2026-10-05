@@ -58,3 +58,10 @@ async def test_llm_down_is_a_gentle_503(client, llm):
 
     assert resp.status_code == 503
     assert resp.json() == {"detail": UNAVAILABLE}
+
+
+async def test_simplify_refuses_text_longer_than_the_llm_can_take(client, llm):
+    resp = await client.post("/api/agents/simplify", json={"text": "x" * 12_001})
+
+    assert resp.status_code == 422
+    assert llm.calls == []

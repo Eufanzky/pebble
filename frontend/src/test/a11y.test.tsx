@@ -17,6 +17,7 @@ import { DesignSystemPreview } from '@/shared/ui';
 import { accountStore } from './msw/account';
 import { server } from './msw/server';
 import { taskHandlers } from './msw/tasks';
+import { simplifyHandlers } from './msw/simplify';
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }), usePathname: () => '/today' }));
 vi.mock('next-auth/react', () => ({ signIn: vi.fn(), signOut: vi.fn() }));
@@ -92,6 +93,17 @@ describe('axe: interactive states', () => {
     expect(await axe(container)).toHaveNoViolations();
 
     await user.click(screen.getByRole('button', { name: 'reader' }));
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it('an upload while SimplifyCore works, and when it couldn\'t', async () => {
+    server.use(simplifyHandlers.status(503));
+    const { container, user } = renderWithProviders(<DocumentsView />);
+    await user.upload(screen.getByLabelText('Upload a document'), new File(['Some notes.'], 'Notes.txt', { type: 'text/plain' }));
+    await user.click(await screen.findByRole('button', { name: /Notes/ }));
+    expect(await axe(container)).toHaveNoViolations();
+
+    await screen.findByText(/SimplifyCore couldn.t simplify this/);
     expect(await axe(container)).toHaveNoViolations();
   });
 

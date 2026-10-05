@@ -1,6 +1,6 @@
 type DocumentType = 'academic' | 'technical' | 'meeting';
 
-interface ExtractedTask {
+export interface ExtractedTask {
   title: string;
   timeEstimate: string;
   tag: string;
@@ -16,6 +16,8 @@ export interface ComprehensionQuestion {
 
 export interface DocumentItem {
   id: string;
+  /** A built-in example (its levels are written in advance), or the user's upload (SimplifyCore writes them). */
+  source: 'example' | 'upload';
   title: string;
   type: DocumentType;
   tags: string[];

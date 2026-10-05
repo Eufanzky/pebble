@@ -7,6 +7,8 @@ interface DocumentToolbarProps {
   level: number;
   onLevelChange: (level: number) => void;
   onTasks: () => void;
+  /** There are action items to add (SimplifyCore found some, or the example has them). */
+  tasksReady: boolean;
   onStudyPlan: () => void;
   onReader: () => void;
   view: DocView;
@@ -22,17 +24,33 @@ const action: CSSProperties = {
 const divider = <div style={{ width: 1, height: 18, background: 'var(--color-line)', margin: '0 4px' }} />;
 
 /** The reading-level slider, the document actions and the view toggle. */
-export default function DocumentToolbar({ level, onLevelChange, onTasks, onStudyPlan, onReader, view, onViewChange }: DocumentToolbarProps) {
+export default function DocumentToolbar({
+  level,
+  onLevelChange,
+  onTasks,
+  tasksReady,
+  onStudyPlan,
+  onReader,
+  view,
+  onViewChange,
+}: DocumentToolbarProps) {
+  const waiting = tasksReady ? {} : { opacity: 0.45, cursor: 'default' };
   return (
     <div style={{ padding: '0 28px 14px', display: 'flex', alignItems: 'center', gap: 14 }}>
       <ReadingLevelSlider level={level} onChange={onLevelChange} />
 
       {divider}
 
-      <button onClick={onTasks} style={{ ...action, border: 'none', background: 'rgba(196,181,212,0.15)', color: 'var(--color-accent)' }}>
+      <button
+        onClick={onTasks}
+        disabled={!tasksReady}
+        style={{ ...action, border: 'none', background: 'rgba(196,181,212,0.15)', color: 'var(--color-accent)', ...waiting }}
+      >
         Tasks
       </button>
-      <button onClick={onStudyPlan} style={action}>Study Plan</button>
+      <button onClick={onStudyPlan} disabled={!tasksReady} style={{ ...action, ...waiting }}>
+        Study Plan
+      </button>
       <button onClick={onReader} style={action}>Reader</button>
 
       {divider}
