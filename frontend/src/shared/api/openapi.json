@@ -739,6 +739,7 @@
             "type": "integer"
           },
           "text": {
+            "maxLength": 12000,
             "minLength": 1,
             "title": "Text",
             "type": "string"
