@@ -10,6 +10,11 @@
           "agent": {
             "$ref": "#/components/schemas/AgentName"
           },
+          "explanation": {
+            "default": "",
+            "title": "Explanation",
+            "type": "string"
+          },
           "id": {
             "title": "Id",
             "type": "string"

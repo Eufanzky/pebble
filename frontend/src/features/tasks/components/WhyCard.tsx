@@ -57,7 +57,7 @@ export default function WhyCard({ explanation }: WhyCardProps) {
             <div style={{
               fontSize: 11, fontWeight: 700, color: 'var(--color-text-3)', marginBottom: 4,
             }}>
-              Pebble explains:
+              WhyBot explains:
             </div>
             <div style={{
               fontFamily: 'var(--font-nunito)', fontSize: 13,

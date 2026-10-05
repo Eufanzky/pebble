@@ -265,13 +265,17 @@ describe('saving changes', () => {
     expect(find(result, 'Write').showSteps).toBeUndefined();
   });
 
-  it('adds a document action item as a study or communication task', async () => {
+  it('adds a document action item as a study or communication task, with WhyBot\'s why', async () => {
     const result = await renderTasks([]);
 
-    act(() => result.current.addTaskFromDocument('Hand in the form', 'Notes', 'meeting'));
+    act(() => result.current.addTaskFromDocument('Hand in the form', 'meeting', 'You chose reading level 3.'));
 
     await waitFor(() => expect(taskStore.all()).toHaveLength(1));
-    expect(taskStore.all()[0]).toMatchObject({ title: 'Hand in the form', tag: 'communication' });
+    expect(taskStore.all()[0]).toMatchObject({
+      title: 'Hand in the form',
+      tag: 'communication',
+      whyExplanation: 'You chose reading level 3.',
+    });
   });
 
   it('adds the example tasks with their steps', async () => {
@@ -282,6 +286,8 @@ describe('saving changes', () => {
     await waitFor(() => expect(taskStore.all()).toHaveLength(sampleTasks.length));
     expect(taskStore.all()[0].title).toBe(sampleTasks[0].title);
     expect(taskStore.all()[0].steps).toHaveLength(sampleTasks[0].steps!.length);
+    // Examples are the user's own to keep, not an AI decision: no "Why?" text (7.4)
+    expect(taskStore.all().map((t) => t.whyExplanation)).toEqual(sampleTasks.map(() => ''));
   });
 
   it('goes back to what the server has when a save fails, and says so', async () => {

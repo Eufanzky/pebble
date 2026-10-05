@@ -55,7 +55,7 @@ The fake LLM lives in `backend/app/infrastructure/llm/fake.py`, not only in test
   - Unsafe input is rejected before the LLM is called.
   - The fake LLM receives PII-redacted text, never the raw input.
   - Unsafe output is replaced with a safe reply.
-  - Every agent result writes an activity entry with the agent name, reasoning and safety status (parametrized over all agents); the WhyBot explanation joins it in 7.4.
+  - Every agent result writes an activity entry with the agent name, reasoning, WhyBot's explanation and safety status (parametrized over all agents); when WhyBot can't answer, the agent's reasoning explains it.
 - **Routing:** a table test mapping each intent to its agent. Unknown intent falls back to chat. Malformed classifier JSON falls back gracefully. Distress never calls a sub-agent.
 - **API:**
   - Missing, invalid, or expired tokens get a 401.

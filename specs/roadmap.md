@@ -153,7 +153,7 @@ The three working agents only answer in chat today: "Break it down" on Today sho
   *Done:* component and E2E tests simplify an uploaded document; no level shows text SimplifyCore didn't write, except the original.
 - [x] **7.3 An honest activity log.** Only what an agent did is logged in its name, and the backend writes it. The frontend stops writing entries for the user's own actions (ticking a task, changing a setting, opening a "Why?").
   *Done:* no frontend code writes an entry in an agent's name; the activity tests show only agent results.
-- [ ] **7.4 WhyBot.** Generate a plain-language explanation in the pipeline for every agent result, store it with the activity entry, and have `WhyCard` show it.
+- [x] **7.4 WhyBot.** Generate a plain-language explanation in the pipeline for every agent result, store it with the activity entry, and have `WhyCard` show it.
   *Done:* the pipeline test asserts that every agent result has an explanation; no hard-coded "why" text remains.
 - [ ] **7.5 Undo and dismiss.** Every AI-created change (steps, tasks from documents) can be undone or dismissed.
   *Done:* API and component tests cover undo for each kind of AI change.

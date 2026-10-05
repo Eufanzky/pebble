@@ -6,11 +6,13 @@ ever see the redacted message.
 """
 
 import logging
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Protocol
 
 from app.application.activity import ActivityLog, note, quote, watch
-from app.application.agents.calmsense import DecomposeTask
+from app.application.agents.calmsense import DecomposeTask, describe_breakdown
+from app.application.agents.simplifycore import describe_simplification
+from app.application.agents.whybot import Explain, explain
 from app.application.errors import AgentReplyError, UnsafeOutputError
 from app.application.llm_json import ask_json
 from app.application.ports.llm import LLMProvider, LLMRequest
@@ -20,6 +22,7 @@ from app.domain.activity import SafetyStatus
 from app.domain.agents import AgentName, Intent, Mood
 from app.domain.chat import ChatContext, ChatReply, Encouragement
 from app.domain.documents import Simplification
+from app.domain.tasks import TaskBreakdown
 
 logger = logging.getLogger("pebble.orchestrator")
 
@@ -70,6 +73,7 @@ class HandleChat:
         simplifycore: SimplifyAgent,
         pebblevoice: MotivateAgent,
         activity: ActivityLog | None = None,
+        whybot: Explain | None = None,
     ) -> None:
         self.llm = llm
         self.gate = gate
@@ -77,6 +81,7 @@ class HandleChat:
         self.simplifycore = simplifycore
         self.pebblevoice = pebblevoice
         self.activity = activity
+        self.whybot = whybot
 
     async def __call__(self, message: str, context: ChatContext, user_id: str = "") -> ChatReply:
         """With a ``user_id``, every turn (and every held-back message) goes in the user's activity log."""
@@ -90,7 +95,15 @@ class HandleChat:
             Intent.MOTIVATE: self._motivate,
         }.get(classification.intent, self._chat)
         reply = await route(classification, safe_message, context)
-        await note(self.activity, user_id, reply.agent, *_describe(safe_message, reply), reply.safety)
+        action, reasoning = _describe(safe_message, reply)
+        why = reasoning
+        if reply.safety is SafetyStatus.PASSED:
+            # WhyBot explains the result, and its "why" becomes the breakdown's or simplification's (7.4)
+            did, settings = _did(reply, context), _settings(reply, context)
+            why = await explain(self.whybot, reply.agent, quote(safe_message, 200), did, settings, reasoning)
+            if isinstance(reply.data, (TaskBreakdown, Simplification)):
+                reply = replace(reply, data=replace(reply.data, why=why))
+        await note(self.activity, user_id, reply.agent, action, reasoning, reply.safety, explanation=why)
         return reply
 
     async def _classify(self, safe_message: str) -> Classification:
@@ -159,3 +172,26 @@ def _describe(safe_message: str, reply: ChatReply) -> tuple[str, str]:
     if reply.safety is SafetyStatus.FLAGGED:
         reasoning += " Content Safety flagged the reply, so Pebble gave a safe one instead."
     return f"Chat: {reply.intent} — {quote(safe_message)}", reasoning
+
+
+def _did(reply: ChatReply, context: ChatContext) -> str:
+    """What the turn did, for WhyBot."""
+    if isinstance(reply.data, TaskBreakdown):
+        return describe_breakdown(reply.data)
+    if isinstance(reply.data, Simplification):
+        return describe_simplification(reply.data, context.reading_level)
+    if reply.intent is Intent.DISTRESS:
+        return f"Answered right away, without making a task or calling another agent: {quote(reply.response, 200)}"
+    return f"Answered {quote(reply.response, 200)}"
+
+
+def _settings(reply: ChatReply, context: ChatContext) -> str:
+    """The settings that shaped the turn, for WhyBot."""
+    if reply.intent is Intent.DECOMPOSE:
+        return f"step size {context.step_size}; time of day {context.time_of_day}"
+    if reply.intent is Intent.SIMPLIFY:
+        return f"reading level {context.reading_level} of 10"
+    return (
+        f"{context.tasks_completed} of {context.tasks_total} tasks done today; time of day {context.time_of_day}; "
+        f"personality {context.personality}"
+    )

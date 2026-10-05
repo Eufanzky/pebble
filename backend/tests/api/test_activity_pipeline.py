@@ -6,6 +6,7 @@ Parametrized over every agent and both ways to reach it (chat, and the direct en
 import pytest
 
 from app.api.auth import get_current_user
+from app.application.ports.llm import LLMUnavailableError
 from app.application.ports.persistence import PersistenceError
 from app.infrastructure.db.activity import UnconfiguredActivityRepository
 from tests.api.test_chat import SUB_AGENT_REPLIES, classification
@@ -105,6 +106,34 @@ async def test_every_agent_result_writes_one_entry(
 
     [entry] = activity_repository.entries[USER]
     assert (entry.agent, entry.action, entry.reasoning, entry.safety_status) == (agent, action, reasoning, "passed")
+
+
+@pytest.mark.parametrize(("name", "agent", "call", "replies", "action", "reasoning"), CALLS, ids=IDS)
+async def test_every_agent_result_is_explained_by_whybot(
+    client, llm, activity_repository, name, agent, call, replies, action, reasoning
+):
+    """7.4: every agent result has WhyBot's plain-language explanation, stored with its entry."""
+    script(llm, {**replies, "WhyBot": {"why": f"Why {name}."}})
+    url, body = call
+
+    assert (await client.post(url, json=body)).status_code == 200
+
+    [entry] = activity_repository.entries[USER]
+    assert entry.explanation == f"Why {name}."
+    assert llm.agents_called()[-1] == "WhyBot"
+
+
+@pytest.mark.parametrize(("name", "agent", "call", "replies", "action", "reasoning"), CALLS, ids=IDS)
+async def test_when_whybot_cant_answer_the_agents_reasoning_explains_it(
+    client, llm, activity_repository, name, agent, call, replies, action, reasoning
+):
+    script(llm, {**replies, "WhyBot": LLMUnavailableError("down")})
+    url, body = call
+
+    assert (await client.post(url, json=body)).status_code == 200
+
+    [entry] = activity_repository.entries[USER]
+    assert entry.explanation == reasoning
 
 
 @pytest.mark.parametrize(

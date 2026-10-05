@@ -47,3 +47,20 @@ async def test_activity_is_per_user(activity):
     await activity.add("a", entry("Mine"))
 
     assert await activity.recent("b", 10) == []
+
+
+async def test_activity_keeps_whybots_explanation(activity):
+    explained = entry("Broke the essay down")
+    explained = ActivityEntry(
+        explained.id,
+        explained.timestamp,
+        explained.agent,
+        explained.action,
+        explained.reasoning,
+        explained.safety_status,
+        explanation="Your step size is small.",
+    )
+
+    await activity.add("user-a", explained)
+
+    assert (await activity.recent("user-a", 10)) == [explained]

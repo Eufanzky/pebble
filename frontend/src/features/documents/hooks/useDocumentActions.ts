@@ -7,7 +7,7 @@ import { useTasks } from '@/features/tasks';
 import type { DocumentItem, ExtractedTask } from '../types';
 
 /** Turning a document's action items into tasks on Today, one by one or as a study plan. */
-export function useDocumentActions(doc: DocumentItem, tasks: ExtractedTask[], onDone: () => void) {
+export function useDocumentActions(doc: DocumentItem, tasks: ExtractedTask[], why: string, onDone: () => void) {
   const router = useRouter();
   const { addTaskFromDocument } = useTasks();
   const { showToast } = useToast();
@@ -24,14 +24,14 @@ export function useDocumentActions(doc: DocumentItem, tasks: ExtractedTask[], on
   );
 
   const turnIntoTasks = useCallback(() => {
-    tasks.forEach((t) => addTaskFromDocument(t.title, doc.title, kind));
+    tasks.forEach((t) => addTaskFromDocument(t.title, kind, why));
     finish(`Added ${count} tasks from ${doc.title}`);
-  }, [doc, tasks, kind, count, addTaskFromDocument, finish]);
+  }, [doc, tasks, why, kind, count, addTaskFromDocument, finish]);
 
   const makeStudyPlan = useCallback(() => {
-    tasks.forEach((t, i) => addTaskFromDocument(`Day ${i + 1}: ${t.title}`, doc.title, kind));
+    tasks.forEach((t, i) => addTaskFromDocument(`Day ${i + 1}: ${t.title}`, kind, why));
     finish(`Created a study plan from ${doc.title}`);
-  }, [doc, tasks, kind, addTaskFromDocument, finish]);
+  }, [doc, tasks, why, kind, addTaskFromDocument, finish]);
 
   return { turnIntoTasks, makeStudyPlan };
 }

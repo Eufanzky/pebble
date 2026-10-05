@@ -235,6 +235,7 @@ async def test_breakdown_saves_calmsenses_steps_and_why(client, signed_in, llm):
         "CalmSense",
         {"steps": [{"title": "Open the doc", "timeEstimate": "~5 min"}], "whyExplanation": "One small start."},
     )
+    llm.script("WhyBot", {"why": "It's morning, and your steps are medium."})
 
     resp = await client.post(f"{URL}/{task['id']}/breakdown", json={"timeOfDay": "morning"})
 
@@ -243,7 +244,8 @@ async def test_breakdown_saves_calmsenses_steps_and_why(client, signed_in, llm):
     assert [(s["title"], s["timeEstimate"], s["completed"]) for s in body["steps"]] == [
         ("Open the doc", "~5 min", False)
     ]
-    assert body["whyExplanation"] == "One small start."
+    # WhyBot's plain-language "why" (7.4), shown on the task's "Why?" card
+    assert body["whyExplanation"] == "It's morning, and your steps are medium."
     assert (await client.get(URL)).json() == [body]
 
 

@@ -3,7 +3,7 @@ import type { ActivityEntry } from '../types';
 import { activitySummary } from './summary';
 
 function entry(agent: ActivityEntry['agent'], safetyStatus: ActivityEntry['safetyStatus']): ActivityEntry {
-  return { id: Math.random().toString(), timestamp: new Date(), agent, action: 'x', reasoning: 'y', safetyStatus };
+  return { id: Math.random().toString(), timestamp: new Date(), agent, action: 'x', reasoning: 'y', safetyStatus, explanation: '' };
 }
 
 describe('activitySummary', () => {

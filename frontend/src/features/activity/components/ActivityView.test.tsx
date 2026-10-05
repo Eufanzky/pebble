@@ -64,4 +64,29 @@ describe('ActivityView', () => {
     expect(screen.getByText(/This log is saved with your account/)).toBeInTheDocument();
     expect(screen.queryByText(/Foundry/)).not.toBeInTheDocument();
   });
+
+  it("shows WhyBot's explanation under the action, and the agent's own reasoning on request", async () => {
+    const at = new Date(2026, 8, 29, 9).toISOString();
+    accountStore.setActivity([
+      {
+        timestamp: at,
+        agent: 'CalmSense',
+        action: 'Broke "Essay" into 3 steps',
+        reasoning: 'Smallest step first.',
+        safetyStatus: 'passed',
+        explanation: 'Your step size is small, so each step is short.',
+      },
+      { timestamp: at, agent: 'SimplifyCore', action: 'Older entry', reasoning: 'Its own.', safetyStatus: 'passed' },
+    ]);
+    const { user } = renderWithProviders(<ActivityView />);
+
+    const entry = (await screen.findByText('Broke "Essay" into 3 steps')).closest('.activity-entry') as HTMLElement;
+    expect(within(entry).getByText('Your step size is small, so each step is short.')).toBeVisible();
+    await user.click(within(entry).getByRole('button', { name: 'Show reasoning' }));
+    expect(within(entry).getByText('Smallest step first.')).toBeInTheDocument();
+
+    // An entry from before WhyBot has no "WhyBot:" line
+    const older = screen.getByText('Older entry').closest('.activity-entry') as HTMLElement;
+    expect(within(older).queryByText('WhyBot:')).not.toBeInTheDocument();
+  });
 });

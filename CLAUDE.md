@@ -195,6 +195,8 @@ TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test 
 
 Each agent has `run()` for screened input and `__call__` for the direct endpoints (`/api/agents/decompose`, `/simplify`, `/motivate`; the frontend doesn't use them), which screens first. Chat responses are `{intent, response, mood, agentName, data}`.
 
+**WhyBot** (`agents/whybot.py`, `Explain`, `WHYBOT_PROMPT`) writes a plain-language "why" for every agent result: each agent's `__call__` and each chat turn that passed the safety checks call it with what was asked, a summary of what the agent did (`describe_breakdown`, `describe_simplification`, `describe_day`) and the settings that shaped it. Its answer is screened like any reply and stored as the entry's `explanation`; for a breakdown or a simplification it also becomes the result's `why`, which the task's "Why?" card shows. If WhyBot can't answer (an outage, a rate limit, bad JSON, a flagged reply), the agent's own reasoning is the explanation, so a turn never fails because of it. A flagged reply isn't explained. Tests script it with `llm.script("WhyBot", {"why": ...})`; agents built without it (`whybot=None`) use their own reasoning.
+
 ### Data
 
 - **Tasks** (`application/tasks.py` over `TaskRepository`; `SqlTaskRepository`): one transaction per call, every query scoped to the user, so another user's task is a 404. `Task.with_step_completed` finishes a task when its last open step is ticked and never reopens it. New tasks go last; `PUT /api/tasks/order` takes every id exactly once, or it's a 409 and nothing moves.
@@ -217,5 +219,5 @@ Frontend API types are generated, never hand-written. `backend/scripts/export_op
   - Banned: streaks, counts of missed days or time away, red or alarm styling, loss framing. Late tasks are "still open", never "overdue".
 - **Dark mode only** (background `#0F0D0A`).
 - **Accessibility:** respect `reduceMotion` and `calmMode` (`stripEmoji` for user-facing text); keep keyboard navigation and ARIA working (`useFocusOnNavigation`, `useFocusTrap`, the skip link).
-- **Explainable AI:** the activity log records the agent, its reasoning and the safety status, and tasks have "Why?" cards (`WhyCard`).
-- **Agents:** the UI names CalmSense, SimplifyCore, PebbleVoice, AdaptLens, WhyBot and BridgeBot. Only the first three, plus the orchestrator, have code; phase 7 makes the others real.
+- **Explainable AI:** the activity log records the agent, WhyBot's explanation, the agent's own reasoning and the safety status, and tasks CalmSense broke down (or that came from a document) have a "Why?" card (`WhyCard`) with WhyBot's explanation. Examples and the user's own tasks have none.
+- **Agents:** the UI names CalmSense, SimplifyCore, PebbleVoice, AdaptLens, WhyBot and BridgeBot. The first four, plus the orchestrator, have code; the rest of phase 7 makes AdaptLens and BridgeBot real.

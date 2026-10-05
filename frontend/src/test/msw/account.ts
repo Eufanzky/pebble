@@ -32,8 +32,9 @@ export const accountStore = {
   },
   /** The log, newest first. */
   activity: () => structuredClone(entries),
-  setActivity(list: Omit<ActivityEntryOut, 'id'>[]) {
-    entries = list.map((e) => ({ ...e, id: `entry-${nextId++}` }));
+  /** Entries without WhyBot's `explanation` get an empty one, as older entries have. */
+  setActivity(list: (Omit<ActivityEntryOut, 'id' | 'explanation'> & { explanation?: string })[]) {
+    entries = list.map((e) => ({ explanation: '', ...e, id: `entry-${nextId++}` }));
   },
   /** Every import the app sent. */
   imports: () => structuredClone(imports),

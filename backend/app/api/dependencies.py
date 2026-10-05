@@ -14,6 +14,7 @@ from app.application.agents.calmsense import DecomposeTask
 from app.application.agents.orchestrator import HandleChat
 from app.application.agents.pebblevoice import Encourage
 from app.application.agents.simplifycore import SimplifyDocument
+from app.application.agents.whybot import Explain
 from app.application.breakdown import BreakDownTask
 from app.application.documents import ParseDocument
 from app.application.importing import ImportLocalData
@@ -84,16 +85,20 @@ class Container:
         return ActivityLog(self.activity_repository)
 
     @property
+    def whybot(self) -> Explain:
+        return Explain(self.llm, self.gate)
+
+    @property
     def decompose_task(self) -> DecomposeTask:
-        return DecomposeTask(self.llm, self.gate, self.activity)
+        return DecomposeTask(self.llm, self.gate, self.activity, self.whybot)
 
     @property
     def simplify_document(self) -> SimplifyDocument:
-        return SimplifyDocument(self.llm, self.gate, self.activity)
+        return SimplifyDocument(self.llm, self.gate, self.activity, self.whybot)
 
     @property
     def encourage(self) -> Encourage:
-        return Encourage(self.llm, self.gate, self.activity)
+        return Encourage(self.llm, self.gate, self.activity, self.whybot)
 
     @property
     def parse_document(self) -> ParseDocument:
@@ -134,7 +139,13 @@ class Container:
     @property
     def handle_chat(self) -> HandleChat:
         return HandleChat(
-            self.llm, self.gate, self.decompose_task, self.simplify_document, self.encourage, self.activity
+            self.llm,
+            self.gate,
+            self.decompose_task,
+            self.simplify_document,
+            self.encourage,
+            self.activity,
+            self.whybot,
         )
 
     async def aclose(self) -> None:

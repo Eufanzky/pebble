@@ -28,6 +28,9 @@ test('the demo flow', async ({ page }) => {
     const step = card.locator('.step-item', { hasText: 'Get what you need for: Email Sam about the project' });
     await step.getByRole('button', { name: 'Check step' }).click();
     await expect(step.getByRole('button', { name: 'Uncheck step' })).toBeVisible();
+    // WhyBot explains the breakdown on the task (7.4)
+    await card.getByRole('button', { name: /Why did Pebble do this/ }).click();
+    await expect(card.getByText(/^CalmSense did this because of what you asked and your settings: step size/)).toBeVisible();
 
     // Saved in the backend: after a reload the step is still done
     const saved = async () =>
@@ -66,6 +69,7 @@ test('the demo flow', async ({ page }) => {
 
     const breakdown = page.locator('.activity-entry', { hasText: 'Broke "Email Sam about the project" into 3 steps' });
     await expect(breakdown.getByText('CalmSense', { exact: true })).toBeVisible();
+    await expect(breakdown.getByText(/WhyBot: CalmSense did this because of what you asked/)).toBeVisible();
     await breakdown.getByRole('button', { name: 'Show reasoning' }).click();
     await expect(breakdown.getByText(/I split this into 3 steps/)).toBeVisible();
 
