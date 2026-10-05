@@ -84,6 +84,7 @@ def activity_data(entry: ActivityEntry) -> dict:
         "action": entry.action,
         "reasoning": entry.reasoning,
         "safetyStatus": str(entry.safety_status),
+        "explanation": entry.explanation,
     }
 
 

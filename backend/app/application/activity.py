@@ -38,8 +38,9 @@ class ActivityLog:
         action: str,
         reasoning: str,
         safety_status: SafetyStatus = SafetyStatus.PASSED,
+        explanation: str = "",
     ) -> ActivityEntry:
-        entry = ActivityEntry(self.make_id(), self.clock(), agent, action, reasoning, safety_status)
+        entry = ActivityEntry(self.make_id(), self.clock(), agent, action, reasoning, safety_status, explanation)
         await self.repository.add(user_id, entry)
         return entry
 
@@ -54,10 +55,11 @@ class ActivityLog:
         action: str,
         reasoning: str,
         safety_status: SafetyStatus = SafetyStatus.PASSED,
+        explanation: str = "",
     ) -> None:
         """``record`` for the agent pipeline: a log that can't be written never costs the user their answer."""
         try:
-            await self.record(user_id, agent, action, reasoning, safety_status)
+            await self.record(user_id, agent, action, reasoning, safety_status, explanation)
         except PersistenceError as exc:
             logger.warning("Activity entry not saved: %s", exc)
 
@@ -85,10 +87,11 @@ async def note(
     action: str,
     reasoning: str,
     safety_status: SafetyStatus = SafetyStatus.PASSED,
+    explanation: str = "",
 ) -> None:
     """Write an entry when there is a log and a user to write it for."""
     if activity is not None and user_id:
-        await activity.note(user_id, agent, action, reasoning, safety_status)
+        await activity.note(user_id, agent, action, reasoning, safety_status, explanation)
 
 
 @asynccontextmanager

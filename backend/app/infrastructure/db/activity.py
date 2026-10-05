@@ -22,6 +22,7 @@ class SqlActivityRepository(SqlRepository):
                     action=entry.action,
                     reasoning=entry.reasoning,
                     safety_status=str(entry.safety_status),
+                    explanation=entry.explanation,
                 )
             )
 
@@ -36,6 +37,7 @@ class SqlActivityRepository(SqlRepository):
                     action=row.action,
                     reasoning=row.reasoning,
                     safety_status=SafetyStatus(row.safety_status),
+                    explanation=row.explanation,
                 )
                 for row in await session.scalars(query)
             ]

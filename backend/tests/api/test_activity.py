@@ -40,6 +40,7 @@ async def test_an_entry_has_the_agent_reasoning_safety_and_server_time(client, s
         "action": 'Broke "Essay" into 3 steps',
         "reasoning": "Small steps.",
         "safetyStatus": "passed",
+        "explanation": "",
     }
     assert datetime.fromisoformat(entry["timestamp"]).tzinfo is not None
 

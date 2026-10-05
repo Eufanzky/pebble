@@ -21,6 +21,7 @@ def signed_in(app):
 
 async def test_simplify_returns_the_simpler_text_tasks_and_groundedness(client, llm):
     llm.script("SimplifyCore", SIMPLIFY_REPLY)
+    llm.script("WhyBot", {"why": "You chose reading level 2."})
 
     resp = await client.post("/api/agents/simplify", json={"text": "The form must be submitted.", "readingLevel": 2})
 
@@ -29,7 +30,7 @@ async def test_simplify_returns_the_simpler_text_tasks_and_groundedness(client, 
         "simplified": "Hand in the form by Friday.",
         "extractedTasks": [{"title": "Hand in the form", "timeEstimate": "~10 min", "tag": "project"}],
         "tags": ["forms"],
-        "whyExplanation": "I kept only the action.",
+        "whyExplanation": "You chose reading level 2.",
         "groundedness": {"grounded": True, "ungroundedPercentage": 0.0},
     }
     assert llm.calls[0].user_message.startswith("Target reading level: 2/10")

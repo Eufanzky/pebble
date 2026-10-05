@@ -488,6 +488,11 @@ export interface components {
             /** Action */
             action: string;
             agent: components["schemas"]["AgentName"];
+            /**
+             * Explanation
+             * @default
+             */
+            explanation: string;
             /** Id */
             id: string;
             /** Reasoning */

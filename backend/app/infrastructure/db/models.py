@@ -96,6 +96,8 @@ class ActivityRow(Base):
     action: Mapped[str] = mapped_column(Text)
     reasoning: Mapped[str] = mapped_column(Text)
     safety_status: Mapped[str] = mapped_column(String(10))
+    # WhyBot's plain-language "why" (7.4); empty for entries from before it
+    explanation: Mapped[str] = mapped_column(Text, server_default="")
 
 
 class ProgressRow(Base):

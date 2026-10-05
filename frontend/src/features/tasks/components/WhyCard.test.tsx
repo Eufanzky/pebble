@@ -9,7 +9,7 @@ describe('WhyCard', () => {
     await user.click(screen.getByRole('button', { name: /Why did Pebble do this\?/ }));
 
     expect(screen.getByText('One step per section.')).toBeVisible();
-    expect(screen.getByText('Pebble explains:')).toBeInTheDocument();
+    expect(screen.getByText('WhyBot explains:')).toBeInTheDocument();
 
     await user.click(screen.getByRole('button', { name: /Hide explanation/ }));
 

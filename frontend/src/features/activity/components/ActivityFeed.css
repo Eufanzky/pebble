@@ -160,3 +160,15 @@
 .reduce-animations .reasoning-content {
   transition: none !important;
 }
+
+/* WhyBot's explanation, under the action (7.4) */
+.activity-why {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+  color: var(--color-text-2);
+}
+.activity-why__label {
+  color: var(--color-tag-communication);
+  font-weight: 600;
+}

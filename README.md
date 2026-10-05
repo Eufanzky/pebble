@@ -30,7 +30,7 @@ Pebble helps people with ADHD, autism or dyslexia break tasks into small steps, 
 
 **Stats.** Steps, tasks and focus minutes over the last 7 or 30 days, per day and per tag, and since you started. Progress only adds up: there are no streaks, no "missed" days and no comparisons, and unticking a task never takes anything back.
 
-**Activity log.** Every agent result, with the agent's name, its reasoning and whether the safety checks passed. A message the checks hold back is logged too, without its text. Only what an agent did is logged in its name, and only the backend writes it.
+**Activity log.** Every agent result, with the agent's name, WhyBot's plain-language explanation, the agent's own reasoning, and whether the safety checks passed. A message the checks hold back is logged too, without its text. Only what an agent did is logged in its name, and only the backend writes it.
 
 **Pebble.** Seven cat models built only from CSS shapes, five colours, three personalities, and moods that follow your day.
 
@@ -79,7 +79,7 @@ flowchart LR
 | 🧩 CalmSense | Breaks a task into small, time-boxed steps | Working |
 | 📖 SimplifyCore | Rewrites text at your reading level, pulls out action items | Working |
 | 💬 PebbleVoice | Specific encouragement, never generic praise | Working |
-| ❓ WhyBot | A plain-language "why" for every agent result | Planned ([roadmap 7.4](specs/roadmap.md)) |
+| ❓ WhyBot | A plain-language "why" for every agent result | Working |
 | 🔄 AdaptLens | Suggests preference changes from how you use Pebble | Planned ([7.6](specs/roadmap.md)) |
 | 🔗 BridgeBot | Calendar export and integrations | Planned ([7.7](specs/roadmap.md)) |
 

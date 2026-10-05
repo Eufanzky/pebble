@@ -21,11 +21,13 @@ def signed_in(app):
 
 async def test_returns_the_steps(client, llm):
     llm.script("CalmSense", REPLY)
+    llm.script("WhyBot", {"why": "Your step size is small, so the steps are short."})
 
     resp = await client.post(URL, json={"taskTitle": "Write essay", "stepSize": "small"})
 
     assert resp.status_code == 200
-    assert resp.json() == REPLY
+    # The "why" is WhyBot's plain-language one (7.4)
+    assert resp.json() == {**REPLY, "whyExplanation": "Your step size is small, so the steps are short."}
     assert "User's preferred step size: small" in llm.calls[0].user_message
 
 

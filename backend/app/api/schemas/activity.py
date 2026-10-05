@@ -24,5 +24,7 @@ class ActivityEntryOut(BaseModel):
     action: str
     reasoning: str
     safety_status: SafetyStatus = Field(alias="safetyStatus")
+    explanation: str = ""
+    """WhyBot's plain-language "why"; empty for entries from before it."""
 
     model_config = {"populate_by_name": True, "by_alias": True}

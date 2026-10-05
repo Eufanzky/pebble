@@ -7,4 +7,6 @@ export interface ActivityEntry {
   action: string;
   reasoning: string;
   safetyStatus: 'passed' | 'flagged';
+  /** WhyBot's plain-language "why" (7.4); empty for older entries and held-back messages. */
+  explanation: string;
 }

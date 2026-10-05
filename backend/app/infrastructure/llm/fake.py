@@ -60,6 +60,8 @@ def _default_reply(request: LLMRequest) -> dict:
         return _simplify(text)
     if request.agent == AgentName.PEBBLE_VOICE:
         return _motivate(text)
+    if request.agent == AgentName.WHY_BOT:
+        return _explain(text)
     return {"response": "I'm here."}
 
 
@@ -107,6 +109,13 @@ def _simplify(text: str) -> dict:
         "tags": [],
         "whyExplanation": "I kept the first two sentences, which carry the main point.",
     }
+
+
+def _explain(text: str) -> dict:
+    agent = _field(text, "Agent", "Pebble")
+    settings = _field(text, "Settings", "")
+    because = f"what you asked and your settings: {settings}" if settings else "what you asked"
+    return {"why": f"{agent} did this because of {because}."}
 
 
 def _motivate(text: str) -> dict:

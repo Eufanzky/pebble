@@ -10,7 +10,7 @@ vi.mock('next/navigation', () => ({ useRouter: () => ({ push }) }));
 
 async function renderActions(doc = testDocument(), onDone = vi.fn()) {
   const { result } = await renderLoadedHook(() => ({
-    ...useDocumentActions(doc, doc.extractedTasks, onDone),
+    ...useDocumentActions(doc, doc.extractedTasks, 'You chose reading level 3.', onDone),
     tasks: useTasks(),
     log: useActivityLog(),
   }));
@@ -28,7 +28,8 @@ describe('useDocumentActions', () => {
     act(() => result.current.turnIntoTasks());
 
     expect(result.current.tasks.tasks.map((t) => t.title)).toEqual(['Read chapter 1', 'Summarise the goal']);
-    expect(result.current.tasks.tasks[0].whyExplanation).toContain('"Clean Architecture"');
+    // WhyBot's explanation of the simplification the items came from (7.4)
+    expect(result.current.tasks.tasks[0].whyExplanation).toBe('You chose reading level 3.');
     expect(result.current.log.entries).toEqual([]);
     expect(onDone).toHaveBeenCalledOnce();
     expect(push).toHaveBeenCalledWith('/today');

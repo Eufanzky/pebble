@@ -3,7 +3,7 @@ import type { ActivityEntry } from '../types';
 import { entryTime, feedEntries, showMoreLabel } from './feed';
 
 function entry(id: string, agent: ActivityEntry['agent'], timestamp: Date | string): ActivityEntry {
-  return { id, agent, timestamp: timestamp as Date, action: id, reasoning: '', safetyStatus: 'passed' };
+  return { id, agent, timestamp: timestamp as Date, action: id, reasoning: '', safetyStatus: 'passed', explanation: '' };
 }
 
 const entries = [

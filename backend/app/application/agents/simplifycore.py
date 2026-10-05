@@ -1,6 +1,9 @@
 """SimplifyCore: rewrites text at the user's reading level and pulls out its action items."""
 
+from dataclasses import replace
+
 from app.application.activity import ActivityLog, note, quote, watch
+from app.application.agents.whybot import Explain, explain
 from app.application.errors import AgentReplyError
 from app.application.llm_json import ask_json
 from app.application.ports.llm import LLMProvider, LLMRequest
@@ -12,10 +15,13 @@ from app.domain.tasks import TaskTag
 
 
 class SimplifyDocument:
-    def __init__(self, llm: LLMProvider, gate: SafetyGate, activity: ActivityLog | None = None) -> None:
+    def __init__(
+        self, llm: LLMProvider, gate: SafetyGate, activity: ActivityLog | None = None, whybot: Explain | None = None
+    ) -> None:
         self.llm = llm
         self.gate = gate
         self.activity = activity
+        self.whybot = whybot
 
     async def __call__(self, text: str, reading_level: int = 5, user_id: str = "") -> Simplification:
         """Screen the input, then simplify it. For callers that haven't screened it.
@@ -26,14 +32,24 @@ class SimplifyDocument:
             safe_text = await self.gate.screen_input(text)
             simplified = await self.run(safe_text, reading_level)
         found = len(simplified.extracted_tasks)
+        reasoning = simplified.why or f"Found {found} action item{'' if found == 1 else 's'}."
+        why = await explain(
+            self.whybot,
+            AgentName.SIMPLIFY_CORE,
+            quote(safe_text, 200),
+            describe_simplification(simplified, reading_level),
+            f"reading level {reading_level} of 10",
+            reasoning,
+        )
         await note(
             self.activity,
             user_id,
             AgentName.SIMPLIFY_CORE,
             f"Simplified {quote(safe_text)} to reading level {reading_level}",
-            simplified.why or f"Found {found} action item{'' if found == 1 else 's'}.",
+            reasoning,
+            explanation=why,
         )
-        return simplified
+        return replace(simplified, why=why)
 
     async def run(self, text: str, reading_level: int) -> Simplification:
         """Simplify already-screened text. Output is safety-checked, grounded against the text, and redacted."""
@@ -76,4 +92,13 @@ def _parse(reply: dict) -> Simplification:
         ),
         tags=tuple(str(tag) for tag in tags),
         why=str(reply.get("whyExplanation", "")),
+    )
+
+
+def describe_simplification(simplification: Simplification, reading_level: int) -> str:
+    """What SimplifyCore did, for WhyBot."""
+    items = "; ".join(t.title for t in simplification.extracted_tasks) or "none"
+    return (
+        f"Rewrote the text at reading level {reading_level}, starting {quote(simplification.simplified, 120)}. "
+        f"Action items: {items}. Its own reason: {simplification.why or 'none given'}"
     )

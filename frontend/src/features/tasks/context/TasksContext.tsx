@@ -33,7 +33,8 @@ interface TasksContextValue {
   toggleTask: (id: string) => void;
   toggleStep: (taskId: string, stepId: string) => void;
   addTask: (task: NewTask) => void;
-  addTaskFromDocument: (title: string, docName: string, type: 'academic' | 'meeting') => void;
+  /** An action item from a document; `why` is WhyBot's explanation of the simplification (none for an example). */
+  addTaskFromDocument: (title: string, type: 'academic' | 'meeting', why?: string) => void;
   /** Adds the example tasks, for a first look around. */
   addExampleTasks: () => void;
   /** CalmSense breaks the task down; resolves once its steps are on the list, and rejects if it couldn't. */
@@ -187,14 +188,14 @@ export function TasksProvider({ children }: { children: ReactNode }) {
   );
 
   const addTaskFromDocument = useCallback(
-    (title: string, docName: string, type: 'academic' | 'meeting') => {
+    (title: string, type: 'academic' | 'meeting', why = '') => {
       addTask({
         title,
         timeEstimate: '~15 min',
         tag: type === 'meeting' ? 'communication' : 'study',
         priority: 'medium',
         completed: false,
-        whyExplanation: `Created from "${docName}". Pebble extracted this as an action item from the document.`,
+        whyExplanation: why,
       });
     },
     [addTask],

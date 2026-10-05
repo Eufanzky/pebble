@@ -40,7 +40,6 @@ export function useAddTask() {
       priority: 'low',
       timeEstimate: '~5 min',
       completed: false,
-      whyExplanation: "Clean slate. Just this one thing whenever you're ready.",
     });
     setShowDistress(false);
   }, [clearAll, addTask]);

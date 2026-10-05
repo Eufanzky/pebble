@@ -20,3 +20,5 @@ class ActivityEntry:
     action: str
     reasoning: str
     safety_status: SafetyStatus = SafetyStatus.PASSED
+    explanation: str = ""
+    """WhyBot's plain-language "why" (7.4); ``reasoning`` is the agent's own, more technical one."""

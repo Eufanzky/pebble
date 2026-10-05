@@ -52,6 +52,15 @@ def signed_in(app):
     app.dependency_overrides[get_current_user] = lambda: "user-1"
 
 
+# WhyBot explains every turn that passed the safety checks (7.4); its "why" replaces the sub-agent's
+WHY = "WhyBot's plain-language why."
+
+
+@pytest.fixture(autouse=True)
+def whybot_answers(llm: FakeLLM):
+    llm.script("WhyBot", {"why": WHY})
+
+
 async def post_chat(client: AsyncClient, message: str = "Help me with my essay", **fields):
     return await client.post(CHAT_URL, json={"message": message, **fields})
 
@@ -68,8 +77,8 @@ async def post_chat(client: AsyncClient, message: str = "Help me with my essay",
                 "response": "Classifier reply.",
                 "mood": "happy",
                 "agentName": "CalmSense",
-                "data": DECOMPOSE_REPLY,
-                "agents_called": ["orchestrator", "CalmSense"],
+                "data": {**DECOMPOSE_REPLY, "whyExplanation": WHY},
+                "agents_called": ["orchestrator", "CalmSense", "WhyBot"],
             },
         ),
         (
@@ -78,8 +87,12 @@ async def post_chat(client: AsyncClient, message: str = "Help me with my essay",
                 "response": "Classifier reply.",
                 "mood": "normal",
                 "agentName": "SimplifyCore",
-                "data": {**SIMPLIFY_REPLY, "groundedness": {"grounded": True, "ungroundedPercentage": 0.0}},
-                "agents_called": ["orchestrator", "SimplifyCore"],
+                "data": {
+                    **SIMPLIFY_REPLY,
+                    "whyExplanation": WHY,
+                    "groundedness": {"grounded": True, "ungroundedPercentage": 0.0},
+                },
+                "agents_called": ["orchestrator", "SimplifyCore", "WhyBot"],
             },
         ),
         (
@@ -89,7 +102,7 @@ async def post_chat(client: AsyncClient, message: str = "Help me with my essay",
                 "mood": "excited",
                 "agentName": "PebbleVoice",
                 "data": None,
-                "agents_called": ["orchestrator", "PebbleVoice"],
+                "agents_called": ["orchestrator", "PebbleVoice", "WhyBot"],
             },
         ),
         (
@@ -99,7 +112,7 @@ async def post_chat(client: AsyncClient, message: str = "Help me with my essay",
                 "mood": "normal",
                 "agentName": "PebbleVoice",
                 "data": None,
-                "agents_called": ["orchestrator"],
+                "agents_called": ["orchestrator", "WhyBot"],
             },
         ),
         (
@@ -109,7 +122,7 @@ async def post_chat(client: AsyncClient, message: str = "Help me with my essay",
                 "mood": "sleepy",
                 "agentName": "PebbleVoice",
                 "data": None,
-                "agents_called": ["orchestrator"],
+                "agents_called": ["orchestrator", "WhyBot"],
             },
         ),
     ],
@@ -157,7 +170,7 @@ async def test_unknown_or_missing_intent_falls_back_to_chat(client, llm: FakeLLM
         "agentName": "PebbleVoice",
         "data": None,
     }
-    assert llm.agents_called() == ["orchestrator"]
+    assert llm.agents_called() == ["orchestrator", "WhyBot"]
 
 
 @pytest.mark.parametrize(
@@ -190,7 +203,7 @@ async def test_distress_never_calls_a_sub_agent(client, llm: FakeLLM):
 
     assert resp.status_code == 200
     assert resp.json()["response"] == "That sounds like a lot."
-    assert llm.agents_called() == ["orchestrator"]
+    assert llm.agents_called() == ["orchestrator", "WhyBot"]
 
 
 async def test_motivate_gets_the_progress_from_the_request(client, llm: FakeLLM):
@@ -233,8 +246,9 @@ async def test_classifier_settings(client, llm: FakeLLM):
 
     await post_chat(client)
 
-    [call] = llm.calls
+    call, *rest = llm.calls
     assert (call.agent, call.temperature, call.max_tokens, call.json_mode) == ("orchestrator", 0.6, 512, True)
+    assert [c.agent for c in rest] == ["WhyBot"]
 
 
 # --- Safety --------------------------------------------------------------------
@@ -281,6 +295,7 @@ async def test_unsafe_classifier_output_is_replaced_with_a_safe_reply(client, ll
         "agentName": "PebbleVoice",
         "data": None,
     }
+    # A flagged reply isn't explained by WhyBot: its entry says why it was held back
     assert llm.agents_called() == ["orchestrator"]
 
 
@@ -333,7 +348,8 @@ async def test_content_safety_checks_the_input_then_the_output(client, llm: Fake
 
     await post_chat(client, "Hello Pebble")
 
-    assert safety.analyzed == ["Hello Pebble", "Classifier reply."]
+    # Then WhyBot's explanation, like any reply
+    assert safety.analyzed == ["Hello Pebble", "Classifier reply.", WHY]
 
 
 async def test_unconfigured_content_safety_lets_everything_through(client, container: Container, llm: FakeLLM):
@@ -385,13 +401,18 @@ async def test_sub_agents_never_receive_raw_pii(client, llm: FakeLLM, intent):
 
     assert "sam@example.com" not in llm.sent_text()
     assert "555-123-4567" not in llm.sent_text()
-    assert len(llm.calls) == 2
+    # The classifier, the sub-agent and WhyBot: none of them saw the raw text
+    assert [c.agent for c in llm.calls] == ["orchestrator", AGENT_NAMES[intent], "WhyBot"]
 
 
 @pytest.mark.parametrize(
     ("intent", "reply", "path"),
     [
-        ("decompose", {**DECOMPOSE_REPLY, "whyExplanation": "Mail sam@example.com."}, ("data", "whyExplanation")),
+        (
+            "decompose",
+            {**DECOMPOSE_REPLY, "steps": [{"title": "Mail sam@example.com.", "timeEstimate": "~5 min"}]},
+            ("data", "steps", 0, "title"),
+        ),
         ("simplify", {**SIMPLIFY_REPLY, "simplified": "Mail sam@example.com."}, ("data", "simplified")),
         ("motivate", {**MOTIVATE_REPLY, "message": "Mail sam@example.com."}, ("response",)),
     ],

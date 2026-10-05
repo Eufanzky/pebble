@@ -54,3 +54,4 @@ One folder per change: what was asked and decided (`requirements.md`), how it wa
 | 2026-10-05 | 7.1 | [CalmSense on Today](2026-10-05-calmsense-on-today/requirements.md) |
 | 2026-10-05 | 7.2 | [SimplifyCore on Documents](2026-10-05-simplifycore-on-documents/requirements.md) |
 | 2026-10-05 | 7.3 | [An honest activity log](2026-10-05-honest-activity-log/requirements.md) |
+| 2026-10-05 | 7.4 | [WhyBot](2026-10-05-whybot/requirements.md) |

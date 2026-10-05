@@ -17,6 +17,8 @@ export interface DocumentText {
   text: string;
   /** Action items that can go on Today. */
   tasks: ExtractedTask[];
+  /** WhyBot's explanation of SimplifyCore's version, for the tasks it becomes (none for an example). */
+  why: string;
   /** Only the first part of a long upload was simplified. */
   partial: boolean;
   /** SimplifyCore's version may say things the original doesn't. */
@@ -61,22 +63,41 @@ export function useDocumentText(doc: DocumentItem, level: number): DocumentText 
   }, []);
 
   if (doc.source !== 'upload') {
-    return { status: 'ready', text: getTextForLevel(doc, level), tasks: doc.extractedTasks, partial: false, ungrounded: false, retry };
+    return {
+      status: 'ready',
+      text: getTextForLevel(doc, level),
+      tasks: doc.extractedTasks,
+      why: '',
+      partial: false,
+      ungrounded: false,
+      retry,
+    };
   }
   // The newest action items SimplifyCore found, at any level
   const known = Object.values(results);
-  const tasks = known.length > 0 ? known[known.length - 1].extractedTasks : [];
-  if (!asks) return { status: 'ready', text: doc.original, tasks, partial: false, ungrounded: false, retry };
+  const latest = known.length > 0 ? known[known.length - 1] : undefined;
+  const tasks = latest?.extractedTasks ?? [];
+  const why = latest?.whyExplanation ?? '';
+  if (!asks) return { status: 'ready', text: doc.original, tasks, why, partial: false, ungrounded: false, retry };
   const result = results[level];
   if (result) {
     return {
       status: 'ready',
       text: result.simplified,
       tasks: result.extractedTasks,
+      why: result.whyExplanation,
       partial: excerpt.partial,
       ungrounded: !result.groundedness.grounded,
       retry,
     };
   }
-  return { status: failed === level ? 'failed' : 'working', text: '', tasks, partial: excerpt.partial, ungrounded: false, retry };
+  return {
+    status: failed === level ? 'failed' : 'working',
+    text: '',
+    tasks,
+    why,
+    partial: excerpt.partial,
+    ungrounded: false,
+    retry,
+  };
 }

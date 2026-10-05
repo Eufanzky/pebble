@@ -28,7 +28,7 @@ export default function DocumentModal({ document: doc, onClose }: Props) {
   const [readerOpen, setReaderOpen] = useState(false);
 
   const { level, setLevel, version, defaultLevel, simplified } = useReadingLevel(doc);
-  const { turnIntoTasks, makeStudyPlan } = useDocumentActions(doc, simplified.tasks, onClose);
+  const { turnIntoTasks, makeStudyPlan } = useDocumentActions(doc, simplified.tasks, simplified.why, onClose);
   // The reader has its own trap while it's open
   useFocusTrap(modalRef, !readerOpen, onClose);
 

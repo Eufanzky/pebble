@@ -34,10 +34,12 @@ async def test_asks_calmsense_with_the_saved_step_size_and_keeps_its_steps_and_w
 ):
     preferences_repository.saved[USER] = {"step_size": "small"}
     llm.script("CalmSense", REPLY)
+    llm.script("WhyBot", {"why": "Your step size is small, and it's evening."})
 
     result = await break_down(USER, task.id, "evening")
 
-    [call] = llm.calls
+    call, why_call = llm.calls
+    assert why_call.agent == "WhyBot"
     assert "Task: Write the essay" in call.user_message
     assert "User's preferred step size: small" in call.user_message
     assert "Current time of day: evening" in call.user_message
@@ -45,7 +47,7 @@ async def test_asks_calmsense_with_the_saved_step_size_and_keeps_its_steps_and_w
         ("Open the doc", "~5 min", False),
         ("Write one line", "~10 min", False),
     ]
-    assert result.why == "Small steps, easiest first."
+    assert result.why == "Your step size is small, and it's evening."
     assert await container.tasks.get(USER, task.id) == result
 
 

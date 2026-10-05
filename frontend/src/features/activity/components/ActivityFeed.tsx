@@ -60,7 +60,15 @@ function EntryCard({ entry, isNew }: { entry: ActivityEntry; isNew: boolean }) {
         </span>
       </div>
 
-      {/* Reasoning (collapsible) */}
+      {/* WhyBot's plain-language why (7.4) */}
+      {entry.explanation && entry.explanation !== entry.reasoning && (
+        <p className="activity-why">
+          <span className="activity-why__label">WhyBot: </span>
+          {entry.explanation}
+        </p>
+      )}
+
+      {/* The agent's own reasoning (collapsible) */}
       <div>
         <button
           className="reasoning-toggle"
