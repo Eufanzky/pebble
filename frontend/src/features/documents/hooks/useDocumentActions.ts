@@ -5,16 +5,16 @@ import { useRouter } from 'next/navigation';
 import { useActivityLog } from '@/features/activity';
 import { useToast } from '@/shared/ui/ToastContext';
 import { useTasks } from '@/features/tasks';
-import type { DocumentItem } from '../types';
+import type { DocumentItem, ExtractedTask } from '../types';
 
-/** Turning a document into tasks on Today, one by one or as a study plan. */
-export function useDocumentActions(doc: DocumentItem, onDone: () => void) {
+/** Turning a document's action items into tasks on Today, one by one or as a study plan. */
+export function useDocumentActions(doc: DocumentItem, tasks: ExtractedTask[], onDone: () => void) {
   const router = useRouter();
   const { addTaskFromDocument } = useTasks();
   const { addEntry } = useActivityLog();
   const { showToast } = useToast();
   const kind = doc.type === 'meeting' ? 'meeting' : 'academic';
-  const count = doc.extractedTasks.length;
+  const count = tasks.length;
 
   const finish = useCallback(
     (toast: string) => {
@@ -26,16 +26,16 @@ export function useDocumentActions(doc: DocumentItem, onDone: () => void) {
   );
 
   const turnIntoTasks = useCallback(() => {
-    doc.extractedTasks.forEach((t) => addTaskFromDocument(t.title, doc.title, kind));
+    tasks.forEach((t) => addTaskFromDocument(t.title, doc.title, kind));
     addEntry('SimplifyCore', `Extracted ${count} tasks from "${doc.title}" and added to Today`, `Document type: ${doc.type}. Tasks extracted based on action items.`);
     finish(`Added ${count} tasks from ${doc.title}`);
-  }, [doc, kind, count, addTaskFromDocument, addEntry, finish]);
+  }, [doc, tasks, kind, count, addTaskFromDocument, addEntry, finish]);
 
   const makeStudyPlan = useCallback(() => {
-    doc.extractedTasks.forEach((t, i) => addTaskFromDocument(`Day ${i + 1}: ${t.title}`, doc.title, kind));
+    tasks.forEach((t, i) => addTaskFromDocument(`Day ${i + 1}: ${t.title}`, doc.title, kind));
     addEntry('SimplifyCore', `Created study plan from "${doc.title}" — ${count} reading sessions`, `Sequential study plan generated from document.`);
     finish(`Created a study plan from ${doc.title}`);
-  }, [doc, kind, count, addTaskFromDocument, addEntry, finish]);
+  }, [doc, tasks, kind, count, addTaskFromDocument, addEntry, finish]);
 
   const logReaderOpened = useCallback(() => {
     addEntry('PebbleVoice', `Opened the reader for "${doc.title}"`, 'Azure Immersive Reader when it is set up, otherwise the built-in reader.');

@@ -30,7 +30,8 @@ class DecomposeResponse(BaseModel):
 # --- Document Simplification ---
 
 class SimplifyRequest(BaseModel):
-    text: str = Field(min_length=1)
+    text: str = Field(min_length=1, max_length=12_000)
+    """Up to 12,000 characters: the free LLM tier's per-minute limit. The frontend sends a long document's start."""
     reading_level: int = Field(alias="readingLevel", default=5, ge=1, le=10)
 
     model_config = {"populate_by_name": True}

@@ -89,3 +89,12 @@ async def test_default_motivate_is_specific(done, expected):
 
 async def test_unknown_agent_gets_a_generic_reply():
     assert json.loads(await FakeLLM().complete(request("other", "x"))) == {"response": "I'm here."}
+
+
+async def test_default_simplify_lists_sentences_that_ask_for_something_as_action_items():
+    message = "Target reading level: 3/10\n\nDocument text:\nIt's long. You must send it to Sam. Lunch is at noon."
+
+    reply = json.loads(await FakeLLM().complete(request("SimplifyCore", message)))
+
+    [task] = reply["extractedTasks"]
+    assert task == {"title": "You must send it to Sam", "timeEstimate": "~15 min", "tag": "project"}

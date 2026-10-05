@@ -29,7 +29,7 @@ export function isTextFile(file: Pick<File, 'name' | 'type'>): boolean {
 const titleOf = (fileName: string) => fileName.replace(/\.[^.]+$/, '');
 export const sizeInKb = (bytes: number) => (bytes / 1024).toFixed(0);
 
-/** A document from a file's text: the same text at every level, for now. */
+/** A document from a file's text. SimplifyCore writes its levels when they're asked for (`useDocumentText`). */
 export function documentFromText(
   fileName: string,
   text: string,
@@ -38,11 +38,12 @@ export function documentFromText(
 ): DocumentItem {
   return {
     id: `upload-${now}`,
+    source: 'upload',
     title: titleOf(fileName),
     type,
     tags: ['uploaded'],
     original: text,
-    levels: { 1: text, 3: text, 5: text, 7: text, 10: text },
+    levels: {},
     extractedTasks: [],
     comprehensionQuestion: {
       question: '',

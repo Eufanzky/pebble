@@ -36,6 +36,7 @@ export default function DocumentCard({ document: doc, onClick }: DocumentCardPro
         <span className="doc-card__type">{typeLabels[doc.type]}</span>
       </span>
       <span className="doc-card__tags">
+        {doc.source === 'example' && <Chip>Example</Chip>}
         {doc.tags.map((tag) => (
           <Chip key={tag}>{tag[0].toUpperCase() + tag.slice(1)}</Chip>
         ))}

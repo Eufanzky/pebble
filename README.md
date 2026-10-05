@@ -24,7 +24,7 @@ Pebble helps people with ADHD, autism or dyslexia break tasks into small steps, 
 
 **Chat with Pebble.** An orchestrator works out what you need and routes it: a breakdown (CalmSense), a simpler version of a text (SimplifyCore), or specific encouragement (PebbleVoice). Distress is answered at once, without a sub-agent. A breakdown in chat can go straight onto Today.
 
-**Documents.** Upload a PDF, Word or text file (read in memory, never stored) and read it in a calmer view. The sample documents show the rest: a reading level from 1 to 10, the original and a simpler version side by side, a comprehension check, and action items turned into tasks or a study plan. Doing that for your own uploads, with SimplifyCore, is [roadmap 7.2](specs/roadmap.md). A built-in reader (read aloud, syllables, line focus) works without any setup; Azure Immersive Reader is used when it's configured.
+**Documents.** Upload a PDF, Word or text file (read in memory, never stored), choose a reading level from 1 to 10, and SimplifyCore rewrites it at that level, beside the original. It says when only the first part of a long document was simplified, and when its version may say things the original doesn't. Its action items can go onto Today, one by one or as a study plan. The example documents also have a comprehension check. A built-in reader (read aloud, syllables, line focus) works without any setup; Azure Immersive Reader is used when it's configured.
 
 **Focus.** A 25-minute timer with Pebble beside you. Pause or stop whenever you need to; the minutes count towards your stats.
 

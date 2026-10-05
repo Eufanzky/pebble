@@ -2,13 +2,15 @@
 
 import { useState } from 'react';
 import { levelNote } from '../lib/readingLevel';
+import type { DocumentText } from '../hooks/useDocumentText';
 import type { DocumentItem } from '../types';
 import ComprehensionPrompt from './ComprehensionPrompt';
 import LevelNote from './LevelNote';
+import SimplifiedText from './SimplifiedText';
 
 interface ReaderViewProps {
   doc: DocumentItem;
-  text: string;
+  simplified: DocumentText;
   textVersion: number;
   level: number;
   defaultLevel: number;
@@ -17,24 +19,14 @@ interface ReaderViewProps {
 }
 
 /** One column: Pebble's version, with the original folded away. */
-export default function ReaderView({ doc, text, textVersion, level, defaultLevel, calm, noMotion }: ReaderViewProps) {
+export default function ReaderView({ doc, simplified, textVersion, level, defaultLevel, calm, noMotion }: ReaderViewProps) {
   const [showOriginal, setShowOriginal] = useState(false);
 
   return (
     <div style={{ padding: '20px 28px 28px' }}>
       <LevelNote text={levelNote(level, defaultLevel, true)} compact={false} />
 
-      <div
-        key={textVersion}
-        data-testid="simplified-text"
-        style={{
-          fontFamily: 'var(--font-nunito)', fontSize: 15, color: 'var(--color-text)',
-          lineHeight: 1.8, whiteSpace: 'pre-wrap', marginBottom: 20,
-          animation: noMotion ? 'none' : 'docFadeIn 0.4s ease',
-        }}
-      >
-        {text}
-      </div>
+      <SimplifiedText simplified={simplified} level={level} textVersion={textVersion} noMotion={noMotion} marginBottom={20} />
 
       <button
         onClick={() => setShowOriginal(!showOriginal)}

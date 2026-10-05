@@ -3,6 +3,7 @@ import type { ApiSchema } from '@/shared/api';
 import { taskHandlers } from './tasks';
 import { accountHandlers } from './account';
 import { statsHandlers } from './stats';
+import { simplifyHandlers } from './simplify';
 
 // Handler bodies are typed from the generated API types, so a backend schema
 // change breaks these fakes at compile time instead of drifting silently.
@@ -59,5 +60,6 @@ export const handlers: RequestHandler[] = [
   ...taskHandlers.api(),
   ...accountHandlers.api(),
   ...statsHandlers.api(),
+  simplifyHandlers.reply(),
 ];
 

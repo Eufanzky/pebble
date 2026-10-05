@@ -4,6 +4,7 @@ export const sampleDocuments: DocumentItem[] = [
   {
     id: 'doc-1',
     title: 'Design Thinking Syllabus',
+    source: 'example',
     type: 'academic',
     tags: ['Deadlines', 'Assignments', 'Reading'],
     original:
@@ -29,6 +30,7 @@ export const sampleDocuments: DocumentItem[] = [
   {
     id: 'doc-2',
     title: 'Project Brief',
+    source: 'example',
     type: 'technical',
     tags: ['Requirements', 'Deadline', 'Azure'],
     original:
@@ -54,6 +56,7 @@ export const sampleDocuments: DocumentItem[] = [
   {
     id: 'doc-3',
     title: 'Team Standup — March 18',
+    source: 'example',
     type: 'meeting',
     tags: ['Meeting', 'Action Items', 'Decisions'],
     original:
@@ -79,6 +82,7 @@ export const sampleDocuments: DocumentItem[] = [
   {
     id: 'doc-4',
     title: 'Clean Architecture — Ch.1: What Is Design and Architecture?',
+    source: 'example',
     type: 'academic',
     tags: ['Software', 'Architecture', 'Design', 'Book Chapter'],
     original:

@@ -3,7 +3,7 @@
 import { useCallback, useState } from 'react';
 import { useActivityLog } from '@/features/activity';
 import { usePreferences } from '@/shared/preferences';
-import { getTextForLevel } from '../lib/readingLevel';
+import { useDocumentText } from './useDocumentText';
 import type { DocumentItem } from '../types';
 
 /**
@@ -14,6 +14,7 @@ export function useReadingLevel(doc: DocumentItem) {
   const { preferences } = usePreferences();
   const { addEntry } = useActivityLog();
   const [level, setLevelState] = useState(preferences.readingLevel);
+  const simplified = useDocumentText(doc, level);
   // Bumped on every change so the text fades in again
   const [version, setVersion] = useState(0);
 
@@ -31,6 +32,6 @@ export function useReadingLevel(doc: DocumentItem) {
     setLevel,
     version,
     defaultLevel: preferences.readingLevel,
-    text: getTextForLevel(doc, level),
+    simplified,
   };
 }

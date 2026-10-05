@@ -135,7 +135,7 @@ Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Foun
 | A-025 | Fixed after 6.3: knip is on 6 and no longer pulls in `braces` or `micromatch`. The same chain through `eslint-config-next` stays until Next.js updates its ESLint plugin (npm's only fix is a downgrade to 14); it's dev-only. |
 | A-026 | **Open**, cosmetic: revert the file after running the script until then. |
 | A-028 | **Open**: the prompts need a firmer sentence length; until then the voice eval passes or fails by one reply. |
-| A-029 | **Partly fixed.** 7.1: "Break it down" asks CalmSense for any task, and a chat breakdown can go on Today. Open for 7.2 (Documents) and 7.3 (the log). |
+| A-029 | **Partly fixed.** 7.1: "Break it down" asks CalmSense for any task, and a chat breakdown can go on Today. 7.2: SimplifyCore simplifies uploads and finds their action items. Open for 7.3 (the log). |
 | A-030 | Fixed in the Phase 7 plan PR. |
 | A-027 | Fixed in 6.6: "steps" everywhere (API routes and fields, frontend types, prompts), and "step size" for "chunk size"; migration 0005 renames saved preferences, and the browser import still reads the old names. |
 | A-021 | Fixed in 3.4: the note says what each entry shows (since 4.5 the log is saved to the account). Test in `ActivityView.test.tsx`. |
