@@ -106,6 +106,15 @@ async def break_down(
     return task_data(await break_down_task(user_id, task_id, body.time_of_day))
 
 
+@router.delete("/{task_id}/breakdown", response_model=TaskOut, summary="Remove a task's breakdown")
+async def remove_breakdown(task_id: str, user_id: str = Depends(get_current_user), tasks: Tasks = Depends(get_tasks)):
+    """Undo or dismiss a CalmSense breakdown: the task keeps its title, tag and the rest, without steps or "why".
+
+    Progress already made isn't taken back (counts only add up).
+    """
+    return task_data(await tasks.remove_breakdown(user_id, task_id))
+
+
 @router.put("/{task_id}/steps", response_model=TaskOut, summary="Replace a task's steps")
 async def replace_steps(
     task_id: str,

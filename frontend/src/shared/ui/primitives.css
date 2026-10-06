@@ -319,3 +319,17 @@ button.ui-chip:hover {
     display: none;
   }
 }
+
+/* An action on a toast, such as "Undo" (7.5) */
+.ui-toast__action {
+  pointer-events: auto;
+  min-height: var(--tap);
+  padding: 0 var(--space-3);
+  border: 1px solid currentColor;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}

@@ -35,7 +35,7 @@ export default function TaskCard({
   const { reduceMotion } = usePreferences();
   const noMotion = reduceMotion;
 
-  const breakdown = useBreakDown(task.id);
+  const breakdown = useBreakDown(task.id, task.title);
   const working = breakdown.status === 'working';
   const showSteps = task.showSteps ?? false;
   const { ripple, trigger: triggerRipple } = useRipple(noMotion);

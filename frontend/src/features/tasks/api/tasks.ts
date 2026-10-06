@@ -43,6 +43,11 @@ export async function breakDownTask(id: string, timeOfDay: string): Promise<Task
   return fromApi(await postJson<TaskOut>(`${TASKS}/${encodeURIComponent(id)}/breakdown`, { timeOfDay }));
 }
 
+/** Undo or dismiss a breakdown: the steps and the "why" go, the task stays (7.5). */
+export function removeBreakdown(id: string): Promise<void> {
+  return deleteRequest(`${TASKS}/${encodeURIComponent(id)}/breakdown`);
+}
+
 export async function updateStep(taskId: string, stepId: string, completed: boolean): Promise<Task> {
   const path = `${TASKS}/${encodeURIComponent(taskId)}/steps/${encodeURIComponent(stepId)}`;
   return fromApi(await patchJson<TaskOut>(path, { completed }));

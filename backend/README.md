@@ -76,6 +76,7 @@ Real-LLM evals live in `tests/evals/` (`uv run pytest -m eval`). They're exclude
 | PATCH | `/api/tasks/{id}` | Change only the fields sent, e.g. `{"completed": true}` |
 | DELETE | `/api/tasks/{id}` | Remove one task (204) |
 | DELETE | `/api/tasks` | Clear your list (204) |
+| DELETE | `/api/tasks/{id}/breakdown` | Undo or dismiss a breakdown: the steps and "why" go, the task stays. Progress already made isn't taken back |
 | PUT | `/api/tasks/{id}/steps` | Replace a task's steps (e.g. from CalmSense); new steps start open |
 | PATCH | `/api/tasks/{id}/steps/{stepId}` | Tick a step on or off. The last open step finishes the task; unticking never reopens it |
 | GET | `/api/preferences` | Your preferences over the defaults (a new account gets the defaults) |

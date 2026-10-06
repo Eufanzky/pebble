@@ -155,7 +155,7 @@ The three working agents only answer in chat today: "Break it down" on Today sho
   *Done:* no frontend code writes an entry in an agent's name; the activity tests show only agent results.
 - [x] **7.4 WhyBot.** Generate a plain-language explanation in the pipeline for every agent result, store it with the activity entry, and have `WhyCard` show it.
   *Done:* the pipeline test asserts that every agent result has an explanation; no hard-coded "why" text remains.
-- [ ] **7.5 Undo and dismiss.** Every AI-created change (steps, tasks from documents) can be undone or dismissed.
+- [x] **7.5 Undo and dismiss.** Every AI-created change (steps, tasks from documents) can be undone or dismissed.
   *Done:* API and component tests cover undo for each kind of AI change.
 - [ ] **7.6 AdaptLens.** Collect simple usage signals (skipped steps, reading-level changes, step-size edits) and suggest preference changes that the user approves.
   *Done:* tests prove that a suggestion applies only when accepted, and that a dismissed one doesn't come back immediately.

@@ -70,6 +70,10 @@ class Tasks:
         await self._save(user_id, task)
         return task
 
+    async def remove_breakdown(self, user_id: str, task_id: str) -> Task:
+        """Undo or dismiss a breakdown (7.5): the steps and the "why" go; everything else about the task stays."""
+        return await self.set_breakdown(user_id, task_id, (), "")
+
     async def get(self, user_id: str, task_id: str) -> Task:
         return await self._get(user_id, task_id)
 

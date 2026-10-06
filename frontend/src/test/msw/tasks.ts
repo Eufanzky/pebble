@@ -108,6 +108,9 @@ export const taskHandlers = {
         ),
       }));
     }),
+    http.delete('/api/tasks/:taskId/breakdown', ({ params }) =>
+      update(String(params.taskId), (t) => ({ ...t, steps: [], whyExplanation: '' })),
+    ),
     http.put('/api/tasks/:taskId/steps', async ({ params, request }) => {
       const { steps } = (await request.json()) as ApiSchema<'StepsReplace'>;
       return update(String(params.taskId), (t) => ({

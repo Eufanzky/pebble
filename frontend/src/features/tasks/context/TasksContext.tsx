@@ -11,6 +11,7 @@ import {
   listTasks,
   reorderTasks as reorderRequest,
   breakDownTask as breakDownRequest,
+  removeBreakdown as removeBreakdownRequest,
   updateStep,
   updateTask,
 } from '../api/tasks';
@@ -32,15 +33,18 @@ interface TasksContextValue {
   dismissSaveError: () => void;
   toggleTask: (id: string) => void;
   toggleStep: (taskId: string, stepId: string) => void;
-  addTask: (task: NewTask) => void;
+  /** Adds a task; returns its id on this screen, for an undo (none before the list has loaded). */
+  addTask: (task: NewTask) => string | undefined;
   /** An action item from a document; `why` is WhyBot's explanation of the simplification (none for an example). */
-  addTaskFromDocument: (title: string, type: 'academic' | 'meeting', why?: string) => void;
+  addTaskFromDocument: (title: string, type: 'academic' | 'meeting', why?: string) => string | undefined;
   /** Adds the example tasks, for a first look around. */
   addExampleTasks: () => void;
   /** CalmSense breaks the task down; resolves once its steps are on the list, and rejects if it couldn't. */
   breakDown: (taskId: string) => Promise<void>;
   /** Show or hide a task's steps on this screen (not saved). */
   setStepsShown: (taskId: string, shown: boolean) => void;
+  /** Undo or dismiss a breakdown: the steps and the "why" go, the task stays (7.5). */
+  removeBreakdown: (taskId: string) => void;
   /** Change what a task says: its title, estimate, tag or priority. */
   editTask: (id: string, changes: TaskEdit) => void;
   deleteTask: (id: string) => void;
@@ -140,8 +144,8 @@ export function TasksProvider({ children }: { children: ReactNode }) {
   );
 
   const addTask = useCallback(
-    (task: NewTask) => {
-      if (beforeFirstLoad(() => createTask(task))) return;
+    (task: NewTask): string | undefined => {
+      if (beforeFirstLoad(() => createTask(task))) return undefined;
       const local: Task = {
         ...task,
         id: tempId(),
@@ -149,6 +153,7 @@ export function TasksProvider({ children }: { children: ReactNode }) {
       };
       setTasks((prev) => [...prev, local]);
       enqueue(async () => adoptIds(local.id, local, await createTask(task)));
+      return local.id;
     },
     [setTasks, enqueue, adoptIds, beforeFirstLoad],
   );
@@ -188,7 +193,7 @@ export function TasksProvider({ children }: { children: ReactNode }) {
   );
 
   const addTaskFromDocument = useCallback(
-    (title: string, type: 'academic' | 'meeting', why = '') => {
+    (title: string, type: 'academic' | 'meeting', why = '') =>
       addTask({
         title,
         timeEstimate: '~15 min',
@@ -196,8 +201,7 @@ export function TasksProvider({ children }: { children: ReactNode }) {
         priority: 'medium',
         completed: false,
         whyExplanation: why,
-      });
-    },
+      }),
     [addTask],
   );
 
@@ -221,6 +225,22 @@ export function TasksProvider({ children }: { children: ReactNode }) {
     [setTasks, idFor, timeOfDay],
   );
 
+  const removeBreakdown = useCallback(
+    (taskId: string) => {
+      const ids = [taskId, idFor(taskId)];
+      setTasks((prev) => prev.map((t) => (ids.includes(t.id) ? { ...t, steps: undefined, whyExplanation: '' } : t)));
+      setExpanded((prev) => {
+        const next = new Set(prev);
+        ids.forEach((id) => next.delete(id));
+        return next;
+      });
+      enqueue(async () => {
+        await removeBreakdownRequest(idFor(taskId));
+      });
+    },
+    [setTasks, enqueue, idFor],
+  );
+
   const setStepsShown = useCallback((taskId: string, shown: boolean) => {
     setExpanded((prev) => {
       const next = new Set(prev);
@@ -242,7 +262,8 @@ export function TasksProvider({ children }: { children: ReactNode }) {
 
   const deleteTask = useCallback(
     (id: string) => {
-      setTasks((prev) => prev.filter((t) => t.id !== id));
+      // An undo may hold the temporary id of a task the server has named since
+      setTasks((prev) => prev.filter((t) => t.id !== id && t.id !== idFor(id)));
       enqueue(() => deleteTaskRequest(idFor(id)));
     },
     [setTasks, enqueue, idFor],
@@ -282,6 +303,7 @@ export function TasksProvider({ children }: { children: ReactNode }) {
     addExampleTasks,
     breakDown,
     setStepsShown,
+    removeBreakdown,
     editTask,
     deleteTask,
     reorderTasks,

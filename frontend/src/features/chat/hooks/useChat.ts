@@ -6,6 +6,7 @@ import { usePebble } from '@/features/companion';
 import { useTasks } from '@/features/tasks';
 import { useActivityLog } from '@/features/activity';
 import { useTimeOfDay } from '@/shared/hooks/useTimeOfDay';
+import { useToast } from '@/shared/ui/ToastContext';
 import { sendChatMessage } from '../api/sendChatMessage';
 import {
   buildChatRequest,
@@ -26,7 +27,8 @@ const MOOD_FLASH_MS = 3000;
 export function useChat() {
   const { preferences } = usePreferences();
   const { flashMood } = usePebble();
-  const { tasks, addTask } = useTasks();
+  const { tasks, addTask, deleteTask } = useTasks();
+  const { showToast } = useToast();
   const { refresh: refreshLog } = useActivityLog();
   const timeOfDay = useTimeOfDay();
 
@@ -65,7 +67,7 @@ export function useChat() {
       const message = messages.find((m) => m.id === messageId);
       if (!message?.breakdown || message.added) return;
       const { title, steps, whyExplanation } = message.breakdown;
-      addTask({
+      const id = addTask({
         title,
         timeEstimate: '',
         tag: 'project',
@@ -75,9 +77,24 @@ export function useChat() {
         steps: steps.map((s) => ({ id: '', title: s.title, timeEstimate: s.timeEstimate, completed: false })),
         showSteps: true,
       });
-      setMessages((prev) => prev.map((m) => (m.id === messageId ? { ...m, added: true } : m)));
+      const setAdded = (added: boolean) =>
+        setMessages((prev) => prev.map((m) => (m.id === messageId ? { ...m, added } : m)));
+      setAdded(true);
+      // Undo takes the task off Today again, and lets the breakdown be added later (7.5)
+      showToast(
+        `"${title}" is on Today.`,
+        id
+          ? {
+              label: 'Undo',
+              onAction: () => {
+                deleteTask(id);
+                setAdded(false);
+              },
+            }
+          : undefined,
+      );
     },
-    [messages, addTask],
+    [messages, addTask, deleteTask, showToast],
   );
 
   return { messages, isLoading, send, addToToday };

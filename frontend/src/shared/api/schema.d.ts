@@ -433,7 +433,13 @@ export interface paths {
          *     task stays as it was. The result goes in your activity log.
          */
         post: operations["break_down_api_tasks__task_id__breakdown_post"];
-        delete?: never;
+        /**
+         * Remove a task's breakdown
+         * @description Undo or dismiss a CalmSense breakdown: the task keeps its title, tag and the rest, without steps or "why".
+         *
+         *     Progress already made isn't taken back (counts only add up).
+         */
+        delete: operations["remove_breakdown_api_tasks__task_id__breakdown_delete"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1601,6 +1607,37 @@ export interface operations {
                 "application/json": components["schemas"]["BreakdownRequest"];
             };
         };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    remove_breakdown_api_tasks__task_id__breakdown_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
         responses: {
             /** @description Successful Response */
             200: {

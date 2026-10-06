@@ -255,6 +255,31 @@ describe('saving changes', () => {
     expect(result.current.saveFailed).toBe(false);
   });
 
+  it('undoes by the id a task had before the server named it (7.5)', async () => {
+    const result = await renderTasks([]);
+
+    let tempId: string | undefined;
+    act(() => {
+      tempId = result.current.addTask(task('Essay'));
+    });
+    await waitFor(() => expect(find(result, 'Essay').id).toBe(taskStore.all()[0]?.id));
+    act(() => result.current.deleteTask(tempId!));
+
+    expect(result.current.tasks).toEqual([]);
+    await waitFor(() => expect(taskStore.all()).toEqual([]));
+  });
+
+  it('removes a breakdown: the steps and the why go, the task stays', async () => {
+    const result = await renderTasks([task('Essay')]);
+    await act(() => result.current.breakDown(idOf(result, 'Essay')));
+
+    act(() => result.current.removeBreakdown(idOf(result, 'Essay')));
+
+    expect(find(result, 'Essay')).toMatchObject({ whyExplanation: '' });
+    expect(find(result, 'Essay').steps).toBeUndefined();
+    await waitFor(() => expect(taskStore.all()[0]).toMatchObject({ steps: [], whyExplanation: '' }));
+  });
+
   it('shows and hides a task\'s steps', async () => {
     const result = await renderTasks([task('Write', { steps: [step('Outline')] })]);
 

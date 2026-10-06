@@ -1,5 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { act, renderLoadedHook } from '@/test/render';
+import userEvent from '@testing-library/user-event';
+import { act, renderLoadedHook, screen, waitFor } from '@/test/render';
+import { taskStore } from '@/test/msw/tasks';
 import { useActivityLog } from '@/features/activity';
 import { useTasks } from '@/features/tasks';
 import { testDocument } from '../testing';
@@ -52,5 +54,16 @@ describe('useDocumentActions', () => {
     const reading = await renderActions(testDocument({ type: 'academic' }));
     act(() => reading.result.current.turnIntoTasks());
     expect(reading.result.current.tasks.tasks.at(-1)!.tag).toBe('study');
+  });
+
+  it('offers to undo it, which takes those tasks off Today again', async () => {
+    const { result } = await renderActions();
+
+    act(() => result.current.turnIntoTasks());
+    await waitFor(() => expect(taskStore.all()).toHaveLength(2));
+    await userEvent.click(screen.getByRole('button', { name: 'Undo' }));
+
+    await waitFor(() => expect(taskStore.all()).toEqual([]));
+    expect(result.current.tasks.tasks).toEqual([]);
   });
 });

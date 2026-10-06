@@ -44,6 +44,7 @@ export default function TodayView() {
     deleteTask,
     reorderTasks,
     setStepsShown,
+    removeBreakdown,
   } = useTasks();
   const { preferences, reduceMotion } = usePreferences();
   const timeOfDay = useTimeOfDay();
@@ -150,6 +151,7 @@ export default function TodayView() {
           task={editing}
           onSave={(changes) => editTask(editing.id, changes)}
           onDelete={() => deleteTask(editing.id)}
+          onRemoveSteps={() => removeBreakdown(editing.id)}
           onClose={() => setEditingId(null)}
         />
       )}

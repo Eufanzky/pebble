@@ -2055,6 +2055,52 @@
       }
     },
     "/api/tasks/{task_id}/breakdown": {
+      "delete": {
+        "description": "Undo or dismiss a CalmSense breakdown: the task keeps its title, tag and the rest, without steps or \"why\".\n\nProgress already made isn't taken back (counts only add up).",
+        "operationId": "remove_breakdown_api_tasks__task_id__breakdown_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "title": "Task Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Remove a task's breakdown",
+        "tags": [
+          "Tasks"
+        ]
+      },
       "post": {
         "description": "CalmSense splits the task into steps of your step size and says why; they replace its steps.\n\nThe title is safety-checked first (422 if it's held back). If CalmSense can't answer, it's a 503 and the\ntask stays as it was. The result goes in your activity log.",
         "operationId": "break_down_api_tasks__task_id__breakdown_post",

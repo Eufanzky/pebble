@@ -267,3 +267,21 @@ async def test_breakdown_when_calmsense_cant_answer_is_a_gentle_503_and_nothing_
 
     assert resp.status_code == 503
     assert (await client.get(URL)).json() == [task]
+
+
+async def test_removing_a_breakdown_undoes_it(client, signed_in, llm):
+    task = await add(client, priority="high")
+    await client.post(f"{URL}/{task['id']}/breakdown", json={})
+
+    resp = await client.delete(f"{URL}/{task['id']}/breakdown")
+
+    assert resp.status_code == 200
+    assert resp.json() == {**task, "steps": [], "whyExplanation": ""}
+    assert (await client.get(URL)).json() == [resp.json()]
+
+
+async def test_removing_a_breakdown_of_another_users_task_is_a_404(client, signed_in):
+    task = await add(client)
+    signed_in.user = "user-b"
+
+    assert (await client.delete(f"{URL}/{task['id']}/breakdown")).status_code == 404

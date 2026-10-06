@@ -76,6 +76,16 @@ describe('axe: interactive states', () => {
     expect(await axe(container)).toHaveNoViolations();
   });
 
+  it('a breakdown with its undo toast', async () => {
+    seed([newTask('Write the essay')]);
+    const { container, user } = renderWithProviders(<TodayView />);
+    await user.click(await screen.findByRole('button', { name: 'Break down "Write the essay" into steps' }));
+    await screen.findByRole('button', { name: 'Undo' });
+
+    expect(container).toContainElement(screen.getByRole('button', { name: 'Undo' }));
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
   it('a task CalmSense couldn\'t break down', async () => {
     seed([newTask('Write the essay')]);
     server.use(taskHandlers.breakdownStatus(503));
