@@ -13,7 +13,7 @@ async function renderFor(title: string) {
   const tasks = renderHookWithProviders(() => useTasks());
   await waitFor(() => expect(tasks.result.current.isLoading).toBe(false));
   const id = tasks.result.current.tasks[0].id;
-  return renderHookWithProviders(() => ({ ...useBreakDown(id), log: useActivityLog() }));
+  return renderHookWithProviders(() => ({ ...useBreakDown(id, title), log: useActivityLog() }));
 }
 
 describe('useBreakDown', () => {

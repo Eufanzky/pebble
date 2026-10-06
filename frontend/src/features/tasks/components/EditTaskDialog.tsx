@@ -13,11 +13,13 @@ interface EditTaskDialogProps {
   task: Task;
   onSave: (changes: TaskEdit) => void;
   onDelete: () => void;
+  /** Dismiss the task's breakdown: the steps and the "why" go, the task stays (7.5). */
+  onRemoveSteps?: () => void;
   onClose: () => void;
 }
 
 /** Change a task's title, estimate, tag or priority, or delete it (after asking). */
-export default function EditTaskDialog({ task, onSave, onDelete, onClose }: EditTaskDialogProps) {
+export default function EditTaskDialog({ task, onSave, onDelete, onRemoveSteps, onClose }: EditTaskDialogProps) {
   const [title, setTitle] = useState(task.title);
   const [timeEstimate, setTimeEstimate] = useState(task.timeEstimate);
   const [tag, setTag] = useState(task.tag);
@@ -104,6 +106,23 @@ export default function EditTaskDialog({ task, onSave, onDelete, onClose }: Edit
             ))}
           </div>
         </div>
+        {onRemoveSteps && (task.steps?.length ?? 0) > 0 && (
+          <div className="edit-task__choices">
+            <p className="ui-field__label">Steps</p>
+            <p className="edit-task__text">
+              {task.steps!.length} steps. Removing them keeps the task, without its steps or its &ldquo;why&rdquo;.
+            </p>
+            <Button
+              variant="quiet"
+              onClick={() => {
+                onRemoveSteps();
+                onClose();
+              }}
+            >
+              Remove the steps
+            </Button>
+          </div>
+        )}
         <div className="edit-task__actions">
           <Button type="submit" variant="primary">
             Save

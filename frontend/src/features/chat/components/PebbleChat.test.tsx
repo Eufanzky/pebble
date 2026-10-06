@@ -204,6 +204,21 @@ describe('PebbleChat', () => {
       );
     });
 
+    it('offers to undo adding it, which takes the task off Today and lets it be added again', async () => {
+      seed([]);
+      server.use(
+        chatHandlers.reply({ response: 'Here are 2 small steps.', agentName: 'CalmSense', intent: 'decompose', data: BREAKDOWN }),
+      );
+      const { user } = await openAndSend('Help me with my essay');
+      await user.click(await screen.findByRole('button', { name: 'Add "Start the essay" to Today' }));
+      await waitFor(() => expect(taskStore.all()).toHaveLength(1));
+
+      await user.click(screen.getByRole('button', { name: 'Undo' }));
+
+      await waitFor(() => expect(taskStore.all()).toEqual([]));
+      expect(screen.getByRole('button', { name: 'Add "Start the essay" to Today' })).toBeEnabled();
+    });
+
     it('is named after the question when CalmSense gave no title', async () => {
       server.use(
         chatHandlers.reply({ response: 'Steps!', agentName: 'CalmSense', intent: 'decompose', data: { ...BREAKDOWN, title: '' } }),

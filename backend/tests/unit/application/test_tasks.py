@@ -134,3 +134,19 @@ async def test_reorder_needs_every_task_exactly_once(tasks, order):
     with pytest.raises(TaskOrderError):
         await tasks.reorder(USER, order)
     assert [t.title for t in await tasks.list(USER)] == ["One", "Two"]
+
+
+async def test_removing_a_breakdown_drops_the_steps_and_why_and_keeps_the_rest(tasks):
+    added = await tasks.add(USER, Task("", "Essay", priority=TaskPriority.HIGH))
+    await tasks.set_breakdown(USER, added.id, [Step("Outline"), Step("Draft")], "Small steps.")
+
+    task = await tasks.remove_breakdown(USER, added.id)
+
+    assert (task.steps, task.why) == ((), "")
+    assert (task.title, task.priority, task.completed) == ("Essay", TaskPriority.HIGH, False)
+    assert await tasks.get(USER, added.id) == task
+
+
+async def test_removing_a_breakdown_of_an_unknown_task_is_not_found(tasks):
+    with pytest.raises(TaskNotFoundError):
+        await tasks.remove_breakdown(USER, "nope")

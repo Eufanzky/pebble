@@ -1,6 +1,6 @@
 import { http } from 'msw';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { renderWithProviders, screen, within } from '@/test/render';
+import { renderWithProviders, screen, waitFor, within } from '@/test/render';
 import { server } from '@/test/msw/server';
 import { taskHandlers, taskStore } from '@/test/msw/tasks';
 import { newTask, seed } from '@/features/tasks/testing';
@@ -102,5 +102,36 @@ describe('Today: breaking a task down with CalmSense', () => {
     expect(await screen.findByText(/CalmSense couldn.t break this down just now/)).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Break down "Take a walk" into steps' })).toBeInTheDocument();
     expect(taskStore.all().find((t) => t.title === 'Take a walk')!.steps).toEqual([]);
+  });
+
+  it('offers to undo it, which takes the steps and the why away again', async () => {
+    const { user } = renderWithProviders(<TodayPage />);
+    await user.click(await screen.findByRole('button', { name: 'Break down "Take a walk" into steps' }));
+    const card = screen.getByRole('article', { name: 'Take a walk' });
+    await within(card).findByText('Get what you need for: Take a walk');
+
+    expect(screen.getByText('CalmSense broke "Take a walk" into steps.')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: 'Undo' }));
+
+    expect(within(card).queryByText('Get what you need for: Take a walk')).not.toBeInTheDocument();
+    expect(within(card).getByRole('button', { name: 'Break down "Take a walk" into steps' })).toBeInTheDocument();
+    await waitFor(() =>
+      expect(taskStore.all().find((t) => t.title === 'Take a walk')).toMatchObject({ steps: [], whyExplanation: '' }),
+    );
+  });
+});
+
+describe('Today: dismissing a breakdown later', () => {
+  it('removes the steps from the edit dialog, and keeps the task', async () => {
+    const { user } = renderWithProviders(<TodayPage />);
+
+    await user.click(await screen.findByRole('button', { name: 'Edit "Read Chapter 4"' }));
+    await user.click(screen.getByRole('button', { name: 'Remove the steps' }));
+
+    const card = screen.getByRole('article', { name: 'Read Chapter 4' });
+    expect(within(card).queryByRole('button', { name: 'Show steps' })).not.toBeInTheDocument();
+    await waitFor(() =>
+      expect(taskStore.all().find((t) => t.title === 'Read Chapter 4')).toMatchObject({ steps: [], whyExplanation: '' }),
+    );
   });
 });
