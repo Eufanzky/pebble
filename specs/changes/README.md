@@ -57,3 +57,4 @@ One folder per change: what was asked and decided (`requirements.md`), how it wa
 | 2026-10-05 | 7.4 | [WhyBot](2026-10-05-whybot/requirements.md) |
 | 2026-10-06 | 7.5 | [Undo and dismiss](2026-10-06-undo-and-dismiss/requirements.md) |
 | 2026-10-06 | 7.6 | [AdaptLens](2026-10-06-adaptlens/requirements.md) |
+| 2026-10-06 | 7.7 | [BridgeBot: calendar export](2026-10-06-calendar-export/requirements.md) |

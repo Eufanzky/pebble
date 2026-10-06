@@ -10,6 +10,7 @@ type TaskCreate = ApiSchema<'TaskCreate'>;
 let tasks: TaskOut[] = [];
 let nextId = 1;
 let breakdowns: { taskId: string; timeOfDay: string }[] = [];
+let calendarStarts: string[] = [];
 const id = (prefix: string) => `${prefix}-${nextId++}`;
 
 function toTask(body: TaskCreate): TaskOut {
@@ -45,10 +46,13 @@ export const taskStore = {
   },
   /** Every breakdown asked for, in order. */
   breakdowns: () => [...breakdowns],
+  /** The `start` of every calendar file asked for. */
+  calendarStarts: () => [...calendarStarts],
   reset() {
     tasks = [];
     nextId = 1;
     breakdowns = [];
+    calendarStarts = [];
   },
 };
 
@@ -108,6 +112,14 @@ export const taskHandlers = {
         ),
       }));
     }),
+    // BridgeBot's calendar file (7.7): a small iCalendar body
+    http.get('/api/tasks/:taskId/calendar.ics', ({ params, request }) => {
+      const task = tasks.find((t) => t.id === params.taskId);
+      if (!task) return notFound();
+      calendarStarts.push(new URL(request.url).searchParams.get('start') ?? '');
+      const body = `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nSUMMARY:${task.title}\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n`;
+      return new HttpResponse(body, { headers: { 'Content-Type': 'text/calendar; charset=utf-8' } });
+    }),
     http.delete('/api/tasks/:taskId/breakdown', ({ params }) =>
       update(String(params.taskId), (t) => ({ ...t, steps: [], whyExplanation: '' })),
     ),
@@ -130,6 +142,9 @@ export const taskHandlers = {
   /** Every task request answers `status` (an outage, or signed out). */
   status: (status: number, detail = 'Pebble couldn\'t reach your saved tasks just now.') =>
     http.all('/api/tasks*', () => HttpResponse.json({ detail }, { status })),
+  /** Calendar files answer `status`. */
+  calendarStatus: (status: number) =>
+    http.get('/api/tasks/:taskId/calendar.ics', () => HttpResponse.json({ detail: 'down' }, { status })),
   /** Breakdowns answer `status` (CalmSense can't answer: 503). */
   breakdownStatus: (status: number) =>
     http.post('/api/tasks/:taskId/breakdown', () => HttpResponse.json({ detail: "Pebble couldn't answer just now." }, { status })),

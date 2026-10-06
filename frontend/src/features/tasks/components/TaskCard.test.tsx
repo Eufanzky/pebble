@@ -137,4 +137,13 @@ describe('TaskCard', () => {
 
     expect(screen.getByText('Skim the headings')).toBeInTheDocument();
   });
+
+  it('offers to add its steps to a calendar, but not once it\'s done or without steps', () => {
+    const { unmount } = renderCard(task());
+    expect(screen.getByRole('button', { name: 'Add the steps of "Read Chapter 4" to your calendar' })).toBeInTheDocument();
+    unmount();
+
+    renderCard(task({ completed: true }));
+    expect(screen.queryByRole('button', { name: /to your calendar/ })).not.toBeInTheDocument();
+  });
 });

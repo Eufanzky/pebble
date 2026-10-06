@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Depends, Response, status
+from datetime import UTC, datetime
+
+from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 
 from app.api.auth import get_current_user
-from app.api.dependencies import get_break_down_task, get_tasks
+from app.api.dependencies import get_break_down_task, get_export_plan, get_tasks
 from app.api.presenters import task_data
 from app.api.schemas.tasks import (
     BreakdownRequest,
@@ -13,6 +15,7 @@ from app.api.schemas.tasks import (
     TaskUpdate,
 )
 from app.application.breakdown import BreakDownTask
+from app.application.calendar import ExportPlan
 from app.application.tasks import Tasks
 from app.domain.tasks import Step, Task, TaskStep
 
@@ -113,6 +116,27 @@ async def remove_breakdown(task_id: str, user_id: str = Depends(get_current_user
     Progress already made isn't taken back (counts only add up).
     """
     return task_data(await tasks.remove_breakdown(user_id, task_id))
+
+
+@router.get(
+    "/{task_id}/calendar.ics",
+    summary="The task's plan as a calendar file",
+    response_class=Response,
+    responses={200: {"content": {"text/calendar": {}}, "description": "An iCalendar file (RFC 5545)"}},
+)
+async def calendar_file(
+    task_id: str,
+    start: datetime | None = Query(default=None, description="When the first step starts, with its UTC offset"),
+    user_id: str = Depends(get_current_user),
+    export_plan: ExportPlan = Depends(get_export_plan),
+):
+    """BridgeBot: the open steps one after another from `start` (now if left out), each as long as its estimate.
+    Import the file into Google Calendar, Outlook or any calendar app. A task without open steps is one event.
+    """
+    if start is not None and start.tzinfo is None:
+        raise HTTPException(status_code=422, detail="Give the start time with its UTC offset.")
+    ics = await export_plan(user_id, task_id, start or datetime.now(UTC))
+    return Response(content=ics, media_type="text/calendar; charset=utf-8")
 
 
 @router.put("/{task_id}/steps", response_model=TaskOut, summary="Replace a task's steps")

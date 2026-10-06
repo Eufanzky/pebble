@@ -1,5 +1,5 @@
 import type { ApiSchema } from '@/shared/api';
-import { deleteRequest, getJson, patchJson, postJson, putJson } from '@/shared/lib/api';
+import { deleteRequest, getBlob, getJson, patchJson, postJson, putJson } from '@/shared/lib/api';
 import type { NewTask, Task } from '../types';
 
 type TaskOut = ApiSchema<'TaskOut'>;
@@ -46,6 +46,11 @@ export async function breakDownTask(id: string, timeOfDay: string): Promise<Task
 /** Undo or dismiss a breakdown: the steps and the "why" go, the task stays (7.5). */
 export function removeBreakdown(id: string): Promise<void> {
   return deleteRequest(`${TASKS}/${encodeURIComponent(id)}/breakdown`);
+}
+
+/** BridgeBot: the task's open steps back to back from `start` (with its UTC offset), as an .ics file (7.7). */
+export function calendarFile(id: string, start: string): Promise<Blob> {
+  return getBlob(`${TASKS}/${encodeURIComponent(id)}/calendar.ics?start=${encodeURIComponent(start)}`);
 }
 
 export async function updateStep(taskId: string, stepId: string, completed: boolean): Promise<Task> {

@@ -20,7 +20,7 @@ Pebble helps people with ADHD, autism or dyslexia break tasks into small steps, 
 
 ## ✨ What it does
 
-**Today.** Your list, with what's up next and a "Mark as done" button. Tasks have a tag, an estimate and a priority. You can edit, delete, reorder (drag or keyboard), search and filter them. "Break it down" asks CalmSense to split any task into small, time-boxed steps of your step size, and a "Why?" card shows its reasoning. A roadmap view shows the same list as a path. Typing something like "I'm overwhelmed" gets gentle support instead of a new task.
+**Today.** Your list, with what's up next and a "Mark as done" button. Tasks have a tag, an estimate and a priority. You can edit, delete, reorder (drag or keyboard), search and filter them. "Break it down" asks CalmSense to split any task into small, time-boxed steps of your step size, and a "Why?" card shows its reasoning. "Add to calendar" saves the steps as a calendar file, back to back from the next quarter hour. A roadmap view shows the same list as a path. Typing something like "I'm overwhelmed" gets gentle support instead of a new task.
 
 **Chat with Pebble.** An orchestrator works out what you need and routes it: a breakdown (CalmSense), a simpler version of a text (SimplifyCore), or specific encouragement (PebbleVoice). Distress is answered at once, without a sub-agent. A breakdown in chat can go straight onto Today.
 
@@ -83,7 +83,7 @@ flowchart LR
 | 💬 PebbleVoice | Specific encouragement, never generic praise | Working |
 | ❓ WhyBot | A plain-language "why" for every agent result | Working |
 | 🔄 AdaptLens | Suggests preference changes from how you use Pebble, applied only when you accept | Working |
-| 🔗 BridgeBot | Calendar export and integrations | Planned ([7.7](specs/roadmap.md)) |
+| 🔗 BridgeBot | Puts a task's steps in a calendar file for Google Calendar, Outlook or any calendar app | Working (Google Calendar sync: [7.8](specs/roadmap.md)) |
 
 The default model is `openai/gpt-oss-120b` on Groq's free tier: no card, and no prompts kept by default. `LLM_PROVIDER=fake` runs everything offline with scripted replies.
 

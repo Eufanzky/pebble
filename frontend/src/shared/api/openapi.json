@@ -2331,6 +2331,69 @@
         ]
       }
     },
+    "/api/tasks/{task_id}/calendar.ics": {
+      "get": {
+        "description": "BridgeBot: the open steps one after another from `start` (now if left out), each as long as its estimate.\nImport the file into Google Calendar, Outlook or any calendar app. A task without open steps is one event.",
+        "operationId": "calendar_file_api_tasks__task_id__calendar_ics_get",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "title": "Task Id",
+              "type": "string"
+            }
+          },
+          {
+            "description": "When the first step starts, with its UTC offset",
+            "in": "query",
+            "name": "start",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "format": "date-time",
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "description": "When the first step starts, with its UTC offset",
+              "title": "Start"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "text/calendar": {}
+            },
+            "description": "An iCalendar file (RFC 5545)"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "The task's plan as a calendar file",
+        "tags": [
+          "Tasks"
+        ]
+      }
+    },
     "/api/tasks/{task_id}/steps": {
       "put": {
         "description": "Set a task's steps, for example from a CalmSense breakdown. The new steps start open.",

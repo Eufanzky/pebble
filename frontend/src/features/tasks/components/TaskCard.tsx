@@ -4,6 +4,7 @@ import type { HTMLAttributes } from 'react';
 import { usePreferences } from '@/shared/preferences';
 import { Button, Chip, IconButton } from '@/shared/ui';
 import { useBreakDown } from '../hooks/useBreakDown';
+import { useCalendarExport } from '../hooks/useCalendarExport';
 import { useRipple } from '../hooks/useRipple';
 import { PRIORITY_CONFIG, TAG_CONFIG } from '../lib/tags';
 import type { Task } from '../types';
@@ -36,6 +37,7 @@ export default function TaskCard({
   const noMotion = reduceMotion;
 
   const breakdown = useBreakDown(task.id, task.title);
+  const calendar = useCalendarExport(task);
   const working = breakdown.status === 'working';
   const showSteps = task.showSteps ?? false;
   const { ripple, trigger: triggerRipple } = useRipple(noMotion);
@@ -161,6 +163,19 @@ export default function TaskCard({
             onClick={() => onShowSteps(task.id, !showSteps)}
           >
             {showSteps ? 'Hide steps' : 'Show steps'}
+          </Button>
+        )}
+
+        {hasSteps && !task.completed && (
+          <Button
+            variant="ghost"
+            size="sm"
+            className="task-card__calendar"
+            busy={calendar.busy}
+            onClick={calendar.save}
+            aria-label={`Add the steps of "${task.title}" to your calendar`}
+          >
+            Add to calendar
           </Button>
         )}
 

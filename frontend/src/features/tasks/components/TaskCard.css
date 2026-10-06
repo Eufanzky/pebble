@@ -315,3 +315,7 @@
     animation: none;
   }
 }
+.task-card__calendar {
+  margin-top: var(--space-2);
+  margin-left: var(--space-2);
+}
