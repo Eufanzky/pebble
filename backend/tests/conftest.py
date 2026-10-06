@@ -21,6 +21,7 @@ from app.infrastructure.llm.fake import FakeLLM
 from tests.fakes import (
     InMemoryAccountData,
     InMemoryActivityRepository,
+    InMemoryAdaptationRepository,
     InMemoryPreferencesRepository,
     InMemoryProgressRepository,
     InMemoryTaskRepository,
@@ -53,10 +54,17 @@ def container() -> Iterator[Container]:
         activity_repository=activity,
         account_data=InMemoryAccountData(tasks, preferences, activity),
         progress_repository=InMemoryProgressRepository(),
+        adaptation_repository=InMemoryAdaptationRepository(),
     )
     set_container(fakes)
     yield fakes
     set_container(None)
+
+
+@pytest.fixture
+def adaptation_repository(container: Container) -> InMemoryAdaptationRepository:
+    """What AdaptLens learns from: ``adaptation_repository.signals[user_id]``, and what was dismissed."""
+    return container.adaptation_repository
 
 
 @pytest.fixture

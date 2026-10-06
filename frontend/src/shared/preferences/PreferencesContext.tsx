@@ -45,6 +45,8 @@ interface PreferencesContextValue {
   /** Reduce animations: the user's setting, or the OS asking for reduced motion. */
   reduceMotion: boolean;
   setPreferences: (value: UserPreferences | ((prev: UserPreferences) => UserPreferences)) => void;
+  /** Take preferences the account already saved (an accepted AdaptLens suggestion, 7.6): nothing is sent back. */
+  adopt: (saved: UserPreferences) => void;
   isHydrated: boolean;
   stripEmoji: (text: string) => string;
 }
@@ -109,6 +111,15 @@ export function PreferencesProvider({ children, offline = false }: PreferencesPr
     [stored, setStored, offline, client],
   );
 
+  const adopt = useCallback(
+    (saved: UserPreferences) => {
+      changedHere.current.clear();
+      client.setQueryData(PREFERENCES_KEY, saved);
+      setStored((prev) => ({ ...defaultPreferences, ...prev, ...saved }));
+    },
+    [client, setStored],
+  );
+
   const osReducedMotion = useSyncExternalStore(subscribeToReducedMotion, osPrefersReducedMotion, () => false);
   const reduceMotion = preferences.reduceAnimations || osReducedMotion;
 
@@ -133,7 +144,7 @@ export function PreferencesProvider({ children, offline = false }: PreferencesPr
   );
 
   return (
-    <PreferencesContext.Provider value={{ preferences, reduceMotion, setPreferences, isHydrated, stripEmoji }}>
+    <PreferencesContext.Provider value={{ preferences, reduceMotion, setPreferences, adopt, isHydrated, stripEmoji }}>
       {children}
     </PreferencesContext.Provider>
   );

@@ -11,11 +11,13 @@ import pytest
 from sqlalchemy import Column, Integer, MetaData, Table, func, select
 
 from app.domain.activity import ActivityEntry
+from app.domain.adaptation import Signal, SignalKind
 from app.domain.agents import AgentName
 from app.domain.progress import ProgressEvent, ProgressKind
 from app.domain.tasks import Task, TaskStep
 from app.infrastructure.db.account import SqlAccountDataStore, _owned, owner_path, user_tables
 from app.infrastructure.db.activity import SqlActivityRepository
+from app.infrastructure.db.adaptation import SqlAdaptationRepository
 from app.infrastructure.db.models import Base
 from app.infrastructure.db.preferences import SqlPreferencesRepository
 from app.infrastructure.db.progress import SqlProgressRepository
@@ -39,6 +41,9 @@ async def fill(sessions, user_id: str) -> None:
     await SqlActivityRepository(sessions).add(
         user_id, ActivityEntry(new_id(), datetime.now(UTC), AgentName.CALM_SENSE, "Did a thing", "Because.")
     )
+    adaptation = SqlAdaptationRepository(sessions)
+    await adaptation.add_signal(user_id, Signal(SignalKind.READING_LEVEL, 3, datetime.now(UTC)))
+    await adaptation.dismiss(user_id, "reading_level:3", datetime.now(UTC))
 
 
 async def count(sessions, table_name: str, user_id: str) -> int:
@@ -51,6 +56,8 @@ async def count(sessions, table_name: str, user_id: str) -> int:
 def test_every_table_belongs_to_a_user(table_name):
     table = Base.metadata.tables[table_name]
     assert "user_id" in table.c or owner_path(table) is not None
+    # Deletion picks a user's rows by one key column
+    assert len(table.primary_key.columns) == 1
 
 
 def test_parents_come_before_children():

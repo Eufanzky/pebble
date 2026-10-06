@@ -1,6 +1,7 @@
 """Domain results as the JSON the frontend reads (camelCase, the ``ChatResponse`` shape)."""
 
 from app.domain.activity import ActivityEntry
+from app.domain.adaptation import Suggestion
 from app.domain.chat import ChatReply
 from app.domain.documents import Simplification
 from app.domain.preferences import Preferences
@@ -61,6 +62,18 @@ def task_data(task: Task) -> dict:
             {"id": s.id, "title": s.title, "timeEstimate": s.time_estimate, "completed": s.completed}
             for s in task.steps
         ],
+    }
+
+
+SUGGESTION_PREFERENCES = {"reading_level": "readingLevel", "step_size": "stepSize"}
+
+
+def suggestion_data(suggestion: Suggestion) -> dict:
+    return {
+        "key": suggestion.key,
+        "preference": SUGGESTION_PREFERENCES.get(suggestion.preference, suggestion.preference),
+        "value": suggestion.value if isinstance(suggestion.value, int) else str(suggestion.value),
+        "reason": suggestion.reason,
     }
 
 

@@ -17,6 +17,7 @@ import { DesignSystemPreview } from '@/shared/ui';
 import { accountStore } from './msw/account';
 import { server } from './msw/server';
 import { taskHandlers } from './msw/tasks';
+import { suggestionStore } from './msw/suggestions';
 import { simplifyHandlers } from './msw/simplify';
 
 vi.mock('next/navigation', () => ({ useRouter: () => ({ push: vi.fn() }), usePathname: () => '/today' }));
@@ -72,6 +73,14 @@ describe('axe: interactive states', () => {
     const { container, user } = renderWithProviders(<TodayView />);
     await user.click(await screen.findByRole('button', { name: 'Show steps' }));
     await user.click(screen.getAllByRole('button', { name: /Why did Pebble do this\?/ })[0]);
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
+  it('Today with a suggestion from AdaptLens', async () => {
+    suggestionStore.offer({ key: 'reading_level:3', preference: 'readingLevel', value: 3, reason: 'You read at level 3.' });
+    const { container } = renderWithProviders(<TodayView />);
+    await screen.findByRole('region', { name: 'A suggestion from AdaptLens' });
 
     expect(await axe(container)).toHaveNoViolations();
   });

@@ -32,6 +32,8 @@ Pebble helps people with ADHD, autism or dyslexia break tasks into small steps, 
 
 **Activity log.** Every agent result, with the agent's name, WhyBot's plain-language explanation, the agent's own reasoning, and whether the safety checks passed. A message the checks hold back is logged too, without its text. Only what an agent did is logged in its name, and only the backend writes it.
 
+**AdaptLens.** When a pattern shows in what you do (documents read at one level, steps you skip), Today shows one suggestion, such as "Make level 3 your default?", with what it noticed. Nothing changes unless you accept, and "Not now" keeps it away for two weeks.
+
 **Pebble.** Seven cat models built only from CSS shapes, five colours, three personalities, and moods that follow your day.
 
 **Your account.** Sign in with GitHub or Google. Your list, settings, log and progress are saved to your account. You can download everything as JSON or delete your account in Settings.
@@ -80,7 +82,7 @@ flowchart LR
 | 📖 SimplifyCore | Rewrites text at your reading level, pulls out action items | Working |
 | 💬 PebbleVoice | Specific encouragement, never generic praise | Working |
 | ❓ WhyBot | A plain-language "why" for every agent result | Working |
-| 🔄 AdaptLens | Suggests preference changes from how you use Pebble | Planned ([7.6](specs/roadmap.md)) |
+| 🔄 AdaptLens | Suggests preference changes from how you use Pebble, applied only when you accept | Working |
 | 🔗 BridgeBot | Calendar export and integrations | Planned ([7.7](specs/roadmap.md)) |
 
 The default model is `openai/gpt-oss-120b` on Groq's free tier: no card, and no prompts kept by default. `LLM_PROVIDER=fake` runs everything offline with scripted replies.

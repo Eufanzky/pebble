@@ -79,6 +79,9 @@ Real-LLM evals live in `tests/evals/` (`uv run pytest -m eval`). They're exclude
 | DELETE | `/api/tasks/{id}/breakdown` | Undo or dismiss a breakdown: the steps and "why" go, the task stays. Progress already made isn't taken back |
 | PUT | `/api/tasks/{id}/steps` | Replace a task's steps (e.g. from CalmSense); new steps start open |
 | PATCH | `/api/tasks/{id}/steps/{stepId}` | Tick a step on or off. The last open step finishes the task; unticking never reopens it |
+| GET | `/api/suggestions` | AdaptLens's one suggestion now (`{key, preference, value, reason}`), or null. Nothing changes until you accept |
+| POST | `/api/suggestions/accept` | `{"key": ...}`: apply it; returns your preferences. 409 if it changed meanwhile |
+| POST | `/api/suggestions/dismiss` | `{"key": ...}`: not now; it stays away for 14 days (204) |
 | GET | `/api/preferences` | Your preferences over the defaults (a new account gets the defaults) |
 | PATCH | `/api/preferences` | Change only the fields sent; returns all of them |
 | GET | `/api/activity?limit=50` | Your activity log, newest first (limit 1-200) |
@@ -105,6 +108,15 @@ Errors:
 ## Progress and stats
 
 The first time a task or step is finished, `Tasks` notes a `ProgressEvent` through `ProgressLog` (`app/application/progress.py`); `POST /api/stats/focus` notes a focus session. Events are only ever added: one per user, kind and item, so finishing something twice counts once, and unticking or deleting takes nothing back. `ProgressStats` sums them per local day (the `tz` the browser sends) and per tag with `summarize` (`app/domain/progress.py`). The store is the `ProgressRepository` port (`SqlProgressRepository`, table `progress_events`).
+
+## AdaptLens
+
+AdaptLens (`app/domain/adaptation.py`, `app/application/adaptation.py`) suggests a preference change from what you really did, by simple rules over your newest signals. A rule looks at the last 5 signals of its kind, and 3 must agree:
+
+- **Reading level:** you read documents at one level that isn't your default, so it suggests that level. SimplifyCore notes the level of each upload it simplifies.
+- **Step size:** you finished broken-down tasks with half or more of their steps still open, so it suggests larger steps. `Tasks` notes the share of open steps when a task is finished.
+
+At most one suggestion shows at a time, and nothing changes until you accept it. Accepting is logged as AdaptLens, with WhyBot's explanation. Dismissing keeps that suggestion away for 14 days. The signals and dismissals are yours: they're in your export and go with your account.
 
 ## Activity log
 

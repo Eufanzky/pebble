@@ -4,6 +4,7 @@ import { taskHandlers } from './tasks';
 import { accountHandlers } from './account';
 import { statsHandlers } from './stats';
 import { simplifyHandlers } from './simplify';
+import { suggestionHandlers } from './suggestions';
 
 // Handler bodies are typed from the generated API types, so a backend schema
 // change breaks these fakes at compile time instead of drifting silently.
@@ -61,5 +62,6 @@ export const handlers: RequestHandler[] = [
   ...accountHandlers.api(),
   ...statsHandlers.api(),
   simplifyHandlers.reply(),
+  ...suggestionHandlers.api(),
 ];
 

@@ -5,6 +5,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import dataclass, replace
 from typing import Any
 
+from app.application.adaptation import UsageSignals
 from app.application.ports.tasks import TaskRepository
 from app.application.progress import ProgressLog
 from app.domain.tasks import Step, Task, TaskStep
@@ -36,6 +37,8 @@ class Tasks:
     make_id: Callable[[], str] = new_id
     progress: ProgressLog | None = None
     """Notes each task and step the first time it's finished (5.6)."""
+    signals: UsageSignals | None = None
+    """Notes how many steps were still open when a task was finished, for AdaptLens (7.6)."""
 
     async def list(self, user_id: str) -> list[Task]:
         return await self.repository.list(user_id)
@@ -107,6 +110,8 @@ class Tasks:
     async def _finished(self, user_id: str, before: Task, after: Task) -> None:
         if self.progress is not None:
             await self.progress.finished(user_id, before, after)
+        if self.signals is not None:
+            await self.signals.task_finished(user_id, before, after)
 
     async def _get(self, user_id: str, task_id: str) -> Task:
         task = await self.repository.get(user_id, task_id)
