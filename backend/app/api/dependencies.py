@@ -10,6 +10,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine
 
 from app.application.account import DeleteAccount, ExportAccountData
 from app.application.activity import ActivityLog
+from app.application.adaptation import AdaptLens, UsageSignals
 from app.application.agents.calmsense import DecomposeTask
 from app.application.agents.orchestrator import HandleChat
 from app.application.agents.pebblevoice import Encourage
@@ -20,6 +21,7 @@ from app.application.documents import ParseDocument
 from app.application.importing import ImportLocalData
 from app.application.ports.account import AccountDataStore
 from app.application.ports.activity import ActivityRepository
+from app.application.ports.adaptation import AdaptationRepository
 from app.application.ports.documents import DocumentParser
 from app.application.ports.llm import LLMProvider
 from app.application.ports.preferences import PreferencesRepository
@@ -34,6 +36,7 @@ from app.application.tasks import Tasks
 from app.infrastructure.config import Settings, settings
 from app.infrastructure.db.account import SqlAccountDataStore, UnconfiguredAccountDataStore
 from app.infrastructure.db.activity import SqlActivityRepository, UnconfiguredActivityRepository
+from app.infrastructure.db.adaptation import SqlAdaptationRepository, UnconfiguredAdaptationRepository
 from app.infrastructure.db.engine import build_engine, build_sessions
 from app.infrastructure.db.preferences import SqlPreferencesRepository, UnconfiguredPreferencesRepository
 from app.infrastructure.db.progress import SqlProgressRepository, UnconfiguredProgressRepository
@@ -57,6 +60,7 @@ class Container:
     activity_repository: ActivityRepository = field(default_factory=UnconfiguredActivityRepository)
     account_data: AccountDataStore = field(default_factory=UnconfiguredAccountDataStore)
     progress_repository: ProgressRepository = field(default_factory=UnconfiguredProgressRepository)
+    adaptation_repository: AdaptationRepository = field(default_factory=UnconfiguredAdaptationRepository)
     engine: AsyncEngine | None = None
 
     @classmethod
@@ -74,6 +78,7 @@ class Container:
             container.activity_repository = SqlActivityRepository(sessions)
             container.account_data = SqlAccountDataStore(sessions)
             container.progress_repository = SqlProgressRepository(sessions)
+            container.adaptation_repository = SqlAdaptationRepository(sessions)
         return container
 
     @property
@@ -94,7 +99,7 @@ class Container:
 
     @property
     def simplify_document(self) -> SimplifyDocument:
-        return SimplifyDocument(self.llm, self.gate, self.activity, self.whybot)
+        return SimplifyDocument(self.llm, self.gate, self.activity, self.whybot, self.usage_signals)
 
     @property
     def encourage(self) -> Encourage:
@@ -106,11 +111,19 @@ class Container:
 
     @property
     def tasks(self) -> Tasks:
-        return Tasks(self.task_repository, progress=self.progress_log)
+        return Tasks(self.task_repository, progress=self.progress_log, signals=self.usage_signals)
 
     @property
     def break_down_task(self) -> BreakDownTask:
         return BreakDownTask(self.tasks, self.decompose_task, self.preferences)
+
+    @property
+    def usage_signals(self) -> UsageSignals:
+        return UsageSignals(self.adaptation_repository)
+
+    @property
+    def adaptlens(self) -> AdaptLens:
+        return AdaptLens(self.adaptation_repository, self.preferences, self.activity, self.whybot)
 
     @property
     def progress_log(self) -> ProgressLog:
@@ -202,6 +215,10 @@ def get_tasks() -> Tasks:
 
 def get_break_down_task() -> BreakDownTask:
     return get_container().break_down_task
+
+
+def get_adaptlens() -> AdaptLens:
+    return get_container().adaptlens
 
 
 def get_preferences() -> UserPreferences:

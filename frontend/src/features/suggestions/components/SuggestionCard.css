@@ -1,0 +1,35 @@
+/* AdaptLens's suggestion on Today (7.6): quiet, one at a time. */
+.suggestion {
+  display: grid;
+  gap: var(--space-2);
+}
+.suggestion__head {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.suggestion__by,
+.suggestion__reason,
+.suggestion__ask,
+.suggestion__note {
+  margin: 0;
+}
+.suggestion__by {
+  font-size: var(--text-sm);
+  color: var(--color-text-2);
+}
+.suggestion__reason {
+  color: var(--color-text);
+}
+.suggestion__ask {
+  font-weight: 600;
+}
+.suggestion__note {
+  font-size: var(--text-sm);
+  color: var(--color-text-2);
+}
+.suggestion__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}

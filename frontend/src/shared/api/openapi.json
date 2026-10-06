@@ -915,6 +915,57 @@
         "title": "StepsReplace",
         "type": "object"
       },
+      "SuggestionAnswer": {
+        "properties": {
+          "key": {
+            "maxLength": 50,
+            "minLength": 1,
+            "title": "Key",
+            "type": "string"
+          }
+        },
+        "required": [
+          "key"
+        ],
+        "title": "SuggestionAnswer",
+        "type": "object"
+      },
+      "SuggestionOut": {
+        "properties": {
+          "key": {
+            "title": "Key",
+            "type": "string"
+          },
+          "preference": {
+            "description": "The preference it would change: `readingLevel` or `stepSize`.",
+            "title": "Preference",
+            "type": "string"
+          },
+          "reason": {
+            "title": "Reason",
+            "type": "string"
+          },
+          "value": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "string"
+              }
+            ],
+            "title": "Value"
+          }
+        },
+        "required": [
+          "key",
+          "preference",
+          "value",
+          "reason"
+        ],
+        "title": "SuggestionOut",
+        "type": "object"
+      },
       "TaskCreate": {
         "properties": {
           "completed": {
@@ -1810,6 +1861,128 @@
         "summary": "Note a focus session",
         "tags": [
           "Stats"
+        ]
+      }
+    },
+    "/api/suggestions": {
+      "get": {
+        "description": "One preference change AdaptLens suggests from how you use Pebble, with what it noticed; or null.\n\nNothing changes until you accept it.",
+        "operationId": "current_suggestion_api_suggestions_get",
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "anyOf": [
+                    {
+                      "$ref": "#/components/schemas/SuggestionOut"
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ],
+                  "title": "Response Current Suggestion Api Suggestions Get"
+                }
+              }
+            },
+            "description": "Successful Response"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "AdaptLens's suggestion, if any",
+        "tags": [
+          "AdaptLens"
+        ]
+      }
+    },
+    "/api/suggestions/accept": {
+      "post": {
+        "description": "Apply it and return your preferences. If it isn't the current suggestion any more, 409 and nothing changes.",
+        "operationId": "accept_suggestion_api_suggestions_accept_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SuggestionAnswer"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PreferencesOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Accept the suggestion",
+        "tags": [
+          "AdaptLens"
+        ]
+      }
+    },
+    "/api/suggestions/dismiss": {
+      "post": {
+        "description": "It won't be suggested again for 14 days.",
+        "operationId": "dismiss_suggestion_api_suggestions_dismiss_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SuggestionAnswer"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Not now",
+        "tags": [
+          "AdaptLens"
         ]
       }
     },

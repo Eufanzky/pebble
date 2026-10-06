@@ -8,6 +8,7 @@ import { taskStore } from './msw/tasks';
 import { accountStore } from './msw/account';
 import { statsStore } from './msw/stats';
 import { simplifyStore } from './msw/simplify';
+import { suggestionStore } from './msw/suggestions';
 
 expect.extend(axeMatchers);
 
@@ -55,6 +56,7 @@ afterEach(async () => {
   accountStore.reset();
   statsStore.reset();
   simplifyStore.reset();
+  suggestionStore.reset();
   if (dom) window.localStorage.clear();
 });
 

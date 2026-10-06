@@ -157,7 +157,7 @@ The three working agents only answer in chat today: "Break it down" on Today sho
   *Done:* the pipeline test asserts that every agent result has an explanation; no hard-coded "why" text remains.
 - [x] **7.5 Undo and dismiss.** Every AI-created change (steps, tasks from documents) can be undone or dismissed.
   *Done:* API and component tests cover undo for each kind of AI change.
-- [ ] **7.6 AdaptLens.** Collect simple usage signals (skipped steps, reading-level changes, step-size edits) and suggest preference changes that the user approves.
+- [x] **7.6 AdaptLens.** Collect simple usage signals (skipped steps, reading-level changes, step-size edits) and suggest preference changes that the user approves.
   *Done:* tests prove that a suggestion applies only when accepted, and that a dismissed one doesn't come back immediately.
 - [ ] **7.7 BridgeBot: calendar export.** Export a task plan as an `.ics` file.
   *Done:* tests validate the `.ics` output against a parser; a manual import into Google Calendar and Outlook works.

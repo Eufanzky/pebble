@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { PebbleCharacter, PebbleSpeechBubble, usePebble } from '@/features/companion';
+import { SuggestionCard } from '@/features/suggestions';
 import { usePreferences } from '@/shared/preferences';
 import { Button } from '@/shared/ui';
 import { useTimeOfDay } from '@/shared/hooks/useTimeOfDay';
@@ -85,6 +86,8 @@ export default function TodayView() {
         </div>
 
         {saveFailed && <TasksSaveFailed onDismiss={dismissSaveError} />}
+
+        <SuggestionCard />
 
         {loadFailed ? (
           <TasksLoadFailed onRetry={retry} />

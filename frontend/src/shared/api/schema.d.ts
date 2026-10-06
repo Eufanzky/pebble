@@ -346,6 +346,68 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/suggestions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * AdaptLens's suggestion, if any
+         * @description One preference change AdaptLens suggests from how you use Pebble, with what it noticed; or null.
+         *
+         *     Nothing changes until you accept it.
+         */
+        get: operations["current_suggestion_api_suggestions_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/suggestions/accept": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Accept the suggestion
+         * @description Apply it and return your preferences. If it isn't the current suggestion any more, 409 and nothing changes.
+         */
+        post: operations["accept_suggestion_api_suggestions_accept_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/suggestions/dismiss": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Not now
+         * @description It won't be suggested again for 14 days.
+         */
+        post: operations["dismiss_suggestion_api_suggestions_dismiss_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tasks": {
         parameters: {
             query?: never;
@@ -892,6 +954,25 @@ export interface components {
             /** Steps */
             steps: components["schemas"]["StepIn"][];
         };
+        /** SuggestionAnswer */
+        SuggestionAnswer: {
+            /** Key */
+            key: string;
+        };
+        /** SuggestionOut */
+        SuggestionOut: {
+            /** Key */
+            key: string;
+            /**
+             * Preference
+             * @description The preference it would change: `readingLevel` or `stepSize`.
+             */
+            preference: string;
+            /** Reason */
+            reason: string;
+            /** Value */
+            value: number | string;
+        };
         /** TaskCreate */
         TaskCreate: {
             /**
@@ -1404,6 +1485,90 @@ export interface operations {
         requestBody: {
             content: {
                 "application/json": components["schemas"]["FocusSession"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    current_suggestion_api_suggestions_get: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SuggestionOut"] | null;
+                };
+            };
+        };
+    };
+    accept_suggestion_api_suggestions_accept_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SuggestionAnswer"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PreferencesOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    dismiss_suggestion_api_suggestions_dismiss_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SuggestionAnswer"];
             };
         };
         responses: {

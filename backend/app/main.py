@@ -9,7 +9,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api import dependencies
 from app.api.errors import register_error_handlers
 from app.api.middleware import RequestLoggingMiddleware
-from app.api.routers import account, activity, agents, documents, importing, preferences, stats, tasks
+from app.api.routers import account, activity, agents, documents, importing, preferences, stats, suggestions, tasks
 from app.infrastructure.config import settings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(name)s] %(levelname)s: %(message)s")
@@ -79,6 +79,7 @@ app.include_router(activity.router, prefix="/api/activity", tags=["Activity"])
 app.include_router(importing.router, prefix="/api/import", tags=["Import"])
 app.include_router(account.router, prefix="/api/account", tags=["Account"])
 app.include_router(stats.router, prefix="/api/stats", tags=["Stats"])
+app.include_router(suggestions.router, prefix="/api/suggestions", tags=["AdaptLens"])
 
 
 @app.get("/api/health", tags=["Health"])

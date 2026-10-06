@@ -5,6 +5,7 @@ import logging
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 
+from app.application.adaptation import SuggestionGoneError
 from app.application.documents import DocumentTooLargeError
 from app.application.errors import AgentReplyError, PromptAttackError, UnsafeContentError, UnsafeOutputError
 from app.application.ports.documents import DocumentError, UnsupportedDocumentError
@@ -54,7 +55,7 @@ async def _not_found(_: Request, exc: Exception) -> JSONResponse:
     return _detail(404, str(exc))
 
 
-async def _order_conflict(_: Request, exc: Exception) -> JSONResponse:
+async def _conflict(_: Request, exc: Exception) -> JSONResponse:
     return _detail(409, str(exc))
 
 
@@ -70,7 +71,8 @@ def register_error_handlers(app: FastAPI) -> None:
     app.add_exception_handler(UnsafeOutputError, _unsafe_output)
     app.add_exception_handler(LLMRateLimitedError, _rate_limited)
     app.add_exception_handler(TaskNotFoundError, _not_found)
-    app.add_exception_handler(TaskOrderError, _order_conflict)
+    app.add_exception_handler(TaskOrderError, _conflict)
+    app.add_exception_handler(SuggestionGoneError, _conflict)
     app.add_exception_handler(PersistenceError, _persistence)
     for error in (LLMError, SafetyCheckError, AgentReplyError):
         app.add_exception_handler(error, _unavailable)

@@ -3,8 +3,10 @@ because ``LLM_PROVIDER=fake`` uses it outside tests too.
 """
 
 from dataclasses import dataclass, field
+from datetime import datetime
 
 from app.domain.activity import ActivityEntry
+from app.domain.adaptation import Signal
 from app.domain.progress import ProgressEvent
 from app.domain.safety import Groundedness, HarmCategory, SafetyVerdict
 from app.domain.tasks import Task
@@ -145,3 +147,22 @@ class InMemoryProgressRepository:
 
     async def list(self, user_id: str) -> list[ProgressEvent]:
         return sorted(self.events.get(user_id, []), key=lambda e: e.at)
+
+
+@dataclass
+class InMemoryAdaptationRepository:
+    signals: dict[str, list[Signal]] = field(default_factory=dict)
+    """Oldest first, per user."""
+    dismissed: dict[str, dict[str, datetime]] = field(default_factory=dict)
+
+    async def add_signal(self, user_id: str, signal: Signal) -> None:
+        self.signals.setdefault(user_id, []).append(signal)
+
+    async def recent_signals(self, user_id: str, limit: int) -> list[Signal]:
+        return list(reversed(self.signals.get(user_id, [])))[:limit]
+
+    async def dismiss(self, user_id: str, key: str, at: datetime) -> None:
+        self.dismissed.setdefault(user_id, {})[key] = at
+
+    async def dismissals(self, user_id: str) -> dict[str, datetime]:
+        return dict(self.dismissed.get(user_id, {}))

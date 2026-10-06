@@ -113,3 +113,30 @@ class ProgressRow(Base):
     tag: Mapped[str | None] = mapped_column(String(20))
     minutes: Mapped[int] = mapped_column(Integer, server_default="0")
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class UsageSignalRow(Base):
+    """What AdaptLens learns from (7.6): the reading level picked for a document, how a task with steps ended."""
+
+    __tablename__ = "usage_signals"
+    __table_args__ = (Index("ix_usage_signals_user_id_seq", "user_id", "seq"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True)
+    user_id: Mapped[str] = mapped_column(String(255))
+    # Insertion order, newest last
+    seq: Mapped[int] = mapped_column(BigInteger, Identity(), unique=True)
+    kind: Mapped[str] = mapped_column(String(20))
+    value: Mapped[int] = mapped_column(Integer)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))
+
+
+class SuggestionDismissalRow(Base):
+    """An AdaptLens suggestion the user dismissed, and when: it stays away for a while (7.6)."""
+
+    __tablename__ = "suggestion_dismissals"
+    __table_args__ = (UniqueConstraint("user_id", "key", name="uq_suggestion_dismissals_user_key"),)
+
+    id: Mapped[uuid.UUID] = mapped_column(Uuid, primary_key=True)
+    user_id: Mapped[str] = mapped_column(String(255))
+    key: Mapped[str] = mapped_column(String(50))
+    dismissed_at: Mapped[datetime] = mapped_column(DateTime(timezone=True))

@@ -3,12 +3,14 @@
 from dataclasses import replace
 
 from app.application.activity import ActivityLog, note, quote, watch
+from app.application.adaptation import UsageSignals
 from app.application.agents.whybot import Explain, explain
 from app.application.errors import AgentReplyError
 from app.application.llm_json import ask_json
 from app.application.ports.llm import LLMProvider, LLMRequest
 from app.application.prompts import SIMPLIFYCORE_PROMPT
 from app.application.safety import SafetyGate
+from app.domain.adaptation import SignalKind
 from app.domain.agents import AgentName
 from app.domain.documents import ExtractedTask, Simplification
 from app.domain.tasks import TaskTag
@@ -16,12 +18,18 @@ from app.domain.tasks import TaskTag
 
 class SimplifyDocument:
     def __init__(
-        self, llm: LLMProvider, gate: SafetyGate, activity: ActivityLog | None = None, whybot: Explain | None = None
+        self,
+        llm: LLMProvider,
+        gate: SafetyGate,
+        activity: ActivityLog | None = None,
+        whybot: Explain | None = None,
+        signals: UsageSignals | None = None,
     ) -> None:
         self.llm = llm
         self.gate = gate
         self.activity = activity
         self.whybot = whybot
+        self.signals = signals
 
     async def __call__(self, text: str, reading_level: int = 5, user_id: str = "") -> Simplification:
         """Screen the input, then simplify it. For callers that haven't screened it.
@@ -49,6 +57,9 @@ class SimplifyDocument:
             reasoning,
             explanation=why,
         )
+        if self.signals is not None:
+            # The level the user picked for this document: AdaptLens learns from it (7.6)
+            await self.signals.note(user_id, SignalKind.READING_LEVEL, reading_level)
         return replace(simplified, why=why)
 
     async def run(self, text: str, reading_level: int) -> Simplification:
