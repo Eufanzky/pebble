@@ -1,6 +1,7 @@
 """The task endpoints over HTTP: shapes, validation, not-found, user isolation, and no database."""
 
 import pytest
+from icalendar import Calendar
 
 from app.api.auth import get_current_user
 from app.application.ports.llm import LLMUnavailableError
@@ -285,3 +286,36 @@ async def test_removing_a_breakdown_of_another_users_task_is_a_404(client, signe
     signed_in.user = "user-b"
 
     assert (await client.delete(f"{URL}/{task['id']}/breakdown")).status_code == 404
+
+
+# --- BridgeBot: the plan as a calendar file (7.7) ------------------------------------------------------------
+
+
+async def test_the_calendar_file_has_the_open_steps_back_to_back_from_the_start(client, signed_in, activity_repository):
+    steps = [{"title": "Outline", "timeEstimate": "~10 min"}, {"title": "Draft", "timeEstimate": "~25 min"}]
+    task = await add(client, steps=steps)
+
+    resp = await client.get(f"{URL}/{task['id']}/calendar.ics", params={"start": "2026-10-06T11:15:00+02:00"})
+
+    assert resp.status_code == 200
+    assert resp.headers["content-type"].startswith("text/calendar")
+    events = Calendar.from_ical(resp.content).walk("VEVENT")
+    assert [str(e["summary"]) for e in events] == ["Outline", "Draft"]
+    assert events[0].decoded("dtstart").isoformat() == "2026-10-06T09:15:00+00:00"
+    assert events[1].decoded("dtend").isoformat() == "2026-10-06T09:50:00+00:00"
+    assert activity_repository.entries["user-a"][-1].agent == "BridgeBot"
+
+
+async def test_a_start_time_without_an_offset_is_a_422(client, signed_in):
+    task = await add(client)
+
+    resp = await client.get(f"{URL}/{task['id']}/calendar.ics", params={"start": "2026-10-06T11:15:00"})
+
+    assert resp.status_code == 422
+
+
+async def test_another_users_calendar_file_is_a_404(client, signed_in):
+    task = await add(client)
+    signed_in.user = "user-b"
+
+    assert (await client.get(f"{URL}/{task['id']}/calendar.ics")).status_code == 404

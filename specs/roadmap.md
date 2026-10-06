@@ -161,6 +161,7 @@ The three working agents only answer in chat today: "Break it down" on Today sho
   *Done:* tests prove that a suggestion applies only when accepted, and that a dismissed one doesn't come back immediately.
 - [ ] **7.7 BridgeBot: calendar export.** Export a task plan as an `.ics` file.
   *Done:* tests validate the `.ics` output against a parser; a manual import into Google Calendar and Outlook works.
+  *Status (2026-10-06):* built and tested (#74); the `.ics` passes two parsers. Left: the manual import into Google Calendar and Outlook, which needs a person.
 - [ ] **7.8 BridgeBot: Google Calendar (optional).** Push steps to Google Calendar using the Google sign-in scope.
   *Done:* adapter contract tests (respx) pass, and steps appear in the user's calendar after consent.
 - [ ] **7.9 Evals for new agents.** Extend the eval set for WhyBot (explanations follow the voice rules) and AdaptLens (sensible suggestions).

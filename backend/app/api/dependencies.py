@@ -17,6 +17,7 @@ from app.application.agents.pebblevoice import Encourage
 from app.application.agents.simplifycore import SimplifyDocument
 from app.application.agents.whybot import Explain
 from app.application.breakdown import BreakDownTask
+from app.application.calendar import ExportPlan
 from app.application.documents import ParseDocument
 from app.application.importing import ImportLocalData
 from app.application.ports.account import AccountDataStore
@@ -33,6 +34,7 @@ from app.application.preferences import UserPreferences
 from app.application.progress import ProgressLog, ProgressStats
 from app.application.safety import SafetyGate
 from app.application.tasks import Tasks
+from app.infrastructure.calendar.ics import IcsCalendarWriter
 from app.infrastructure.config import Settings, settings
 from app.infrastructure.db.account import SqlAccountDataStore, UnconfiguredAccountDataStore
 from app.infrastructure.db.activity import SqlActivityRepository, UnconfiguredActivityRepository
@@ -116,6 +118,10 @@ class Container:
     @property
     def break_down_task(self) -> BreakDownTask:
         return BreakDownTask(self.tasks, self.decompose_task, self.preferences)
+
+    @property
+    def export_plan(self) -> ExportPlan:
+        return ExportPlan(self.tasks, IcsCalendarWriter(), self.activity)
 
     @property
     def usage_signals(self) -> UsageSignals:
@@ -215,6 +221,10 @@ def get_tasks() -> Tasks:
 
 def get_break_down_task() -> BreakDownTask:
     return get_container().break_down_task
+
+
+def get_export_plan() -> ExportPlan:
+    return get_container().export_plan
 
 
 def get_adaptlens() -> AdaptLens:

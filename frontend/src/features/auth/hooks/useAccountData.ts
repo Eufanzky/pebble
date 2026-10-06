@@ -3,6 +3,7 @@
 import { useCallback, useState } from 'react';
 import { signOut } from 'next-auth/react';
 import { deleteRequest, getJson } from '@/shared/lib/api';
+import { saveFile } from '@/shared/lib/download';
 
 export const DELETE_CONFIRM =
   'This deletes your tasks, settings and activity log for good. It can’t be undone. Delete your account?';
@@ -11,12 +12,7 @@ export const DELETE_FAILED = "Pebble couldn't delete your account just now. Noth
 
 /** Saves `data` as a JSON file named `filename` (the browser's download). */
 function saveJson(data: unknown, filename: string) {
-  const url = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }));
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  link.click();
-  URL.revokeObjectURL(url);
+  saveFile(new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' }), filename);
 }
 
 /** Download everything the account holds, or delete the account and sign out. */

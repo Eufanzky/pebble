@@ -77,6 +77,7 @@ Real-LLM evals live in `tests/evals/` (`uv run pytest -m eval`). They're exclude
 | DELETE | `/api/tasks/{id}` | Remove one task (204) |
 | DELETE | `/api/tasks` | Clear your list (204) |
 | DELETE | `/api/tasks/{id}/breakdown` | Undo or dismiss a breakdown: the steps and "why" go, the task stays. Progress already made isn't taken back |
+| GET | `/api/tasks/{id}/calendar.ics?start=2026-10-06T11:15:00+02:00` | BridgeBot: the open steps back to back from `start` (with its UTC offset; now if left out), each as long as its estimate, as an iCalendar file. Logged as BridgeBot |
 | PUT | `/api/tasks/{id}/steps` | Replace a task's steps (e.g. from CalmSense); new steps start open |
 | PATCH | `/api/tasks/{id}/steps/{stepId}` | Tick a step on or off. The last open step finishes the task; unticking never reopens it |
 | GET | `/api/suggestions` | AdaptLens's one suggestion now (`{key, preference, value, reason}`), or null. Nothing changes until you accept |

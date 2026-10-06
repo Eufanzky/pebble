@@ -15,7 +15,8 @@ export class ApiError extends Error {
   }
 }
 
-async function request<Response>(path: string, init?: RequestInit): Promise<Response> {
+/** The response, if it's a success. Throws `ApiError` otherwise, or when the request can't be made. */
+async function fetchOk(path: string, init?: RequestInit): Promise<globalThis.Response> {
   let res: globalThis.Response;
   try {
     res = await fetch(path, init);
@@ -27,9 +28,18 @@ async function request<Response>(path: string, init?: RequestInit): Promise<Resp
     const detail = await res.text().catch(() => 'Unknown error');
     throw new ApiError(res.status, detail);
   }
+  return res;
+}
 
+async function request<Response>(path: string, init?: RequestInit): Promise<Response> {
+  const res = await fetchOk(path, init);
   if (res.status === 204) return undefined as Response;
   return res.json() as Promise<Response>;
+}
+
+/** GETs `path` as a file (a calendar file, for one). Throws `ApiError`. */
+export async function getBlob(path: string): Promise<Blob> {
+  return (await fetchOk(path)).blob();
 }
 
 function sendJson<Response>(method: string, path: string, body: unknown): Promise<Response> {
