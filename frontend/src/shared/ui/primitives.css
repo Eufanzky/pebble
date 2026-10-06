@@ -322,7 +322,6 @@ button.ui-chip:hover {
 
 /* An action on a toast, such as "Undo" (7.5) */
 .ui-toast__action {
-  pointer-events: auto;
   min-height: var(--tap);
   padding: 0 var(--space-3);
   border: 1px solid currentColor;

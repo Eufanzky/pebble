@@ -87,6 +87,8 @@ function ToastDisplay({ message, action, onDone }: { message: string; action?: T
         <button
           type="button"
           className="ui-toast__action"
+          // The toast lets clicks through; its button takes them
+          style={{ pointerEvents: 'auto' }}
           onClick={() => {
             action.onAction();
             setPhase('exit');
