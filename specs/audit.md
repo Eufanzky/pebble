@@ -77,6 +77,7 @@ Found by the first unit tests (1.2 onwards), not by the static checks above.
 | A-030 | minor | 6.4's rename of `pebble/` to `frontend/` also rewrote the README's GitHub links (the repository name `pebble` in them became `frontend`), so the CI badge and the release link pointed nowhere. The link check reads only relative links. Found during the Phase 7 plan. | the README's first lines | the Phase 7 plan PR |
 | A-031 | minor | CI's builds fetch Google Fonts (`next/font/google`) at build time. When that download fails, the build fails with "Can't resolve '@vercel/turbopack-next/internal/font/google/font'", as the E2E job did on 7.4 and once before; a rerun passed both times. Found during 7.4. | the E2E job's log | self-host the two fonts (`next/font/local`) |
 | A-032 | minor | One local E2E run during 7.5 failed "signing out goes back to the sign-in page": after signing out, `/today` still opened instead of redirecting. In the same run the demo flow hung on a toast. The test then passed 10 of 10 times alone and in two full runs, so it couldn't be reproduced. Found during 7.5. | `npx playwright test e2e/sign-in.spec.ts --repeat-each=10` | watch; investigate if it comes back |
+| A-033 | minor | WhyBot sometimes misreads progress it's given. In the first WhyBot eval, "0 of 4 tasks done" became "your current step size of zero tasks", "0 of 6 done" became "since you have no tasks yet", and "finished 3 of 4 broken-down tasks with most steps open" became "completed 3 of 4 tasks". The automated scores all passed: the numbers are real, only the meaning is off. Found during 7.9. | `uv run pytest -m eval tests/evals/test_whybot_evals.py`, then read `results/whybot.json` | prompt work, with A-028 (8.1 or an item of its own) |
 
 ## Backend behaviour
 
@@ -105,7 +106,7 @@ Found by the characterization tests (1.3 onwards), not by the static checks abov
 
 ## Summary
 
-Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011). Found during 1.3: 1 major, 1 minor (A-012, A-013). Found during 1.4: 1 major (A-014). Found during 1.5: 1 minor (A-015). Found during 1.7: 1 major, 1 cosmetic (A-016, A-017). Found during 2.8: 1 major (A-018). Found during 3.3: 2 major (A-019, A-020). Found during 3.4: 1 minor (A-021). Found during 3.7: 1 minor (A-022). Found during 5.4: 1 minor (A-023). Found during 6.3: 1 minor, 2 cosmetic (A-024, A-025, A-026). Found during 6.4: 1 cosmetic (A-027). Found during 6.6: 1 minor (A-028). Found while planning Phase 7: 1 major, 1 minor (A-029, A-030). Found during 7.4–7.5: 2 minor (A-031, A-032).
+Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011). Found during 1.3: 1 major, 1 minor (A-012, A-013). Found during 1.4: 1 major (A-014). Found during 1.5: 1 minor (A-015). Found during 1.7: 1 major, 1 cosmetic (A-016, A-017). Found during 2.8: 1 major (A-018). Found during 3.3: 2 major (A-019, A-020). Found during 3.4: 1 minor (A-021). Found during 3.7: 1 minor (A-022). Found during 5.4: 1 minor (A-023). Found during 6.3: 1 minor, 2 cosmetic (A-024, A-025, A-026). Found during 6.4: 1 cosmetic (A-027). Found during 6.6: 1 minor (A-028). Found while planning Phase 7: 1 major, 1 minor (A-029, A-030). Found during 7.4–7.5: 2 minor (A-031, A-032). Found during 7.9: 1 minor (A-033).
 
 ## Status
 
@@ -141,7 +142,8 @@ Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Foun
 | A-030 | Fixed in the Phase 7 plan PR. |
 | A-031 | **Open**: self-host the fonts so builds don't need Google. |
 | A-032 | **Open**: not reproduced; watch the E2E. |
+| A-033 | **Open**: WhyBot's prompt should keep "N of M done" as it is given. |
 | A-027 | Fixed in 6.6: "steps" everywhere (API routes and fields, frontend types, prompts), and "step size" for "chunk size"; migration 0005 renames saved preferences, and the browser import still reads the old names. |
 | A-021 | Fixed in 3.4: the note says what each entry shows (since 4.5 the log is saved to the account). Test in `ActivityView.test.tsx`. |
 
-Open: 6 (A-002, A-023, A-026, A-028, A-031, A-032), each linked to the phase that fixes it or the reason it waits. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
+Open: 7 (A-002, A-023, A-026, A-028, A-031, A-032, A-033), each linked to the phase that fixes it or the reason it waits. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.

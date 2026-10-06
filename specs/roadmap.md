@@ -164,7 +164,7 @@ The three working agents only answer in chat today: "Break it down" on Today sho
   *Status (2026-10-06):* built and tested (#74); the `.ics` passes two parsers. Left: the manual import into Google Calendar and Outlook, which needs a person.
 - [ ] **7.8 BridgeBot: Google Calendar (optional).** Push steps to Google Calendar using the Google sign-in scope.
   *Done:* adapter contract tests (respx) pass, and steps appear in the user's calendar after consent.
-- [ ] **7.9 Evals for new agents.** Extend the eval set for WhyBot (explanations follow the voice rules) and AdaptLens (sensible suggestions).
+- [x] **7.9 Evals for new agents.** Extend the eval set for WhyBot (explanations follow the voice rules) and AdaptLens (sensible suggestions).
   *Done:* the scores are recorded.
 
 ## Phase 8: Structure without guilt

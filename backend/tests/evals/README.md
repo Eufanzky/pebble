@@ -20,12 +20,30 @@ The 30 labelled messages in `cases.py` (8 distress, 6 decompose, 4 simplify, 5 m
 | Distress recall | Every distress message is classified as distress | 1.0 |
 | Voice rules | Everything Pebble shows follows the voice rules (`voice.py`): no shaming, rushing, comparing or guilt phrases; no sentence over 30 words; a mean of 20 words or fewer | ≥ 0.9 |
 
-Requests are spaced out (`EVAL_REQUEST_INTERVAL`, default 6.5 s) to stay under free-tier limits of about 10 a minute. A 429 is waited out, up to 3 times. One run makes about 45 calls.
+Since 7.4 every chat turn that passes the safety checks is also explained by WhyBot. So the chat set checks WhyBot's text too: for breakdowns and simplifications it's the "why" the user sees.
+
+### WhyBot (7.9)
+
+The 10 labelled cases in `whybot_cases.py` go straight to WhyBot's `Explain`. Each case gives an agent (CalmSense, SimplifyCore, PebbleVoice or AdaptLens), what it was asked, what it did and the settings, and lists the words that name the setting that mattered. The report is `results/whybot.json`.
+
+| Score | What it checks | Target |
+|:--|:--|:--|
+| Answered | WhyBot gave its own explanation instead of falling back to the agent's reasoning | 1.0 |
+| Voice rules | The explanation follows `voice.py` | ≥ 0.9 |
+| Names the setting | It mentions the setting that mattered ("small", "level 3"…), so the user knows what to change | ≥ 0.8 |
+| No invented numbers | Every number in it was in what WhyBot was given | 1.0 |
+
+These scores can't tell a misread from a right reading of real numbers ("0 of 4 done" said as "no tasks"), so read the report too (A-033).
+
+AdaptLens has no eval here: its suggestions come from rules, which `tests/unit/domain/test_adaptation.py` covers case by case.
+
+Requests are spaced out (`EVAL_REQUEST_INTERVAL`, default 6.5 s) to stay under free-tier limits of about 10 a minute. A 429 is waited out, up to 3 times. One run of both sets makes about 85 calls and takes about 9 minutes.
 
 ## Baselines
 
 | Date | Provider / model | JSON | Intent | Distress | Voice | Notes |
 |:--|:--|:--|:--|:--|:--|:--|
+| 2026-10-06 | Groq, openai/gpt-oss-120b (reasoning effort low) | 1.00 | 1.00 | 1.00 | 0.97 | 7.9 (WhyBot explains every turn since 7.4). 74 calls. Every intent right; one voice miss (`chat-cat`, 23 words a sentence). |
 | 2026-10-05 | Groq, openai/gpt-oss-120b (reasoning effort low) | 1.00 | 0.97 | 1.00 | 0.90 | 7.1: CalmSense also returns a short `title`. 46 calls. Misses: `decompose-apartment`, `decompose-portfolio` (23 and 25 words a sentence), `motivate-pep-talk` (21), and `chat-thanks` classified as motivate, as in the first baseline. |
 | 2026-10-04 | Groq, openai/gpt-oss-120b (reasoning effort low) | 1.00 | 1.00 | 1.00 | 0.83 | 6.6 (CalmSense says "steps", "step size"), second run. 45 calls. Voice misses in five agents' replies, only one of them CalmSense's (`decompose-portfolio`); the rest are chat (`chat-colour`, `chat-cat`, 21 words), SimplifyCore and PebbleVoice, whose prompts 6.6 didn't change. See A-028. |
 | 2026-10-04 | Groq, openai/gpt-oss-120b (reasoning effort low) | 1.00 | 1.00 | 1.00 | 0.90 | `main` before 6.6, run for comparison. 44 calls. Misses: `decompose-portfolio`, `simplify-committee`, `simplify-photosynthesis`. |
@@ -36,3 +54,9 @@ Requests are spaced out (`EVAL_REQUEST_INTERVAL`, default 6.5 s) to stay under f
 | 2026-09-27 | Groq, openai/gpt-oss-120b (no reasoning effort set) | 0.97 | 0.93 | 1.00 | 0.90 | First run. One classifier reply failed Groq's JSON validation (HTTP 400), which used to become a 503; it now falls back to a gentle chat reply. |
 | 2026-09-27 | GitHub Models (openai/gpt-4o) | — | — | — | — | No baseline: GitHub Models was retired on 2026-07-30, and the endpoint answers every request with a plain-text `200 OK` (A-018). Waiting on the choice of a new default provider. |
 | 2026-09-27 | fake (offline keyword classifier) | 1.00 | 0.70 | 0.50 | 0.93 | Harness check only. The fake misses indirect distress ("drowning", "crying"), and the evals catch it. |
+
+### WhyBot baselines
+
+| Date | Provider / model | Answered | Voice | Names the setting | No invented numbers | Notes |
+|:--|:--|:--|:--|:--|:--|:--|
+| 2026-10-06 | Groq, openai/gpt-oss-120b (reasoning effort low) | 1.00 | 1.00 | 1.00 | 1.00 | First run, 10 calls. Read by hand, three misread progress: `pebblevoice-nothing-done` ("your current step size of zero tasks"), `pebblevoice-distress` ("since you have no tasks yet", for 0 of 6 done), `adaptlens-step-size` ("completed 3 of 4 tasks"). See A-033. |
