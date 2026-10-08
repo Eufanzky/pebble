@@ -12,7 +12,7 @@ from app.application.ports.documents import DocumentError, UnsupportedDocumentEr
 from app.application.ports.llm import LLMError, LLMRateLimitedError
 from app.application.ports.persistence import PersistenceError
 from app.application.ports.safety import SafetyCheckError
-from app.application.tasks import TaskNotFoundError, TaskOrderError
+from app.application.tasks import TaskFinishedError, TaskNotFoundError, TaskOrderError
 
 logger = logging.getLogger("pebble.api")
 
@@ -72,6 +72,7 @@ def register_error_handlers(app: FastAPI) -> None:
     app.add_exception_handler(LLMRateLimitedError, _rate_limited)
     app.add_exception_handler(TaskNotFoundError, _not_found)
     app.add_exception_handler(TaskOrderError, _conflict)
+    app.add_exception_handler(TaskFinishedError, _conflict)
     app.add_exception_handler(SuggestionGoneError, _conflict)
     app.add_exception_handler(PersistenceError, _persistence)
     for error in (LLMError, SafetyCheckError, AgentReplyError):

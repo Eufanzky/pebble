@@ -346,17 +346,16 @@
   color: var(--color-text-3);
   font-variant-numeric: tabular-nums;
 }
-p.due-bar__label {
-  margin-top: var(--space-3);
-}
-.task-card__offer {
+.task-card__offer,
+.task-card__still-open {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: var(--space-2);
   margin-top: var(--space-3);
 }
-.task-card__offer p {
+.task-card__offer p,
+.task-card__still-open p {
   flex-basis: 100%;
   margin: 0;
   font-size: var(--text-sm);

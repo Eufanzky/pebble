@@ -78,6 +78,8 @@ class Task:
     """The day it's due, in the user's calendar (8.3); none for most tasks."""
     due_set_at: datetime | None = None
     """When that day was chosen: where the time-left bar starts."""
+    let_go_at: datetime | None = None
+    """When the user let it go (8.4): off their list, kept as a record. Letting go is a fine outcome."""
 
     def with_due(self, due: date | None, now: datetime) -> "Task":
         """Set or clear the due day. A new day restarts the time-left bar from ``now``; the same day changes nothing."""
@@ -88,6 +90,16 @@ class Task:
     def with_steps(self, steps: tuple[TaskStep, ...]) -> "Task":
         """New steps replace the old ones; the task stays as done or open as it was."""
         return replace(self, steps=steps)
+
+    def let_go(self, now: datetime) -> "Task":
+        """Take an open task off the list. Raises ``ValueError`` for a finished one: it's done, not let go."""
+        if self.completed:
+            raise ValueError("A finished task isn't let go")
+        return self if self.let_go_at is not None else replace(self, let_go_at=now)
+
+    def take_back(self) -> "Task":
+        """Undo letting it go: back on the list, as it was."""
+        return replace(self, let_go_at=None)
 
     def with_step_completed(self, step_id: str, completed: bool) -> "Task":
         """Tick a step on or off. Finishing the last open step finishes the task; unticking never reopens it.

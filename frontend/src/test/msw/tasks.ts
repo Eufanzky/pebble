@@ -30,6 +30,7 @@ function toTask(body: TaskCreate): TaskOut {
     })),
     due: body.due ?? null,
     dueSetAt: body.due ? new Date().toISOString() : null,
+    letGoAt: null,
   };
 }
 
@@ -72,7 +73,8 @@ function update(taskId: string, change: (task: TaskOut) => TaskOut | null) {
 export const taskHandlers = {
   /** The fake API, stateful; a default handler. */
   api: () => [
-    http.get('/api/tasks', () => HttpResponse.json<TaskOut[]>(tasks)),
+    // Tasks let go (8.4) are kept but aren't on the list
+    http.get('/api/tasks', () => HttpResponse.json<TaskOut[]>(tasks.filter((t) => !t.letGoAt))),
     http.post('/api/tasks', async ({ request }) => {
       const task = toTask((await request.json()) as TaskCreate);
       tasks.push(task);
@@ -84,12 +86,14 @@ export const taskHandlers = {
     }),
     http.put('/api/tasks/order', async ({ request }) => {
       const { taskIds } = (await request.json()) as ApiSchema<'TasksOrder'>;
-      const byId = new Map(tasks.map((t) => [t.id, t]));
-      if (taskIds.length !== tasks.length || taskIds.some((taskId) => !byId.has(taskId))) {
+      const onList = tasks.filter((t) => !t.letGoAt);
+      const byId = new Map(onList.map((t) => [t.id, t]));
+      if (taskIds.length !== onList.length || taskIds.some((taskId) => !byId.has(taskId))) {
         return HttpResponse.json({ detail: 'Your list changed meanwhile. Pebble kept the order it had.' }, { status: 409 });
       }
-      tasks = taskIds.map((taskId) => byId.get(taskId)!);
-      return HttpResponse.json<TaskOut[]>(tasks);
+      const order = taskIds.values();
+      tasks = tasks.map((t) => (t.letGoAt ? t : byId.get(order.next().value!)!));
+      return HttpResponse.json<TaskOut[]>(tasks.filter((t) => !t.letGoAt));
     }),
     http.delete('/api/tasks/:taskId', ({ params }) => {
       const before = tasks.length;
@@ -127,6 +131,14 @@ export const taskHandlers = {
       const body = `BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nSUMMARY:${task.title}\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n`;
       return new HttpResponse(body, { headers: { 'Content-Type': 'text/calendar; charset=utf-8' } });
     }),
+    http.post('/api/tasks/:taskId/let-go', ({ params }) => {
+      const task = tasks.find((t) => t.id === params.taskId);
+      if (task?.completed) {
+        return HttpResponse.json({ detail: "That one is already finished, so there's nothing to let go." }, { status: 409 });
+      }
+      return update(String(params.taskId), (t) => ({ ...t, letGoAt: t.letGoAt ?? new Date().toISOString() }));
+    }),
+    http.delete('/api/tasks/:taskId/let-go', ({ params }) => update(String(params.taskId), (t) => ({ ...t, letGoAt: null }))),
     http.delete('/api/tasks/:taskId/breakdown', ({ params }) =>
       update(String(params.taskId), (t) => ({ ...t, steps: [], whyExplanation: '' })),
     ),

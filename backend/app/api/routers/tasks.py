@@ -127,6 +127,19 @@ async def remove_breakdown(task_id: str, user_id: str = Depends(get_current_user
     return task_data(await tasks.remove_breakdown(user_id, task_id))
 
 
+@router.post("/{task_id}/let-go", response_model=TaskOut, summary="Let a task go")
+async def let_go(task_id: str, user_id: str = Depends(get_current_user), tasks: Tasks = Depends(get_tasks)):
+    """Take an open task off your list (8.4). It's kept, with when, in your data, and nothing counts it against
+    you: letting go is a fine outcome. A finished task is a 409."""
+    return task_data(await tasks.let_go(user_id, task_id))
+
+
+@router.delete("/{task_id}/let-go", response_model=TaskOut, summary="Take a task back")
+async def take_back(task_id: str, user_id: str = Depends(get_current_user), tasks: Tasks = Depends(get_tasks)):
+    """Undo letting a task go: it's back on your list where it was."""
+    return task_data(await tasks.take_back(user_id, task_id))
+
+
 @router.get(
     "/{task_id}/calendar.ics",
     summary="The task's plan as a calendar file",

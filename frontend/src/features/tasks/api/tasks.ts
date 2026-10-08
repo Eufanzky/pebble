@@ -49,6 +49,16 @@ export function removeBreakdown(id: string): Promise<void> {
   return deleteRequest(`${TASKS}/${encodeURIComponent(id)}/breakdown`);
 }
 
+/** Take an open task off the list (8.4); it's kept, with when, in the account's data. */
+export async function letGoTask(id: string): Promise<void> {
+  await postJson<TaskOut>(`${TASKS}/${encodeURIComponent(id)}/let-go`, {});
+}
+
+/** Undo letting a task go: back on the list where it was. */
+export function takeBackTask(id: string): Promise<void> {
+  return deleteRequest(`${TASKS}/${encodeURIComponent(id)}/let-go`);
+}
+
 /** BridgeBot: the task's open steps back to back from `start` (with its UTC offset), as an .ics file (7.7). */
 export function calendarFile(id: string, start: string): Promise<Blob> {
   return getBlob(`${TASKS}/${encodeURIComponent(id)}/calendar.ics?start=${encodeURIComponent(start)}`);

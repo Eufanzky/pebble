@@ -81,6 +81,8 @@ class TaskOut(BaseModel):
     due: date | None = None
     due_set_at: datetime | None = Field(alias="dueSetAt", default=None)
     """When the due day was chosen: where the time-left bar starts."""
+    let_go_at: datetime | None = Field(alias="letGoAt", default=None)
+    """When you let it go (8.4); such a task isn't on your list."""
 
     model_config = {"populate_by_name": True, "by_alias": True}
 

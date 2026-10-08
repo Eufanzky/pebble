@@ -48,3 +48,19 @@ def test_a_new_due_day_restarts_the_bar_and_the_same_day_changes_nothing():
     assert task.with_due(date(2026, 10, 9), tuesday) is task
     assert task.with_due(date(2026, 10, 10), tuesday).due_set_at == tuesday
     assert task.with_due(None, tuesday) == Task("t", "Essay")
+
+
+def test_letting_go_keeps_the_task_and_taking_it_back_restores_it():
+    now = datetime(2026, 10, 8, 9, tzinfo=UTC)
+    task = Task("t", "Essay", due=date(2026, 10, 1))
+
+    gone = task.let_go(now)
+
+    assert gone.let_go_at == now
+    assert gone.let_go(datetime(2026, 10, 9, tzinfo=UTC)) is gone  # the first time counts
+    assert gone.take_back() == task
+
+
+def test_a_finished_task_is_done_not_let_go():
+    with pytest.raises(ValueError):
+        Task("t", "Essay", completed=True).let_go(datetime(2026, 10, 8, tzinfo=UTC))

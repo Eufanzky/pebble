@@ -2,10 +2,9 @@ import type { TimeLeft } from '../lib/deadline';
 
 /**
  * Time left until a task's due day ends, as a calm bar (8.3): one quiet tone the whole way, with no
- * colour change near the end and no red. Once the day is over it just says "Still open".
+ * colour change near the end and no red. Once the day is over, `StillOpen` takes its place (8.4).
  */
 export default function DueBar({ time }: { time: TimeLeft }) {
-  if (time.passed) return <p className="due-bar__label">{time.label}</p>;
   return (
     <div className="due-bar">
       <div

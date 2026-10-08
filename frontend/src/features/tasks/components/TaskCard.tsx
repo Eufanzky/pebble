@@ -6,12 +6,14 @@ import { Button, Chip, IconButton } from '@/shared/ui';
 import { useBreakDown } from '../hooks/useBreakDown';
 import { useCalendarExport } from '../hooks/useCalendarExport';
 import { useNow } from '../hooks/useNow';
+import { useStillOpen } from '../hooks/useStillOpen';
 import { useRipple } from '../hooks/useRipple';
 import { timeLeft } from '../lib/deadline';
 import { PRIORITY_CONFIG, TAG_CONFIG } from '../lib/tags';
 import type { Task } from '../types';
 import DueBar from './DueBar';
 import StepList from './StepList';
+import StillOpen from './StillOpen';
 import WhyCard from './WhyCard';
 import './TaskCard.css';
 
@@ -60,6 +62,9 @@ export default function TaskCard({
   const time = tracked ? timeLeft(task.due!, task.dueSetAt, now) : null;
   const [offerDismissed, setOfferDismissed] = useState(false);
   const offerSmaller = Boolean(time?.near) && canBreakDown && !offerDismissed;
+  // Once the day is over: move it, make it smaller, or let it go (8.4)
+  const stillOpen = useStillOpen(task);
+  const passed = Boolean(time?.passed);
 
   return (
     <article
@@ -132,7 +137,17 @@ export default function TaskCard({
           )}
         </div>
 
-        {time && <DueBar time={time} />}
+        {time && !passed && <DueBar time={time} />}
+
+        {passed && (
+          <StillOpen
+            title={task.title}
+            now={now}
+            onMove={stillOpen.moveTo}
+            onMakeSmaller={canBreakDown ? breakdown.start : undefined}
+            onLetGo={stillOpen.letItGo}
+          />
+        )}
 
         {offerSmaller && (
           <div className="task-card__offer" role="group" aria-label="Make it smaller">
@@ -146,7 +161,7 @@ export default function TaskCard({
           </div>
         )}
 
-        {canBreakDown && !offerSmaller && (
+        {canBreakDown && !offerSmaller && !passed && (
           <Button
             variant="quiet"
             size="sm"

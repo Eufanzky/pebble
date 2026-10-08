@@ -26,6 +26,7 @@ export function seed(tasks: NewTask[], preferences: Partial<UserPreferences> = {
       steps: (t.steps ?? []).map((s, j) => ({ ...s, id: `seeded-${i + 1}-${j + 1}` })),
       due: t.due ?? null,
       dueSetAt: t.dueSetAt ?? null,
+      letGoAt: null,
     })),
   );
   setTestPreferences({ reduceAnimations: true, calmMode: false, ...preferences });

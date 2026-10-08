@@ -177,7 +177,7 @@ See principle 1 in `mission.md`.
   *Done:* a domain test proves counts never decrease across gaps of days.
 - [x] **8.3 Neutral deadlines.** Show time left as a calm bar. Near a deadline, Pebble offers to make the task smaller with CalmSense.
   *Done:* tests with a fixed clock cover the bar maths and when the offer appears; there is no red styling.
-- [ ] **8.4 "Still open" flow.** Past-due tasks offer three choices: move it, make it smaller, or let it go. Letting go archives the task and logs it neutrally.
+- [x] **8.4 "Still open" flow.** Past-due tasks offer three choices: move it, make it smaller, or let it go. Letting go archives the task and logs it neutrally.
   *Done:* domain, API, and component tests cover all three paths.
 - [ ] **8.5 Welcome back.** After time away, Today opens fresh with "Want to pick one small thing?" and never mentions how long the user was gone.
   *Done:* tests with a fixed clock cover the greeting, and the guilt scan covers the copy.

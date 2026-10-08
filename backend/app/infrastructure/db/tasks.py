@@ -31,6 +31,7 @@ def _to_domain(row: TaskRow) -> Task:
         steps=tuple(TaskStep(str(s.id), s.title, s.time_estimate, s.completed) for s in row.steps),
         due=row.due,
         due_set_at=row.due_set_at,
+        let_go_at=row.let_go_at,
     )
 
 
@@ -50,6 +51,7 @@ def _copy_fields(row: TaskRow, task: Task) -> None:
     row.why = task.why
     row.due = task.due
     row.due_set_at = task.due_set_at
+    row.let_go_at = task.let_go_at
 
 
 class SqlTaskRepository(SqlRepository):
@@ -61,7 +63,11 @@ class SqlTaskRepository(SqlRepository):
 
     async def list(self, user_id: str) -> list[Task]:
         async with self._transaction() as session:
-            query = select(TaskRow).where(TaskRow.user_id == user_id).order_by(TaskRow.position, TaskRow.seq)
+            query = (
+                select(TaskRow)
+                .where(TaskRow.user_id == user_id, TaskRow.let_go_at.is_(None))
+                .order_by(TaskRow.position, TaskRow.seq)
+            )
             rows = await session.scalars(query)
             return [_to_domain(row) for row in rows]
 
@@ -108,7 +114,8 @@ class SqlTaskRepository(SqlRepository):
     async def reorder(self, user_id: str, task_ids: Sequence[str]) -> None:
         keys = [_uuid(task_id) for task_id in task_ids]
         async with self._transaction() as session:
-            owned = set(await session.scalars(select(TaskRow.id).where(TaskRow.user_id == user_id)))
+            on_list = select(TaskRow.id).where(TaskRow.user_id == user_id, TaskRow.let_go_at.is_(None))
+            owned = set(await session.scalars(on_list))
             if None in keys or set(keys) != owned or len(keys) != len(owned):
                 raise KeyError("order")
             for position, key in enumerate(keys, start=1):
