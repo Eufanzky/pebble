@@ -7,7 +7,7 @@ uv run pytest -m eval -s                     # with LLM_API_KEY set (Groq by def
 LLM_PROVIDER=fake uv run pytest -m eval -s   # checks the harness itself, offline
 ```
 
-Run them after any prompt change. A report with every case (what was classified, what Pebble showed, any voice-rule problem) is written to `tests/evals/results/latest.json`. That folder is gitignored; CI uploads it as the `eval-report` artifact.
+Run them after any prompt change. The baselines use `LLM_PROVIDER=groq`, which asks for low reasoning effort. If you point `LLM_PROVIDER=openai` at Groq's URL instead, set `LLM_REASONING_EFFORT=low` too: at the default effort the reasoning can use up the classifier's 512 tokens, and its JSON fails (8.1). A report with every case (what was classified, what Pebble showed, any voice-rule problem) is written to `tests/evals/results/latest.json`. That folder is gitignored; CI uploads it as the `eval-report` artifact.
 
 ## What's measured
 
@@ -43,6 +43,7 @@ Requests are spaced out (`EVAL_REQUEST_INTERVAL`, default 6.5 s) to stay under f
 
 | Date | Provider / model | JSON | Intent | Distress | Voice | Notes |
 |:--|:--|:--|:--|:--|:--|:--|
+| 2026-10-08 | Groq, openai/gpt-oss-120b (reasoning effort low) | 1.00 | 1.00 | 1.00 | 0.93 | 8.1: the voice rules name principle 1 and "every sentence under 20 words"; `voice.py` checks the principle-1 phrases too. 75 calls. Both voice misses were WhyBot's "why" (`decompose-portfolio`, `simplify-committee`, one long sentence each), before WhyBot was told to split long sentences. The chat set wasn't rerun after that: the day's Groq token cap (200,000) ran out. |
 | 2026-10-06 | Groq, openai/gpt-oss-120b (reasoning effort low) | 1.00 | 1.00 | 1.00 | 0.97 | 7.9 (WhyBot explains every turn since 7.4). 74 calls. Every intent right; one voice miss (`chat-cat`, 23 words a sentence). |
 | 2026-10-05 | Groq, openai/gpt-oss-120b (reasoning effort low) | 1.00 | 0.97 | 1.00 | 0.90 | 7.1: CalmSense also returns a short `title`. 46 calls. Misses: `decompose-apartment`, `decompose-portfolio` (23 and 25 words a sentence), `motivate-pep-talk` (21), and `chat-thanks` classified as motivate, as in the first baseline. |
 | 2026-10-04 | Groq, openai/gpt-oss-120b (reasoning effort low) | 1.00 | 1.00 | 1.00 | 0.83 | 6.6 (CalmSense says "steps", "step size"), second run. 45 calls. Voice misses in five agents' replies, only one of them CalmSense's (`decompose-portfolio`); the rest are chat (`chat-colour`, `chat-cat`, 21 words), SimplifyCore and PebbleVoice, whose prompts 6.6 didn't change. See A-028. |
@@ -59,4 +60,5 @@ Requests are spaced out (`EVAL_REQUEST_INTERVAL`, default 6.5 s) to stay under f
 
 | Date | Provider / model | Answered | Voice | Names the setting | No invented numbers | Notes |
 |:--|:--|:--|:--|:--|:--|:--|
+| 2026-10-08 | Groq, openai/gpt-oss-120b (reasoning effort low) | 1.00 | 1.00 | 1.00 | 1.00 | 8.1, three runs, all 1.00. WhyBot puts one fact in each sentence and repeats progress as given. Before that, `main` scored 0.7 and 0.8 on voice the same day (one 23–25-word sentence each time). Read by hand: two of 7.9's three misreads are gone; `pebblevoice-two-done` calls the count "your task count setting". See A-033. |
 | 2026-10-06 | Groq, openai/gpt-oss-120b (reasoning effort low) | 1.00 | 1.00 | 1.00 | 1.00 | First run, 10 calls. Read by hand, three misread progress: `pebblevoice-nothing-done` ("your current step size of zero tasks"), `pebblevoice-distress` ("since you have no tasks yet", for 0 of 6 done), `adaptlens-step-size` ("completed 3 of 4 tasks"). See A-033. |

@@ -11,6 +11,7 @@ from tests.evals.voice import sentences, voice_problems
         "You finished 3 things today. That counts.",
         "No rush. We can take this one small step at a time.",
         "That sounds really hard. It's okay to step back.",
+        "This one is still open. Move it, make it smaller, or let it go?",
     ],
 )
 def test_calm_specific_replies_pass(text):
@@ -29,6 +30,13 @@ def test_calm_specific_replies_pass(text):
         "Your streak is at 5 days!",
         "Everyone else finished already.",
         "Two tasks are overdue.",
+        "Five days in a row!",
+        "You missed yesterday.",
+        "You've been away for a while.",
+        "Since you last opened Pebble, a lot changed.",
+        "Don't lose your progress.",
+        "You're falling behind.",
+        "Last chance to finish this today.",
     ],
 )
 def test_banned_phrases_are_caught(text):

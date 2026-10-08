@@ -121,7 +121,7 @@ Every change ships with tests ([`specs/testing.md`](specs/testing.md)), and CI r
 | `backend/` | `uv run ruff check` · `uv run vulture` | Lint · dead code |
 | `backend/` | `uv run pytest -m eval` | Real-LLM evals (weekly in CI; needs `LLM_API_KEY`) |
 
-The guilt scan fails on streaks, "overdue", missed days, loss framing or alarm colours anywhere in the app's copy and prompts.
+The guilt scan fails on streaks, "overdue", missed days or time away, loss framing, red or alarm colours, penalties for stopping early, or notifications nobody asked for, anywhere in the app's copy, styles and prompts.
 
 ---
 
