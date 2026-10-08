@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Task } from '../types';
-import { greeting, hourLabel, nudge, shortestTask, splitTasks } from './today';
+import { greeting, nudge, shortestTask, splitTasks } from './today';
 
 function task(title: string, completed = false, timeEstimate = '~10 min'): Task {
   return { id: title, title, timeEstimate, tag: 'study', priority: 'medium', completed };
@@ -11,7 +11,10 @@ describe('greeting', () => {
     ['morning', 0, 3, 'Good morning ✦', "You have 3 things today. No rush, we'll take it together.", false],
     ['morning', 1, 3, 'Good morning ✦', 'You finished 1 thing so far. Keep going at your own pace.', false],
     ['morning', 2, 3, 'Good morning ✦', 'You finished 2 things so far. Keep going at your own pace.', false],
-    ['day', 0, 4, 'Good afternoon ✦', '4 tasks waiting. Pick the easiest one first — momentum builds.', false],
+    ['morning', 0, 1, 'Good morning ✦', "You have 1 thing today. No rush, we'll take it together.", false],
+    ['morning', 0, 0, 'Good morning ✦', 'Nothing on the list yet. Add one thing whenever you like.', false],
+    ['day', 0, 4, 'Good afternoon ✦', '4 things on the list. Pick the easiest one first, if you like.', false],
+    ['day', 0, 0, 'Good afternoon ✦', 'Nothing on the list yet. Add one thing whenever you like.', false],
     ['day', 1, 4, 'Good afternoon ✦', "1 down, 3 to go. You're making progress.", false],
     ['evening', 0, 2, "It's getting late — you've done enough today 🌙", 'Tomorrow is a new day. Rest well.', true],
     ['evening', 2, 2, "It's getting late — you've done enough today 🌙", 'You finished 2 things today. That counts.', true],
@@ -21,12 +24,6 @@ describe('greeting', () => {
 
   it.each(['morning', 'day', 'evening'] as const)('drops the emoji in calm mode (%s)', (timeOfDay) => {
     expect(greeting(timeOfDay, 0, 1, true).text).not.toMatch(/[✦🌙]/u);
-  });
-});
-
-describe('hourLabel', () => {
-  it.each([[0, '0am'], [9, '9am'], [12, '12pm'], [13, '1pm'], [23, '11pm']])('%i → %s', (hour, label) => {
-    expect(hourLabel(hour)).toBe(label);
   });
 });
 
@@ -45,23 +42,24 @@ describe('shortestTask', () => {
 
 describe('nudge', () => {
   it('celebrates when everything is finished', () => {
-    expect(nudge([task('a', true)], 'day', 14, false)).toBe("You finished everything. That's impressive. ✨");
-    expect(nudge([task('a', true)], 'evening', 20, true)).toBe("You finished everything. That's impressive.");
+    expect(nudge([task('a', true)], 'day', false)).toBe("You finished everything. That's impressive. ✨");
+    expect(nudge([task('a', true)], 'evening', true)).toBe("You finished everything. That's impressive.");
   });
 
   it('suggests rest in the evening', () => {
-    expect(nudge([task('a')], 'evening', 21, false)).toBe('No more tasks tonight. Rest well.');
+    expect(nudge([task('a')], 'evening', false)).toBe('No more tasks tonight. Rest well.');
   });
 
-  it('suggests the shortest open task during the day', () => {
+  it('suggests the shortest open task during the day, without setting the clock against it', () => {
     const tasks = [task('Long', false, '~30 min'), task('Quick', false, '~05 min'), task('Done', true, '~01 min')];
-    expect(nudge(tasks, 'day', 15, false)).toBe('It\'s 3pm and you have 2 tasks left. Want to start with "Quick"?');
-    expect(nudge([task('One')], 'day', 12, false)).toBe('It\'s 12pm and you have 1 task left. Want to start with "One"?');
+    expect(nudge(tasks, 'day', false)).toBe('2 still open. Want to start with "Quick"?');
+    expect(nudge([task('One')], 'day', false)).toBe('1 still open. Want to start with "One"?');
   });
 
   it('counts the list in the morning, and with no tasks', () => {
-    expect(nudge([task('a'), task('b')], 'morning', 9, false)).toBe('2 things on the list today. One step at a time.');
-    expect(nudge([], 'day', 14, false)).toBe('0 things on the list today. One step at a time.');
+    expect(nudge([task('a'), task('b')], 'morning', false)).toBe('2 things on the list today. One step at a time.');
+    expect(nudge([task('a')], 'morning', false)).toBe('1 thing on the list today. One step at a time.');
+    expect(nudge([], 'day', false)).toBe('Nothing on the list yet. Add one thing whenever you like.');
   });
 });
 

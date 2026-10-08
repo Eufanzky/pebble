@@ -4,60 +4,63 @@ import type { TimeOfDay } from '@/shared/hooks/useTimeOfDay';
 type MessagesByPersonality = Record<PebblePersonality, string[]>;
 type MessagesByTime = Record<TimeOfDay, MessagesByPersonality>;
 
+// `{taskCount}` and `{completedCount}` are filled in; `{taskCount things}` also names them ("1 thing", "3 things").
+// A line with a count shows only when that count is above zero, so every pool needs lines without one.
+
 export const messages: MessagesByTime = {
   morning: {
     gentle: [
-      "Good morning! You've got {taskCount} things today. No rush, we'll take it together.",
+      "Good morning! You've got {taskCount things} today. No rush, we'll take it together.",
       "How are you feeling today? I'm here either way.",
       'A new day, a fresh start. Let\'s see what we\'ve got.',
       'Take your time this morning. We\'ll ease into it.',
-      '{taskCount} things on the list. One step at a time.',
+      '{taskCount things} on the list. One step at a time.',
     ],
     playful: [
       "Rise and shine! Your favorite cat is ready to help.",
-      '{taskCount} tasks? Paw-sitively doable.',
+      '{taskCount tasks}? Paw-sitively doable.',
       "I've been napping all night. I'm SO ready.",
       'Good morning! Let\'s make today awesome.',
       'The early cat catches the... productivity?',
     ],
     calm: [
-      'Good morning. {taskCount} tasks today.',
+      'Good morning. {taskCount tasks} today.',
       'Ready when you are.',
       "Let's begin.",
       'A new day.',
-      '{taskCount} things. No rush.',
+      '{taskCount things}. No rush.',
     ],
   },
   day: {
     gentle: [
-      "You finished {completedCount} things already. That's really good.",
+      "You finished {completedCount things} already. That counts.",
       "No rush. We'll get through this together.",
       'Remember: small steps count just as much as big ones.',
       'Taking breaks is part of the work. It counts.',
-      "You're making steady progress. Keep going.",
+      "Whatever you pick next, I'm right here.",
     ],
     playful: [
       'Look at you go! {completedCount} down already.',
       'I believe in you. Also I believe in naps.',
-      "You're doing great. I'd give you a high five but... paws.",
-      '{completedCount} tasks crushed! Keep that energy going.',
-      "Productivity level: legendary. (That's a compliment.)",
+      "I'd give you a high five, but... paws.",
+      '{completedCount tasks} done. Paws up!',
+      "Snack break? I hear that counts as self-care.",
     ],
     calm: [
-      '{completedCount} tasks done so far.',
+      '{completedCount tasks} done so far.',
       'Still here.',
       'At your own pace.',
-      'Progress.',
-      'Keep going.',
+      'One thing at a time.',
+      'Here when you need me.',
     ],
   },
   evening: {
     gentle: [
       "It's getting late — you've done enough today.",
       'Rest is productive too. Seriously.',
-      "You did good today. Time to wind down.",
+      "Time to wind down. The list will keep.",
       "Tomorrow is a new day. Tonight, be kind to yourself.",
-      "You've earned some rest.",
+      "Rest doesn't need to be earned.",
     ],
     playful: [
       "It's past my bedtime! Yours too, probably.",

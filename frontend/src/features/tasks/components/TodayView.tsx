@@ -49,7 +49,7 @@ export default function TodayView() {
   } = useTasks();
   const { preferences, reduceMotion } = usePreferences();
   const timeOfDay = useTimeOfDay();
-  const { formattedDate, hour } = useTodayClock();
+  const { formattedDate } = useTodayClock();
   const actions = useTaskActions();
   const addTask = useAddTask();
   const [viewMode, setViewMode] = useState<ViewMode>('list');
@@ -162,7 +162,7 @@ export default function TodayView() {
       <aside className="today__companion" aria-label="Pebble">
         <PebbleSpeechBubble message={message} />
         <PebbleCharacter mood={mood} size="medium" />
-        <p className="today__nudge">{nudge(tasks, timeOfDay, hour, calm)}</p>
+        <p className="today__nudge">{nudge(tasks, timeOfDay, calm)}</p>
       </aside>
     </div>
   );

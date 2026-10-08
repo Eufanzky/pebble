@@ -78,6 +78,7 @@ Found by the first unit tests (1.2 onwards), not by the static checks above.
 | A-031 | minor | CI's builds fetch Google Fonts (`next/font/google`) at build time. When that download fails, the build fails with "Can't resolve '@vercel/turbopack-next/internal/font/google/font'", as the E2E job did on 7.4 and once before; a rerun passed both times. Found during 7.4. | the E2E job's log | self-host the two fonts (`next/font/local`) |
 | A-032 | minor | One local E2E run during 7.5 failed "signing out goes back to the sign-in page": after signing out, `/today` still opened instead of redirecting. In the same run the demo flow hung on a toast. The test then passed 10 of 10 times alone and in two full runs, so it couldn't be reproduced. Found during 7.5. | `npx playwright test e2e/sign-in.spec.ts --repeat-each=10` | watch; investigate if it comes back |
 | A-033 | minor | WhyBot sometimes misreads progress it's given. In the first WhyBot eval, "0 of 4 tasks done" became "your current step size of zero tasks", "0 of 6 done" became "since you have no tasks yet", and "finished 3 of 4 broken-down tasks with most steps open" became "completed 3 of 4 tasks". The automated scores all passed: the numbers are real, only the meaning is off. Found during 7.9. | `uv run pytest -m eval tests/evals/test_whybot_evals.py`, then read `results/whybot.json` | prompt work, with A-028 (8.1 or an item of its own) |
+| A-034 | minor | Today's "Want to start with …?" suggests the task whose estimate sorts first as text, not the shortest: "~10 min" sorts before "~5 min", so a 10-minute task is offered over a 5-minute one. The test uses "~05 min" and so doesn't see it. Found during 8.1. | `shortestTask([{ timeEstimate: '~5 min' }, { timeEstimate: '~10 min' }])` in `features/tasks/lib/today.ts` | 8.3 (it reads estimates too), or a fix of its own |
 
 ## Backend behaviour
 
@@ -106,7 +107,7 @@ Found by the characterization tests (1.3 onwards), not by the static checks abov
 
 ## Summary
 
-Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011). Found during 1.3: 1 major, 1 minor (A-012, A-013). Found during 1.4: 1 major (A-014). Found during 1.5: 1 minor (A-015). Found during 1.7: 1 major, 1 cosmetic (A-016, A-017). Found during 2.8: 1 major (A-018). Found during 3.3: 2 major (A-019, A-020). Found during 3.4: 1 minor (A-021). Found during 3.7: 1 minor (A-022). Found during 5.4: 1 minor (A-023). Found during 6.3: 1 minor, 2 cosmetic (A-024, A-025, A-026). Found during 6.4: 1 cosmetic (A-027). Found during 6.6: 1 minor (A-028). Found while planning Phase 7: 1 major, 1 minor (A-029, A-030). Found during 7.4–7.5: 2 minor (A-031, A-032). Found during 7.9: 1 minor (A-033).
+Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011). Found during 1.3: 1 major, 1 minor (A-012, A-013). Found during 1.4: 1 major (A-014). Found during 1.5: 1 minor (A-015). Found during 1.7: 1 major, 1 cosmetic (A-016, A-017). Found during 2.8: 1 major (A-018). Found during 3.3: 2 major (A-019, A-020). Found during 3.4: 1 minor (A-021). Found during 3.7: 1 minor (A-022). Found during 5.4: 1 minor (A-023). Found during 6.3: 1 minor, 2 cosmetic (A-024, A-025, A-026). Found during 6.4: 1 cosmetic (A-027). Found during 6.6: 1 minor (A-028). Found while planning Phase 7: 1 major, 1 minor (A-029, A-030). Found during 7.4–7.5: 2 minor (A-031, A-032). Found during 7.9: 1 minor (A-033). Found during 8.1: 1 minor (A-034).
 
 ## Status
 
@@ -133,17 +134,18 @@ Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Foun
 | A-019 | Fixed after 3.3: PDF and Word uploads are read by `POST /api/documents/parse` (errors show the backend's gentle explanation, or a general message when it's down); the built-in reader credits only itself and the browser's voice, and calls its translation a rough preview. Regression tests in `DocumentsView.test.tsx`, `ImmersiveReader.test.tsx`, `useDocumentUpload.test.tsx`. |
 | A-020 | Fixed after phase 3: removed. The connected apps, the voice-input demo, the "Pebble has adapted" cards, the "This week" numbers and the generic "You're doing amazing" bubble are gone, and so is the `voiceInput` preference. The "Adapted for you" badge on two sample tasks (an AdaptLens claim) is gone too. 7.3 (AdaptLens), 7.4/7.5 (calendar) and 8.2 (progress counts) bring the real versions. |
 | A-022 | Fixed after phase 3: the activity log starts empty and holds only what agents really did. The E2E flow checks a new user's log has exactly its own 4 entries. |
-| A-023 | **Open**, for 8.1 (guilt audit). |
+| A-023 | Fixed in 8.1: a line of Pebble's that names a count shows only when the count is above zero, and counts name their noun in the singular for one ("1 thing"). Tests in `features/companion/lib/messages.test.ts`. |
 | A-024 | Fixed in 6.4: the prompts and the backend package say Pebble; the evals were run (baseline row of 2026-10-04). |
 | A-025 | Fixed after 6.3: knip is on 6 and no longer pulls in `braces` or `micromatch`. The same chain through `eslint-config-next` stays until Next.js updates its ESLint plugin (npm's only fix is a downgrade to 14); it's dev-only. |
 | A-026 | **Open**, cosmetic: revert the file after running the script until then. |
-| A-028 | **Open**: the prompts need a firmer sentence length; until then the voice eval passes or fails by one reply. |
+| A-028 | Improved in 8.1: the voice rules say "every sentence under 20 words", and WhyBot splits long sentences (three WhyBot runs at 1.00). The chat set's last run (0.93) was before WhyBot's change; **open** until a chat run with the final prompts confirms it. |
 | A-029 | Fixed in 7.1–7.3: "Break it down" asks CalmSense for any task and a chat breakdown can go on Today (7.1); SimplifyCore simplifies uploads and finds their action items (7.2); only the backend writes the log, and only what an agent did (7.3). |
 | A-030 | Fixed in the Phase 7 plan PR. |
 | A-031 | **Open**: self-host the fonts so builds don't need Google. |
 | A-032 | **Open**: not reproduced; watch the E2E. |
-| A-033 | **Open**: WhyBot's prompt should keep "N of M done" as it is given. |
+| A-033 | Improved in 8.1: WhyBot is told to repeat progress as given; one misread of three is left ("your task count setting"). **Open**. |
+| A-034 | **Open**: compare estimates in minutes (BridgeBot's `minutes_of` already reads them on the backend). |
 | A-027 | Fixed in 6.6: "steps" everywhere (API routes and fields, frontend types, prompts), and "step size" for "chunk size"; migration 0005 renames saved preferences, and the browser import still reads the old names. |
 | A-021 | Fixed in 3.4: the note says what each entry shows (since 4.5 the log is saved to the account). Test in `ActivityView.test.tsx`. |
 
-Open: 7 (A-002, A-023, A-026, A-028, A-031, A-032, A-033), each linked to the phase that fixes it or the reason it waits. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
+Open: 7 (A-002, A-026, A-028, A-031, A-032, A-033, A-034), each linked to the phase that fixes it or the reason it waits. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.

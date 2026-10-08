@@ -20,6 +20,14 @@ BANNED = (
     r"everyone else",
     r"other people (?:manage|can|do)",
     r"\bfail(?:ed|ure)\b",
+    # Principle 1, as the frontend's guilt scan reads it (8.1).
+    r"\bin a row\b",
+    r"\bmissed\b",
+    r"\b(?:been|were) (?:away|gone)\b",
+    r"\bsince you last\b",
+    r"\b(?:lose|losing|lost) (?:all )?(?:your|the) progress\b",
+    r"\bfall(?:ing|en)? behind\b",
+    r"\blast chance\b",
 )
 MAX_SENTENCE_WORDS = 30
 MAX_MEAN_SENTENCE_WORDS = 20
