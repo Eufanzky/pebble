@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { PebbleCharacter, PebbleSpeechBubble, usePebble } from '@/features/companion';
 import { SuggestionCard } from '@/features/suggestions';
 import { usePreferences } from '@/shared/preferences';
@@ -30,7 +30,8 @@ import './Today.css';
  * grouped into to do and done, and progress that only adds up. On wide
  * screens Pebble has its own column; elsewhere it sits beside the greeting.
  */
-export default function TodayView() {
+/** `progress`: what was finished since the start (8.2), from the stats feature, under the greeting. */
+export default function TodayView({ progress }: { progress?: ReactNode }) {
   const { mood, currentMessage } = usePebble();
   const {
     tasks,
@@ -79,6 +80,7 @@ export default function TodayView() {
           date={formattedDate}
           companion={<PebbleCharacter mood={mood} size="small" />}
         />
+        {progress}
 
         <div className="today__heading">
           <h1 className="today__title">Today</h1>

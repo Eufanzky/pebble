@@ -173,7 +173,7 @@ See principle 1 in `mission.md`.
 
 - [x] **8.1 Guilt audit.** Review UI copy, sample data, and prompts against principle 1, and extend the guilt scan (1.5) with any new patterns found.
   *Done:* the scan covers every rule in principle 1 and passes.
-- [ ] **8.2 Cumulative progress.** Show the counts from the 5.6 stats ("14 steps finished this month") on Today and Activity too. Nothing resets.
+- [x] **8.2 Cumulative progress.** Show the counts from the 5.6 stats ("14 steps finished this month") on Today and Activity too. Nothing resets.
   *Done:* a domain test proves counts never decrease across gaps of days.
 - [ ] **8.3 Neutral deadlines.** Show time left as a calm bar. Near a deadline, Pebble offers to make the task smaller with CalmSense.
   *Done:* tests with a fixed clock cover the bar maths and when the offer appears; there is no red styling.

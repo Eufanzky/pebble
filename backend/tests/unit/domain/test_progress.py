@@ -75,3 +75,28 @@ def test_more_events_only_ever_add():
 
     assert two.all_time.tasks == one.all_time.tasks + 1
     assert two.totals.steps == one.totals.steps
+
+
+def test_what_today_and_activity_show_never_goes_down_over_months_of_visits():
+    """8.2: a year of visits with gaps of every length. The all-time totals that Today and Activity show
+    never go down, even as finished work leaves the summary's range, and a quiet stretch changes nothing."""
+    gaps = [1, 1, 2, 5, 0, 13, 1, 31, 3, 90, 1, 7, 45, 1, 120, 2]
+    start = datetime(2026, 1, 1, 12, tzinfo=UTC)
+    events: list[ProgressEvent] = []
+    shown: list[Totals] = []
+
+    visit = start
+    for i, gap in enumerate(gaps):
+        visit += timedelta(days=gap)
+        if i % 3 != 2:  # some visits finish nothing
+            events.append(ProgressEvent(ProgressKind.STEP, f"s{i}", visit, tag=TaskTag.STUDY))
+            events.append(ProgressEvent(ProgressKind.FOCUS, f"f{i}", visit, minutes=10))
+        if i % 4 == 0:
+            events.append(ProgressEvent(ProgressKind.TASK, f"t{i}", visit, tag=TaskTag.PROJECT))
+        shown.append(summarize(events, today=visit.date(), days=1, tz=UTC).all_time)
+
+    for earlier, later in zip(shown, shown[1:], strict=False):
+        assert later.tasks >= earlier.tasks
+        assert later.steps >= earlier.steps
+        assert later.focus_minutes >= earlier.focus_minutes
+    assert shown[-1] == Totals(tasks=4, steps=11, focus_minutes=110)

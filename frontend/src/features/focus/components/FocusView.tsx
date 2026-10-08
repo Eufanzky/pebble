@@ -2,7 +2,8 @@
 
 import { useCallback, useState } from 'react';
 import { PebbleCharacter, PebbleSpeechBubble, usePebble } from '@/features/companion';
-import { postFocusSession, STATS_KEY } from '@/features/stats';
+import { postFocusSession } from '@/features/stats';
+import { STATS_KEY } from '@/shared/lib/query';
 import { useQueryClient } from '@tanstack/react-query';
 import { playChime } from '@/shared/lib/audio';
 import { usePreferences } from '@/shared/preferences';

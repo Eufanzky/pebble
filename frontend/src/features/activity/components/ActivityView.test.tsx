@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { renderWithProviders, screen, within } from '@/test/render';
 import { accountStore } from '@/test/msw/account';
+import { ProgressSoFar } from '@/features/stats';
+import { quietStats, statsStore } from '@/test/msw/stats';
 import ActivityView from './ActivityView';
 
 // Puts `count` entries in the account's log, newest last ("Action 0" is the oldest).
@@ -25,6 +27,14 @@ describe('ActivityView', () => {
     expect(await screen.findByText('Showing 8 of 10 entries')).toBeInTheDocument();
     expect(screen.getAllByText(/^Action \d$/)[0]).toHaveTextContent('Action 9');
     expect(screen.getByText('10 entries from 2 agents. 9 passed the safety checks, and 1 was held back.')).toBeInTheDocument();
+  });
+
+  it('shows what was finished since the start (8.2)', async () => {
+    statsStore.set((days) => ({ ...quietStats(days), allTime: { tasks: 2, steps: 14, focusMinutes: 0 } }));
+
+    renderWithProviders(<ActivityView progress={<ProgressSoFar />} />);
+
+    expect(await screen.findByText('Since you started: 14 steps and 2 tasks.')).toBeInTheDocument();
   });
 
   it('filters by agent and shows more on request', async () => {
