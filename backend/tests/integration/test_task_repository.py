@@ -1,6 +1,8 @@
 """The ``TaskRepository`` contract, run against Postgres and against the in-memory fake the other tests use."""
 
 import uuid
+from dataclasses import replace
+from datetime import UTC, date, datetime
 
 import pytest
 
@@ -39,6 +41,17 @@ async def test_a_task_round_trips_with_its_steps(repository):
 
     assert await repository.get("a", task.id) == task
     assert await repository.list("a") == [task]
+
+
+async def test_a_due_day_round_trips_and_can_be_cleared(repository):
+    """8.3: the day, and the moment it was chosen with its time zone."""
+    task = a_task().with_due(date(2026, 10, 20), datetime(2026, 10, 8, 18, 30, tzinfo=UTC))
+    await repository.add("a", task)
+    assert await repository.get("a", task.id) == task
+
+    cleared = replace(task, due=None, due_set_at=None)
+    await repository.save("a", cleared)
+    assert await repository.get("a", task.id) == cleared
 
 
 async def test_tasks_come_back_in_the_order_they_were_added(repository):

@@ -28,6 +28,8 @@ function toTask(body: TaskCreate): TaskOut {
       timeEstimate: s.timeEstimate ?? '',
       completed: s.completed ?? false,
     })),
+    due: body.due ?? null,
+    dueSetAt: body.due ? new Date().toISOString() : null,
   };
 }
 
@@ -96,8 +98,13 @@ export const taskHandlers = {
     }),
     http.patch('/api/tasks/:taskId', async ({ params, request }) => {
       const changes = (await request.json()) as ApiSchema<'TaskUpdate'>;
-      const set = Object.fromEntries(Object.entries(changes).filter(([, v]) => v !== null && v !== undefined));
-      return update(String(params.taskId), (t) => ({ ...t, ...set }));
+      const { due, ...rest } = changes;
+      const set = Object.fromEntries(Object.entries(rest).filter(([, v]) => v !== null && v !== undefined));
+      return update(String(params.taskId), (t) => {
+        // A new due day restarts the bar; null removes it; the same day changes nothing (8.3)
+        if (due === undefined || due === t.due) return { ...t, ...set };
+        return { ...t, ...set, due, dueSetAt: due ? new Date().toISOString() : null };
+      });
     }),
     // CalmSense, as the backend's fake LLM answers: three steps named after the task
     http.post('/api/tasks/:taskId/breakdown', async ({ params, request }) => {

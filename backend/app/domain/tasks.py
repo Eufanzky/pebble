@@ -2,6 +2,7 @@
 
 from collections.abc import Callable
 from dataclasses import dataclass, replace
+from datetime import date, datetime
 from enum import StrEnum
 
 
@@ -73,6 +74,16 @@ class Task:
     completed: bool = False
     why: str = ""
     steps: tuple[TaskStep, ...] = ()
+    due: date | None = None
+    """The day it's due, in the user's calendar (8.3); none for most tasks."""
+    due_set_at: datetime | None = None
+    """When that day was chosen: where the time-left bar starts."""
+
+    def with_due(self, due: date | None, now: datetime) -> "Task":
+        """Set or clear the due day. A new day restarts the time-left bar from ``now``; the same day changes nothing."""
+        if due == self.due:
+            return self
+        return replace(self, due=due, due_set_at=now if due is not None else None)
 
     def with_steps(self, steps: tuple[TaskStep, ...]) -> "Task":
         """New steps replace the old ones; the task stays as done or open as it was."""

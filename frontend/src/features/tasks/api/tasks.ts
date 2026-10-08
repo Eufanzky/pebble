@@ -22,6 +22,7 @@ function toCreate(task: NewTask): TaskCreate {
     priority: task.priority,
     completed: task.completed,
     whyExplanation: task.whyExplanation ?? '',
+    due: task.due ?? null,
     steps: (task.steps ?? []).map((s) => ({ title: s.title, timeEstimate: s.timeEstimate, completed: s.completed })),
   };
 }

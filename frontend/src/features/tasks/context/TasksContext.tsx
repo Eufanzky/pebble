@@ -54,11 +54,17 @@ interface TasksContextValue {
   clearAll: () => void;
 }
 
-export type TaskEdit = Partial<Pick<Task, 'title' | 'timeEstimate' | 'tag' | 'priority'>>;
+export type TaskEdit = Partial<Pick<Task, 'title' | 'timeEstimate' | 'tag' | 'priority' | 'due'>>;
 
 const TasksContext = createContext<TasksContextValue | null>(null);
 
 const tempId = () => `temp-${crypto.randomUUID()}`;
+
+/** As the backend does it: a new due day starts the time-left bar now; none clears it (8.3). */
+function dueSetAt(task: Task, changes: TaskEdit): Pick<Task, 'dueSetAt'> {
+  if (!('due' in changes) || (changes.due ?? null) === (task.due ?? null)) return {};
+  return { dueSetAt: changes.due ? new Date().toISOString() : null };
+}
 
 /**
  * The task list, saved in the backend (`/api/tasks`).
@@ -256,7 +262,7 @@ export function TasksProvider({ children }: { children: ReactNode }) {
 
   const editTask = useCallback(
     (id: string, changes: TaskEdit) => {
-      setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...changes } : t)));
+      setTasks((prev) => prev.map((t) => (t.id === id ? { ...t, ...changes, ...dueSetAt(t, changes) } : t)));
       enqueue(async () => {
         await updateTask(idFor(id), changes);
       });

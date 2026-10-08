@@ -13,9 +13,9 @@ const TASK: Task = {
   completed: false,
 };
 
-function renderDialog() {
+function renderDialog(task: Task = TASK) {
   const props = { onSave: vi.fn(), onDelete: vi.fn(), onClose: vi.fn() };
-  return { ...renderWithProviders(<EditTaskDialog task={TASK} {...props} />), ...props };
+  return { ...renderWithProviders(<EditTaskDialog task={task} {...props} />), ...props };
 }
 
 describe('EditTaskDialog', () => {
@@ -38,8 +38,32 @@ describe('EditTaskDialog', () => {
       timeEstimate: '~30 min',
       tag: 'wellbeing',
       priority: 'high',
+      due: null,
     });
     expect(onClose).toHaveBeenCalled();
+  });
+
+  it('sets a due day, and an empty field means none (8.3)', async () => {
+    const { user, onSave } = renderDialog();
+    const due = screen.getByLabelText('Due day');
+    expect(due).toHaveValue('');
+    expect(due).toHaveAccessibleDescription('Optional. Leave it empty for no due day.');
+
+    await user.type(due, '2026-10-20');
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ due: '2026-10-20' }));
+  });
+
+  it('removes a due day when the field is cleared', async () => {
+    const { user, onSave } = renderDialog({ ...TASK, due: '2026-10-20', dueSetAt: '2026-10-08T10:00:00Z' });
+    const due = screen.getByLabelText('Due day');
+    expect(due).toHaveValue('2026-10-20');
+
+    await user.clear(due);
+    await user.click(screen.getByRole('button', { name: 'Save' }));
+
+    expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ due: null }));
   });
 
   it('asks for a title instead of saving an empty one', async () => {

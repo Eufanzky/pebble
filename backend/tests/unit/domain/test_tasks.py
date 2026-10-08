@@ -1,3 +1,5 @@
+from datetime import UTC, date, datetime
+
 import pytest
 
 from app.domain.tasks import Task, TaskStep
@@ -37,3 +39,12 @@ def test_new_steps_keep_the_task_done_or_open():
 
     assert task(True, completed=True).with_steps(new) == Task("t", "Write the essay", completed=True, steps=new)
     assert not task(completed=False).with_steps(new).completed
+
+
+def test_a_new_due_day_restarts_the_bar_and_the_same_day_changes_nothing():
+    monday, tuesday = datetime(2026, 10, 5, tzinfo=UTC), datetime(2026, 10, 6, tzinfo=UTC)
+    task = Task("t", "Essay").with_due(date(2026, 10, 9), monday)
+
+    assert task.with_due(date(2026, 10, 9), tuesday) is task
+    assert task.with_due(date(2026, 10, 10), tuesday).due_set_at == tuesday
+    assert task.with_due(None, tuesday) == Task("t", "Essay")

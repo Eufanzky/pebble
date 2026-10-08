@@ -973,6 +973,18 @@
             "title": "Completed",
             "type": "boolean"
           },
+          "due": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due"
+          },
           "priority": {
             "$ref": "#/components/schemas/TaskPriority",
             "default": "medium"
@@ -1019,6 +1031,30 @@
           "completed": {
             "title": "Completed",
             "type": "boolean"
+          },
+          "due": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due"
+          },
+          "dueSetAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Duesetat"
           },
           "id": {
             "title": "Id",
@@ -1095,6 +1131,18 @@
               }
             ],
             "title": "Completed"
+          },
+          "due": {
+            "anyOf": [
+              {
+                "format": "date",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Due"
           },
           "priority": {
             "anyOf": [
@@ -2171,7 +2219,7 @@
         ]
       },
       "patch": {
-        "description": "Change only the fields you send, for example `{\"completed\": true}`.",
+        "description": "Change only the fields you send, for example `{\"completed\": true}`. `{\"due\": null}` removes the due day.",
         "operationId": "update_task_api_tasks__task_id__patch",
         "parameters": [
           {

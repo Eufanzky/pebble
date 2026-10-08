@@ -1,13 +1,16 @@
 'use client';
 
-import type { HTMLAttributes } from 'react';
+import { useState, type HTMLAttributes } from 'react';
 import { usePreferences } from '@/shared/preferences';
 import { Button, Chip, IconButton } from '@/shared/ui';
 import { useBreakDown } from '../hooks/useBreakDown';
 import { useCalendarExport } from '../hooks/useCalendarExport';
+import { useNow } from '../hooks/useNow';
 import { useRipple } from '../hooks/useRipple';
+import { timeLeft } from '../lib/deadline';
 import { PRIORITY_CONFIG, TAG_CONFIG } from '../lib/tags';
 import type { Task } from '../types';
+import DueBar from './DueBar';
 import StepList from './StepList';
 import WhyCard from './WhyCard';
 import './TaskCard.css';
@@ -50,6 +53,13 @@ export default function TaskCard({
   const canBreakDown = !hasSteps && !task.completed && !working;
   const showWhy = task.whyExplanation && (showSteps || !hasSteps);
   const stepsDone = steps.filter((s) => s.completed).length;
+
+  // Time left, for an open task with a due day; near the end, Pebble offers CalmSense once (8.3)
+  const tracked = Boolean(task.due) && !task.completed;
+  const now = useNow(tracked);
+  const time = tracked ? timeLeft(task.due!, task.dueSetAt, now) : null;
+  const [offerDismissed, setOfferDismissed] = useState(false);
+  const offerSmaller = Boolean(time?.near) && canBreakDown && !offerDismissed;
 
   return (
     <article
@@ -122,7 +132,21 @@ export default function TaskCard({
           )}
         </div>
 
-        {canBreakDown && (
+        {time && <DueBar time={time} />}
+
+        {offerSmaller && (
+          <div className="task-card__offer" role="group" aria-label="Make it smaller">
+            <p>Want CalmSense to make this one smaller?</p>
+            <Button variant="quiet" size="sm" icon="✦" onClick={breakdown.start}>
+              Make it smaller
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setOfferDismissed(true)}>
+              Not now
+            </Button>
+          </div>
+        )}
+
+        {canBreakDown && !offerSmaller && (
           <Button
             variant="quiet"
             size="sm"

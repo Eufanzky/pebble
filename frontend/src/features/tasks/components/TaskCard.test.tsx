@@ -1,5 +1,5 @@
 import { http } from 'msw';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { server } from '@/test/msw/server';
 import { taskHandlers } from '@/test/msw/tasks';
 import { renderWithProviders, screen, within } from '@/test/render';
@@ -145,5 +145,99 @@ describe('TaskCard', () => {
 
     renderCard(task({ completed: true }));
     expect(screen.queryByRole('button', { name: /to your calendar/ })).not.toBeInTheDocument();
+  });
+
+  describe('time left (8.3)', () => {
+    // A fixed clock: Friday, October 9, 2026, 10:00 local time
+    beforeEach(() => {
+      vi.useFakeTimers({ toFake: ['Date'] });
+      vi.setSystemTime(new Date(2026, 9, 9, 10));
+    });
+    afterEach(() => vi.useRealTimers());
+
+    const chosen = new Date(2026, 9, 1, 0).toISOString();
+    const due = (day: string, overrides: Partial<Task> = {}) =>
+      task({ steps: undefined, due: day, dueSetAt: chosen, ...overrides });
+
+    it('shows a calm bar with the days left, and no offer while there is time', () => {
+      renderCard(due('2026-10-14'));
+
+      const bar = screen.getByRole('meter', { name: 'Time left' });
+      expect(bar).toHaveAttribute('aria-valuetext', '5 days left');
+      expect(bar).toHaveAttribute('aria-valuenow', '40'); // 134 of the 336 hours from Oct 1 to the end of Oct 14
+      expect(screen.queryByRole('group', { name: 'Make it smaller' })).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Break down "Read Chapter 4" into steps' })).toBeInTheDocument();
+    });
+
+    it.each([
+      ['2026-10-10', 'Due tomorrow'],
+      ['2026-10-09', 'Due today'],
+    ])('offers to make a task due %s smaller, in place of "Break it down"', (day, label) => {
+      renderCard(due(day));
+
+      expect(screen.getByRole('meter', { name: 'Time left' })).toHaveAttribute('aria-valuetext', label);
+      const offer = screen.getByRole('group', { name: 'Make it smaller' });
+      expect(offer).toHaveTextContent('Want CalmSense to make this one smaller?');
+      expect(screen.queryByRole('button', { name: /Break down/ })).not.toBeInTheDocument();
+    });
+
+    it('asks CalmSense when the offer is taken', async () => {
+      let asked = false;
+      server.use(
+        http.post('/api/tasks/:taskId/breakdown', () => {
+          asked = true;
+          return new Promise(() => {});
+        }),
+      );
+      const { user } = renderCard(due('2026-10-10'));
+
+      await user.click(screen.getByRole('button', { name: 'Make it smaller' }));
+
+      expect(screen.getByRole('status')).toHaveTextContent('CalmSense is breaking it down…');
+      expect(asked).toBe(true);
+    });
+
+    it('lets the offer go with "Not now", and "Break it down" stays', async () => {
+      const { user } = renderCard(due('2026-10-10'));
+
+      await user.click(screen.getByRole('button', { name: 'Not now' }));
+
+      expect(screen.queryByRole('group', { name: 'Make it smaller' })).not.toBeInTheDocument();
+      expect(screen.getByRole('button', { name: 'Break down "Read Chapter 4" into steps' })).toBeInTheDocument();
+    });
+
+    it('makes no offer for a task CalmSense already broke down', () => {
+      renderCard(task({ due: '2026-10-10', dueSetAt: chosen }));
+
+      expect(screen.getByRole('meter', { name: 'Time left' })).toBeInTheDocument();
+      expect(screen.queryByRole('group', { name: 'Make it smaller' })).not.toBeInTheDocument();
+    });
+
+    it('says "Still open" once the day is over, with no bar and no count of days', () => {
+      const { container } = renderCard(due('2026-10-02'));
+
+      expect(screen.getByText('Still open')).toBeInTheDocument();
+      expect(screen.queryByRole('meter')).not.toBeInTheDocument();
+      expect(container).not.toHaveTextContent(/\d+ days?/);
+    });
+
+    it('shows nothing for a finished task, or one with no due day', () => {
+      renderCard(due('2026-10-10', { completed: true }));
+      renderCard(task({ steps: undefined }));
+
+      expect(screen.queryByRole('meter')).not.toBeInTheDocument();
+      expect(screen.queryByText(/Due |days left|Still open/)).not.toBeInTheDocument();
+    });
+
+    it('looks the same near the day as far from it: only the length changes, never the colour', () => {
+      const near = renderCard(due('2026-10-09')).container.querySelector('.due-bar') as HTMLElement;
+      const far = renderCard(due('2026-10-30')).container.querySelector('.due-bar') as HTMLElement;
+      const width = (bar: HTMLElement) => parseFloat((bar.querySelector('.due-bar__fill') as HTMLElement).style.width);
+
+      expect(width(near)).toBeCloseTo(6.48, 1); // 14 of the 216 hours from Oct 1 to the end of Oct 9
+      expect(width(far)).toBeGreaterThan(width(near));
+      const look = (bar: HTMLElement) => bar.outerHTML.replace(/width: [\d.]+%|aria-value(?:now|text)="[^"]*"/g, '');
+      expect(look(near)).toBe(look(far).replace('21 days left', 'Due today'));
+    });
   });
 });
