@@ -54,6 +54,22 @@ async def test_a_due_day_round_trips_and_can_be_cleared(repository):
     assert await repository.get("a", task.id) == cleared
 
 
+async def test_a_task_let_go_is_off_the_list_kept_and_back_in_its_place(repository):
+    """8.4: list and reorder skip it, get still finds it, and taken back it's where it was."""
+    essay, walk, read = a_task("Essay"), a_task("Walk"), a_task("Read")
+    for task in (essay, walk, read):
+        await repository.add("a", task)
+
+    gone = essay.let_go(datetime(2026, 10, 8, 9, tzinfo=UTC))
+    await repository.save("a", gone)
+    assert [t.title for t in await repository.list("a")] == ["Walk", "Read"]
+    assert await repository.get("a", essay.id) == gone
+
+    await repository.reorder("a", [read.id, walk.id])
+    await repository.save("a", gone.take_back())
+    assert [t.title for t in await repository.list("a")] == ["Essay", "Read", "Walk"]
+
+
 async def test_tasks_come_back_in_the_order_they_were_added(repository):
     tasks = [a_task(title) for title in ("One", "Two", "Three")]
     for task in tasks:

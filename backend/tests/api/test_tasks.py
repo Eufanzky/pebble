@@ -51,6 +51,7 @@ async def test_add_returns_the_task_with_defaults_and_ids(client, signed_in):
         ],
         "due": None,
         "dueSetAt": None,
+        "letGoAt": None,
     }
     assert (await client.get(URL)).json() == [task]
 
@@ -160,10 +161,14 @@ def other_users_requests(task: dict) -> list[tuple[str, str, dict | None]]:
         ("PUT", f"{task_url}/steps", {"steps": []}),
         ("PATCH", step_url, {"completed": True}),
         ("DELETE", task_url, None),
+        ("POST", f"{task_url}/let-go", None),
+        ("DELETE", f"{task_url}/let-go", None),
     ]
 
 
-@pytest.mark.parametrize("index", range(4), ids=["patch-task", "put-steps", "patch-step", "delete-task"])
+@pytest.mark.parametrize(
+    "index", range(6), ids=["patch-task", "put-steps", "patch-step", "delete-task", "let-go", "take-back"]
+)
 async def test_another_user_can_never_see_or_change_a_task(client, signed_in, index):
     task = await add(client, steps=[{"title": "Step"}])
 
@@ -351,3 +356,38 @@ async def test_another_users_calendar_file_is_a_404(client, signed_in):
     signed_in.user = "user-b"
 
     assert (await client.get(f"{URL}/{task['id']}/calendar.ics")).status_code == 404
+
+
+async def test_letting_a_task_go_takes_it_off_the_list_and_keeps_it(client, signed_in, task_repository):
+    """8.4: off the list, kept as the record, and taken back on undo, where it was."""
+    first, second = await add(client, title="Essay"), await add(client, title="Walk")
+
+    let_go = await client.post(f"{URL}/{first['id']}/let-go")
+
+    assert let_go.status_code == 200
+    assert let_go.json()["letGoAt"] is not None
+    assert [t["title"] for t in (await client.get(URL)).json()] == ["Walk"]
+    assert (await task_repository.get("user-a", first["id"])).let_go_at is not None
+    # The list can be reordered without it
+    assert (await client.put(f"{URL}/order", json={"taskIds": [second["id"]]})).status_code == 200
+
+    back = await client.delete(f"{URL}/{first['id']}/let-go")
+
+    assert back.json()["letGoAt"] is None
+    assert [t["title"] for t in (await client.get(URL)).json()] == ["Essay", "Walk"]
+
+
+async def test_a_finished_task_is_not_let_go(client, signed_in):
+    task = await add(client, completed=True)
+
+    response = await client.post(f"{URL}/{task['id']}/let-go")
+
+    assert response.status_code == 409
+    assert response.json()["detail"] == "That one is already finished, so there's nothing to let go."
+
+
+@pytest.mark.parametrize("method", ["post", "delete"])
+async def test_letting_go_of_an_unknown_task_is_not_found(client, signed_in, method):
+    response = await getattr(client, method)(f"{URL}/00000000-0000-0000-0000-000000000000/let-go")
+
+    assert response.status_code == 404

@@ -9,6 +9,8 @@ import {
   clearTasks,
   createTask,
   deleteTask as deleteTaskRequest,
+  letGoTask,
+  takeBackTask,
   listTasks,
   reorderTasks as reorderRequest,
   breakDownTask as breakDownRequest,
@@ -49,6 +51,10 @@ interface TasksContextValue {
   /** Change what a task says: its title, estimate, tag or priority. */
   editTask: (id: string, changes: TaskEdit) => void;
   deleteTask: (id: string) => void;
+  /** Take an open task off the list (8.4). The account keeps it, with when; nothing counts it against the user. */
+  letGo: (id: string) => void;
+  /** Undo `letGo`: the task goes back at `index`, where it was. */
+  takeBack: (task: Task, index: number) => void;
   /** Put the tasks in this order; `ids` lists every task once. */
   reorderTasks: (ids: string[]) => void;
   clearAll: () => void;
@@ -298,6 +304,22 @@ export function TasksProvider({ children }: { children: ReactNode }) {
     enqueue(clearTasks);
   }, [setTasks, enqueue, beforeFirstLoad]);
 
+  const letGo = useCallback(
+    (id: string) => {
+      setTasks((prev) => prev.filter((t) => t.id !== id && t.id !== idFor(id)));
+      enqueue(() => letGoTask(idFor(id)));
+    },
+    [setTasks, enqueue, idFor],
+  );
+
+  const takeBack = useCallback(
+    (task: Task, index: number) => {
+      setTasks((prev) => [...prev.slice(0, index), task, ...prev.slice(index)]);
+      enqueue(() => takeBackTask(idFor(task.id)));
+    },
+    [setTasks, enqueue, idFor],
+  );
+
   const value: TasksContextValue = {
     tasks,
     completionPercentage,
@@ -316,6 +338,8 @@ export function TasksProvider({ children }: { children: ReactNode }) {
     removeBreakdown,
     editTask,
     deleteTask,
+    letGo,
+    takeBack,
     reorderTasks,
     clearAll,
   };

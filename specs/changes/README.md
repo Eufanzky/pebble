@@ -62,3 +62,4 @@ One folder per change: what was asked and decided (`requirements.md`), how it wa
 | 2026-10-08 | 8.1 | [Guilt audit](2026-10-08-guilt-audit/requirements.md) |
 | 2026-10-08 | 8.2 | [Cumulative progress](2026-10-08-cumulative-progress/requirements.md) |
 | 2026-10-08 | 8.3 | [Neutral deadlines](2026-10-08-neutral-deadlines/requirements.md) |
+| 2026-10-08 | 8.4 | ["Still open" flow](2026-10-08-still-open/requirements.md) |

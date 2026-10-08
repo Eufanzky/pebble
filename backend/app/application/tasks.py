@@ -21,6 +21,13 @@ class TaskOrderError(Exception):
         super().__init__("Your list changed meanwhile. Pebble kept the order it had.")
 
 
+class TaskFinishedError(Exception):
+    """A finished task can't be let go: it's done."""
+
+    def __init__(self) -> None:
+        super().__init__("That one is already finished, so there's nothing to let go.")
+
+
 class TaskNotFoundError(Exception):
     """No such task (or step) for this user. Someone else's task is reported the same way."""
 
@@ -96,6 +103,22 @@ class Tasks:
             raise TaskNotFoundError() from None
         await self._save(user_id, task)
         await self._finished(user_id, before, task)
+        return task
+
+    async def let_go(self, user_id: str, task_id: str) -> Task:
+        """Take an open task off the list (8.4). It's kept, with when, as the record; nothing counts it against
+        the user."""
+        try:
+            task = (await self._get(user_id, task_id)).let_go(self.clock())
+        except ValueError:
+            raise TaskFinishedError() from None
+        await self._save(user_id, task)
+        return task
+
+    async def take_back(self, user_id: str, task_id: str) -> Task:
+        """Undo letting a task go: it's back on the list where it was."""
+        task = (await self._get(user_id, task_id)).take_back()
+        await self._save(user_id, task)
         return task
 
     async def delete(self, user_id: str, task_id: str) -> None:

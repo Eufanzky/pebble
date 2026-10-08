@@ -58,7 +58,7 @@ class InMemoryTaskRepository:
     rows: dict[str, list[Task]] = field(default_factory=dict)
 
     async def list(self, user_id: str) -> list[Task]:
-        return list(self.rows.get(user_id, []))
+        return [t for t in self.rows.get(user_id, []) if t.let_go_at is None]
 
     async def get(self, user_id: str, task_id: str) -> Task | None:
         return next((t for t in self.rows.get(user_id, []) if t.id == task_id), None)
@@ -82,10 +82,12 @@ class InMemoryTaskRepository:
         self.rows.pop(user_id, None)
 
     async def reorder(self, user_id: str, task_ids) -> None:
-        tasks = {t.id: t for t in self.rows.get(user_id, [])}
+        tasks = {t.id: t for t in await self.list(user_id)}
         if len(task_ids) != len(tasks) or set(task_ids) != set(tasks):
             raise KeyError("order")
-        self.rows[user_id] = [tasks[task_id] for task_id in task_ids]
+        # Tasks let go keep their place, so one taken back returns where it was
+        order = iter(task_ids)
+        self.rows[user_id] = [t if t.let_go_at is not None else tasks[next(order)] for t in self.rows[user_id]]
 
 
 @dataclass

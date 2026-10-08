@@ -3,7 +3,7 @@ from datetime import UTC, date, datetime
 
 import pytest
 
-from app.application.tasks import TaskNotFoundError, TaskOrderError, Tasks
+from app.application.tasks import TaskFinishedError, TaskNotFoundError, TaskOrderError, Tasks
 from app.domain.tasks import Step, Task, TaskPriority, TaskStep
 from tests.fakes import InMemoryTaskRepository
 
@@ -168,3 +168,28 @@ async def test_a_due_day_starts_its_bar_when_it_is_chosen(repository):
     assert kept.due_set_at == added.due_set_at
     assert (moved.due, moved.due_set_at) == (date(2026, 10, 12), datetime(2026, 10, 3, 9, tzinfo=UTC))
     assert (cleared.due, cleared.due_set_at) == (None, None)
+
+
+async def test_the_three_still_open_choices(repository):
+    """8.4: move it (a new due day), make it smaller (new steps), or let it go (and take it back)."""
+    now = [datetime(2026, 10, 8, 9, tzinfo=UTC)]
+    tasks = Tasks(repository, clock=lambda: now[0])
+    task = await tasks.add(USER, Task("", "Essay", due=date(2026, 10, 1)))
+
+    moved = await tasks.update(USER, task.id, {"due": date(2026, 10, 12)})
+    smaller = await tasks.set_breakdown(USER, task.id, [Step("Open the doc", "~5 min")], "One small step.")
+    gone = await tasks.let_go(USER, task.id)
+
+    assert (moved.due, moved.due_set_at) == (date(2026, 10, 12), now[0])
+    assert [s.title for s in smaller.steps] == ["Open the doc"]
+    assert gone.let_go_at == now[0]
+    assert await tasks.list(USER) == []
+    assert (await tasks.take_back(USER, task.id)).let_go_at is None
+    assert [t.title for t in await tasks.list(USER)] == ["Essay"]
+
+
+async def test_a_finished_task_cannot_be_let_go(tasks):
+    task = await tasks.add(USER, Task("", "Essay", completed=True))
+
+    with pytest.raises(TaskFinishedError):
+        await tasks.let_go(USER, task.id)

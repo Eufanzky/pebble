@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { renderWithProviders, screen, waitFor, within } from '@/test/render';
 import { server } from '@/test/msw/server';
 import { ProgressSoFar } from '@/features/stats';
@@ -182,6 +182,80 @@ describe('TodayView', () => {
     expect(screen.getByRole('button', { name: 'Move "Walk"' })).toHaveFocus();
     expect(screen.getByText('Moved "Walk" to position 2 of 3.')).toBeInTheDocument();
     await waitFor(() => expect(taskStore.all().map((t) => t.title)).toEqual(['Read', 'Walk', 'Write']));
+  });
+});
+
+describe('a task whose day is over (8.4)', () => {
+  // A fixed clock: Friday, October 9, 2026, 10:00 local time. "Essay" was due on the 2nd.
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2026, 9, 9, 10));
+    seed([
+      newTask('Read'),
+      newTask('Essay', { due: '2026-10-02', dueSetAt: new Date(2026, 8, 28).toISOString() }),
+      newTask('Walk'),
+    ]);
+  });
+  afterEach(() => vi.useRealTimers());
+
+  const card = () => screen.findByRole('article', { name: 'Essay' });
+  const onServer = () => taskStore.all().find((t) => t.title === 'Essay')!;
+
+  it('moves it to another day: the bar starts again', async () => {
+    const { user } = renderWithProviders(<TodayView />);
+    await user.click(within(await card()).getByRole('button', { name: 'Move "Essay" to another day' }));
+
+    await user.click(screen.getByRole('button', { name: 'Tomorrow' }));
+
+    expect(within(await card()).getByRole('meter', { name: 'Time left' })).toHaveAttribute('aria-valuetext', 'Due tomorrow');
+    expect(screen.queryByRole('group', { name: 'Still open' })).not.toBeInTheDocument();
+    await waitFor(() => expect(onServer().due).toBe('2026-10-10'));
+  });
+
+  it('moves it to next week', async () => {
+    const { user } = renderWithProviders(<TodayView />);
+    await user.click(within(await card()).getByRole('button', { name: 'Move "Essay" to another day' }));
+    await user.click(screen.getByRole('button', { name: 'Next week' }));
+    await waitFor(() => expect(onServer().due).toBe('2026-10-16'));
+  });
+
+  it('removes the day with "No due day"', async () => {
+    const { user } = renderWithProviders(<TodayView />);
+    await user.click(within(await card()).getByRole('button', { name: 'Move "Essay" to another day' }));
+
+    await user.click(screen.getByRole('button', { name: 'No due day' }));
+
+    expect(within(await card()).queryByRole('meter')).not.toBeInTheDocument();
+    expect(screen.queryByRole('group', { name: 'Still open' })).not.toBeInTheDocument();
+    await waitFor(() => expect(onServer()).toMatchObject({ due: null, dueSetAt: null }));
+  });
+
+  it('makes it smaller with CalmSense', async () => {
+    const { user } = renderWithProviders(<TodayView />);
+
+    await user.click(within(await card()).getByRole('button', { name: 'Make "Essay" smaller' }));
+
+    expect(await within(await card()).findByText('0 of 3 steps')).toBeInTheDocument();
+    expect(taskStore.breakdowns()).toEqual([{ taskId: onServer().id, timeOfDay: expect.any(String) }]);
+    // Still open, with the two choices left
+    expect(screen.getByRole('group', { name: 'Still open' })).toHaveTextContent('Move it, or let it go?');
+  });
+
+  it('lets it go: off the list, kept on the server, and "Undo" puts it back where it was', async () => {
+    const { user } = renderWithProviders(<TodayView />);
+
+    await user.click(within(await card()).getByRole('button', { name: 'Let "Essay" go' }));
+
+    expect(screen.queryByRole('article', { name: 'Essay' })).not.toBeInTheDocument();
+    expect(screen.getByText('You let "Essay" go. Letting go is fine.')).toBeInTheDocument();
+    await waitFor(() => expect(onServer().letGoAt).toEqual(expect.any(String)));
+    expect(taskStore.all()).toHaveLength(3); // kept, not deleted
+
+    await user.click(screen.getByRole('button', { name: 'Undo' }));
+
+    const titles = () => screen.getAllByRole('article').map((a) => a.getAttribute('aria-label'));
+    expect(titles()).toEqual(['Read', 'Essay', 'Walk']);
+    await waitFor(() => expect(onServer().letGoAt).toBeNull());
   });
 });
 

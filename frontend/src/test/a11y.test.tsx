@@ -95,6 +95,25 @@ describe('axe: interactive states', () => {
     expect(await axe(container)).toHaveNoViolations();
   });
 
+  it('tasks with a due day: a time-left bar, the offer near it, and the choices once it is over (8.3, 8.4)', async () => {
+    const day = (offset: number) => {
+      const d = new Date();
+      d.setDate(d.getDate() + offset);
+      return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+    };
+    seed([
+      newTask('Later', { due: day(5) }),
+      newTask('Tomorrow', { due: day(1) }),
+      newTask('Earlier', { due: day(-3) }),
+    ]);
+    const { container, user } = renderWithProviders(<TodayView />);
+    await screen.findByRole('group', { name: 'Make it smaller' });
+    await user.click(screen.getByRole('button', { name: 'Move "Earlier" to another day' }));
+
+    expect(screen.getAllByRole('meter', { name: 'Time left' })).toHaveLength(2);
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
   it('a task CalmSense couldn\'t break down', async () => {
     seed([newTask('Write the essay')]);
     server.use(taskHandlers.breakdownStatus(503));

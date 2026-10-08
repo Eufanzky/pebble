@@ -213,12 +213,35 @@ describe('TaskCard', () => {
       expect(screen.queryByRole('group', { name: 'Make it smaller' })).not.toBeInTheDocument();
     });
 
-    it('says "Still open" once the day is over, with no bar and no count of days', () => {
+    it('says "Still open" once the day is over, with three choices, no bar and no count of days (8.4)', () => {
       const { container } = renderCard(due('2026-10-02'));
 
-      expect(screen.getByText('Still open')).toBeInTheDocument();
+      const group = screen.getByRole('group', { name: 'Still open' });
+      expect(group).toHaveTextContent('Still open. Move it, make it smaller, or let it go?');
+      expect(within(group).getByRole('button', { name: 'Move "Read Chapter 4" to another day' })).toBeInTheDocument();
+      expect(within(group).getByRole('button', { name: 'Make "Read Chapter 4" smaller' })).toBeInTheDocument();
+      expect(within(group).getByRole('button', { name: 'Let "Read Chapter 4" go' })).toBeInTheDocument();
       expect(screen.queryByRole('meter')).not.toBeInTheDocument();
-      expect(container).not.toHaveTextContent(/\d+ days?/);
+      expect(screen.queryByRole('button', { name: /Break down/ })).not.toBeInTheDocument();
+      expect(container).not.toHaveTextContent(/\d+ days?|late|overdue|missed/i);
+    });
+
+    it('offers two choices for a task that already has steps', () => {
+      renderCard(task({ due: '2026-10-02', dueSetAt: chosen }));
+
+      expect(screen.getByRole('group', { name: 'Still open' })).toHaveTextContent('Still open. Move it, or let it go?');
+      expect(screen.queryByRole('button', { name: /smaller/ })).not.toBeInTheDocument();
+    });
+
+    it('moves focus to the days when "Move it" opens them, and back on "Back"', async () => {
+      const { user } = renderCard(due('2026-10-02'));
+
+      await user.click(screen.getByRole('button', { name: 'Move "Read Chapter 4" to another day' }));
+      expect(screen.getByRole('button', { name: 'Tomorrow' })).toHaveFocus();
+      expect(screen.getByRole('group', { name: 'Still open' })).toHaveTextContent('Still open. Move it to…');
+
+      await user.click(screen.getByRole('button', { name: 'Back' }));
+      expect(screen.getByRole('button', { name: 'Move "Read Chapter 4" to another day' })).toHaveFocus();
     });
 
     it('shows nothing for a finished task, or one with no due day', () => {

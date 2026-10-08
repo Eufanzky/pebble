@@ -59,6 +59,7 @@ class TaskRow(Timestamps, Base):
     why: Mapped[str] = mapped_column(Text)
     due: Mapped[date | None] = mapped_column(Date)
     due_set_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
+    let_go_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
 
     steps: Mapped[list["StepRow"]] = relationship(
         order_by="StepRow.position", cascade="all, delete-orphan", passive_deletes=True, lazy="selectin"

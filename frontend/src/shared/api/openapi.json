@@ -1060,6 +1060,18 @@
             "title": "Id",
             "type": "string"
           },
+          "letGoAt": {
+            "anyOf": [
+              {
+                "format": "date-time",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Letgoat"
+          },
           "priority": {
             "$ref": "#/components/schemas/TaskPriority"
           },
@@ -2437,6 +2449,100 @@
           }
         ],
         "summary": "The task's plan as a calendar file",
+        "tags": [
+          "Tasks"
+        ]
+      }
+    },
+    "/api/tasks/{task_id}/let-go": {
+      "delete": {
+        "description": "Undo letting a task go: it's back on your list where it was.",
+        "operationId": "take_back_api_tasks__task_id__let_go_delete",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "title": "Task Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Take a task back",
+        "tags": [
+          "Tasks"
+        ]
+      },
+      "post": {
+        "description": "Take an open task off your list (8.4). It's kept, with when, in your data, and nothing counts it against\nyou: letting go is a fine outcome. A finished task is a 409.",
+        "operationId": "let_go_api_tasks__task_id__let_go_post",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "task_id",
+            "required": true,
+            "schema": {
+              "title": "Task Id",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TaskOut"
+                }
+              }
+            },
+            "description": "Successful Response"
+          },
+          "422": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            },
+            "description": "Validation Error"
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "summary": "Let a task go",
         "tags": [
           "Tasks"
         ]

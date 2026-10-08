@@ -528,6 +528,31 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/tasks/{task_id}/let-go": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Let a task go
+         * @description Take an open task off your list (8.4). It's kept, with when, in your data, and nothing counts it against
+         *     you: letting go is a fine outcome. A finished task is a 409.
+         */
+        post: operations["let_go_api_tasks__task_id__let_go_post"];
+        /**
+         * Take a task back
+         * @description Undo letting a task go: it's back on your list where it was.
+         */
+        delete: operations["take_back_api_tasks__task_id__let_go_delete"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/tasks/{task_id}/steps": {
         parameters: {
             query?: never;
@@ -1032,6 +1057,8 @@ export interface components {
             dueSetAt?: string | null;
             /** Id */
             id: string;
+            /** Letgoat */
+            letGoAt?: string | null;
             priority: components["schemas"]["TaskPriority"];
             /** Steps */
             steps: components["schemas"]["StepOut"][];
@@ -1874,6 +1901,68 @@ export interface operations {
                 };
                 content: {
                     "text/calendar": unknown;
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    let_go_api_tasks__task_id__let_go_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    take_back_api_tasks__task_id__let_go_delete: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                task_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TaskOut"];
                 };
             };
             /** @description Validation Error */
