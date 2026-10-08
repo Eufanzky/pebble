@@ -29,6 +29,8 @@ def _to_domain(row: TaskRow) -> Task:
         completed=row.completed,
         why=row.why,
         steps=tuple(TaskStep(str(s.id), s.title, s.time_estimate, s.completed) for s in row.steps),
+        due=row.due,
+        due_set_at=row.due_set_at,
     )
 
 
@@ -46,6 +48,8 @@ def _copy_fields(row: TaskRow, task: Task) -> None:
     row.priority = str(task.priority)
     row.completed = task.completed
     row.why = task.why
+    row.due = task.due
+    row.due_set_at = task.due_set_at
 
 
 class SqlTaskRepository(SqlRepository):

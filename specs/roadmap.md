@@ -175,7 +175,7 @@ See principle 1 in `mission.md`.
   *Done:* the scan covers every rule in principle 1 and passes.
 - [x] **8.2 Cumulative progress.** Show the counts from the 5.6 stats ("14 steps finished this month") on Today and Activity too. Nothing resets.
   *Done:* a domain test proves counts never decrease across gaps of days.
-- [ ] **8.3 Neutral deadlines.** Show time left as a calm bar. Near a deadline, Pebble offers to make the task smaller with CalmSense.
+- [x] **8.3 Neutral deadlines.** Show time left as a calm bar. Near a deadline, Pebble offers to make the task smaller with CalmSense.
   *Done:* tests with a fixed clock cover the bar maths and when the offer appears; there is no red styling.
 - [ ] **8.4 "Still open" flow.** Past-due tasks offer three choices: move it, make it smaller, or let it go. Letting go archives the task and logs it neutrally.
   *Done:* domain, API, and component tests cover all three paths.

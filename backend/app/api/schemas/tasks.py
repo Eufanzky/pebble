@@ -1,3 +1,5 @@
+from datetime import date, datetime
+
 from pydantic import BaseModel, Field
 
 from app.domain.tasks import TaskPriority, TaskTag
@@ -22,6 +24,8 @@ class TaskCreate(BaseModel):
     completed: bool = False
     why_explanation: str = Field(alias="whyExplanation", default="", max_length=5000)
     steps: list[StepIn] = Field(default_factory=list, max_length=50)
+    due: date | None = None
+    """The day it's due, in your calendar (YYYY-MM-DD)."""
 
     model_config = {"populate_by_name": True}
 
@@ -35,6 +39,8 @@ class TaskUpdate(BaseModel):
     priority: TaskPriority | None = None
     completed: bool | None = None
     why_explanation: str | None = Field(alias="whyExplanation", default=None, max_length=5000)
+    due: date | None = None
+    """A new due day (YYYY-MM-DD), or null to have none."""
 
     model_config = {"populate_by_name": True}
 
@@ -72,6 +78,9 @@ class TaskOut(BaseModel):
     completed: bool
     why_explanation: str = Field(alias="whyExplanation")
     steps: list[StepOut]
+    due: date | None = None
+    due_set_at: datetime | None = Field(alias="dueSetAt", default=None)
+    """When the due day was chosen: where the time-left bar starts."""
 
     model_config = {"populate_by_name": True, "by_alias": True}
 

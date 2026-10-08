@@ -49,8 +49,40 @@ async def test_add_returns_the_task_with_defaults_and_ids(client, signed_in):
         "steps": [
             {"id": task["steps"][0]["id"], "title": "Open the doc", "timeEstimate": "~5 min", "completed": False}
         ],
+        "due": None,
+        "dueSetAt": None,
     }
     assert (await client.get(URL)).json() == [task]
+
+
+async def test_a_due_day_is_kept_with_when_it_was_chosen(client, signed_in):
+    """8.3: the time-left bar starts when the day was chosen."""
+    task = await add(client, due="2026-10-20")
+
+    assert task["due"] == "2026-10-20"
+    assert task["dueSetAt"] is not None
+    assert (await client.get(URL)).json()[0]["due"] == "2026-10-20"
+
+
+async def test_a_due_day_can_be_changed_and_removed(client, signed_in):
+    task = await add(client)
+    url = f"{URL}/{task['id']}"
+
+    set_ = (await client.patch(url, json={"due": "2026-10-20"})).json()
+    same = (await client.patch(url, json={"due": "2026-10-20", "title": "Renamed"})).json()
+    untouched = (await client.patch(url, json={"title": "Again"})).json()
+    cleared = (await client.patch(url, json={"due": None})).json()
+
+    assert (set_["due"], same["dueSetAt"], untouched["due"]) == ("2026-10-20", set_["dueSetAt"], "2026-10-20")
+    assert (cleared["due"], cleared["dueSetAt"]) == (None, None)
+
+
+async def test_a_due_day_must_be_a_date(client, signed_in):
+    task = await add(client)
+
+    response = await client.patch(f"{URL}/{task['id']}", json={"due": "next week"})
+
+    assert response.status_code == 422
 
 
 async def test_tasks_are_listed_in_the_order_they_were_added(client, signed_in):

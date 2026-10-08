@@ -58,6 +58,8 @@ def task_data(task: Task) -> dict:
         "priority": str(task.priority),
         "completed": task.completed,
         "whyExplanation": task.why,
+        "due": task.due,
+        "dueSetAt": task.due_set_at,
         "steps": [
             {"id": s.id, "title": s.title, "timeEstimate": s.time_estimate, "completed": s.completed}
             for s in task.steps

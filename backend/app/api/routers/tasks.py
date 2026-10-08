@@ -32,6 +32,7 @@ def task_from(body: TaskCreate) -> Task:
         priority=body.priority,
         completed=body.completed,
         why=body.why_explanation,
+        due=body.due,
         steps=tuple(TaskStep("", s.title, s.time_estimate, s.completed) for s in body.steps),
     )
 
@@ -43,7 +44,11 @@ FIELDS = {
     "priority": "priority",
     "completed": "completed",
     "why_explanation": "why",
+    "due": "due",
 }
+
+# Fields where null means "none" rather than "not sent".
+CLEARABLE = {"due"}
 
 
 @router.get("", response_model=list[TaskOut], summary="List your tasks")
@@ -76,8 +81,12 @@ async def update_task(
     user_id: str = Depends(get_current_user),
     tasks: Tasks = Depends(get_tasks),
 ):
-    """Change only the fields you send, for example `{"completed": true}`."""
-    changes = {FIELDS[name]: value for name, value in body.model_dump(exclude_unset=True).items() if value is not None}
+    """Change only the fields you send, for example `{"completed": true}`. `{"due": null}` removes the due day."""
+    changes = {
+        FIELDS[name]: value
+        for name, value in body.model_dump(exclude_unset=True).items()
+        if value is not None or name in CLEARABLE
+    }
     return task_data(await tasks.update(user_id, task_id, changes))
 
 

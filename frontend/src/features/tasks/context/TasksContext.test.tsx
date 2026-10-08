@@ -340,6 +340,25 @@ describe('editing, deleting and reordering', () => {
     await waitFor(() => expect(taskStore.all()[0]).toMatchObject({ title: 'Read slowly', tag: 'wellbeing' }));
   });
 
+  it('sets a due day and starts its bar at once, and removes it again (8.3)', async () => {
+    const result = await renderTasks([task('Read')]);
+    const id = idOf(result, 'Read');
+
+    act(() => result.current.editTask(id, { due: '2026-10-20' }));
+
+    expect(result.current.tasks[0].due).toBe('2026-10-20');
+    expect(result.current.tasks[0].dueSetAt).toEqual(expect.any(String));
+    await waitFor(() => expect(taskStore.all()[0].due).toBe('2026-10-20'));
+
+    const setAt = result.current.tasks[0].dueSetAt;
+    act(() => result.current.editTask(id, { title: 'Read again', due: '2026-10-20' }));
+    expect(result.current.tasks[0].dueSetAt).toBe(setAt);
+
+    act(() => result.current.editTask(id, { due: null }));
+    expect(result.current.tasks[0]).toMatchObject({ due: null, dueSetAt: null });
+    await waitFor(() => expect(taskStore.all()[0]).toMatchObject({ due: null, dueSetAt: null }));
+  });
+
   it('deletes one task on the server', async () => {
     const result = await renderTasks([task('Read'), task('Write')]);
 

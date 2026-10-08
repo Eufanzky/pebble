@@ -20,7 +20,7 @@ Pebble helps people with ADHD, autism or dyslexia break tasks into small steps, 
 
 ## ✨ What it does
 
-**Today.** Your list, with what's up next and a "Mark as done" button. Tasks have a tag, an estimate and a priority. You can edit, delete, reorder (drag or keyboard), search and filter them. "Break it down" asks CalmSense to split any task into small, time-boxed steps of your step size, and a "Why?" card shows its reasoning. "Add to calendar" saves the steps as a calendar file, back to back from the next quarter hour. A roadmap view shows the same list as a path. Typing something like "I'm overwhelmed" gets gentle support instead of a new task.
+**Today.** Your list, with what's up next and a "Mark as done" button. Tasks have a tag, an estimate, a priority and, if you like, a due day, shown as a calm bar of the time left. Near the day, Pebble offers to have CalmSense make the task smaller. You can edit, delete, reorder (drag or keyboard), search and filter them. "Break it down" asks CalmSense to split any task into small, time-boxed steps of your step size, and a "Why?" card shows its reasoning. "Add to calendar" saves the steps as a calendar file, back to back from the next quarter hour. A roadmap view shows the same list as a path. Typing something like "I'm overwhelmed" gets gentle support instead of a new task.
 
 **Chat with Pebble.** An orchestrator works out what you need and routes it: a breakdown (CalmSense), a simpler version of a text (SimplifyCore), or specific encouragement (PebbleVoice). Distress is answered at once, without a sub-agent. A breakdown in chat can go straight onto Today.
 

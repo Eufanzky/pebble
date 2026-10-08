@@ -3,14 +3,15 @@
 import uuid
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, replace
+from datetime import datetime
 from typing import Any
 
 from app.application.adaptation import UsageSignals
 from app.application.ports.tasks import TaskRepository
-from app.application.progress import ProgressLog
+from app.application.progress import ProgressLog, utc_now
 from app.domain.tasks import Step, Task, TaskStep
 
-EDITABLE_FIELDS = frozenset({"title", "time_estimate", "tag", "priority", "completed", "why"})
+EDITABLE_FIELDS = frozenset({"title", "time_estimate", "tag", "priority", "completed", "why", "due"})
 
 
 class TaskOrderError(Exception):
@@ -39,6 +40,8 @@ class Tasks:
     """Notes each task and step the first time it's finished (5.6)."""
     signals: UsageSignals | None = None
     """Notes how many steps were still open when a task was finished, for AdaptLens (7.6)."""
+    clock: Callable[[], datetime] = utc_now
+    """When a due day is chosen (8.3)."""
 
     async def list(self, user_id: str) -> list[Task]:
         return await self.repository.list(user_id)
@@ -46,6 +49,8 @@ class Tasks:
     async def add(self, user_id: str, task: Task) -> Task:
         """Store a new task. Its id, and its steps' ids, are chosen here."""
         task = replace(task, id=self.make_id(), steps=tuple(replace(s, id=self.make_id()) for s in task.steps))
+        if task.due is not None:
+            task = replace(task, due=None).with_due(task.due, self.clock())
         await self.repository.add(user_id, task)
         return task
 
@@ -54,7 +59,10 @@ class Tasks:
         if unknown:
             raise ValueError(f"Not editable: {sorted(unknown)}")
         before = await self._get(user_id, task_id)
-        task = replace(before, **changes)
+        changes = dict(changes)
+        task = replace(before, **{k: v for k, v in changes.items() if k != "due"})
+        if "due" in changes:
+            task = task.with_due(changes["due"], self.clock())
         await self._save(user_id, task)
         await self._finished(user_id, before, task)
         return task

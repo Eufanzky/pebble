@@ -1,4 +1,5 @@
 import itertools
+from datetime import UTC, date, datetime
 
 import pytest
 
@@ -150,3 +151,20 @@ async def test_removing_a_breakdown_drops_the_steps_and_why_and_keeps_the_rest(t
 async def test_removing_a_breakdown_of_an_unknown_task_is_not_found(tasks):
     with pytest.raises(TaskNotFoundError):
         await tasks.remove_breakdown(USER, "nope")
+
+
+async def test_a_due_day_starts_its_bar_when_it_is_chosen(repository):
+    """8.3, with a fixed clock: adding with a day, changing it, keeping it, and clearing it."""
+    now = [datetime(2026, 10, 1, 9, tzinfo=UTC)]
+    tasks = Tasks(repository, clock=lambda: now[0])
+
+    added = await tasks.add(USER, Task("", "Essay", due=date(2026, 10, 10)))
+    now[0] = datetime(2026, 10, 3, 9, tzinfo=UTC)
+    kept = await tasks.update(USER, added.id, {"due": date(2026, 10, 10), "title": "Essay draft"})
+    moved = await tasks.update(USER, added.id, {"due": date(2026, 10, 12)})
+    cleared = await tasks.update(USER, added.id, {"due": None})
+
+    assert (added.due, added.due_set_at) == (date(2026, 10, 10), datetime(2026, 10, 1, 9, tzinfo=UTC))
+    assert kept.due_set_at == added.due_set_at
+    assert (moved.due, moved.due_set_at) == (date(2026, 10, 12), datetime(2026, 10, 3, 9, tzinfo=UTC))
+    assert (cleared.due, cleared.due_set_at) == (None, None)

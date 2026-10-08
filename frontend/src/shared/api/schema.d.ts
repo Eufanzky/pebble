@@ -473,7 +473,7 @@ export interface paths {
         head?: never;
         /**
          * Change a task
-         * @description Change only the fields you send, for example `{"completed": true}`.
+         * @description Change only the fields you send, for example `{"completed": true}`. `{"due": null}` removes the due day.
          */
         patch: operations["update_task_api_tasks__task_id__patch"];
         trace?: never;
@@ -1001,6 +1001,8 @@ export interface components {
              * @default false
              */
             completed: boolean;
+            /** Due */
+            due?: string | null;
             /** @default medium */
             priority: components["schemas"]["TaskPriority"];
             /** Steps */
@@ -1024,6 +1026,10 @@ export interface components {
         TaskOut: {
             /** Completed */
             completed: boolean;
+            /** Due */
+            due?: string | null;
+            /** Duesetat */
+            dueSetAt?: string | null;
             /** Id */
             id: string;
             priority: components["schemas"]["TaskPriority"];
@@ -1054,6 +1060,8 @@ export interface components {
         TaskUpdate: {
             /** Completed */
             completed?: boolean | null;
+            /** Due */
+            due?: string | null;
             priority?: components["schemas"]["TaskPriority"] | null;
             tag?: components["schemas"]["TaskTag"] | null;
             /** Timeestimate */

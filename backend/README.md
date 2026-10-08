@@ -73,7 +73,7 @@ Real-LLM evals live in `tests/evals/` (`uv run pytest -m eval`). They're exclude
 | PUT | `/api/tasks/order` | Reorder your list: `{"taskIds": [...]}` with every task exactly once; otherwise 409 and nothing moves |
 | POST | `/api/tasks` | Add a task (201). Pebble picks the ids |
 | POST | `/api/tasks/{id}/breakdown` | CalmSense breaks the task into steps of your saved step size (`{"timeOfDay": "evening"}`); its steps and "why" replace the task's. 422 if the title is held back, 503 if CalmSense can't answer (nothing changes). Logged in your activity |
-| PATCH | `/api/tasks/{id}` | Change only the fields sent, e.g. `{"completed": true}` |
+| PATCH | `/api/tasks/{id}` | Change only the fields sent, e.g. `{"completed": true}`. `{"due": "2026-10-20"}` sets a due day and restarts `dueSetAt` (where the time-left bar starts); `{"due": null}` removes it |
 | DELETE | `/api/tasks/{id}` | Remove one task (204) |
 | DELETE | `/api/tasks` | Clear your list (204) |
 | DELETE | `/api/tasks/{id}/breakdown` | Undo or dismiss a breakdown: the steps and "why" go, the task stays. Progress already made isn't taken back |

@@ -18,12 +18,13 @@ interface EditTaskDialogProps {
   onClose: () => void;
 }
 
-/** Change a task's title, estimate, tag or priority, or delete it (after asking). */
+/** Change a task's title, estimate, tag, priority or due day, or delete it (after asking). */
 export default function EditTaskDialog({ task, onSave, onDelete, onRemoveSteps, onClose }: EditTaskDialogProps) {
   const [title, setTitle] = useState(task.title);
   const [timeEstimate, setTimeEstimate] = useState(task.timeEstimate);
   const [tag, setTag] = useState(task.tag);
   const [priority, setPriority] = useState(task.priority);
+  const [due, setDue] = useState(task.due ?? '');
   const [missingTitle, setMissingTitle] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
 
@@ -34,7 +35,7 @@ export default function EditTaskDialog({ task, onSave, onDelete, onRemoveSteps, 
       setMissingTitle(true);
       return;
     }
-    onSave({ title: trimmed, timeEstimate: timeEstimate.trim(), tag, priority });
+    onSave({ title: trimmed, timeEstimate: timeEstimate.trim(), tag, priority, due: due || null });
     onClose();
   };
 
@@ -81,6 +82,13 @@ export default function EditTaskDialog({ task, onSave, onDelete, onRemoveSteps, 
           onChange={(e) => setTimeEstimate(e.target.value)}
           placeholder="~15 min"
           maxLength={50}
+        />
+        <Field
+          label="Due day"
+          type="date"
+          value={due}
+          onChange={(e) => setDue(e.target.value)}
+          hint="Optional. Leave it empty for no due day."
         />
         <div role="group" aria-labelledby="edit-task-tag" className="edit-task__choices">
           <p id="edit-task-tag" className="ui-field__label">
