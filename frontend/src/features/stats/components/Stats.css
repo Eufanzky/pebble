@@ -229,3 +229,8 @@
     grid-template-columns: 6.5rem minmax(0, 1fr) 2rem;
   }
 }
+.progress-so-far {
+  margin: 0;
+  color: var(--color-text-2);
+  font-variant-numeric: tabular-nums;
+}

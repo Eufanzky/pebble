@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { usePebble } from '@/features/companion';
 import { useTimeOfDay } from '@/shared/hooks/useTimeOfDay';
+import { STATS_KEY } from '@/shared/lib/query';
 import {
   clearTasks,
   createTask,
@@ -167,9 +168,11 @@ export function TasksProvider({ children }: { children: ReactNode }) {
       if (completed) flashMood('excited', 2000);
       enqueue(async () => {
         await updateTask(idFor(id), { completed });
+        // The progress counts on Today and Activity (8.2) add what was just finished
+        if (completed) void client.invalidateQueries({ queryKey: STATS_KEY });
       });
     },
-    [tasks, setTasks, flashMood, enqueue, idFor],
+    [tasks, setTasks, flashMood, enqueue, idFor, client],
   );
 
   const toggleStep = useCallback(
@@ -187,9 +190,10 @@ export function TasksProvider({ children }: { children: ReactNode }) {
       );
       enqueue(async () => {
         await updateStep(idFor(taskId), idFor(stepId), completed);
+        if (completed) void client.invalidateQueries({ queryKey: STATS_KEY });
       });
     },
-    [tasks, setTasks, enqueue, idFor],
+    [tasks, setTasks, enqueue, idFor, client],
   );
 
   const addTaskFromDocument = useCallback(

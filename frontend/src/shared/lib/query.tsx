@@ -3,6 +3,12 @@
 import { useState, type ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
+/**
+ * The progress counts (`/api/stats`). Here rather than in the stats feature, because finishing a task
+ * (the tasks feature) refreshes them and the stats feature already imports tasks.
+ */
+export const STATS_KEY = ['stats'] as const;
+
 /** Data from the backend: cached per session, refetched when the window regains focus. */
 function makeQueryClient(options: { retry?: boolean } = {}) {
   return new QueryClient({

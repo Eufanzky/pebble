@@ -1,6 +1,8 @@
 import { beforeEach, describe, expect, it } from 'vitest';
 import { renderWithProviders, screen, waitFor, within } from '@/test/render';
 import { server } from '@/test/msw/server';
+import { ProgressSoFar } from '@/features/stats';
+import { quietStats, statsStore } from '@/test/msw/stats';
 import { taskHandlers, taskStore } from '@/test/msw/tasks';
 import { newTask, seed } from '../testing';
 import TodayView from './TodayView';
@@ -35,6 +37,18 @@ describe('TodayView', () => {
 
     expect(screen.getByText("You're all done! 🎉")).toBeInTheDocument();
     expect(screen.getByText('2 of 2 tasks done')).toBeInTheDocument();
+  });
+
+  it('shows what was finished since the start, and adds a task as soon as it is saved (8.2)', async () => {
+    let tasks = 5;
+    statsStore.set((days) => ({ ...quietStats(days), allTime: { tasks, steps: 0, focusMinutes: 0 } }));
+    const { user } = renderWithProviders(<TodayView progress={<ProgressSoFar />} />);
+    expect(await screen.findByText('Since you started: 5 tasks.')).toBeInTheDocument();
+
+    tasks = 6; // what the server counts once the tick is saved
+    await user.click(screen.getByRole('button', { name: 'Mark "Write intro" as done' }));
+
+    expect(await screen.findByText('Since you started: 6 tasks.')).toBeInTheDocument();
   });
 
   it('switches to the roadmap and back', async () => {

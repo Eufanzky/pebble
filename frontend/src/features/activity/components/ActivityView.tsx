@@ -1,13 +1,17 @@
 'use client';
 
+import type { ReactNode } from 'react';
 import { PebbleCharacter, PebbleSpeechBubble, usePebble } from '@/features/companion';
 import { Screen, ScreenHeader } from '@/shared/ui';
 import { useActivityLog } from '../context/ActivityLogContext';
 import { activitySummary } from '../lib/summary';
 import ActivityFeed from './ActivityFeed';
 
-/** The activity screen: every agent decision, with its reasoning and safety status. */
-export default function ActivityView() {
+/**
+ * The activity screen: every agent decision, with its reasoning and safety status. `progress`: what
+ * was finished since the start (8.2), from the stats feature.
+ */
+export default function ActivityView({ progress }: { progress?: ReactNode }) {
   const { mood } = usePebble();
   const { entries } = useActivityLog();
   const summary = activitySummary(entries);
@@ -26,6 +30,7 @@ export default function ActivityView() {
       />
 
       {summary && <p className="activity-summary">{summary}</p>}
+      {progress}
 
       {entries.length > 0 ? (
         <ActivityFeed entries={entries} />

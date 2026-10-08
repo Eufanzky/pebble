@@ -28,7 +28,7 @@ Pebble helps people with ADHD, autism or dyslexia break tasks into small steps, 
 
 **Focus.** A 25-minute timer with Pebble beside you. Pause or stop whenever you need to; the minutes count towards your stats.
 
-**Stats.** Steps, tasks and focus minutes over the last 7 or 30 days, per day and per tag, and since you started. Progress only adds up: there are no streaks, no "missed" days and no comparisons, and unticking a task never takes anything back.
+**Stats.** Steps, tasks and focus minutes over the last 7 or 30 days, per day and per tag, and since you started. Progress only adds up: there are no streaks, no "missed" days and no comparisons, and unticking a task never takes anything back. Today and Activity show what you've finished since you started.
 
 **Activity log.** Every agent result, with the agent's name, WhyBot's plain-language explanation, the agent's own reasoning, and whether the safety checks passed. A message the checks hold back is logged too, without its text. Only what an agent did is logged in its name, and only the backend writes it.
 

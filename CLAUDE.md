@@ -128,7 +128,7 @@ TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test 
 
 - `src/app/`: routes only. Each `page.tsx` renders an `AmbientBackground` (one `mood` per screen) and one feature view. App pages are in the `app/(signed-in)/` group, whose layout renders `AppShell`; `/signin` has no shell. `app/api/` holds the proxy and Auth.js; `app/icons/` and `app/manifest.ts` make the app installable.
 - `src/features/<name>/`: `components/`, `hooks/`, `lib/` (pure logic), `api/`, `data/`, `context/`, `types.ts`, and a public `index.ts`.
-- `src/shared/`: what features share; it never imports a feature. That's `lib/` (`api.ts` with `getJson`, `getBlob`, `postJson`, `postForm` and `ApiError`; `download.ts` with `saveFile`; `query.tsx`; `audio.ts`), `hooks/` (`useLocalStorage`, `useTimeOfDay`, `useFocusOnNavigation`, `useFocusTrap`, `useFadeIn`), `ui/` (the design system), `preferences/` and `api/` (generated types).
+- `src/shared/`: what features share; it never imports a feature. That's `lib/` (`api.ts` with `getJson`, `getBlob`, `postJson`, `postForm` and `ApiError`; `download.ts` with `saveFile`; `query.tsx`, which also holds `STATS_KEY` so finishing a task can refresh the counts; `audio.ts`), `hooks/` (`useLocalStorage`, `useTimeOfDay`, `useFocusOnNavigation`, `useFocusTrap`, `useFadeIn`), `ui/` (the design system), `preferences/` and `api/` (generated types).
 - ESLint (`no-restricted-imports`) enforces the boundaries: outside a feature, import it only through `@/features/<name>` (or `@/features/<name>/server` from server code); a feature never reaches into another with `../../`.
 - Imports use `@/*` for `src/*`.
 
@@ -139,10 +139,11 @@ TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test 
 - `chat`: `PebbleChat` and `useChat` (`POST /api/agents/chat`). It refreshes the activity log after each turn; so do a breakdown on Today and a SimplifyCore answer on Documents, since the backend writes those entries. A CalmSense reply keeps its breakdown on the message (`breakdown`, named by CalmSense's `title` or else the question), lists the steps, and `addToToday` puts it on Today once.
 - `companion`: `PebbleProvider`/`usePebble` (mood, rotating messages), `PebbleCharacter`, `PebbleSpeechBubble`, and the 7 models.
 - `activity`: `ActivityLogProvider`/`useActivityLog` and `ActivityView`.
+- Today and Activity show the all-time counts ("Since you started: 14 steps and 3 tasks.") with the stats feature's `ProgressSoFar` (8.2). The route passes it in as the view's `progress` slot, because stats imports tasks, and tasks and activity import each other's neighbours. Ticking a task or step refreshes it once the save is through.
 - `settings`: `SettingsView`: Pebble's look and personality, reading level, step size, reduce animations, calm mode, a reset to defaults, and "Your data".
 - `focus`: `FocusView` and the 25-minute timer (`useFocusTimer`). A finished session calls `postFocusSession`. There are no rooms or other people (9.1).
 - `suggestions`: `SuggestionCard` on Today (7.6): AdaptLens's one suggestion, with what it noticed, "Use …" and "Not now". `useSuggestion` asks for it whenever Today opens (`/api/suggestions`), and an accepted suggestion's preferences come back from the server and are taken with `adopt()` (`shared/preferences`), which sends nothing back.
-- `stats`: `StatsView` at `/stats`. The range is a sentence, with a one-hue column chart per day (arrow keys read a day, plus a table view) and tasks per tag as one-hue bars named on each row (the tag colours fail the dataviz checks, so colour never tells them apart). `lib/summary.ts` has the copy and the axis maths.
+- `stats`: `StatsView` at `/stats`. The range is a sentence, with a one-hue column chart per day (arrow keys read a day, plus a table view) and tasks per tag as one-hue bars named on each row (the tag colours fail the dataviz checks, so colour never tells them apart). `lib/summary.ts` has the copy and the axis maths. It shows nothing that can go down: a range ("in the last 7 days") is labelled as one, and the other screens get only the all-time totals.
 - `auth`: `SignInView`, `AccountSection` (download my data, delete my account; `useAccountData`), and, server-only in `server.ts`, the Auth.js config, `forwardToBackend` and `signBackendToken`.
 
 ### Sign-in and the API proxy
