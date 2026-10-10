@@ -10,6 +10,7 @@ import StepSizeSetting from './StepSizeSetting';
 import DisplayToggles from './DisplayToggles';
 import PebblePickers from './PebblePickers';
 import ReadingLevelSetting from './ReadingLevelSetting';
+import ReminderSettings from './ReminderSettings';
 import SectionHeader from './SectionHeader';
 
 /** The settings screen: Pebble, accessibility, a reset, and (from the page) the account. */
@@ -42,6 +43,11 @@ export default function SettingsView({ account }: { account?: ReactNode }) {
         <ReadingLevelSetting />
         <StepSizeSetting />
         <DisplayToggles />
+      </div>
+
+      <SectionHeader title="Reminder" subtitle="Off unless you set one" />
+      <div style={{ marginBottom: 32 }}>
+        <ReminderSettings />
       </div>
 
       <div>

@@ -41,3 +41,15 @@ def test_saved_form_round_trips():
 
     assert saved["pebble_color"] == "sky"
     assert Preferences.from_saved(saved) == prefs
+
+
+@pytest.mark.parametrize(
+    ("saved", "expected"),
+    [("07:05", "07:05"), ("23:59", "23:59"), ("", ""), ("24:00", ""), ("7:05", ""), (705, ""), (None, "")],
+)
+def test_a_saved_reminder_time_is_kept_only_when_it_is_hh_mm(saved, expected):
+    assert Preferences.from_saved({"reminder_time": saved}).reminder_time == expected
+
+
+def test_reminders_are_off_by_default():
+    assert (Preferences().reminder_time, Preferences().reminder_notifications) == ("", False)

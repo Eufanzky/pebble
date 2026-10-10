@@ -11,6 +11,8 @@ class PreferencesOut(BaseModel):
     pebble_color: PebbleColor = Field(alias="pebbleColor")
     pebble_personality: PebblePersonality = Field(alias="pebblePersonality")
     pebble_model: PebbleModel = Field(alias="pebbleModel")
+    reminder_time: str = Field(alias="reminderTime")
+    reminder_notifications: bool = Field(alias="reminderNotifications")
 
     model_config = {"populate_by_name": True, "by_alias": True}
 
@@ -25,5 +27,8 @@ class PreferencesUpdate(BaseModel):
     pebble_color: PebbleColor | None = Field(alias="pebbleColor", default=None)
     pebble_personality: PebblePersonality | None = Field(alias="pebblePersonality", default=None)
     pebble_model: PebbleModel | None = Field(alias="pebbleModel", default=None)
+    reminder_time: str | None = Field(alias="reminderTime", default=None, pattern=r"^(?:(?:[01]\d|2[0-3]):[0-5]\d)?$")
+    """HH:MM for a daily reminder, or "" for none."""
+    reminder_notifications: bool | None = Field(alias="reminderNotifications", default=None)
 
     model_config = {"populate_by_name": True, "extra": "forbid"}

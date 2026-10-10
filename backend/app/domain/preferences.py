@@ -1,5 +1,6 @@
 """How the user likes Pebble to look, speak and pace things."""
 
+import re
 from collections.abc import Mapping
 from dataclasses import asdict, dataclass, fields
 from enum import StrEnum
@@ -37,6 +38,9 @@ class PebbleModel(StrEnum):
 
 READING_LEVELS = range(1, 11)
 
+REMINDER_TIME = re.compile(r"^(?:[01]\d|2[0-3]):[0-5]\d$")
+"""A reminder time, HH:MM on the user's clock; an empty string means no reminder."""
+
 
 @dataclass(frozen=True)
 class Preferences:
@@ -49,6 +53,10 @@ class Preferences:
     pebble_color: PebbleColor = PebbleColor.LAVENDER
     pebble_personality: PebblePersonality = PebblePersonality.GENTLE
     pebble_model: PebbleModel = PebbleModel.CHONKY_PLUS
+    reminder_time: str = ""
+    """A daily, gentle reminder at HH:MM (8.6). Off ("") unless the user sets one."""
+    reminder_notifications: bool = False
+    """Also as a browser notification. Off unless the user turns it on."""
 
     @classmethod
     def from_saved(cls, saved: Mapping[str, object]) -> "Preferences":
@@ -81,6 +89,8 @@ def _parse(name: str, value: object) -> object | None:
             return _ENUMS[name](value)
         except ValueError:
             return None
+    if name == "reminder_time":
+        return value if isinstance(value, str) and (value == "" or REMINDER_TIME.match(value)) else None
     if name == "reading_level":
         return value if isinstance(value, int) and not isinstance(value, bool) and value in READING_LEVELS else None
     return value if isinstance(value, bool) else None
