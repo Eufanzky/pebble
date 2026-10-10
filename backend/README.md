@@ -112,8 +112,15 @@ Errors:
 - Unsafe input: 422 with a user-safe message.
 - An LLM or safety outage: 503 "Pebble couldn't answer just now."
 - A provider rate limit: 503 "Pebble is resting", with `Retry-After`.
+- Too many agent calls from one user: 429 in the same words, with `Retry-After` (see Rate limits).
 - A task or step that isn't yours or doesn't exist: 404 (another user's task looks exactly like a missing one).
 - No database, or a database outage: 503.
+
+## Rate limits
+
+The LLM's free tier is shared by every account, so each user may call the agents `AGENT_CALLS_PER_MINUTE` times a minute (default 10) and `AGENT_CALLS_PER_DAY` times a day (default 100); 0 turns a limit off. The calls that count are the five that ask the LLM: `/api/agents/chat`, `/decompose`, `/simplify`, `/motivate` and `POST /api/tasks/{id}/breakdown`. A chat turn is one call, though it makes two or three LLM requests. Everything else stays open.
+
+The windows slide (`domain/rate_limit.py`: a call counts until it's a minute or a day old). `AgentCallLimit` (`application/rate_limit.py`) keeps each user's recent calls in memory, which is enough for the single instance the API runs on; a restart forgets them, which only lets a user call sooner. It's wired as the `limit_agent_calls` dependency (`api/dependencies.py`), after sign-in, so a signed-out call is still a 401. Over the limit the call is a 429 "Pebble is resting for a moment. Try again in a little while." with `Retry-After` in seconds, and the LLM isn't asked; a refused call doesn't count. The frontend shows the same words for this 429 and for a provider's 503 (`isResting` in `frontend/src/shared/lib/api.ts`).
 
 ## Your data: export and deletion
 

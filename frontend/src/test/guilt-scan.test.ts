@@ -378,6 +378,17 @@ describe('guilt scan', () => {
     expect(violations, `Banned patterns found:\n${violations.join('\n')}`).toEqual([]);
   });
 
+  // Roadmap 10.4: being over the limit is never the user's fault, and it's said without pressure
+  it('passes the resting message, where the backend and the frontend keep it', () => {
+    const files = SCANNED.flatMap(({ dir, extensions }) => listFiles(dir, extensions));
+    expect(files).toContain('backend/app/api/errors.py');
+    expect(files).toContain('frontend/src/shared/lib/api.ts');
+
+    const message = 'Pebble is resting for a moment. Try again in a little while.';
+    expect(PATTERNS.filter((p) => p.matches(message)).map((p) => p.id)).toEqual([]);
+    expect(readFileSync(join(repoRoot, 'frontend/src/shared/lib/api.ts'), 'utf8')).toContain(message);
+  });
+
   it('has no stale exceptions', () => {
     const stale = EXCEPTIONS.filter((e) => !matches.some((m) => exceptionFor(m) === e));
 

@@ -1,7 +1,13 @@
 from fastapi import APIRouter, Depends
 
 from app.api.auth import get_current_user
-from app.api.dependencies import get_decompose_task, get_encourage, get_handle_chat, get_simplify_document
+from app.api.dependencies import (
+    get_decompose_task,
+    get_encourage,
+    get_handle_chat,
+    get_simplify_document,
+    limit_agent_calls,
+)
 from app.api.presenters import breakdown_data, chat_response, simplification_data
 from app.api.schemas.agents import (
     ChatRequest,
@@ -19,7 +25,8 @@ from app.application.agents.pebblevoice import Encourage
 from app.application.agents.simplifycore import SimplifyDocument
 from app.domain.chat import ChatContext
 
-router = APIRouter()
+# Every route here calls the LLM: each counts towards the user's limit (10.4)
+router = APIRouter(dependencies=[Depends(limit_agent_calls)])
 
 
 @router.post(

@@ -164,7 +164,7 @@ TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test 
 - **Activity log**: `/api/activity`, newest first, read-only in the browser. Only the backend writes it, and only what an agent did (7.3): there is no `POST /api/activity`, and the MSW fake has none, so a browser write fails the tests. After an agent call, the caller runs `refresh()`.
 - **Before the first load**, a task or log change is saved and then reloaded, so the first load can't overwrite it.
 - **Import:** `useImportLocalData` moves what a browser kept before accounts (`pebble-tasks`, `pebble-preferences`, `pebble-activity`) into the account once (`POST /api/import`), then deletes those keys. `pebble-import-started` stops a second tab from sending it twice.
-- **Fallbacks:** if the backend is down, chat shows a gentle error, and `ImmersiveReader` falls back to `BuiltInReader`.
+- **Fallbacks:** if the backend is down, chat shows a gentle error, and `ImmersiveReader` falls back to `BuiltInReader`. When the agents are resting (10.4: the account's 429 or the provider's 503 "Pebble is resting", `isResting` in `shared/lib/api.ts`), chat, a breakdown (`useBreakDown`'s `resting` status) and SimplifyCore (`useDocumentText`'s `resting`) show `RESTING_TEXT` instead of their own failure note. MSW: `resting(path, 'limit' | 'provider')` (`src/test/msw/resting.ts`).
 
 ### Layout, design system and the app
 
@@ -199,6 +199,7 @@ TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test 
 2. Classification: one LLM call with `ORCHESTRATOR_PROMPT`, parsed with `parse_json_object`. Bad JSON falls back to chat; unknown intents become `chat` and unknown moods `normal`. The reply goes through `screen_output`, and `SAFE_REPLY` replaces it if it's unsafe.
 3. Routing: `distress` answers at once; `decompose` goes to CalmSense (`DecomposeTask`), `simplify` to SimplifyCore (`SimplifyDocument`, also checked for groundedness), and `motivate` to PebbleVoice (`Encourage`; task titles are redacted first). A flagged or unusable sub-agent reply becomes a gentle reply with `data: null`. A new intent means updating `ORCHESTRATOR_PROMPT`, `Intent` (`domain/agents.py`) and the route table.
 4. Errors (`api/errors.py`): LLM or safety outages are a 503 with a gentle message; a provider 429 is a 503 "Pebble is resting" with `Retry-After`.
+5. Rate limits (10.4): the five routes that ask the LLM (the four `/api/agents/*` and `POST /api/tasks/{id}/breakdown`) depend on `limit_agent_calls`, which takes a call from the container's `AgentCallLimit` (`application/rate_limit.py`, sliding windows from `domain/rate_limit.py`; `AGENT_CALLS_PER_MINUTE`=10, `AGENT_CALLS_PER_DAY`=100, kept in memory). Over it, `AgentCallsLimitedError` is a 429 with the same `RESTING` words and `Retry-After`. The test container has no limit; tests set `container.agent_call_limit` with a fixed clock (`tests/api/test_rate_limits.py`).
 
 Each agent has `run()` for screened input and `__call__` for the direct endpoints (`/api/agents/decompose`, `/simplify`, `/motivate`; the frontend doesn't use them), which screens first. Chat responses are `{intent, response, mood, agentName, data}`.
 

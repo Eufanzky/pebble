@@ -1,7 +1,9 @@
 import { http, HttpResponse } from 'msw';
 import { describe, expect, it } from 'vitest';
 import { server } from '@/test/msw/server';
-import { ApiError, getJson, postForm, postJson } from './api';
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+import { ApiError, RESTING_TEXT, getJson, isResting, postForm, postJson } from './api';
 
 describe('postJson', () => {
   it('sends the body as JSON and returns the parsed reply', async () => {
@@ -65,5 +67,30 @@ describe('postForm', () => {
 
     await expect(postForm('/api/upload', form)).resolves.toEqual({ ok: true });
     expect(contentType).toMatch(/^multipart\/form-data; boundary=/);
+  });
+});
+
+// Roadmap 10.4: the agents resting, for this account's limit or the provider's
+describe('isResting', () => {
+  const body = (detail: string) => JSON.stringify({ detail });
+
+  it('is true for a 429, and for a 503 in the backend\'s resting words', () => {
+    expect(isResting(new ApiError(429, body(RESTING_TEXT)))).toBe(true);
+    expect(isResting(new ApiError(429, 'anything'))).toBe(true);
+    expect(isResting(new ApiError(503, body(RESTING_TEXT)))).toBe(true);
+  });
+
+  it('is false for other outages and errors', () => {
+    expect(isResting(new ApiError(503, body("Pebble couldn't answer just now. Try again in a little while.")))).toBe(false);
+    expect(isResting(new ApiError(503, 'not json'))).toBe(false);
+    expect(isResting(new ApiError(500, body(RESTING_TEXT)))).toBe(false);
+    expect(isResting(new ApiError(null, 'Failed to fetch'))).toBe(false);
+    expect(isResting(new Error('boom'))).toBe(false);
+  });
+
+  it('uses the same words as the backend', () => {
+    const errors = readFileSync(join(__dirname, '../../../../backend/app/api/errors.py'), 'utf8');
+
+    expect(errors).toContain(`RESTING = "${RESTING_TEXT}"`);
   });
 });

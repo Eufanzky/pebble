@@ -2,10 +2,12 @@
 
 import { useCallback, useState } from 'react';
 import { useActivityLog } from '@/features/activity';
+import { isResting } from '@/shared/lib/api';
 import { useToast } from '@/shared/ui/ToastContext';
 import { useTasks } from '../context/TasksContext';
 
-export type BreakDownStatus = 'idle' | 'working' | 'failed';
+/** `resting`: it failed because the agents are resting (10.4), which the card says instead. */
+export type BreakDownStatus = 'idle' | 'working' | 'failed' | 'resting';
 
 /**
  * Asking CalmSense to break one task down. `working` lasts exactly as long as the request; if it fails,
@@ -23,8 +25,8 @@ export function useBreakDown(taskId: string, title: string) {
       await breakDown(taskId);
       setStatus('idle');
       showToast(`CalmSense broke "${title}" into steps.`, { label: 'Undo', onAction: () => removeBreakdown(taskId) });
-    } catch {
-      setStatus('failed');
+    } catch (error) {
+      setStatus(isResting(error) ? 'resting' : 'failed');
     } finally {
       // The backend logs what CalmSense did (or held back): show it
       refreshLog();

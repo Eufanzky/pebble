@@ -15,6 +15,24 @@ export class ApiError extends Error {
   }
 }
 
+/** What Pebble says while the agents can't be asked: the backend's own words for both limits (10.4). */
+export const RESTING_TEXT = 'Pebble is resting for a moment. Try again in a little while.';
+
+/**
+ * The agents are resting: this account made many calls in a short time (429), or the AI provider's shared
+ * limit was reached (a 503 in the same words). Either way, it isn't the user's mistake, and it passes.
+ */
+export function isResting(error: unknown): boolean {
+  if (!(error instanceof ApiError)) return false;
+  if (error.status === 429) return true;
+  if (error.status !== 503) return false;
+  try {
+    return (JSON.parse(error.detail) as { detail?: unknown }).detail === RESTING_TEXT;
+  } catch {
+    return false;
+  }
+}
+
 /** The response, if it's a success. Throws `ApiError` otherwise, or when the request can't be made. */
 async function fetchOk(path: string, init?: RequestInit): Promise<globalThis.Response> {
   let res: globalThis.Response;

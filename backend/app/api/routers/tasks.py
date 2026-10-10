@@ -3,7 +3,7 @@ from datetime import UTC, datetime
 from fastapi import APIRouter, Depends, HTTPException, Query, Response, status
 
 from app.api.auth import get_current_user
-from app.api.dependencies import get_break_down_task, get_export_plan, get_tasks
+from app.api.dependencies import get_break_down_task, get_export_plan, get_tasks, limit_agent_calls
 from app.api.presenters import task_data
 from app.api.schemas.tasks import (
     BreakdownRequest,
@@ -103,7 +103,12 @@ async def clear_tasks(user_id: str = Depends(get_current_user), tasks: Tasks = D
     return Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-@router.post("/{task_id}/breakdown", response_model=TaskOut, summary="Break a task down with CalmSense")
+@router.post(
+    "/{task_id}/breakdown",
+    response_model=TaskOut,
+    summary="Break a task down with CalmSense",
+    dependencies=[Depends(limit_agent_calls)],
+)
 async def break_down(
     task_id: str,
     body: BreakdownRequest,
