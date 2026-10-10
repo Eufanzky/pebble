@@ -1,4 +1,6 @@
-# Local Postgres for the backend (roadmap 4.1): `docker compose up -d db`.
+# Local Postgres and the backend.
+# `docker compose up -d db`: Postgres only (roadmap 4.1), for `uv run uvicorn …` on your machine.
+# `docker compose up`: Postgres and the backend's image (roadmap 10.1) on http://localhost:8000.
 # The app uses the `pebble` database; the integration tests own `pebble_test`, and E2E `pebble_e2e`.
 services:
   db:
@@ -17,6 +19,22 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  backend:
+    build: ./backend
+    image: pebble-backend
+    # The same settings as running it by hand (LLM_*, AUTH_TOKEN_SECRET, …), if backend/.env exists
+    env_file:
+      - path: ./backend/.env
+        required: false
+    environment:
+      # Inside compose the database is the `db` service, not localhost
+      DATABASE_URL: postgresql+asyncpg://pebble:pebble@db:5432/pebble
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
 
 volumes:
   pebble-db:

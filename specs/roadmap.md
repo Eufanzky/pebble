@@ -193,7 +193,7 @@ See principle 1 in `mission.md`.
 
 ## Phase 10: Deploy
 
-- [ ] **10.1 Backend Dockerfile.** Build the backend with `uv` and add a health check.
+- [x] **10.1 Backend Dockerfile.** Build the backend with `uv` and add a health check.
   *Done:* `docker compose up` runs the backend and Postgres locally, and CI runs E2E against the built image.
 - [ ] **10.2 Neon and Render.** Deploy the database and backend, running migrations on deploy.
   *Done:* the public health endpoint responds.

@@ -99,11 +99,13 @@ You need Node.js 22.13+, [uv](https://docs.astral.sh/uv/getting-started/installa
 docker compose up -d db                                    # Postgres
 cd backend && uv sync && cp .env.example .env              # then set LLM_API_KEY (or LLM_PROVIDER=fake) and AUTH_TOKEN_SECRET
 uv run alembic upgrade head && uv run uvicorn app.main:app --port 8000 --reload
-cd ../pebble && npm install && cp .env.example .env.local   # then set AUTH_SECRET and the same AUTH_TOKEN_SECRET
+cd ../frontend && npm install && cp .env.example .env.local   # then set AUTH_SECRET and the same AUTH_TOKEN_SECRET
 npm run dev                                                 # http://localhost:3000, sign in with the dev login
 ```
 
 Make the two secrets with `openssl rand -base64 32`. `AUTH_TOKEN_SECRET` must be the same in both `.env` files, because the Next.js server signs every API call with it. GitHub and Google sign-in appear once their OAuth apps are set in `frontend/.env.local`; the dev login (`AUTH_DEV_LOGIN=true`) works without them. Swagger is at http://localhost:8000/docs.
+
+To run the backend from its image instead, `docker compose up` starts Postgres and the backend (it migrates on start, reads `backend/.env` if there is one, and listens on port 8000).
 
 Without a database the backend still starts, and the endpoints that save things answer 503. Without an LLM key, the agents answer 503.
 
@@ -145,7 +147,7 @@ backend/                 Backend (FastAPI)
   tests/                 unit, api, contract, integration, evals
 specs/                   Mission, tech stack, testing rules, roadmap, audit
   changes/               One folder per change: requirements, plan, validation
-docker-compose.yml       Local Postgres
+docker-compose.yml       Local Postgres, and the backend image
 docker/postgres-init/    Creates the test databases when that Postgres first starts
 ```
 

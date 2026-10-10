@@ -131,7 +131,7 @@ Coverage is a floor, not a goal, and it can only go up.
 
 | When | Runs |
 |:--|:--|
-| Every PR | Lint, dead code (knip, vulture), typecheck, backend unit/api/contract/integration, frontend unit/component, guilt scan, token and link checks, OpenAPI drift check, coverage floors, E2E (fake LLM) |
+| Every PR | Lint, dead code (knip, vulture), typecheck, backend unit/api/contract/integration, frontend unit/component, guilt scan, token and link checks, OpenAPI drift check, coverage floors, the backend image under `docker compose` (both health checks, migrations at head), E2E (fake LLM, the backend from its image) |
 | Weekly (scheduled) + manual | LLM evals |
 | After deploy (11.3) | E2E demo flow against production |
 

@@ -52,6 +52,7 @@ Backend (from `backend/`; dependencies and tool config in `pyproject.toml`, vers
 uv sync
 cp .env.example .env               # LLM_API_KEY (free Groq key) or LLM_PROVIDER=fake; AUTH_TOKEN_SECRET; DATABASE_URL
 docker compose up -d db            # from the repo root: Postgres 17 with pebble, pebble_test and pebble_e2e
+docker compose up                  # Postgres and the backend's image (backend/Dockerfile, 10.1) on :8000, with backend/.env
 uv run alembic upgrade head        # `uv run alembic revision --autogenerate -m "..."` after a model change
 uv run uvicorn app.main:app --port 8000 --reload   # Swagger at http://localhost:8000/docs
 uv run pytest                      # evals excluded; `-m eval` runs them against a real LLM
@@ -67,7 +68,8 @@ TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test 
 - **Frontend:** `npm ci`, lint, knip, `tsc --noEmit`, `npm run test:coverage`, build.
 - **Backend:** a Postgres 17 service, `uv sync --locked`, ruff, vulture, `pytest --cov` with `tests/integration` (80% overall, 90% on `app/domain` + `app/application`).
 - **API contract:** `npm run api:generate`, then `git diff --exit-code` on `frontend/src/shared/api`.
-- **E2E:** `npm run test:e2e` against a Postgres service.
+- **Docker:** `docker compose up --build --wait` (Postgres and the backend image, both health checks), `/api/health`, and `alembic current` at head.
+- **E2E:** `npm run test:e2e` against a Postgres service, with the backend from its image (`E2E_BACKEND_IMAGE`; `docker run --network host`).
 
 `.github/workflows/evals.yml` runs the real-LLM evals (`backend/tests/evals/`) weekly and on demand, with the `LLM_API_KEY` secret (and optional `LLM_PROVIDER`, `LLM_BASE_URL`, `LLM_MODEL` variables); without the secret they skip. Run them after any prompt change and record baselines in `backend/tests/evals/README.md`.
 
@@ -118,7 +120,7 @@ TEST_DATABASE_URL=postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_test 
   - `demo-flow.spec.ts`, the demo flow: dev login, ask CalmSense in chat through the real backend with `LLM_PROVIDER=fake` and add its steps to Today, break a task of your own down on Today and finish a step, reload, upload a text file for SimplifyCore and add its action item to Today, the agents' entries and reasoning in the activity log;
   - `layout.spec.ts`: axe and no horizontal overflow on every page at 360, 768 and 1280px, no pictures loaded, and the phone tab bar;
   - `tasks.spec.ts` (editing, reordering, filtering), `stats.spec.ts` (the stats adding up), `account.spec.ts` (the one-time import, the download, deleting the account), `installable.spec.ts` (installability over the DevTools protocol, the offline page), `suggestions.spec.ts` (AdaptLens: skipped steps lead to a larger-steps suggestion, applied only on accept), `calendar.spec.ts` (BridgeBot's .ics download, one event per step), `focus.spec.ts` (focus from a step, stop early, mark the step done), `deadlines.spec.ts` (a task due tomorrow: its time-left bar and the offer to make it smaller; a task whose day is over: moved, and let go) and `sign-in.spec.ts` (the redirect, 401 when signed out, signing out).
-- Its `webServer` migrates and starts uvicorn against `E2E_DATABASE_URL` (default `pebble_e2e`) and runs `next build && next start`, with test-only secrets and the dev login.
+- Its `webServer` migrates and starts uvicorn against `E2E_DATABASE_URL` (default `pebble_e2e`), or with `E2E_BACKEND_IMAGE` runs that image (which migrates itself), and runs `next build && next start`, with test-only secrets and the dev login.
 - Each test signs in as a new dev user and turns animations off.
 - Locally it reuses servers already on ports 3000 and 8000, so stop old ones first. First run: `npx playwright install chromium`.
 
