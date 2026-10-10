@@ -220,6 +220,7 @@ export default function TaskCard({
 
         {showSteps && hasSteps && (
           <StepList
+            taskId={task.id}
             steps={steps}
             noMotion={noMotion}
             onToggle={(stepId) => onToggleStep(task.id, stepId)}

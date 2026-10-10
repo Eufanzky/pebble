@@ -26,7 +26,7 @@ Pebble helps people with ADHD, autism or dyslexia break tasks into small steps, 
 
 **Documents.** Upload a PDF, Word or text file (read in memory, never stored), choose a reading level from 1 to 10, and SimplifyCore rewrites it at that level, beside the original. It says when only the first part of a long document was simplified, and when its version may say things the original doesn't. Its action items can go onto Today, one by one or as a study plan. The example documents also have a comprehension check. A built-in reader (read aloud, syllables, line focus) works without any setup; Azure Immersive Reader is used when it's configured.
 
-**Focus.** A 25-minute timer with Pebble beside you. Pause or stop whenever you need to; the minutes count towards your stats.
+**Focus.** A 25-minute timer with Pebble beside you, on its own or for one step: each open step on Today has a "Focus" link, and afterwards you can mark that step done. Pause or stop whenever you need to; stopping early is fine, and the minutes you focused count towards your stats.
 
 **Stats.** Steps, tasks and focus minutes over the last 7 or 30 days, per day and per tag, and since you started. Progress only adds up: there are no streaks, no "missed" days and no comparisons, and unticking a task never takes anything back. Today and Activity show what you've finished since you started.
 

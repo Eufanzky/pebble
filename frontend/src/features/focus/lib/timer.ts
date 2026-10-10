@@ -16,3 +16,14 @@ export function ringOffset(secondsLeft: number, total = FOCUS_SECONDS): number {
   const progress = (total - secondsLeft) / total;
   return RING_CIRCUMFERENCE - RING_CIRCUMFERENCE * progress;
 }
+
+/** Whole minutes in `seconds` of focus: what a stopped session adds to progress. */
+export function minutesFocused(seconds: number): number {
+  return Math.floor(seconds / 60);
+}
+
+/** What Pebble says when a session is stopped early: what was done counts, and nothing compares it with 25 minutes. */
+export function stoppedMessage(minutes: number): string {
+  if (minutes < 1) return 'Stopped. Come back whenever you like.';
+  return `You focused for ${minutes} ${minutes === 1 ? 'minute' : 'minutes'}. That counts.`;
+}

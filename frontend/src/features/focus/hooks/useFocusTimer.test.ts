@@ -44,4 +44,36 @@ describe('useFocusTimer', () => {
     act(() => vi.advanceTimersByTime(10_000));
     expect(result.current.secondsLeft).toBe(FOCUS_SECONDS);
   });
+
+  it('stops early: returns the seconds focused, resets, and never calls onComplete', () => {
+    const onComplete = vi.fn();
+    const { result } = renderHook(() => useFocusTimer(onComplete));
+    act(() => result.current.start());
+    act(() => vi.advanceTimersByTime(12 * 60 * 1000 + 30_000));
+
+    let focused = 0;
+    act(() => {
+      focused = result.current.stop();
+    });
+
+    expect(focused).toBe(12 * 60 + 30);
+    expect(result.current).toMatchObject({ state: 'idle', secondsLeft: FOCUS_SECONDS });
+    act(() => vi.advanceTimersByTime(FOCUS_SECONDS * 1000));
+    expect(onComplete).not.toHaveBeenCalled();
+    expect(result.current.secondsLeft).toBe(FOCUS_SECONDS);
+  });
+
+  it('stops from a pause with the time focused before it', () => {
+    const { result } = renderHook(() => useFocusTimer(vi.fn()));
+    act(() => result.current.start());
+    act(() => vi.advanceTimersByTime(90_000));
+    act(() => result.current.pause());
+    act(() => vi.advanceTimersByTime(10 * 60 * 1000));
+
+    let focused = 0;
+    act(() => {
+      focused = result.current.stop();
+    });
+    expect(focused).toBe(90);
+  });
 });

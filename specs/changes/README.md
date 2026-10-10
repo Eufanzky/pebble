@@ -65,3 +65,4 @@ One folder per change: what was asked and decided (`requirements.md`), how it wa
 | 2026-10-08 | 8.4 | ["Still open" flow](2026-10-08-still-open/requirements.md) |
 | 2026-10-09 | 8.5 | [Welcome back](2026-10-09-welcome-back/requirements.md) |
 | 2026-10-10 | 8.6 | [Opt-in reminders](2026-10-10-opt-in-reminders/requirements.md) |
+| 2026-10-10 | 9.2 | [Focus session](2026-10-10-focus-session/requirements.md) |
