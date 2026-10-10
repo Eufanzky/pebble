@@ -63,3 +63,4 @@ One folder per change: what was asked and decided (`requirements.md`), how it wa
 | 2026-10-08 | 8.2 | [Cumulative progress](2026-10-08-cumulative-progress/requirements.md) |
 | 2026-10-08 | 8.3 | [Neutral deadlines](2026-10-08-neutral-deadlines/requirements.md) |
 | 2026-10-08 | 8.4 | ["Still open" flow](2026-10-08-still-open/requirements.md) |
+| 2026-10-09 | 8.5 | [Welcome back](2026-10-09-welcome-back/requirements.md) |

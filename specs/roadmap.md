@@ -179,7 +179,7 @@ See principle 1 in `mission.md`.
   *Done:* tests with a fixed clock cover the bar maths and when the offer appears; there is no red styling.
 - [x] **8.4 "Still open" flow.** Past-due tasks offer three choices: move it, make it smaller, or let it go. Letting go archives the task and logs it neutrally.
   *Done:* domain, API, and component tests cover all three paths.
-- [ ] **8.5 Welcome back.** After time away, Today opens fresh with "Want to pick one small thing?" and never mentions how long the user was gone.
+- [x] **8.5 Welcome back.** After time away, Today opens fresh with "Want to pick one small thing?" and never mentions how long the user was gone.
   *Done:* tests with a fixed clock cover the greeting, and the guilt scan covers the copy.
 - [ ] **8.6 Opt-in reminders.** The user sets a gentle reminder (in-app, plus optional browser notifications). They are off by default.
   *Done:* tests prove nothing notifies unless the user turned it on.
