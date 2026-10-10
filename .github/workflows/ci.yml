@@ -106,6 +106,24 @@ jobs:
         run: git diff --exit-code -- frontend/src/shared/api
 
 
+  docker:
+    name: Docker
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - name: docker compose up (Postgres and the backend image), waiting for both health checks
+        run: docker compose up -d --build --wait --wait-timeout 120
+      - name: The API answers and the migrations ran
+        run: |
+          curl --fail --silent http://localhost:8000/api/health
+          docker compose exec -T backend alembic current | tee /dev/stderr | grep -q '(head)'
+      - name: Logs when it fails
+        if: failure()
+        run: docker compose logs
+      - run: docker compose down -v
+        if: always()
+
   e2e:
     name: E2E
     runs-on: ubuntu-latest
@@ -127,12 +145,14 @@ jobs:
           --health-interval 5s
           --health-timeout 5s
           --health-retries 10
+    env:
+      # The backend runs from its built image (roadmap 10.1), as it will in production
+      E2E_BACKEND_IMAGE: pebble-backend:e2e
     steps:
       - uses: actions/checkout@v7
-      - uses: astral-sh/setup-uv@v10.2.0 # no floating major tag
-        with:
-          enable-cache: true
-          cache-dependency-glob: backend/uv.lock
+      - name: Build the backend image
+        run: docker build -t pebble-backend:e2e .
+        working-directory: backend
       - uses: actions/setup-node@v7
         with:
           node-version: 22

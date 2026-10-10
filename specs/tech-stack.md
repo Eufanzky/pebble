@@ -28,7 +28,7 @@ The stack, as built through phase 6 (hosting is planned for phase 10). The budge
 | Backend | Render free web service (Docker) | Sleeps after 15 min idle; the 30–60 s cold start is accepted. Warm it up before demos. |
 | Database | Neon free tier | Scales to zero and wakes in under a second. Unlike Supabase free, it does not pause the project after a week. |
 
-Local development uses `docker compose` for Postgres (the `pebble`, `pebble_test` and `pebble_e2e` databases); the backend and frontend run directly.
+Local development uses `docker compose` for Postgres (the `pebble`, `pebble_test` and `pebble_e2e` databases); the backend and frontend run directly. `docker compose up` also runs the backend from its image (`backend/Dockerfile`), the same image CI's E2E uses and Render will run.
 
 ## Removed from the hackathon stack
 

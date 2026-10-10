@@ -13,6 +13,17 @@ const AUTH_TOKEN_SECRET = 'e2e-token-secret-at-least-32-bytes-long';
 // docker compose creates pebble_e2e; CI runs a service container.
 const DATABASE_URL = process.env.E2E_DATABASE_URL ?? 'postgresql+asyncpg://pebble:pebble@localhost:5432/pebble_e2e';
 
+const backendEnv = { LLM_PROVIDER: 'fake', AUTH_TOKEN_SECRET, DATABASE_URL };
+
+// With E2E_BACKEND_IMAGE (CI, roadmap 10.1) the backend is the built image, which migrates on start;
+// otherwise it runs from source with uv. The image uses the host's network to reach Postgres on localhost.
+const BACKEND_IMAGE = process.env.E2E_BACKEND_IMAGE;
+const backendCommand = BACKEND_IMAGE
+  ? `docker run --rm --init --network host ${Object.entries({ ...backendEnv, PORT: '8000' })
+      .map(([key, value]) => `-e ${key}=${value}`)
+      .join(' ')} ${BACKEND_IMAGE}`
+  : 'uv run --locked alembic upgrade head && uv run --locked uvicorn app.main:app --port 8000';
+
 export default defineConfig({
   testDir: './e2e',
   fullyParallel: false,
@@ -26,10 +37,10 @@ export default defineConfig({
   projects: [{ name: 'chromium', use: { ...devices['Desktop Chrome'] } }],
   webServer: [
     {
-      command: 'uv run --locked alembic upgrade head && uv run --locked uvicorn app.main:app --port 8000',
+      command: backendCommand,
       cwd: '../backend',
       url: 'http://localhost:8000/api/health',
-      env: { LLM_PROVIDER: 'fake', AUTH_TOKEN_SECRET, DATABASE_URL },
+      env: backendEnv,
       reuseExistingServer: !CI,
       timeout: 120_000,
     },

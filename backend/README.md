@@ -17,9 +17,20 @@ uv run alembic upgrade head    # create or update the tables
 uv run uvicorn app.main:app --port 8000 --reload
 ```
 
-The API is at **http://localhost:8000**, with Swagger UI at **/docs**. The frontend (`cd pebble && npm run dev`) calls it through its `/api` proxy route, signed as the user; set `AUTH_TOKEN_SECRET` to the same value in both `.env` files.
+The API is at **http://localhost:8000**, with Swagger UI at **/docs**. The frontend (`cd frontend && npm run dev`) calls it through its `/api` proxy route, signed as the user; set `AUTH_TOKEN_SECRET` to the same value in both `.env` files.
 
 After changing dependencies, run `uv lock` and commit `uv.lock`.
+
+### Docker
+
+`Dockerfile` builds the API with `uv sync --locked --no-dev` on `python:3.12-slim`, as a non-root user. On start it runs `alembic upgrade head` (only when `DATABASE_URL` is set), then uvicorn on `$PORT` (8000 by default; hosts such as Render set it). Its `HEALTHCHECK` asks `/api/health`. `.dockerignore` keeps `.env`, the tests and the virtualenv out of the image, and `tests/unit/test_dockerfile.py` checks those rules.
+
+```bash
+docker compose up                        # from the repo root: Postgres and this image on :8000, with backend/.env if present
+docker build -t pebble-backend .         # the image alone; pass settings with -e
+```
+
+CI's Docker job runs `docker compose up --wait` (both health checks) and checks the migrations are at head; the E2E job runs the backend from this image.
 
 ### Database
 

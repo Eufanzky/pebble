@@ -1,0 +1,13 @@
+# Only what the image needs (roadmap 10.1). Secrets stay out: .env is never copied.
+.env
+.env.*
+.venv
+.coverage
+.pytest_cache
+.ruff_cache
+**/__pycache__
+tests
+scripts
+README.md
+Dockerfile
+.dockerignore
