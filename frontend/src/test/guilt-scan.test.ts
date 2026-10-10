@@ -238,8 +238,8 @@ const PATTERNS: Pattern[] = [
   {
     id: 'unasked-nudge',
     rule: 'Nudges nobody asked for: a notification needs a reminder the user set (8.6).',
-    matches: byRegex(/\bnew Notification\(|\bNotification\.requestPermission\b|\bshowNotification\(|\bnavigator\.vibrate\(/),
-    banned: ["new Notification('Time to focus')", 'await Notification.requestPermission()', "registration.showNotification('Hi')", 'navigator.vibrate(200)'],
+    matches: byRegex(/\bnew (?:window\.)?Notification\(|\bNotification\.requestPermission\b|\bshowNotification\(|\bnavigator\.vibrate\(/),
+    banned: ["new Notification('Time to focus')", "new window.Notification('Pebble')", 'await Notification.requestPermission()', "registration.showNotification('Hi')", 'navigator.vibrate(200)'],
     allowed: ['Reminders are off unless you turn them on.', 'notificationsEnabled: false'],
   },
 ];
@@ -258,6 +258,18 @@ const EXCEPTIONS: Exception[] = [
     pattern: 'loss-framing',
     line: 'Never say "you should have", "you\'re behind"',
     reason: 'The voice rules quote the phrase to forbid it.',
+  },
+  {
+    file: 'frontend/src/features/reminders/lib/notifications.ts',
+    pattern: 'unasked-nudge',
+    line: 'window.Notification.requestPermission()',
+    reason: 'Asked only when the user turns on notifications for a reminder they set (8.6, ReminderSettings).',
+  },
+  {
+    file: 'frontend/src/features/reminders/lib/notifications.ts',
+    pattern: 'unasked-nudge',
+    line: "new window.Notification('Pebble'",
+    reason: 'Only for the reminder the user set, with notifications they turned on (8.6, useReminder).',
   },
   {
     file: 'backend/app/application/prompts.py',

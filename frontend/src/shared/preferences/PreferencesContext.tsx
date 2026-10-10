@@ -19,6 +19,8 @@ export const defaultPreferences: UserPreferences = {
   pebbleColor: 'lavender',
   pebblePersonality: 'gentle',
   pebbleModel: 'chonky-plus',
+  reminderTime: '',
+  reminderNotifications: false,
 };
 
 // Emoji shown as pictures: anything with emoji presentation by default, a

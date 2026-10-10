@@ -19,6 +19,8 @@ const preferences: UserPreferences = {
   pebbleColor: 'sage',
   pebblePersonality: 'calm',
   pebbleModel: 'classic',
+  reminderTime: '',
+  reminderNotifications: false,
 };
 
 function task(title: string, completed: boolean): Task {

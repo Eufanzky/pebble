@@ -579,6 +579,14 @@
             "title": "Reduceanimations",
             "type": "boolean"
           },
+          "reminderNotifications": {
+            "title": "Remindernotifications",
+            "type": "boolean"
+          },
+          "reminderTime": {
+            "title": "Remindertime",
+            "type": "string"
+          },
           "stepSize": {
             "$ref": "#/components/schemas/StepSize"
           }
@@ -590,7 +598,9 @@
           "calmMode",
           "pebbleColor",
           "pebblePersonality",
-          "pebbleModel"
+          "pebbleModel",
+          "reminderTime",
+          "reminderNotifications"
         ],
         "title": "PreferencesOut",
         "type": "object"
@@ -663,6 +673,29 @@
               }
             ],
             "title": "Reduceanimations"
+          },
+          "reminderNotifications": {
+            "anyOf": [
+              {
+                "type": "boolean"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remindernotifications"
+          },
+          "reminderTime": {
+            "anyOf": [
+              {
+                "pattern": "^(?:(?:[01]\\d|2[0-3]):[0-5]\\d)?$",
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Remindertime"
           },
           "stepSize": {
             "anyOf": [

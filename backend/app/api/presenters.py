@@ -89,6 +89,8 @@ def preferences_data(preferences: Preferences) -> dict:
         "pebbleColor": str(preferences.pebble_color),
         "pebblePersonality": str(preferences.pebble_personality),
         "pebbleModel": str(preferences.pebble_model),
+        "reminderTime": preferences.reminder_time,
+        "reminderNotifications": preferences.reminder_notifications,
     }
 
 

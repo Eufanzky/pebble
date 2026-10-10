@@ -181,7 +181,7 @@ See principle 1 in `mission.md`.
   *Done:* domain, API, and component tests cover all three paths.
 - [x] **8.5 Welcome back.** After time away, Today opens fresh with "Want to pick one small thing?" and never mentions how long the user was gone.
   *Done:* tests with a fixed clock cover the greeting, and the guilt scan covers the copy.
-- [ ] **8.6 Opt-in reminders.** The user sets a gentle reminder (in-app, plus optional browser notifications). They are off by default.
+- [x] **8.6 Opt-in reminders.** The user sets a gentle reminder (in-app, plus optional browser notifications). They are off by default.
   *Done:* tests prove nothing notifies unless the user turned it on.
 
 ## Phase 9: Solo focus

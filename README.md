@@ -36,6 +36,8 @@ Pebble helps people with ADHD, autism or dyslexia break tasks into small steps, 
 
 **Pebble.** Seven cat models built only from CSS shapes, five colours, three personalities, and moods that follow your day.
 
+**Reminder.** Off unless you set one: pick a time in Settings and, while Pebble is open, it asks once that day if you want to pick one small thing. A browser notification too, only if you turn it on.
+
 **Your account.** Sign in with GitHub or Google. Your list, settings, log and progress are saved to your account. You can download everything as JSON or delete your account in Settings.
 
 **For everyone.** Reduce motion (it also follows your system setting), calm mode (no emoji), a reading level and step size that suit you, full keyboard use, and axe checks on every page. It works on any screen: a bottom tab bar on phones and a sidebar on wider screens. You can install it as an app, and it shows a calm page when you're offline.
@@ -130,7 +132,7 @@ The guilt scan fails on streaks, "overdue", missed days or time away, loss frami
 ```
 frontend/                Frontend (Next.js)
   src/app/               Routes only, plus the app shell, the /api proxy, icons and manifest
-  src/features/          tasks, documents, chat, companion, activity, settings, focus, stats, auth
+  src/features/          tasks, documents, chat, companion, activity, settings, focus, stats, suggestions, reminders, auth
   src/shared/            Design system (ui/), API client, hooks, preferences
   src/test/              Test setup, MSW fakes of the API, render helpers
   e2e/                   Playwright

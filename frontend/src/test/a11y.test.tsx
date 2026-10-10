@@ -77,6 +77,14 @@ describe('axe: interactive states', () => {
     expect(await axe(container)).toHaveNoViolations();
   });
 
+  it('Settings with a daily reminder set (8.6)', async () => {
+    setTestPreferences({ reminderTime: '09:00', reminderNotifications: false });
+    const { container } = renderWithProviders(<SettingsView />);
+    await screen.findByRole('switch', { name: 'Also as a notification' });
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
   it('Today with a suggestion from AdaptLens', async () => {
     suggestionStore.offer({ key: 'reading_level:3', preference: 'readingLevel', value: 3, reason: 'You read at level 3.' });
     const { container } = renderWithProviders(<TodayView />);

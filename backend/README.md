@@ -86,7 +86,7 @@ Real-LLM evals live in `tests/evals/` (`uv run pytest -m eval`). They're exclude
 | POST | `/api/suggestions/accept` | `{"key": ...}`: apply it; returns your preferences. 409 if it changed meanwhile |
 | POST | `/api/suggestions/dismiss` | `{"key": ...}`: not now; it stays away for 14 days (204) |
 | GET | `/api/preferences` | Your preferences over the defaults (a new account gets the defaults) |
-| PATCH | `/api/preferences` | Change only the fields sent; returns all of them |
+| PATCH | `/api/preferences` | Change only the fields sent; returns all of them. `reminderTime` is `"HH:MM"` or `""` (no reminder, the default); `reminderNotifications` is off by default |
 | GET | `/api/activity?limit=50` | Your activity log, newest first (limit 1-200) |
 | POST | `/api/import` | Move what a browser kept before sign-in into the account: tasks go after yours (with their steps), preferences apply only if you never saved any, log entries keep their times (none later than now) |
 | GET | `/api/account/export` | Download everything stored about you: every row of every table you own, as a JSON file |

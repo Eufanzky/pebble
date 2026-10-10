@@ -15,6 +15,7 @@ import { ActivityLogProvider } from '@/features/activity';
 import { ToastProvider } from '@/shared/ui/ToastContext';
 import { useFocusOnNavigation } from '@/shared/hooks/useFocusOnNavigation';
 import { PebbleChat } from '@/features/chat';
+import { Reminders } from '@/features/reminders';
 
 /** The old page fades out and the new one settles in; with reduced motion the new page shows at once. */
 function PageTransition({ children }: { children: ReactNode }) {
@@ -59,6 +60,7 @@ function AppShellInner({ children }: { children: ReactNode }) {
         </div>
       </main>
       <PebbleChat />
+      <Reminders />
     </div>
   );
 }

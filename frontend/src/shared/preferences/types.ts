@@ -11,4 +11,8 @@ export interface UserPreferences {
   pebbleColor: PebbleColor;
   pebblePersonality: PebblePersonality;
   pebbleModel: PebbleModel;
+  /** A daily, gentle reminder at HH:MM (8.6); '' is none, the default. */
+  reminderTime: string;
+  /** Also as a browser notification; off by default, and asked for only when the user turns it on. */
+  reminderNotifications: boolean;
 }

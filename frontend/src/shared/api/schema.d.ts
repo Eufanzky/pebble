@@ -882,6 +882,10 @@ export interface components {
             readingLevel: number;
             /** Reduceanimations */
             reduceAnimations: boolean;
+            /** Remindernotifications */
+            reminderNotifications: boolean;
+            /** Remindertime */
+            reminderTime: string;
             stepSize: components["schemas"]["StepSize"];
         };
         /**
@@ -898,6 +902,10 @@ export interface components {
             readingLevel?: number | null;
             /** Reduceanimations */
             reduceAnimations?: boolean | null;
+            /** Remindernotifications */
+            reminderNotifications?: boolean | null;
+            /** Remindertime */
+            reminderTime?: string | null;
             stepSize?: components["schemas"]["StepSize"] | null;
         };
         /** ReaderTokenResponse */

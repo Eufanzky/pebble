@@ -17,6 +17,8 @@ const DEFAULTS: PreferencesOut = {
   pebbleColor: 'lavender',
   pebblePersonality: 'gentle',
   pebbleModel: 'chonky-plus',
+  reminderTime: '',
+  reminderNotifications: false,
 };
 
 let preferences: PreferencesOut = { ...DEFAULTS };
