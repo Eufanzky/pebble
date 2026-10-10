@@ -199,7 +199,7 @@ See principle 1 in `mission.md`.
   *Done:* the public health endpoint responds.
 - [ ] **10.3 Vercel.** Deploy the frontend with `BACKEND_URL` (the `/api` proxy's target), the shared `AUTH_TOKEN_SECRET`, and the Auth.js callback URLs.
   *Done:* sign-in and chat work on the live URL.
-- [ ] **10.4 Rate limits.** Add a per-user limit on agent calls so one account can't use up the shared Groq free-tier rate limits. Over the limit, the API answers 429 with `Retry-After`. The backend already turns a provider 429 into a 503 "Pebble is resting"; the frontend shows that gentle "resting" message in both cases instead of its generic error.
+- [x] **10.4 Rate limits.** Add a per-user limit on agent calls so one account can't use up the shared Groq free-tier rate limits. Over the limit, the API answers 429 with `Retry-After`. The backend already turns a provider 429 into a 503 "Pebble is resting"; the frontend shows that gentle "resting" message in both cases instead of its generic error.
   *Done:* an API test covers the limit, an MSW component test covers the message, and the message passes the guilt scan.
 
 ## Phase 11: Presentation

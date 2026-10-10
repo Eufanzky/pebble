@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useActivityLog } from '@/features/activity';
+import { isResting } from '@/shared/lib/api';
 import { simplifyText, type Simplification } from '../api/simplify';
 import { getTextForLevel, MAX_LEVEL } from '../lib/readingLevel';
 import { excerptForSimplifying } from '../lib/simplify';
@@ -12,7 +13,7 @@ const ASK_AFTER_MS = 300;
 
 export interface DocumentText {
   /** `working` while SimplifyCore is asked; `failed` if it couldn't answer (then `retry`). */
-  status: 'ready' | 'working' | 'failed';
+  status: 'ready' | 'working' | 'failed' | 'resting';
   /** The text at this level: SimplifyCore's, the example's, or the original. */
   text: string;
   /** Action items that can go on Today. */
@@ -33,7 +34,8 @@ export interface DocumentText {
  */
 export function useDocumentText(doc: DocumentItem, level: number): DocumentText {
   const [results, setResults] = useState<Record<number, Simplification>>({});
-  const [failed, setFailed] = useState<number | null>(null);
+  // The level SimplifyCore couldn't answer for, and whether that was because the agents are resting (10.4)
+  const [failed, setFailed] = useState<{ level: number; resting: boolean } | null>(null);
   const [attempt, setAttempt] = useState(0);
   const { refresh: refreshLog } = useActivityLog();
   const asks = doc.source === 'upload' && level < MAX_LEVEL;
@@ -46,7 +48,7 @@ export function useDocumentText(doc: DocumentItem, level: number): DocumentText 
       simplifyText(excerpt.text, level)
         .then(
           (result) => current && setResults((prev) => ({ ...prev, [level]: result })),
-          () => current && setFailed(level),
+          (error) => current && setFailed({ level, resting: isResting(error) }),
         )
         // The backend logs what SimplifyCore did (or held back): show it
         .finally(refreshLog);
@@ -92,7 +94,7 @@ export function useDocumentText(doc: DocumentItem, level: number): DocumentText 
     };
   }
   return {
-    status: failed === level ? 'failed' : 'working',
+    status: failed?.level === level ? (failed.resting ? 'resting' : 'failed') : 'working',
     text: '',
     tasks,
     why,

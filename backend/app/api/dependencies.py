@@ -5,9 +5,12 @@ container with fakes through ``set_container()``.
 """
 
 from dataclasses import dataclass, field
+from datetime import timedelta
 
+from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncEngine
 
+from app.api.auth import get_current_user
 from app.application.account import DeleteAccount, ExportAccountData
 from app.application.activity import ActivityLog
 from app.application.adaptation import AdaptLens, UsageSignals
@@ -32,8 +35,10 @@ from app.application.ports.safety import PIIRedactor, SafetyChecker
 from app.application.ports.tasks import TaskRepository
 from app.application.preferences import UserPreferences
 from app.application.progress import ProgressLog, ProgressStats
+from app.application.rate_limit import AgentCallLimit
 from app.application.safety import SafetyGate
 from app.application.tasks import Tasks
+from app.domain.rate_limit import RateLimit
 from app.infrastructure.calendar.ics import IcsCalendarWriter
 from app.infrastructure.config import Settings, settings
 from app.infrastructure.db.account import SqlAccountDataStore, UnconfiguredAccountDataStore
@@ -63,6 +68,8 @@ class Container:
     account_data: AccountDataStore = field(default_factory=UnconfiguredAccountDataStore)
     progress_repository: ProgressRepository = field(default_factory=UnconfiguredProgressRepository)
     adaptation_repository: AdaptationRepository = field(default_factory=UnconfiguredAdaptationRepository)
+    # No limit unless the settings set one (tests that need one build their own)
+    agent_call_limit: AgentCallLimit = field(default_factory=AgentCallLimit)
     engine: AsyncEngine | None = None
 
     @classmethod
@@ -71,6 +78,12 @@ class Container:
             llm=build_llm_provider(config),
             safety_checker=build_safety_checker(config),
             reader=build_reader(config),
+            agent_call_limit=AgentCallLimit(
+                (
+                    RateLimit(config.agent_calls_per_minute, timedelta(minutes=1)),
+                    RateLimit(config.agent_calls_per_day, timedelta(days=1)),
+                )
+            ),
         )
         if config.database_url:
             container.engine = build_engine(config.database_url)
@@ -257,3 +270,8 @@ def get_progress_log() -> ProgressLog:
 
 def get_progress_stats() -> ProgressStats:
     return get_container().progress_stats
+
+
+def limit_agent_calls(user_id: str = Depends(get_current_user)) -> None:
+    """One agent call for this user (10.4): over the limit, a 429 with ``Retry-After``."""
+    get_container().agent_call_limit.take(user_id)

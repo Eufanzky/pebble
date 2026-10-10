@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, type HTMLAttributes } from 'react';
+import { RESTING_TEXT } from '@/shared/lib/api';
 import { usePreferences } from '@/shared/preferences';
 import { Button, Chip, IconButton } from '@/shared/ui';
 import { useBreakDown } from '../hooks/useBreakDown';
@@ -190,6 +191,11 @@ export default function TaskCard({
         {breakdown.status === 'failed' && (
           <p className="task-card__note" role="status">
             CalmSense couldn&apos;t break this down just now. Try again whenever you&apos;re ready.
+          </p>
+        )}
+        {breakdown.status === 'resting' && (
+          <p className="task-card__note" role="status">
+            {RESTING_TEXT}
           </p>
         )}
 

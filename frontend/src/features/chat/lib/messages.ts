@@ -2,6 +2,7 @@ import type { Task } from '@/features/tasks';
 import type { PebbleMood } from '@/features/companion';
 import type { TimeOfDay } from '@/shared/hooks/useTimeOfDay';
 import type { UserPreferences } from '@/shared/preferences';
+import { RESTING_TEXT } from '@/shared/lib/api';
 import type { ChatBreakdown, ChatMessage, ChatRequest, ChatResponse } from '../types';
 
 /** Shown instead of the raw error: a status code means nothing to the user. */
@@ -60,8 +61,9 @@ function breakdownOf(reply: ChatResponse, asked: string): ChatBreakdown | undefi
   };
 }
 
-export function errorMessage(now = Date.now()): ChatMessage {
-  return { id: `e-${now}`, role: 'error', text: CHAT_ERROR_TEXT };
+/** A turn that failed; `resting` when the agents are resting (10.4), which says so instead. */
+export function errorMessage(now = Date.now(), resting = false): ChatMessage {
+  return { id: `e-${now}`, role: 'error', text: resting ? RESTING_TEXT : CHAT_ERROR_TEXT };
 }
 
 /** The reply's mood, if it's one Pebble can show. */

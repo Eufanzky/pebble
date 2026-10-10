@@ -80,6 +80,7 @@ Found by the first unit tests (1.2 onwards), not by the static checks above.
 | A-033 | minor | WhyBot sometimes misreads progress it's given. In the first WhyBot eval, "0 of 4 tasks done" became "your current step size of zero tasks", "0 of 6 done" became "since you have no tasks yet", and "finished 3 of 4 broken-down tasks with most steps open" became "completed 3 of 4 tasks". The automated scores all passed: the numbers are real, only the meaning is off. Found during 7.9. | `uv run pytest -m eval tests/evals/test_whybot_evals.py`, then read `results/whybot.json` | prompt work, with A-028 (8.1 or an item of its own) |
 | A-034 | minor | Today's "Want to start with …?" suggests the task whose estimate sorts first as text, not the shortest: "~10 min" sorts before "~5 min", so a 10-minute task is offered over a 5-minute one. The test uses "~05 min" and so doesn't see it. Found during 8.1. | `shortestTask([{ timeEstimate: '~5 min' }, { timeEstimate: '~10 min' }])` in `features/tasks/lib/today.ts` | a fix of its own |
 | A-035 | minor | One full local E2E run during 8.3 failed "what you finish adds up on the stats page"; the error wasn't kept. It passed alone and in the next full run (30 of 30). Found during 8.3. | `npx playwright test e2e/stats.spec.ts --repeat-each=10` | watch, with A-032 |
+| A-036 | minor | Two full local E2E runs during 10.4 each failed one different test on a first navigation: "a task due tomorrow shows its time left…" (30 s timeout, the first test of the run) and "signing out goes back to the sign-in page" (still on `/today` after 5 s). Each passed alone, and neither calls an agent. Likely local load in WSL; CI was green. Found during 10.4. | `npx playwright test e2e/deadlines.spec.ts e2e/sign-in.spec.ts --repeat-each=10` | watch, with A-035 |
 
 ## Backend behaviour
 
@@ -108,7 +109,7 @@ Found by the characterization tests (1.3 onwards), not by the static checks abov
 
 ## Summary
 
-Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011). Found during 1.3: 1 major, 1 minor (A-012, A-013). Found during 1.4: 1 major (A-014). Found during 1.5: 1 minor (A-015). Found during 1.7: 1 major, 1 cosmetic (A-016, A-017). Found during 2.8: 1 major (A-018). Found during 3.3: 2 major (A-019, A-020). Found during 3.4: 1 minor (A-021). Found during 3.7: 1 minor (A-022). Found during 5.4: 1 minor (A-023). Found during 6.3: 1 minor, 2 cosmetic (A-024, A-025, A-026). Found during 6.4: 1 cosmetic (A-027). Found during 6.6: 1 minor (A-028). Found while planning Phase 7: 1 major, 1 minor (A-029, A-030). Found during 7.4–7.5: 2 minor (A-031, A-032). Found during 7.9: 1 minor (A-033). Found during 8.1: 1 minor (A-034). Found during 8.3: 1 minor (A-035).
+Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011). Found during 1.3: 1 major, 1 minor (A-012, A-013). Found during 1.4: 1 major (A-014). Found during 1.5: 1 minor (A-015). Found during 1.7: 1 major, 1 cosmetic (A-016, A-017). Found during 2.8: 1 major (A-018). Found during 3.3: 2 major (A-019, A-020). Found during 3.4: 1 minor (A-021). Found during 3.7: 1 minor (A-022). Found during 5.4: 1 minor (A-023). Found during 6.3: 1 minor, 2 cosmetic (A-024, A-025, A-026). Found during 6.4: 1 cosmetic (A-027). Found during 6.6: 1 minor (A-028). Found while planning Phase 7: 1 major, 1 minor (A-029, A-030). Found during 7.4–7.5: 2 minor (A-031, A-032). Found during 7.9: 1 minor (A-033). Found during 8.1: 1 minor (A-034). Found during 8.3: 1 minor (A-035). Found during 10.4: 1 minor (A-036).
 
 ## Status
 
@@ -146,8 +147,9 @@ Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Foun
 | A-032 | **Open**: not reproduced; watch the E2E. |
 | A-033 | Improved in 8.1: WhyBot is told to repeat progress as given; one misread of three is left ("your task count setting"). **Open**. |
 | A-034 | **Open**: compare estimates in minutes (BridgeBot's `minutes_of` already reads them on the backend). |
+| A-036 | **Open**: not reproduced alone; watch the E2E. |
 | A-035 | **Open**: not reproduced; watch the E2E. |
 | A-027 | Fixed in 6.6: "steps" everywhere (API routes and fields, frontend types, prompts), and "step size" for "chunk size"; migration 0005 renames saved preferences, and the browser import still reads the old names. |
 | A-021 | Fixed in 3.4: the note says what each entry shows (since 4.5 the log is saved to the account). Test in `ActivityView.test.tsx`. |
 
-Open: 8 (A-002, A-026, A-028, A-031, A-032, A-033, A-034, A-035), each linked to the phase that fixes it or the reason it waits. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
+Open: 9 (A-002, A-026, A-028, A-031, A-032, A-033, A-034, A-035, A-036), each linked to the phase that fixes it or the reason it waits. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.

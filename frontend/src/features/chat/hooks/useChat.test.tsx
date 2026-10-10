@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { usePebble } from '@/features/companion';
 import { chatHandlers, chatReply } from '@/test/msw/handlers';
 import { server } from '@/test/msw/server';
+import { resting } from '@/test/msw/resting';
 import { act, renderHookWithProviders, waitFor } from '@/test/render';
 import { CHAT_ERROR_TEXT } from '../lib/messages';
 import { useChat } from './useChat';
@@ -45,6 +46,18 @@ describe('useChat', () => {
     await act(() => result.current.chat.send('I did it'));
 
     await waitFor(() => expect(result.current.pebble.mood).toBe('excited'));
+  });
+
+  it.each(['limit', 'provider'] as const)('says Pebble is resting when the agents are (%s, 10.4)', async (kind) => {
+    server.use(resting('/api/agents/chat', kind));
+    const { result } = renderChat();
+
+    await act(() => result.current.chat.send('Hello'));
+
+    expect(result.current.chat.messages.at(-1)).toMatchObject({
+      role: 'error',
+      text: 'Pebble is resting for a moment. Try again in a little while.',
+    });
   });
 
   it('adds a gentle error message when the request fails', async () => {

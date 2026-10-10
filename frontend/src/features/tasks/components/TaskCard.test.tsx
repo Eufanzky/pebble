@@ -1,6 +1,7 @@
 import { http } from 'msw';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { server } from '@/test/msw/server';
+import { resting } from '@/test/msw/resting';
 import { taskHandlers } from '@/test/msw/tasks';
 import { renderWithProviders, screen, within } from '@/test/render';
 import { seed } from '../testing';
@@ -132,6 +133,19 @@ describe('TaskCard', () => {
     expect(await screen.findByRole('status')).toHaveTextContent(
       "CalmSense couldn't break this down just now. Try again whenever you're ready.",
     );
+    expect(screen.getByRole('button', { name: 'Break down "Read Chapter 4" into steps' })).toBeInTheDocument();
+  });
+
+  it.each(['limit', 'provider'] as const)('says Pebble is resting when the agents are (%s, 10.4)', async (kind) => {
+    server.use(resting('/api/tasks/:taskId/breakdown', kind));
+    const { user } = renderCard(task({ steps: undefined }));
+
+    await user.click(screen.getByRole('button', { name: 'Break down "Read Chapter 4" into steps' }));
+
+    expect(await screen.findByRole('status')).toHaveTextContent(
+      'Pebble is resting for a moment. Try again in a little while.',
+    );
+    expect(screen.queryByText(/CalmSense couldn't/)).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Break down "Read Chapter 4" into steps' })).toBeInTheDocument();
   });
 

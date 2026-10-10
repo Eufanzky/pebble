@@ -7,6 +7,7 @@ import { useTasks } from '@/features/tasks';
 import { useActivityLog } from '@/features/activity';
 import { useTimeOfDay } from '@/shared/hooks/useTimeOfDay';
 import { useToast } from '@/shared/ui/ToastContext';
+import { isResting } from '@/shared/lib/api';
 import { sendChatMessage } from '../api/sendChatMessage';
 import {
   buildChatRequest,
@@ -49,8 +50,8 @@ export function useChat() {
 
         const mood = replyMood(reply);
         if (mood) flashMood(mood, MOOD_FLASH_MS);
-      } catch {
-        setMessages((prev) => [...prev, errorMessage()]);
+      } catch (error) {
+        setMessages((prev) => [...prev, errorMessage(Date.now(), isResting(error))]);
       } finally {
         setIsLoading(false);
         // The backend logs every turn itself (and a message it held back): show it

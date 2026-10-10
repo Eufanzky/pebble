@@ -1,3 +1,4 @@
+import { RESTING_TEXT } from '@/shared/lib/api';
 import { Button } from '@/shared/ui';
 import type { DocumentText } from '../hooks/useDocumentText';
 
@@ -26,10 +27,14 @@ export default function SimplifiedText({ simplified, level, textVersion, noMotio
       </p>
     );
   }
-  if (simplified.status === 'failed') {
+  if (simplified.status === 'failed' || simplified.status === 'resting') {
     return (
       <div role="status" style={{ display: 'grid', gap: 10, justifyItems: 'start', marginBottom }}>
-        <p style={noteStyle}>SimplifyCore couldn&apos;t simplify this just now. The original is still here.</p>
+        <p style={noteStyle}>
+          {simplified.status === 'resting'
+            ? `${RESTING_TEXT} The original is still here.`
+            : "SimplifyCore couldn't simplify this just now. The original is still here."}
+        </p>
         <Button variant="quiet" size="sm" onClick={simplified.retry}>
           Try again
         </Button>

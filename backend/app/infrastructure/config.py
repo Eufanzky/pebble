@@ -39,6 +39,11 @@ class Settings(BaseSettings):
     # AUTH_TOKEN_SECRET, the same value). Empty: every signed-in endpoint answers 503.
     auth_token_secret: str = ""
 
+    # Agent calls per user (roadmap 10.4), so one account can't use up the LLM's shared free tier.
+    # A chat turn is one call (two or three LLM requests). 0 turns a limit off.
+    agent_calls_per_minute: int = 10
+    agent_calls_per_day: int = 100
+
     # CORS
     frontend_url: str = "http://localhost:3000"
 

@@ -7,7 +7,13 @@ from fastapi.responses import JSONResponse
 
 from app.application.adaptation import SuggestionGoneError
 from app.application.documents import DocumentTooLargeError
-from app.application.errors import AgentReplyError, PromptAttackError, UnsafeContentError, UnsafeOutputError
+from app.application.errors import (
+    AgentCallsLimitedError,
+    AgentReplyError,
+    PromptAttackError,
+    UnsafeContentError,
+    UnsafeOutputError,
+)
 from app.application.ports.documents import DocumentError, UnsupportedDocumentError
 from app.application.ports.llm import LLMError, LLMRateLimitedError
 from app.application.ports.persistence import PersistenceError
@@ -36,6 +42,11 @@ async def _unsafe_output(_: Request, exc: Exception) -> JSONResponse:
 async def _rate_limited(_: Request, exc: LLMRateLimitedError) -> JSONResponse:
     headers = {"Retry-After": str(int(exc.retry_after))} if exc.retry_after else None
     return _detail(503, RESTING, headers)
+
+
+async def _too_many_calls(_: Request, exc: AgentCallsLimitedError) -> JSONResponse:
+    # The same gentle words as a provider limit: the frontend shows "resting" for both (10.4)
+    return _detail(429, RESTING, {"Retry-After": str(exc.retry_after)})
 
 
 async def _unavailable(_: Request, exc: Exception) -> JSONResponse:
@@ -70,6 +81,7 @@ def register_error_handlers(app: FastAPI) -> None:
     app.add_exception_handler(UnsafeContentError, _rejected_input)
     app.add_exception_handler(UnsafeOutputError, _unsafe_output)
     app.add_exception_handler(LLMRateLimitedError, _rate_limited)
+    app.add_exception_handler(AgentCallsLimitedError, _too_many_calls)
     app.add_exception_handler(TaskNotFoundError, _not_found)
     app.add_exception_handler(TaskOrderError, _conflict)
     app.add_exception_handler(TaskFinishedError, _conflict)

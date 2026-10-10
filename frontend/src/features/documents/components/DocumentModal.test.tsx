@@ -3,6 +3,7 @@ import { fireEvent, renderWithProviders, screen, waitFor } from '@/test/render';
 import { setTestPreferences } from '@/test/preferences';
 import { taskStore } from '@/test/msw/tasks';
 import { server } from '@/test/msw/server';
+import { resting } from '@/test/msw/resting';
 import { simplifyHandlers, simplifyStore } from '@/test/msw/simplify';
 import { accountStore } from '@/test/msw/account';
 import { useActivityLog } from '@/features/activity';
@@ -141,6 +142,19 @@ describe('DocumentModal', () => {
       const { user } = renderModal(vi.fn(), upload());
 
       expect(await screen.findByText("SimplifyCore couldn't simplify this just now. The original is still here.")).toBeInTheDocument();
+      server.use(simplifyHandlers.reply());
+      await user.click(screen.getByRole('button', { name: 'Try again' }));
+
+      expect(await screen.findByText(/^Level 5:/)).toBeInTheDocument();
+    });
+
+    it.each(['limit', 'provider'] as const)('says Pebble is resting when the agents are (%s, 10.4)', async (kind) => {
+      server.use(resting('/api/agents/simplify', kind));
+      const { user } = renderModal(vi.fn(), upload());
+
+      expect(
+        await screen.findByText('Pebble is resting for a moment. Try again in a little while. The original is still here.'),
+      ).toBeInTheDocument();
       server.use(simplifyHandlers.reply());
       await user.click(screen.getByRole('button', { name: 'Try again' }));
 
