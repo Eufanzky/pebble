@@ -91,6 +91,23 @@ describe('TaskCard', () => {
     expect(screen.getByRole('button', { name: /Why did Pebble/ })).toBeInTheDocument();
   });
 
+  // Roadmap 9.2: a focus session starts from a step
+  it('links each open step to a focus session on it', () => {
+    renderCard(task({ showSteps: true }));
+
+    expect(screen.getByRole('link', { name: 'Focus on "Write a summary"' })).toHaveAttribute(
+      'href',
+      '/focus?task=task-x&step=b',
+    );
+    expect(screen.queryByRole('link', { name: 'Focus on "Skim the headings"' })).not.toBeInTheDocument();
+  });
+
+  it('has no focus link for a step that is still being saved', () => {
+    renderCard(task({ showSteps: true, id: 'temp-1' }));
+
+    expect(screen.queryByRole('link', { name: /^Focus on/ })).not.toBeInTheDocument();
+  });
+
   it('says CalmSense is working, with moving bars only when animations are on', async () => {
     let answer = () => {};
     const answered = new Promise<void>((resolve) => (answer = resolve));

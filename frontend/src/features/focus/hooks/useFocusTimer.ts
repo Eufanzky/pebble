@@ -7,7 +7,8 @@ export type TimerState = 'idle' | 'running' | 'paused';
 
 /**
  * A 25-minute countdown. When it reaches zero, `onComplete` runs once and the
- * timer resets to idle. Pausing keeps the time left.
+ * timer resets to idle. Pausing keeps the time left. `stop` ends the session
+ * early, resets the timer and returns how many seconds were focused.
  */
 export function useFocusTimer(onComplete: () => void) {
   const [secondsLeft, setSecondsLeft] = useState(FOCUS_SECONDS);
@@ -38,6 +39,13 @@ export function useFocusTimer(onComplete: () => void) {
 
   const start = useCallback(() => setState('running'), []);
   const pause = useCallback(() => setState('paused'), []);
+  const stop = useCallback(() => {
+    const focused = FOCUS_SECONDS - left.current;
+    left.current = FOCUS_SECONDS;
+    setSecondsLeft(FOCUS_SECONDS);
+    setState('idle');
+    return focused;
+  }, []);
 
-  return { secondsLeft, state, start, pause, resume: start };
+  return { secondsLeft, state, start, pause, resume: start, stop };
 }

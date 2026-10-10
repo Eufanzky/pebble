@@ -188,7 +188,7 @@ See principle 1 in `mission.md`.
 
 - [x] **9.1 Remove rooms.** Delete the multi-user rooms UI, fake participant counts, and related sample data.
   *Done:* no fake presence numbers remain, and the 1.4 tests and E2E pass.
-- [ ] **9.2 Focus session.** A Pomodoro session tied to one task step, with Pebble working beside you. It respects reduce-animations and never penalizes stopping early.
+- [x] **9.2 Focus session.** A Pomodoro session tied to one task step, with Pebble working beside you. It respects reduce-animations and never penalizes stopping early.
   *Done:* timer hook tests use fake timers; component tests cover stopping early with no penalty; E2E starts focus from a step.
 
 ## Phase 10: Deploy

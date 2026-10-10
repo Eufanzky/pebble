@@ -77,6 +77,21 @@ describe('axe: interactive states', () => {
     expect(await axe(container)).toHaveNoViolations();
   });
 
+  it('Focus on one step, after stopping, with "Mark this step done" (9.2)', async () => {
+    seed([
+      newTask('Write the report', {
+        steps: [{ id: 's', title: 'Write the intro', timeEstimate: '~20 min', completed: false }],
+      }),
+    ]);
+    const { container, user } = renderWithProviders(<FocusView taskId="seeded-1" stepId="seeded-1-1" />);
+    await screen.findByText('Write the intro');
+    await user.click(screen.getByRole('button', { name: 'Start focus session' }));
+    await user.click(screen.getByRole('button', { name: 'Stop' }));
+    await screen.findByRole('button', { name: 'Mark this step done' });
+
+    expect(await axe(container)).toHaveNoViolations();
+  });
+
   it('Settings with a daily reminder set (8.6)', async () => {
     setTestPreferences({ reminderTime: '09:00', reminderNotifications: false });
     const { container } = renderWithProviders(<SettingsView />);
