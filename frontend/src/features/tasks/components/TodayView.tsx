@@ -8,6 +8,7 @@ import { Button } from '@/shared/ui';
 import { useTimeOfDay } from '@/shared/hooks/useTimeOfDay';
 import { useTasks } from '../context/TasksContext';
 import { useAddTask } from '../hooks/useAddTask';
+import { useComingBack } from '../hooks/useComingBack';
 import { useTaskActions } from '../hooks/useTaskActions';
 import { useTodayClock } from '../hooks/useTodayClock';
 import { filterTasks, isFiltering, NO_FILTER, type TaskFilter } from '../lib/organise';
@@ -51,6 +52,7 @@ export default function TodayView({ progress }: { progress?: ReactNode }) {
   const { preferences, reduceMotion } = usePreferences();
   const timeOfDay = useTimeOfDay();
   const { formattedDate } = useTodayClock();
+  const comingBack = useComingBack();
   const actions = useTaskActions();
   const addTask = useAddTask();
   const [viewMode, setViewMode] = useState<ViewMode>('list');
@@ -76,7 +78,7 @@ export default function TodayView({ progress }: { progress?: ReactNode }) {
     <div className="today">
       <div className="today__main">
         <TodayGreeting
-          greeting={greeting(timeOfDay, done.length, tasks.length, calm)}
+          greeting={greeting(timeOfDay, done.length, tasks.length, calm, comingBack)}
           date={formattedDate}
           companion={<PebbleCharacter mood={mood} size="small" />}
         />
@@ -164,7 +166,7 @@ export default function TodayView({ progress }: { progress?: ReactNode }) {
       <aside className="today__companion" aria-label="Pebble">
         <PebbleSpeechBubble message={message} />
         <PebbleCharacter mood={mood} size="medium" />
-        <p className="today__nudge">{nudge(tasks, timeOfDay, calm)}</p>
+        <p className="today__nudge">{nudge(tasks, timeOfDay, calm, comingBack)}</p>
       </aside>
     </div>
   );

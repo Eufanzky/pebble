@@ -123,6 +123,8 @@ const PATTERNS: Pattern[] = [
         '\\bwhere (?:have )?you been\\b',
         '\\b\\d+ (?:days?|weeks?|months?) (?:since|without)\\b',
         '\\binactive for\\b',
+        '\\bafter (?:\\d+|a few|several|many|some) (?:days?|weeks?|months?)\\b', // "Welcome back after 6 days" (8.5)
+        '\\b(?:\\d+|a few|several|many) (?:days?|weeks?|months?) ago\\b',
       ].join('|'),
       'i'
     )),
@@ -139,12 +141,17 @@ const PATTERNS: Pattern[] = [
       'Where have you been?',
       '6 days without a finished task',
       'Inactive for 2 weeks',
+      'Welcome back after 6 days!',
+      'You opened Pebble 3 weeks ago',
+      'after a few days off',
     ],
     allowed: [
       'Want to pick one small thing?',
       'Take a 10-minute walk',
       "It's getting late — you've done enough today.",
       'You finished 14 steps in the last 30 days',
+      'Start wherever you like. One small thing is enough.',
+      'Next week',
     ],
   },
   {

@@ -1,9 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { renderWithProviders, screen, waitFor, within } from '@/test/render';
+import { act, renderWithProviders, screen, waitFor, within } from '@/test/render';
 import { server } from '@/test/msw/server';
 import { ProgressSoFar } from '@/features/stats';
 import { quietStats, statsStore } from '@/test/msw/stats';
 import { taskHandlers, taskStore } from '@/test/msw/tasks';
+import { LAST_VISIT_KEY } from '../lib/welcome';
 import { newTask, seed } from '../testing';
 import TodayView from './TodayView';
 
@@ -256,6 +257,69 @@ describe('a task whose day is over (8.4)', () => {
     const titles = () => screen.getAllByRole('article').map((a) => a.getAttribute('aria-label'));
     expect(titles()).toEqual(['Read', 'Essay', 'Walk']);
     await waitFor(() => expect(onServer().letGoAt).toBeNull());
+  });
+});
+
+describe('coming back after time away (8.5)', () => {
+  // A fixed clock: Friday, October 9, 2026, 10:00 local time
+  beforeEach(() => {
+    vi.useFakeTimers({ toFake: ['Date'] });
+    vi.setSystemTime(new Date(2026, 9, 9, 10));
+    seed([newTask('Write intro'), newTask('Walk', { completed: true })]);
+  });
+  afterEach(() => {
+    vi.useRealTimers();
+    window.localStorage.removeItem(LAST_VISIT_KEY);
+  });
+
+  const lastVisit = (date: Date) => window.localStorage.setItem(LAST_VISIT_KEY, date.toISOString());
+  const setVisibility = (state: DocumentVisibilityState) => {
+    Object.defineProperty(document, 'visibilityState', { value: state, configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+  };
+
+  it.each([
+    ['three days', new Date(2026, 9, 6, 18)],
+    ['five weeks', new Date(2026, 8, 3, 9)],
+  ])('opens fresh after %s away, and never says how long', async (_, last) => {
+    lastVisit(last);
+    const { container } = renderWithProviders(<TodayView />);
+    await screen.findByRole('article', { name: 'Write intro' });
+
+    expect(screen.getByText('Want to pick one small thing?')).toBeInTheDocument();
+    expect(screen.getByText('Start wherever you like. One small thing is enough.')).toBeInTheDocument();
+    expect(container).not.toHaveTextContent(/\b(?:\d+|three|five|a few|several) (?:days?|weeks?|months?)\b|away|missed|since you|while/i);
+  });
+
+  it.each([
+    ['earlier today', new Date(2026, 9, 9, 7)],
+    ['yesterday', new Date(2026, 9, 8, 9)],
+  ])('greets as usual after a visit %s', async (_, last) => {
+    lastVisit(last);
+    renderWithProviders(<TodayView />);
+    await screen.findByRole('article', { name: 'Write intro' });
+
+    expect(screen.queryByText('Want to pick one small thing?')).not.toBeInTheDocument();
+  });
+
+  it('greets a first visit as usual', async () => {
+    renderWithProviders(<TodayView />);
+    await screen.findByRole('article', { name: 'Write intro' });
+
+    expect(screen.queryByText('Want to pick one small thing?')).not.toBeInTheDocument();
+  });
+
+  it('notes the visit when the tab is hidden, and opens fresh again when it comes back days later', async () => {
+    lastVisit(new Date(2026, 9, 1));
+    renderWithProviders(<TodayView />);
+    await screen.findByText('Want to pick one small thing?');
+
+    act(() => setVisibility('hidden'));
+    expect(window.localStorage.getItem(LAST_VISIT_KEY)).toBe(new Date(2026, 9, 9, 10).toISOString());
+
+    vi.setSystemTime(new Date(2026, 9, 12, 9)); // the tab stayed open over the weekend
+    act(() => setVisibility('visible'));
+    expect(screen.getByText('Want to pick one small thing?')).toBeInTheDocument();
   });
 });
 

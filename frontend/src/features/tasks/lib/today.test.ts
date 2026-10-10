@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import type { Task } from '../types';
-import { greeting, nudge, shortestTask, splitTasks } from './today';
+import { FRESH_START, greeting, nudge, shortestTask, splitTasks } from './today';
 
 function task(title: string, completed = false, timeEstimate = '~10 min'): Task {
   return { id: title, title, timeEstimate, tag: 'study', priority: 'medium', completed };
@@ -20,6 +20,15 @@ describe('greeting', () => {
     ['evening', 2, 2, "It's getting late — you've done enough today 🌙", 'You finished 2 things today. That counts.', true],
   ] as const)('%s with %i of %i done', (timeOfDay, done, total, text, sub, muted) => {
     expect(greeting(timeOfDay, done, total, false)).toEqual({ text, sub, muted });
+  });
+
+  it.each(['morning', 'day', 'evening'] as const)('opens fresh after time away, whatever was done (%s)', (timeOfDay) => {
+    for (const [done, total] of [[0, 0], [0, 5], [3, 5]]) {
+      const fresh = greeting(timeOfDay, done, total, false, true);
+      expect(fresh.sub).toBe(FRESH_START);
+      expect(fresh.text).toBe(greeting(timeOfDay, done, total, false).text);
+    }
+    expect(FRESH_START).toBe('Want to pick one small thing?');
   });
 
   it.each(['morning', 'day', 'evening'] as const)('drops the emoji in calm mode (%s)', (timeOfDay) => {
@@ -54,6 +63,10 @@ describe('nudge', () => {
     const tasks = [task('Long', false, '~30 min'), task('Quick', false, '~05 min'), task('Done', true, '~01 min')];
     expect(nudge(tasks, 'day', false)).toBe('2 still open. Want to start with "Quick"?');
     expect(nudge([task('One')], 'day', false)).toBe('1 still open. Want to start with "One"?');
+  });
+
+  it('opens fresh after time away, without counting what is open', () => {
+    expect(nudge([task('a'), task('b', true)], 'day', false, true)).toBe('Start wherever you like. One small thing is enough.');
   });
 
   it('counts the list in the morning, and with no tasks', () => {

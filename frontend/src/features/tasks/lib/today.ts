@@ -11,8 +11,22 @@ const plural = (n: number) => (n === 1 ? '' : 's');
 
 const EMPTY = 'Nothing on the list yet. Add one thing whenever you like.';
 
-/** The Today banner: a greeting for the time of day and what's done so far. */
-export function greeting(timeOfDay: TimeOfDay, done: number, total: number, calm: boolean): Greeting {
+/** Coming back after time away (8.5): a fresh start, and nothing about how long it was. */
+export const FRESH_START = 'Want to pick one small thing?';
+
+/** The Today banner: a greeting for the time of day and what's done so far, or a fresh start (8.5). */
+export function greeting(
+  timeOfDay: TimeOfDay,
+  done: number,
+  total: number,
+  calm: boolean,
+  comingBack = false,
+): Greeting {
+  const usual = usualGreeting(timeOfDay, done, total, calm);
+  return comingBack ? { ...usual, sub: FRESH_START } : usual;
+}
+
+function usualGreeting(timeOfDay: TimeOfDay, done: number, total: number, calm: boolean): Greeting {
   switch (timeOfDay) {
     case 'morning':
       return {
@@ -57,7 +71,8 @@ export function shortestTask(tasks: Task[]): Task | undefined {
  * The time-aware line under "up next". It never sets the clock against what's left: the time of day only
  * picks the tone (principle 1).
  */
-export function nudge(tasks: Task[], timeOfDay: TimeOfDay, calm: boolean): string {
+export function nudge(tasks: Task[], timeOfDay: TimeOfDay, calm: boolean, comingBack = false): string {
+  if (comingBack) return 'Start wherever you like. One small thing is enough.';
   const total = tasks.length;
   const open = tasks.filter((t) => !t.completed);
 
