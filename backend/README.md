@@ -11,13 +11,13 @@ Requires Python 3.12+ and [uv](https://docs.astral.sh/uv/getting-started/install
 ```bash
 cd backend
 uv sync                        # .venv with app + dev dependencies, from uv.lock
-cp .env.example .env           # set LLM_API_KEY, or LLM_PROVIDER=fake
+uv run python scripts/setup_local.py   # .env and ../frontend/.env.local, one shared AUTH_TOKEN_SECRET (--fake: no LLM key)
 docker compose up -d db        # from the repo root: Postgres 17 (optional)
 uv run alembic upgrade head    # create or update the tables
 uv run uvicorn app.main:app --port 8000 --reload
 ```
 
-The API is at **http://localhost:8000**, with Swagger UI at **/docs**. The frontend (`cd frontend && npm run dev`) calls it through its `/api` proxy route, signed as the user; set `AUTH_TOKEN_SECRET` to the same value in both `.env` files.
+Then set `LLM_API_KEY` in `.env` (a free Groq key), unless you used `--fake`. The setup script writes both settings files from their examples, or adds what an existing one lacks without changing anything else. The API is at **http://localhost:8000**, with Swagger UI at **/docs**. The frontend (`cd frontend && npm run dev`) calls it through its `/api` proxy route, signed as the user, which is why `AUTH_TOKEN_SECRET` is the same in both files. At startup the backend logs one line with what's on and off (`describe` in `app/infrastructure/config.py`), never a secret.
 
 After changing dependencies, run `uv lock` and commit `uv.lock`.
 
@@ -150,7 +150,7 @@ The agents reach the model through the `LLMProvider` port (`app/application/port
 | `LLM_PROVIDER` | Adapter | Needs |
 |:--|:--|:--|
 | `groq` (default) | `OpenAICompatibleLLM.groq` | `LLM_API_KEY`: a free key from [console.groq.com/keys](https://console.groq.com/keys). Model `openai/gpt-oss-120b`, reasoning effort `low`. |
-| `openai` | `OpenAICompatibleLLM.openai` | `LLM_API_KEY`; with `LLM_BASE_URL`, any OpenAI-compatible provider |
+| `openai` | `OpenAICompatibleLLM.openai` | `LLM_API_KEY`; with `LLM_BASE_URL`, any OpenAI-compatible provider (Groq's URL gets reasoning effort `low` here too) |
 | `azure` | `OpenAICompatibleLLM.azure` | `AZURE_OPENAI_ENDPOINT`, `AZURE_OPENAI_KEY`, `AZURE_OPENAI_DEPLOYMENT` |
 | `fake` | `FakeLLM` (`app/infrastructure/llm/fake.py`) | nothing: deterministic offline replies |
 
@@ -234,6 +234,7 @@ backend/
 │       ├── routers/            # agents, documents, tasks, preferences, activity, stats, importing, account
 │       └── schemas/            # request/response models
 ├── migrations/                 # Alembic (env.py, versions/); config in alembic.ini
+├── scripts/                    # setup_local.py (the local settings files), export_openapi.py (the frontend's API types)
 ├── tests/                      # domain/, unit/, contract/, api/, integration/, evals/, fixtures/
 ├── pyproject.toml              # dependencies, pytest, ruff and vulture config
 ├── uv.lock

@@ -69,3 +69,4 @@ One folder per change: what was asked and decided (`requirements.md`), how it wa
 | 2026-10-10 | 10.1 | [Backend Dockerfile](2026-10-10-backend-dockerfile/requirements.md) |
 | 2026-10-10 | 10.4 | [Rate limits](2026-10-10-rate-limits/requirements.md) |
 | 2026-10-17 | Phases 10–12 | [Local first, deploy last](2026-10-17-local-first/requirements.md) |
+| 2026-10-17 | 10.5 | [Local setup](2026-10-17-local-setup/requirements.md) |

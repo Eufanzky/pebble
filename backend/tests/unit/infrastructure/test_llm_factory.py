@@ -1,6 +1,10 @@
 """``LLM_PROVIDER`` selects the adapter; a missing key disables the LLM cleanly."""
 
+import json
+
+import httpx
 import pytest
+import respx
 
 from app.application.ports.llm import LLMRequest, LLMUnavailableError
 from app.infrastructure.config import Settings
@@ -60,3 +64,40 @@ async def test_missing_credentials_give_an_llm_that_fails_cleanly(values, reason
 def test_unknown_provider_is_rejected_at_startup():
     with pytest.raises(ValueError):
         settings(llm_provider="banana")
+
+
+async def sent_reasoning_effort(llm, url: str) -> str | None:
+    """The ``reasoning_effort`` the adapter sends with one request."""
+    reply = {"choices": [{"message": {"content": "{}"}}]}
+    with respx.mock:
+        route = respx.post(url).mock(return_value=httpx.Response(200, json=reply))
+        await llm.complete(LLMRequest(agent="orchestrator", system_prompt="s", user_message="u"))
+    return json.loads(route.calls.last.request.content).get("reasoning_effort")
+
+
+@pytest.mark.parametrize(
+    ("values", "url", "effort"),
+    [
+        # A-037: Groq reached as an OpenAI-compatible host reasons briefly too, so replies aren't cut short
+        ({"llm_provider": "groq"}, "https://api.groq.com/openai/v1/chat/completions", "low"),
+        (
+            {"llm_provider": "openai", "llm_base_url": "https://api.groq.com/openai/v1/"},
+            "https://api.groq.com/openai/v1/chat/completions",
+            "low",
+        ),
+        ({"llm_provider": "openai"}, "https://api.openai.com/v1/chat/completions", None),
+        (
+            {
+                "llm_provider": "openai",
+                "llm_base_url": "https://api.groq.com/openai/v1",
+                "llm_reasoning_effort": "high",
+            },
+            "https://api.groq.com/openai/v1/chat/completions",
+            "high",
+        ),
+    ],
+)
+async def test_reasoning_effort(values, url, effort):
+    llm = build_llm_provider(settings(llm_api_key="key", **values))
+
+    assert await sent_reasoning_effort(llm, url) == effort
