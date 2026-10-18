@@ -81,6 +81,9 @@ Found by the first unit tests (1.2 onwards), not by the static checks above.
 | A-034 | minor | Today's "Want to start with …?" suggests the task whose estimate sorts first as text, not the shortest: "~10 min" sorts before "~5 min", so a 10-minute task is offered over a 5-minute one. The test uses "~05 min" and so doesn't see it. Found during 8.1. | `shortestTask([{ timeEstimate: '~5 min' }, { timeEstimate: '~10 min' }])` in `features/tasks/lib/today.ts` | a fix of its own |
 | A-035 | minor | One full local E2E run during 8.3 failed "what you finish adds up on the stats page"; the error wasn't kept. It passed alone and in the next full run (30 of 30). Found during 8.3. | `npx playwright test e2e/stats.spec.ts --repeat-each=10` | watch, with A-032 |
 | A-036 | minor | Two full local E2E runs during 10.4 each failed one different test on a first navigation: "a task due tomorrow shows its time left…" (30 s timeout, the first test of the run) and "signing out goes back to the sign-in page" (still on `/today` after 5 s). Each passed alone, and neither calls an agent. Likely local load in WSL; CI was green. Found during 10.4. | `npx playwright test e2e/deadlines.spec.ts e2e/sign-in.spec.ts --repeat-each=10` | watch, with A-035 |
+| A-037 | major | With `LLM_PROVIDER=openai` and Groq's URL in `LLM_BASE_URL` (an older `.env`), no reasoning effort is sent, so `gpt-oss-120b` reasons at its default and runs past the classifier's 512 tokens: Groq rejects the reply as invalid JSON, and every chat turn answers "I didn't quite catch that". Breakdowns on Today and SimplifyCore still work, since they allow more tokens. Found running the app locally on 2026-10-17. | `LLM_PROVIDER=openai LLM_BASE_URL=https://api.groq.com/openai/v1`, then chat "Help me break down cleaning my kitchen" | 10.5 |
+| A-038 | minor | Without Content Safety configured (`NoOpSafetyChecker`), every activity entry says "Content Safety: passed" and the summary says every entry passed the safety checks, though only PII redaction ran (principle: honest). Found running the app locally on 2026-10-17. | Run without `CONTENT_SAFETY_*`, use chat, open Activity | 10.7 |
+| A-039 | minor | A local production build (`npm run build && npx next start`) can't sign in: Auth.js answers every `/api/auth/*` call with `UntrustedHost`, because `AUTH_TRUST_HOST` is set only in the Playwright config and missing from `.env.example` (Vercel sets it by itself). Found running the app locally on 2026-10-17. | `next start` with `.env.local` from the example, open `/signin` | 10.5 |
 
 ## Backend behaviour
 
@@ -109,7 +112,7 @@ Found by the characterization tests (1.3 onwards), not by the static checks abov
 
 ## Summary
 
-Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011). Found during 1.3: 1 major, 1 minor (A-012, A-013). Found during 1.4: 1 major (A-014). Found during 1.5: 1 minor (A-015). Found during 1.7: 1 major, 1 cosmetic (A-016, A-017). Found during 2.8: 1 major (A-018). Found during 3.3: 2 major (A-019, A-020). Found during 3.4: 1 minor (A-021). Found during 3.7: 1 minor (A-022). Found during 5.4: 1 minor (A-023). Found during 6.3: 1 minor, 2 cosmetic (A-024, A-025, A-026). Found during 6.4: 1 cosmetic (A-027). Found during 6.6: 1 minor (A-028). Found while planning Phase 7: 1 major, 1 minor (A-029, A-030). Found during 7.4–7.5: 2 minor (A-031, A-032). Found during 7.9: 1 minor (A-033). Found during 8.1: 1 minor (A-034). Found during 8.3: 1 minor (A-035). Found during 10.4: 1 minor (A-036).
+Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Found during 0.2: 1 major, 1 minor (A-009, A-010). Found during 1.2: 1 minor (A-011). Found during 1.3: 1 major, 1 minor (A-012, A-013). Found during 1.4: 1 major (A-014). Found during 1.5: 1 minor (A-015). Found during 1.7: 1 major, 1 cosmetic (A-016, A-017). Found during 2.8: 1 major (A-018). Found during 3.3: 2 major (A-019, A-020). Found during 3.4: 1 minor (A-021). Found during 3.7: 1 minor (A-022). Found during 5.4: 1 minor (A-023). Found during 6.3: 1 minor, 2 cosmetic (A-024, A-025, A-026). Found during 6.4: 1 cosmetic (A-027). Found during 6.6: 1 minor (A-028). Found while planning Phase 7: 1 major, 1 minor (A-029, A-030). Found during 7.4–7.5: 2 minor (A-031, A-032). Found during 7.9: 1 minor (A-033). Found during 8.1: 1 minor (A-034). Found during 8.3: 1 minor (A-035). Found during 10.4: 1 minor (A-036). Found running the app locally (2026-10-17): 1 major, 2 minor (A-037, A-038, A-039).
 
 ## Status
 
@@ -143,13 +146,16 @@ Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Foun
 | A-028 | Improved in 8.1: the voice rules say "every sentence under 20 words", and WhyBot splits long sentences (three WhyBot runs at 1.00). The chat set's last run (0.93) was before WhyBot's change; **open** until a chat run with the final prompts confirms it. |
 | A-029 | Fixed in 7.1–7.3: "Break it down" asks CalmSense for any task and a chat breakdown can go on Today (7.1); SimplifyCore simplifies uploads and finds their action items (7.2); only the backend writes the log, and only what an agent did (7.3). |
 | A-030 | Fixed in the Phase 7 plan PR. |
-| A-031 | **Open**: self-host the fonts so builds don't need Google. |
+| A-031 | **Open**: self-host the fonts so builds don't need Google (10.8). |
 | A-032 | **Open**: not reproduced; watch the E2E. |
 | A-033 | Improved in 8.1: WhyBot is told to repeat progress as given; one misread of three is left ("your task count setting"). **Open**. |
 | A-034 | **Open**: compare estimates in minutes (BridgeBot's `minutes_of` already reads them on the backend). |
 | A-036 | **Open**: not reproduced alone; watch the E2E. |
 | A-035 | **Open**: not reproduced; watch the E2E. |
+| A-037 | **Open**: 10.5 sends low effort to Groq whichever provider name reaches it. |
+| A-038 | **Open**: 10.7. |
+| A-039 | **Open**: 10.5. |
 | A-027 | Fixed in 6.6: "steps" everywhere (API routes and fields, frontend types, prompts), and "step size" for "chunk size"; migration 0005 renames saved preferences, and the browser import still reads the old names. |
 | A-021 | Fixed in 3.4: the note says what each entry shows (since 4.5 the log is saved to the account). Test in `ActivityView.test.tsx`. |
 
-Open: 9 (A-002, A-026, A-028, A-031, A-032, A-033, A-034, A-035, A-036), each linked to the phase that fixes it or the reason it waits. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
+Open: 12 (A-002, A-026, A-028, A-031, A-032, A-033, A-034, A-035, A-036, A-037, A-038, A-039), each linked to the phase that fixes it or the reason it waits. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.

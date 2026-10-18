@@ -92,7 +92,7 @@ The fake LLM lives in `backend/app/infrastructure/llm/fake.py`, not only in test
 4. Upload a document, have SimplifyCore simplify it, and add its action item to Today.
 5. Open the activity log and see the agent name and its reasoning.
 
-Beside it: `tasks` (editing, reordering, filtering), `stats` (progress adds up), `account` (the one-time import, export, deletion), `installable` (install and the offline page), `sign-in` (signing out, the 401 when signed out) and `layout` (every page at 360, 768 and 1280px with axe and an overflow check, and the phone tab bar). It runs on every PR against the local stack (real Postgres, fake LLM), and after deploy against production (roadmap 11.3).
+Beside it: `tasks` (editing, reordering, filtering), `stats` (progress adds up), `account` (the one-time import, export, deletion), `installable` (install and the offline page), `sign-in` (signing out, the 401 when signed out) and `layout` (every page at 360, 768 and 1280px with axe and an overflow check, and the phone tab bar). It runs on every PR against the local stack (real Postgres, fake LLM), and the smoke test (roadmap 10.6) runs against the local stack with the real LLM, and after deploy against production (roadmap 12.3).
 
 ### Principle checks
 
@@ -133,7 +133,7 @@ Coverage is a floor, not a goal, and it can only go up.
 |:--|:--|
 | Every PR | Lint, dead code (knip, vulture), typecheck, backend unit/api/contract/integration, frontend unit/component, guilt scan, token and link checks, OpenAPI drift check, coverage floors, the backend image under `docker compose` (both health checks, migrations at head), E2E (fake LLM, the backend from its image) |
 | Weekly (scheduled) + manual | LLM evals |
-| After deploy (11.3) | E2E demo flow against production |
+| After deploy (12.3) | E2E demo flow against production |
 
 ## Commands
 

@@ -1,6 +1,6 @@
 # Changes
 
-One folder per change: what was asked and decided (`requirements.md`), how it was built (`plan.md`), and how it was checked (`validation.md`). Item numbers are those of the day; the roadmap was renumbered on 2026-10-03 and 2026-10-04 (see `../roadmap.md`).
+One folder per change: what was asked and decided (`requirements.md`), how it was built (`plan.md`), and how it was checked (`validation.md`). Item numbers are those of the day; the roadmap was renumbered on 2026-10-03, 2026-10-04, 2026-10-05 and 2026-10-17 (see `../roadmap.md`).
 
 | Date | Item | Change |
 |:--|:--|:--|
@@ -68,3 +68,4 @@ One folder per change: what was asked and decided (`requirements.md`), how it wa
 | 2026-10-10 | 9.2 | [Focus session](2026-10-10-focus-session/requirements.md) |
 | 2026-10-10 | 10.1 | [Backend Dockerfile](2026-10-10-backend-dockerfile/requirements.md) |
 | 2026-10-10 | 10.4 | [Rate limits](2026-10-10-rate-limits/requirements.md) |
+| 2026-10-17 | Phases 10–12 | [Local first, deploy last](2026-10-17-local-first/requirements.md) |
