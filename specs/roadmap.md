@@ -12,7 +12,7 @@ Rules for every phase:
 
 ---
 
-Phases were renumbered three times: on 2026-10-03 the redesign became Phase 5 (old 5–9 became 6–10), and on 2026-10-04 "Tidy up and document" became Phase 6 (6–10 became 7–11). On 2026-10-05 Phase 7 gained 7.1–7.3 (wiring the agents into the screens), so the old 7.1–7.6 are 7.4–7.9. Spec folders use the numbers of their day.
+Phases were renumbered four times: on 2026-10-03 the redesign became Phase 5 (old 5–9 became 6–10), and on 2026-10-04 "Tidy up and document" became Phase 6 (6–10 became 7–11). On 2026-10-05 Phase 7 gained 7.1–7.3 (wiring the agents into the screens), so the old 7.1–7.6 are 7.4–7.9. On 2026-10-17 deploy moved last: Phase 10 became "Runs well locally" (10.5–10.8 added), the old 10.2 and 10.3 are 12.1 and 12.2, the old 11.3 is 12.3, and 12.4 is new. Spec folders use the numbers of their day.
 
 ## Phase 0: Baseline
 
@@ -191,22 +191,41 @@ See principle 1 in `mission.md`.
 - [x] **9.2 Focus session.** A Pomodoro session tied to one task step, with Pebble working beside you. It respects reduce-animations and never penalizes stopping early.
   *Done:* timer hook tests use fake timers; component tests cover stopping early with no penalty; E2E starts focus from a step.
 
-## Phase 10: Deploy
+## Phase 10: Runs well locally
+
+Before anything goes live, the whole app runs on one machine from a fresh clone, with the real LLM, and nothing it shows is untrue. (10.2 and 10.3 moved to Phase 12 on 2026-10-17; the finished 10.1 and 10.4 keep their numbers, which the code cites.)
 
 - [x] **10.1 Backend Dockerfile.** Build the backend with `uv` and add a health check.
   *Done:* `docker compose up` runs the backend and Postgres locally, and CI runs E2E against the built image.
-- [ ] **10.2 Neon and Render.** Deploy the database and backend, running migrations on deploy.
-  *Done:* the public health endpoint responds.
-- [ ] **10.3 Vercel.** Deploy the frontend with `BACKEND_URL` (the `/api` proxy's target), the shared `AUTH_TOKEN_SECRET`, and the Auth.js callback URLs.
-  *Done:* sign-in and chat work on the live URL.
 - [x] **10.4 Rate limits.** Add a per-user limit on agent calls so one account can't use up the shared Groq free-tier rate limits. Over the limit, the API answers 429 with `Retry-After`. The backend already turns a provider 429 into a 503 "Pebble is resting"; the frontend shows that gentle "resting" message in both cases instead of its generic error.
   *Done:* an API test covers the limit, an MSW component test covers the message, and the message passes the guilt scan.
+- [ ] **10.5 Local setup that just works.** A setup script writes `backend/.env` and `frontend/.env.local` from the examples, with one shared `AUTH_TOKEN_SECRET` and a fresh `AUTH_SECRET`, and never overwrites a file that exists. `AUTH_TRUST_HOST` is in the example, so a local production build (`next start`) can sign in (A-039). Groq reached as `LLM_PROVIDER=openai` gets the same low reasoning effort as `groq`, so chat isn't cut off (A-037). At startup the backend logs one line naming what's configured (LLM, database, sign-in, Content Safety, Immersive Reader).
+  *Done:* tests cover the script (never overwrites, the secret is shared), the reasoning effort and the startup line; from a fresh clone the README's five commands start the app.
+- [ ] **10.6 Smoke test against any URL.** A short Playwright suite (sign in, chat with CalmSense, break a task down, focus on a step, simplify an upload, every page loads, export) that runs against a base URL with the real LLM: the local stack now, production in 12.3. It asserts what the agents did, not their exact words, and fails on any console error or failed API call.
+  *Done:* it passes against the local stack with Groq; the run is recorded in `validation.md`; CI's E2E doesn't run it.
+- [ ] **10.7 Honest safety labels.** Without Content Safety configured, an activity entry doesn't say "Content Safety: passed", and the Activity summary doesn't say every entry passed the safety checks (A-038). It says what ran: PII redaction only.
+  *Done:* component tests cover both cases; the backend reports whether Content Safety is on.
+- [ ] **10.8 Self-hosted fonts.** The fonts ship with the app, so builds don't download them (A-031).
+  *Done:* `npm run build` passes with no network access to Google Fonts.
 
 ## Phase 11: Presentation
 
-- [ ] **11.1 Architecture diagram.** Keep the Mermaid diagram from 6.3 in step with what deploy adds (hosts, the proxy, the database).
+Everything that can be shown before the app is live.
+
+- [ ] **11.1 Architecture diagram.** Keep the Mermaid diagram from 6.3 in step with the code (the proxy, the agents, the database, the Docker image). 12.4 adds the hosts.
   *Done:* the diagram matches `tech-stack.md`.
-- [ ] **11.2 README rewrite.** Cover honest features, screenshots/GIFs, the live link, local setup in five commands or fewer, and how to run the tests.
-  *Done:* every claimed feature is covered by the E2E demo flow.
-- [ ] **11.3 Production smoke test.** Run the E2E demo flow against production after each deploy.
+- [ ] **11.2 README rewrite.** Cover honest features, screenshots/GIFs taken from the local app, local setup in five commands or fewer (10.5), and how to run the tests and the smoke test.
+  *Done:* every claimed feature is covered by the E2E demo flow or the smoke test.
+
+## Phase 12: Deploy
+
+Last, once the app runs well locally (Phase 10). It needs the owner's Neon, Render and Vercel accounts and the production secrets.
+
+- [ ] **12.1 Neon and Render** (was 10.2). Deploy the database and backend from the 10.1 image, running migrations on deploy.
+  *Done:* the public health endpoint responds.
+- [ ] **12.2 Vercel** (was 10.3). Deploy the frontend with `BACKEND_URL` (the `/api` proxy's target), the shared `AUTH_TOKEN_SECRET`, and the Auth.js callback URLs.
+  *Done:* sign-in and chat work on the live URL.
+- [ ] **12.3 Production smoke test** (was 11.3). Run the 10.6 smoke test against production after each deploy.
   *Done:* the post-deploy job is green against the live URL.
+- [ ] **12.4 The live link.** The README gains the live URL, and the diagram the hosts (Vercel, Render, Neon).
+  *Done:* the README's link opens the app, and the diagram matches what's deployed.
