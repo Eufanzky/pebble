@@ -96,14 +96,15 @@ The default model is `openai/gpt-oss-120b` on Groq's free tier: no card, and no 
 You need Node.js 22.13+, [uv](https://docs.astral.sh/uv/getting-started/installation/) (it installs Python 3.12 for you), and Docker for Postgres (or any Postgres 17 with the same role and databases).
 
 ```bash
-docker compose up -d db                                    # Postgres
-cd backend && uv sync && cp .env.example .env              # then set LLM_API_KEY (or LLM_PROVIDER=fake) and AUTH_TOKEN_SECRET
+docker compose up -d db                                         # Postgres
+cd backend && uv sync && uv run python scripts/setup_local.py   # writes backend/.env and frontend/.env.local
 uv run alembic upgrade head && uv run uvicorn app.main:app --port 8000 --reload
-cd ../frontend && npm install && cp .env.example .env.local   # then set AUTH_SECRET and the same AUTH_TOKEN_SECRET
-npm run dev                                                 # http://localhost:3000, sign in with the dev login
+cd frontend && npm install && npm run dev                       # in a second terminal: http://localhost:3000
 ```
 
-Make the two secrets with `openssl rand -base64 32`. `AUTH_TOKEN_SECRET` must be the same in both `.env` files, because the Next.js server signs every API call with it. GitHub and Google sign-in appear once their OAuth apps are set in `frontend/.env.local`; the dev login (`AUTH_DEV_LOGIN=true`) works without them. Swagger is at http://localhost:8000/docs.
+Then put your free [Groq key](https://console.groq.com/keys) in `backend/.env` as `LLM_API_KEY` and restart the backend, or run the setup with `--fake` to try Pebble offline with scripted replies. Sign in with the dev login under any name.
+
+The setup script makes the secrets: one `AUTH_TOKEN_SECRET` in both files (the Next.js server signs every API call with it) and an `AUTH_SECRET` for the frontend. It never rewrites a file that exists; it only adds the settings an older file lacks, so it's safe to run again after an update. When the backend starts, it logs one line naming what's on and off (the LLM, the database, sign-in, Content Safety, Immersive Reader). A production build (`npm run build && npx next start`) works locally too, since `AUTH_TRUST_HOST=true` is in the frontend's file. GitHub and Google sign-in appear once their OAuth apps are set in `frontend/.env.local`; the dev login (`AUTH_DEV_LOGIN=true`) works without them. Swagger is at http://localhost:8000/docs.
 
 To run the backend from its image instead, `docker compose up` starts Postgres and the backend (it migrates on start, reads `backend/.env` if there is one, and listens on port 8000).
 

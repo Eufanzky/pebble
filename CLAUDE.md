@@ -35,7 +35,7 @@ Frontend (from `frontend/`):
 
 ```bash
 npm install
-cp .env.example .env.local   # AUTH_SECRET, AUTH_TOKEN_SECRET (same as the backend's), AUTH_DEV_LOGIN=true locally
+# .env.local comes from the backend's `uv run python scripts/setup_local.py` (or copy .env.example and fill it in)
 npm run dev            # http://localhost:3000, sign in at /signin
 npm run build          # production build; also the type check
 npm run lint           # ESLint (next core-web-vitals, typescript, feature import boundaries)
@@ -50,7 +50,8 @@ Backend (from `backend/`; dependencies and tool config in `pyproject.toml`, vers
 
 ```bash
 uv sync
-cp .env.example .env               # LLM_API_KEY (free Groq key) or LLM_PROVIDER=fake; AUTH_TOKEN_SECRET; DATABASE_URL
+uv run python scripts/setup_local.py   # .env and ../frontend/.env.local from the examples, one shared AUTH_TOKEN_SECRET; never rewrites (adds what's missing); --fake for no LLM key
+# then LLM_API_KEY (free Groq key) in .env, unless --fake
 docker compose up -d db            # from the repo root: Postgres 17 with pebble, pebble_test and pebble_e2e
 docker compose up                  # Postgres and the backend's image (backend/Dockerfile, 10.1) on :8000, with backend/.env
 uv run alembic upgrade head        # `uv run alembic revision --autogenerate -m "..."` after a model change

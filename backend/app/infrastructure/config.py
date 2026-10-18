@@ -50,4 +50,28 @@ class Settings(BaseSettings):
     model_config = {"env_file": ".env", "env_file_encoding": "utf-8", "extra": "ignore"}
 
 
+def describe(config: Settings) -> str:
+    """One line naming what's on and off, logged at startup, so a missing setting shows before a request fails."""
+    if config.llm_provider == "fake":
+        llm = "fake (offline, scripted)"
+    elif config.llm_provider == "azure":
+        llm = "azure" if config.azure_openai_endpoint and config.azure_openai_key else "azure, not set up (agents off)"
+    else:
+        llm = f"{config.llm_provider} {config.llm_model or '(default model)'}"
+        llm += "" if config.llm_api_key else ", no LLM_API_KEY (agents off)"
+    parts = [
+        f"LLM {llm}",
+        "database on" if config.database_url else "no DATABASE_URL (nothing is saved)",
+        "sign-in on" if config.auth_token_secret else "no AUTH_TOKEN_SECRET (nobody can sign in)",
+        "Content Safety on"
+        if config.content_safety_endpoint and config.content_safety_key
+        else "Content Safety off (PII redaction only)",
+        "Immersive Reader on"
+        if config.immersive_reader_client_id and config.immersive_reader_subdomain
+        else "Immersive Reader off (the built-in reader)",
+        f"agent calls per user {config.agent_calls_per_minute}/minute, {config.agent_calls_per_day}/day",
+    ]
+    return "; ".join(parts)
+
+
 settings = Settings()

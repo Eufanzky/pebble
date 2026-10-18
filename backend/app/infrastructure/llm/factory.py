@@ -1,9 +1,11 @@
 """Builds the ``LLMProvider`` that ``LLM_PROVIDER`` selects."""
 
+from urllib.parse import urlparse
+
 from app.application.ports.llm import LLMProvider, LLMRequest, LLMUnavailableError
 from app.infrastructure.config import Settings
 from app.infrastructure.llm.fake import FakeLLM
-from app.infrastructure.llm.openai_compatible import OpenAICompatibleLLM
+from app.infrastructure.llm.openai_compatible import GROQ_URL, OpenAICompatibleLLM
 
 
 class UnconfiguredLLM:
@@ -14,6 +16,11 @@ class UnconfiguredLLM:
 
     async def complete(self, request: LLMRequest) -> str:
         raise LLMUnavailableError(self.reason)
+
+
+def _is_groq(base_url: str) -> bool:
+    """Groq through ``LLM_PROVIDER=openai`` needs low effort too, or long reasoning cuts replies short (A-037)."""
+    return urlparse(base_url).hostname == urlparse(GROQ_URL).hostname
 
 
 def build_llm_provider(settings: Settings) -> LLMProvider:
@@ -48,6 +55,6 @@ def build_llm_provider(settings: Settings) -> LLMProvider:
                 api_key=settings.llm_api_key,
                 model=settings.llm_model,
                 base_url=settings.llm_base_url,
-                reasoning_effort=settings.llm_reasoning_effort,
+                reasoning_effort=settings.llm_reasoning_effort or ("low" if _is_groq(settings.llm_base_url) else ""),
                 timeout=timeout,
             )

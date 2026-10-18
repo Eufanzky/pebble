@@ -10,7 +10,7 @@ from app.api import dependencies
 from app.api.errors import register_error_handlers
 from app.api.middleware import RequestLoggingMiddleware
 from app.api.routers import account, activity, agents, documents, importing, preferences, stats, suggestions, tasks
-from app.infrastructure.config import settings
+from app.infrastructure.config import describe, settings
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(name)s] %(levelname)s: %(message)s")
 
@@ -45,6 +45,7 @@ TAGS_METADATA = [
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    logging.getLogger("pebble").info("Starting with %s", describe(settings))
     yield
     await dependencies.get_container().aclose()
     dependencies.set_container(None)

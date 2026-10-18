@@ -152,10 +152,10 @@ Found by 0.1: **blocker 0 · major 3 · minor 5 · cosmetic 0** (8 issues). Foun
 | A-034 | **Open**: compare estimates in minutes (BridgeBot's `minutes_of` already reads them on the backend). |
 | A-036 | **Open**: not reproduced alone; watch the E2E. |
 | A-035 | **Open**: not reproduced; watch the E2E. |
-| A-037 | **Open**: 10.5 sends low effort to Groq whichever provider name reaches it. |
+| A-037 | Fixed in 10.5: Groq's URL gets reasoning effort `low` under `LLM_PROVIDER=openai` too (`_is_groq` in the LLM factory); four real classifier calls that all failed now all return JSON. Tests in `test_llm_factory.py`. |
 | A-038 | **Open**: 10.7. |
-| A-039 | **Open**: 10.5. |
+| A-039 | Fixed in 10.5: `AUTH_TRUST_HOST=true` is in `frontend/.env.example`, and the setup script writes it. Test in `test_setup_local.py`. |
 | A-027 | Fixed in 6.6: "steps" everywhere (API routes and fields, frontend types, prompts), and "step size" for "chunk size"; migration 0005 renames saved preferences, and the browser import still reads the old names. |
 | A-021 | Fixed in 3.4: the note says what each entry shows (since 4.5 the log is saved to the account). Test in `ActivityView.test.tsx`. |
 
-Open: 12 (A-002, A-026, A-028, A-031, A-032, A-033, A-034, A-035, A-036, A-037, A-038, A-039), each linked to the phase that fixes it or the reason it waits. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
+Open: 10 (A-002, A-026, A-028, A-031, A-032, A-033, A-034, A-035, A-036, A-038), each linked to the phase that fixes it or the reason it waits. The frontend's `build`, `lint` and `tsc --noEmit` pass with 0 errors and 0 warnings.
